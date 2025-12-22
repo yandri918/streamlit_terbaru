@@ -335,9 +335,10 @@ def show_login_page():
 
 def main():
     # === CHECK AUTHENTICATION ===
-    if not is_authenticated():
-        show_login_page()
-        return
+    # DISABLED by User Request (No mandatory login)
+    # if not is_authenticated():
+    #     show_login_page()
+    #     return
     
     # === SHOW USER INFO IN SIDEBAR ===
     show_user_info_sidebar()
