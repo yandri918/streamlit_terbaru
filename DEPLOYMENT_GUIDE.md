@@ -1,44 +1,43 @@
-# Panduan Deployment: AgriSensa Ecosystem (Hybrid) ☁️
+# Panduan Deployment: AgriSensa V4 (Final) ☁️🚀
 
-Karena Anda memilih **OPSI A (`streamlit_terbaru`)**, berikut adalah konfigurasi yang benar.
+**KABAR BAIK:** Semua file (Hub & Satelit) sekarang sudah ada di repository **`streamlit_terbaru`**!
 
-## Penting Dipahami ⚠️
+Anda tidak perlu bingung lagi. Cukup gunakan **1 Repository** untuk semuanya.
 
-*   Repository **`streamlit_terbaru`** hanya berisi **Aplikasi Utama (Hub)**.
-*   Repository **`agrisensa-streamlit`** berisi **Semua Aplikasi (Hub + Satelit)**.
+---
 
-Jadi, strategi deployment Anda adalah campuran (Hybrid):
+## Langkah Deployment (Untuk 6 Aplikasi)
 
-### 1. Deploy Main Hub (Dari `streamlit_terbaru`)
-Ini yang sudah Anda pilih.
-*   **Repo**: `yandri918/streamlit_terbaru`
-*   **Main file path**: `Home.py`
-*   **URL Hasil**: (Misal) `https://agrisensa-hub-baru.streamlit.app`
+Ulangi langkah ini 6 kali (untuk Hub, Commodities, Tech, dll).
 
-### 2. Deploy Aplikasi Satelit (WAJIB dari `agrisensa-streamlit`)
-Karena file satelit tidak ada di repo `streamlit_terbaru`, Anda harus mengambilnya dari repo asli.
+1.  **Repo**: `yandri918/streamlit_terbaru`
+2.  **Branch**: `main`
+3.  **Main file path**: (Isi sesuai tabel dibawah)
 
-Lakukan ini untuk Commodities, Tech, Biz, Eco, dan Livestock:
+| Aplikasi | **Main file path** (Ketik manual!) |
+| :--- | :--- |
+| **1. Main Hub** | `agrisensa_streamlit/Home.py` |
+| **2. Commodities** | `agrisensa_commodities/Home.py` |
+| **3. Tech** | `agrisensa_tech/Home.py` |
+| **4. Biz** | `agrisensa_biz/Home.py` |
+| **5. Eco** | `agrisensa_eco/Home.py` |
+| **6. Livestock** | `agrisensa_livestock/Home.py` |
 
-1.  Buat App Baru di Streamlit Cloud.
-2.  Pilih Repo: **`yandri918/agrisensa-streamlit`** (Bukan `streamlit_terbaru`!).
-3.  Isi **Main file path** sesuai nama foldernya:
-    *   **Commodities** ➡️ `agrisensa_commodities/Home.py`
-    *   **Tech** ➡️ `agrisensa_tech/Home.py`
-    *   **Biz** ➡️ `agrisensa_biz/Home.py`
-    *   **Eco** ➡️ `agrisensa_eco/Home.py`
-    *   **Livestock** ➡️ `agrisensa_livestock/Home.py`
+> **Catatan:** Jika Anda sebelumnya men-deploy Main Hub dengan path `Home.py` saja, kemungkinan itu akan error sekarang karena filenya sudah masuk ke folder `agrisensa_streamlit`. Silakan update path-nya atau buat app baru.
 
-### 3. Hubungkan (Secrets)
-Setelah semua satelit online:
-1.  Buka **Settings -> Secrets** di Aplikasi **Main Hub** (`streamlit_terbaru`).
-2.  Masukkan link aplikasi satelit tadi:
+---
+
+## Menghubungkan Satelit (Secrets)
+
+Setelah semua online, update Secrets di **Main Hub**:
 
 ```toml
 [satellites]
-commodities = "https://agrisensa-commodities.streamlit.app"
-tech = "https://agrisensa-tech.streamlit.app"
-# ... dst
+commodities = "https://budidaya.streamlit.app/"
+tech = "https://teknology.streamlit.app/"
+biz = "https://busines.streamlit.app/"
+eco = "https://ekosistem.streamlit.app/"
+livestock = "https://livestoc.streamlit.app/Peternakan_Perikanan"
 ```
 
-Selamat! Anda menggunakan repo `streamlit_terbaru` untuk Main Hub yang bersih, tapi tetap bisa mengakses fitur satelit dari repo asli.
+Selesai! Semuanya sekarang terpusat dan rapi. ✅

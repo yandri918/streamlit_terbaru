@@ -625,14 +625,25 @@ def main():
     st.markdown("Akses aplikasi spesifik untuk kebutuhan pertanian Anda:")
 
     # Get URLs from secrets or default to localhost
+    # Official Satellite URLs (Default)
+    DEFAULT_URLS = {
+        "commodities": "https://budidaya.streamlit.app/",
+        "tech": "https://teknology.streamlit.app/",
+        "biz": "https://busines.streamlit.app/",
+        "eco": "https://ekosistem.streamlit.app/",
+        "livestock": "https://livestoc.streamlit.app/Peternakan_Perikanan"
+    }
+
+    # Get URLs from secrets or use default
     def get_url(key, port):
         # Check if secrets exist and have the key
         try:
             if "satellites" in st.secrets:
-                return st.secrets["satellites"].get(key, f"http://localhost:{port}")
+                return st.secrets["satellites"].get(key, DEFAULT_URLS.get(key, f"http://localhost:{port}"))
         except FileNotFoundError:
             pass
-        return f"http://localhost:{port}"
+        # Fallback to default production URL or localhost
+        return DEFAULT_URLS.get(key, f"http://localhost:{port}")
 
     url_comm = get_url("commodities", 8502)
     url_tech = get_url("tech", 8503)
