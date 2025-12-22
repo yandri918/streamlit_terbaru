@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Informasi Bahan Aktif Pestisida - AgriSensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.gstatic.com" crossorigin="" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg-body: #f0fdf4;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 40px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Header Section */
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+
+        .header-section p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Search & Filter */
+        .search-container {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            min-width: 250px;
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        /* Grid Layout */
+        .pesticide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        /* Pesticide Card */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card-type {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .type-insecticide {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .type-fungicide {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .type-herbicide {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .type-bactericide {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .card-body {
+            flex: 1;
+        }
+
+        .info-row {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-weight: 500;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .targets-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 15px;
+        }
+
+        .target-tag {
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #4b5563;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 10;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            border-bottom: 2px solid #ecfdf5;
+            padding-bottom: 5px;
+            display: inline-block;
+        }
+
+        .safety-box {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .safety-title {
+            color: #c2410c;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2rem;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .search-input,
+            .filter-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/" class="brand">
+                <span>🧪</span> AgriSensa Pesticide
+            </a>
+            <a href="/dashboard" class="back-link">
+                ← Kembali
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>Direktori Bahan Aktif</h1>
+            <p>Panduan lengkap bahan aktif pestisida, cara kerja, dan keamanan penggunaan.</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input"
+                placeholder="Cari bahan aktif, hama, atau penyakit...">
+            <select id="typeFilter" class="filter-select">
+                <option value="all">Semua Jenis</option>
+                <option value="Insektisida">Insektisida</option>
+                <option value="Fungisida">Fungisida</option>
+                <option value="Herbisida">Herbisida</option>
+                <option value="Bakterisida">Bakterisida</option>
+            </select>
+        </div>
+
+        <div id="pesticideGrid" class="pesticide-grid">
+            <div class="loading">Memuat data...</div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalTitle" style="margin-bottom: 5px;">Nama Bahan Aktif</h2>
+                    <span id="modalType" class="card-type type-insecticide">Tipe</span>
+                </div>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-section">
+                    <div class="detail-title">Deskripsi</div>
+                    <p id="modalDesc">Deskripsi bahan aktif.</p>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-title">Cara Kerja (Mode of Action)</div>
+                    <p><strong>Grup:</strong> <span id="modalGroup">-</span></p>
+                    <p><strong>Kode IRAC/FRAC:</strong> <span id="modalCode">-</span></p>
+                    <p><strong>Mekanisme:</strong> <span id="modalMoA">-</span></p>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-title">Sasaran (Target)</div>
+                    <div id="modalTargets" class="targets-tags">
+                        <!-- Tags rendered here -->
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-title">Rekomendasi Penggunaan</div>
+                    <p id="modalUsage">-</p>
+                </div>
+
+                <div class="safety-box">
+                    <div class="safety-title">⚠️ Informasi Keamanan</div>
+                    <p><strong>Kelas Toksisitas:</strong> <span id="modalToxicity">-</span></p>
+                    <p><strong>Signal Word:</strong> <span id="modalSignal">-</span></p>
+                    <p><strong>PHI (Pre-Harvest Interval):</strong> <span id="modalPHI">-</span> hari sebelum panen</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allPesticides = [];
+
+        // Fetch Data
+        async function loadPesticides() {
+            try {
+                const response = await fetch('/api/pesticide/all');
+                const result = await response.json();
+
+                if (result.success) {
+                    allPesticides = result.data;
+                    renderPesticides(allPesticides);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('pesticideGrid').innerHTML = '<p style="text-align:center; color:red;">Gagal memuat data.</p>';
+            }
+        }
+
+        // Render Grid
+        function renderPesticides(data) {
+            const grid = document.getElementById('pesticideGrid');
+
+            if (data.length === 0) {
+                grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">Tidak ada data ditemukan.</p>';
+                return;
+            }
+
+            grid.innerHTML = data.map(item => {
+                let typeClass = 'type-insecticide';
+                if (item.type.includes('Fungisida')) typeClass = 'type-fungicide';
+                if (item.type.includes('Herbisida')) typeClass = 'type-herbicide';
+                if (item.type.includes('Bakterisida')) typeClass = 'type-bactericide';
+
+                return `
+                    <div class="card" onclick="showDetail('${item.id}')">
+                        <div class="card-header">
+                            <div class="card-title">${item.name}</div>
+                            <div class="card-type ${typeClass}">${item.type.split(' ')[0]}</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">Grup / Kode</span>
+                                <span class="info-value">${item.group} (${item.irac_code})</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Cara Kerja</span>
+                                <span class="info-value">${item.mode_of_action}</span>
+                            </div>
+                            <div class="targets-tags">
+                                ${item.targets.slice(0, 3).map(t => `<span class="target-tag">${t}</span>`).join('')}
+                                ${item.targets.length > 3 ? `<span class="target-tag">+${item.targets.length - 3} lainnya</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter & Search
+        function filterData() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const type = document.getElementById('typeFilter').value;
+
+            const filtered = allPesticides.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(query) ||
+                    item.targets.some(t => t.toLowerCase().includes(query)) ||
+                    item.group.toLowerCase().includes(query);
+                const matchesType = type === 'all' || item.type.includes(type);
+
+                return matchesSearch && matchesType;
+            });
+
+            renderPesticides(filtered);
+        }
+
+        // Show Detail
+        function showDetail(id) {
+            const item = allPesticides.find(p => p.id === id);
+            if (!item) return;
+
+            document.getElementById('modalTitle').innerText = item.name;
+            document.getElementById('modalType').innerText = item.type;
+            document.getElementById('modalDesc').innerText = item.description;
+            document.getElementById('modalGroup').innerText = item.group;
+            document.getElementById('modalCode').innerText = item.irac_code;
+            document.getElementById('modalMoA').innerText = item.mode_of_action;
+            document.getElementById('modalUsage').innerText = item.usage;
+            document.getElementById('modalToxicity').innerText = item.safety.toxicity_class;
+            document.getElementById('modalSignal').innerText = item.safety.signal_word;
+            document.getElementById('modalPHI').innerText = item.safety.phi_days;
+
+            // Targets
+            document.getElementById('modalTargets').innerHTML = item.targets.map(t =>
+                `<span class="target-tag" style="font-size: 0.9rem; padding: 6px 12px;">${t}</span>`
+            ).join('');
+
+            // Type Class
+            const typeEl = document.getElementById('modalType');
+            typeEl.className = 'card-type';
+            if (item.type.includes('Insektisida')) typeEl.classList.add('type-insecticide');
+            else if (item.type.includes('Fungisida')) typeEl.classList.add('type-fungicide');
+            else if (item.type.includes('Herbisida')) typeEl.classList.add('type-herbicide');
+            else typeEl.classList.add('type-bactericide');
+
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        window.onclick = function (event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', filterData);
+        document.getElementById('typeFilter').addEventListener('change', filterData);
+
+        // Init
+        document.addEventListener('DOMContentLoaded', loadPesticides);
+    </script>
+</body>
+
+</html>

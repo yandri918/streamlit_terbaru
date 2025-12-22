@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Analisis Tren Harga - AgriSensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.gstatic.com" crossorigin="" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        select {
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .insight-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .insight-title {
+            font-weight: 700;
+            color: #166534;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insight-text {
+            color: #15803d;
+            line-height: 1.5;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 20px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-link">← Kembali ke Dasbor</a>
+
+        <div class="header">
+            <h1>Analisis Tren Harga</h1>
+            <p>Pantau pergerakan harga komoditas dan prediksi tren masa depan dengan AI.</p>
+        </div>
+
+        <div class="card">
+            <div class="controls">
+                <select id="commodity-select">
+                    <option value="cabai_merah_keriting">Cabai Merah Keriting</option>
+                    <option value="cabai_rawit_merah">Cabai Rawit Merah</option>
+                    <option value="bawang_merah">Bawang Merah</option>
+                    <option value="bawang_putih">Bawang Putih</option>
+                    <option value="tomat">Tomat</option>
+                    <option value="kentang">Kentang</option>
+                    <option value="beras_medium">Beras Medium</option>
+                    <option value="telur_ayam">Telur Ayam</option>
+                    <option value="daging_ayam">Daging Ayam</option>
+                </select>
+                <select id="range-select">
+                    <option value="30">1 Bulan Terakhir</option>
+                    <option value="180">6 Bulan Terakhir</option>
+                    <option value="365" selected>1 Tahun Terakhir</option>
+                </select>
+                <button class="btn btn-primary" onclick="predictTrend()" id="predict-btn">
+                    <span>🔮</span> Prediksi Tren 7 Hari
+                </button>
+            </div>
+
+            <div class="loading" id="loading-indicator">Sedang memuat data...</div>
+
+            <div class="chart-container">
+                <canvas id="priceChart"></canvas>
+            </div>
+
+            <div class="insight-box" id="insight-box">
+                <div class="insight-title">💡 Analisis AI</div>
+                <div class="insight-text" id="insight-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chart;
+        const ctx = document.getElementById('priceChart').getContext('2d');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHistoricalData();
+
+            document.getElementById('commodity-select').addEventListener('change', () => {
+                loadHistoricalData();
+                document.getElementById('insight-box').style.display = 'none';
+            });
+
+            document.getElementById('range-select').addEventListener('change', () => {
+                loadHistoricalData();
+            });
+        });
+
+        async function loadHistoricalData() {
+            const commodity = document.getElementById('commodity-select').value;
+            const range = document.getElementById('range-select').value;
+            showLoading(true);
+
+            try {
+                const response = await fetch('/get-historical-prices', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ commodity: commodity, range: range })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    updateChart(data.data.labels, data.data.prices);
+                } else {
+                    alert('Gagal memuat data: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat memuat data.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function predictTrend() {
+            const commodity = document.getElementById('commodity-select').value;
+            const btn = document.getElementById('predict-btn');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> Menganalisis...';
+
+            try {
+                const response = await fetch('/predict-price-trend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ commodity: commodity, days: 7 })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    showPrediction(data.data);
+                } else {
+                    alert('Gagal membuat prediksi: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat prediksi.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>🔮</span> Prediksi Tren 7 Hari';
+            }
+        }
+
+        function updateChart(labels, prices, forecast = null) {
+            if (chart) {
+                chart.destroy();
+            }
+
+            const datasets = [{
+                label: 'Harga Historis (Rp/kg)',
+                data: prices,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
+            }];
+
+            if (forecast) {
+                // Combine labels
+                const forecastLabels = forecast.map(f => f.date);
+                // Pad forecast data with nulls for historical part
+                const forecastData = new Array(prices.length - 1).fill(null);
+                // Connect last historical point to first forecast point
+                forecastData.push(prices[prices.length - 1]);
+                forecast.forEach(f => forecastData.push(f.price));
+
+                // Update labels
+                labels = [...labels, ...forecastLabels];
+
+                datasets.push({
+                    label: 'Prediksi AI (Rp/kg)',
+                    data: forecastData,
+                    borderColor: '#f59e0b',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointStyle: 'circle',
+                    pointRadius: 4,
+                    pointBackgroundColor: '#f59e0b'
+                });
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function (value) {
+                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, compactDisplay: "short", notation: "compact" }).format(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showPrediction(data) {
+            // Update chart with forecast
+            const currentLabels = chart.data.labels;
+            // We need to re-fetch historical to merge cleanly or just use what we have?
+            // Ideally we pass the current historical data to updateChart along with forecast
+            // But chart.data.datasets[0].data has the historical prices.
+
+            const historicalPrices = chart.data.datasets[0].data;
+            const historicalLabels = chart.data.labels; // These might be just dates
+
+            updateChart(historicalLabels, historicalPrices, data.forecast);
+
+            // Show insight
+            const insightBox = document.getElementById('insight-box');
+            const insightText = document.getElementById('insight-text');
+
+            let trendText = data.trend === 'naik' ? 'cenderung NAIK 📈' : 'cenderung TURUN 📉';
+            insightText.innerHTML = `Berdasarkan analisis regresi linear, tren harga untuk <strong>${data.commodity}</strong> diprediksi <strong>${trendText}</strong> dalam 7 hari ke depan.`;
+            insightBox.style.display = 'block';
+        }
+
+        function showLoading(isLoading) {
+            document.getElementById('loading-indicator').style.display = isLoading ? 'block' : 'none';
+            document.querySelector('.chart-container').style.opacity = isLoading ? '0.5' : '1';
+        }
+    </script>
+</body>
+
+</html>

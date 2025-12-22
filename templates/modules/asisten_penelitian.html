@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>📊 Modul 22: Asisten Penelitian Agronomi - Agrisensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #4caf50;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .module {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-top: 0;
+        }
+
+        .step-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .step-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--primary-light);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-color);
+        }
+
+        button.secondary {
+            background-color: #6c757d;
+        }
+
+        button.secondary:hover {
+            background-color: #5a6268;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        th {
+            background-color: #f1f3f5;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .bg-success {
+            background-color: #28a745;
+        }
+
+        .bg-danger {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/dashboard"
+            style="display: inline-block; margin-bottom: 20px; color: var(--primary-color); text-decoration: none; font-weight: 500;">←
+            Kembali ke Dasbor</a>
+
+        <div class="module">
+            <h2>📊 Modul 22: Asisten Penelitian Agronomi</h2>
+            <p class="text-muted">Analisis statistik otomatis untuk penelitian pertanian (Rancangan Acak Lengkap / RAL).
+            </p>
+
+            <!-- Step 1: Setup -->
+            <div class="step-container" id="step-1">
+                <div class="step-title">Langkah 1: Desain Percobaan</div>
+                <div class="input-group">
+                    <label>Judul Penelitian:</label>
+                    <input type="text" id="research-title"
+                        placeholder="Contoh: Pengaruh Dosis Pupuk N terhadap Tinggi Tanaman Jagung">
+                </div>
+                <div class="input-group">
+                    <label>Jumlah Perlakuan (Treatments):</label>
+                    <input type="number" id="num-treatments" value="4" min="2">
+                </div>
+                <div class="input-group">
+                    <label>Jumlah Ulangan (Replications):</label>
+                    <input type="number" id="num-replications" value="3" min="2">
+                </div>
+                <div class="input-group">
+                    <label>Parameter Pengamatan:</label>
+                    <input type="text" id="parameter-name" value="Tinggi Tanaman (cm)">
+                </div>
+                <button onclick="generateTable()">Buat Tabel Data</button>
+            </div>
+
+            <!-- Step 2: Data Entry -->
+            <div class="step-container" id="step-2" style="display:none;">
+                <div class="step-title">Langkah 2: Input Data Pengamatan</div>
+                <div id="data-table-container" style="overflow-x:auto;"></div>
+                <br>
+                <div style="display:flex; gap:10px;">
+                    <button class="secondary" onclick="backToStep1()">Kembali</button>
+                    <button onclick="analyzeData()">Analisis Statistik 🚀</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Results -->
+            <div class="step-container" id="step-3" style="display:none;">
+                <div class="step-title">Langkah 3: Hasil Analisis</div>
+                <div id="analysis-results"></div>
+                <br>
+                <canvas id="chartResults" style="max-height: 400px;"></canvas>
+                <br>
+                <button class="secondary" onclick="backToStep2()">Edit Data</button>
+                <button onclick="window.print()">Cetak Laporan 🖨️</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chartInstance = null;
+
+        function generateTable() {
+            const numTreatments = parseInt(document.getElementById('num-treatments').value);
+            const numReplications = parseInt(document.getElementById('num-replications').value);
+            const paramName = document.getElementById('parameter-name').value;
+
+            let html = `<table><thead><tr><th>Perlakuan</th>`;
+            for (let i = 1; i <= numReplications; i++) html += `<th>Ulangan ${i}</th>`;
+            html += `</tr></thead><tbody>`;
+
+            for (let i = 0; i < numTreatments; i++) {
+                html += `<tr>
+                    <td><input type="text" class="treatment-name" value="P${i}" placeholder="Nama Perlakuan"></td>`;
+                for (let j = 0; j < numReplications; j++) {
+                    html += `<td><input type="number" class="data-value" step="0.01" required></td>`;
+                }
+                html += `</tr>`;
+            }
+            html += `</tbody></table>`;
+
+            document.getElementById('data-table-container').innerHTML = html;
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('step-2').style.display = 'block';
+        }
+
+        function backToStep1() {
+            document.getElementById('step-2').style.display = 'none';
+            document.getElementById('step-1').style.display = 'block';
+        }
+
+        function backToStep2() {
+            document.getElementById('step-3').style.display = 'none';
+            document.getElementById('step-2').style.display = 'block';
+        }
+
+        async function analyzeData() {
+            const rows = document.querySelectorAll('#data-table-container tbody tr');
+            const treatmentNames = [];
+            const values = [];
+
+            rows.forEach(row => {
+                treatmentNames.push(row.querySelector('.treatment-name').value);
+                const rowValues = [];
+                row.querySelectorAll('.data-value').forEach(input => {
+                    rowValues.push(parseFloat(input.value) || 0);
+                });
+                values.push(rowValues);
+            });
+
+            const paramName = document.getElementById('parameter-name').value;
+            const payload = {
+                treatment_names: treatmentNames,
+                parameters: {
+                    [paramName]: values
+                }
+            };
+
+            // Show loading
+            document.getElementById('analysis-results').innerHTML = '<p>Sedang menghitung ANOVA...</p>';
+            document.getElementById('step-2').style.display = 'none';
+            document.getElementById('step-3').style.display = 'block';
+
+            try {
+                const response = await fetch('/analyze-research', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    displayResults(result.data, paramName);
+                } else {
+                    document.getElementById('analysis-results').innerHTML = `<p style="color:red">Error: ${result.error}</p>`;
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('analysis-results').innerHTML = `<p style="color:red">Gagal terhubung ke server.</p>`;
+            }
+        }
+
+        function displayResults(data, paramName) {
+            const res = data[paramName];
+            if (res.error) {
+                document.getElementById('analysis-results').innerHTML = `<p style="color:red">${res.error}</p>`;
+                return;
+            }
+
+            let html = `<h3>Analisis: ${paramName}</h3>`;
+
+            // Conclusion
+            const badgeClass = res.anova.significant ? 'bg-success' : 'bg-danger';
+            const badgeText = res.anova.significant ? 'SIGNIFIKAN (Nyata)' : 'NON-SIGNIFIKAN (Tidak Nyata)';
+
+            html += `<div class="result-card">
+                <h4>Kesimpulan: <span class="badge ${badgeClass}">${badgeText}</span></h4>
+                <p>${res.conclusion}</p>
+                <p><small>Nilai P-Value: ${res.anova.p_value} (Alpha 0.05)</small></p>
+            </div>`;
+
+            // Descriptive Table
+            html += `<h4>Statistik Deskriptif</h4>
+            <table><thead><tr><th>Perlakuan</th><th>Rata-rata</th><th>Std Dev</th><th>Min</th><th>Max</th></tr></thead><tbody>`;
+
+            const labels = [];
+            const means = [];
+
+            res.descriptive.forEach(d => {
+                labels.push(d.treatment);
+                means.push(d.mean);
+                html += `<tr>
+                    <td>${d.treatment}</td>
+                    <td>${d.mean}</td>
+                    <td>${d.std}</td>
+                    <td>${d.min}</td>
+                    <td>${d.max}</td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+
+            document.getElementById('analysis-results').innerHTML = html;
+
+            // Chart
+            renderChart(labels, means, paramName);
+        }
+
+        function renderChart(labels, data, label) {
+            const ctx = document.getElementById('chartResults').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Rata-rata ${label}`,
+                        data: data,
+                        backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rekomendasi Tanaman Cerdas – AgriSensa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group small {
+            color: #718096;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        input,
+        select {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .crop-header {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .crop-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        .crop-name {
+            font-size: 2.5rem;
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .crop-subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .insight-card {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .insight-card h3 {
+            color: #2d3748;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .param-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .param-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .param-label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .param-value {
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-optimal {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-good {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .status-warning {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #667eea;
+        }
+
+        .recommendation-box h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .recommendation-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendation-box li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .recommendation-box li:last-child {
+            border-bottom: none;
+        }
+
+        .recommendation-box li::before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.75rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Kembali ke Beranda</a>
+
+        <div class="header">
+            <h1>🌾 Rekomendasi Tanaman Cerdas</h1>
+            <p>Analisis mendalam kondisi lahan untuk rekomendasi tanaman yang optimal</p>
+        </div>
+
+        <div class="card">
+            <form id="crop-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="n">Nitrogen (N)</label>
+                        <input type="number" id="n" name="n" step="0.1" required placeholder="0-140" />
+                        <small>Kandungan nitrogen dalam tanah (kg/ha)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="p">Fosfor (P)</label>
+                        <input type="number" id="p" name="p" step="0.1" required placeholder="5-145" />
+                        <small>Kandungan fosfor dalam tanah (kg/ha)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="k">Kalium (K)</label>
+                        <input type="number" id="k" name="k" step="0.1" required placeholder="5-205" />
+                        <small>Kandungan kalium dalam tanah (kg/ha)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="ph">pH Tanah</label>
+                        <input type="number" id="ph" name="ph" step="0.1" required placeholder="3.5-9.5" />
+                        <small>Tingkat keasaman tanah</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="temp">Suhu Rata-rata (°C)</label>
+                        <input type="number" id="temp" name="temp" step="0.1" required placeholder="8-45" />
+                        <small>Suhu udara rata-rata harian</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="humidity">Kelembaban (%)</label>
+                        <input type="number" id="humidity" name="humidity" step="0.1" required placeholder="14-100" />
+                        <small>Kelembaban udara rata-rata</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="rainfall">Curah Hujan (mm)</label>
+                        <input type="number" id="rainfall" name="rainfall" step="0.1" required placeholder="20-300" />
+                        <small>Curah hujan bulanan</small>
+                    </div>
+                </div>
+                <button type="submit" class="btn" id="submit-btn">
+                    🔍 Analisis & Dapatkan Rekomendasi
+                </button>
+            </form>
+        </div>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('crop-form');
+        const resultDiv = document.getElementById('result');
+        const submitBtn = document.getElementById('submit-btn');
+
+        const cropIcons = {
+            'rice': '🌾', 'wheat': '🌾', 'maize': '🌽', 'corn': '🌽',
+            'cotton': '🌿', 'sugarcane': '🎋', 'coffee': '☕', 'tea': '🍵',
+            'potato': '🥔', 'tomato': '🍅', 'banana': '🍌', 'mango': '🥭',
+            'apple': '🍎', 'grapes': '🍇', 'watermelon': '🍉',
+            'chickpea': '🫘', 'lentil': '🫘', 'jute': '🌿',
+            'coconut': '🥥', 'papaya': '🍈', 'orange': '🍊',
+            'default': '🌱'
+        };
+
+        function getStatusBadge(value, optimal, good) {
+            if (value >= optimal[0] && value <= optimal[1]) return 'status-optimal';
+            if (value >= good[0] && value <= good[1]) return 'status-good';
+            return 'status-warning';
+        }
+
+        function getStatusText(value, optimal, good) {
+            if (value >= optimal[0] && value <= optimal[1]) return 'Optimal';
+            if (value >= good[0] && value <= good[1]) return 'Baik';
+            return 'Perlu Penyesuaian';
+        }
+
+        // Load saved data from Modul 3
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const savedData = localStorage.getItem('agrisensa_soil_data');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    console.log('🔄 Loading saved soil data:', data);
+
+                    if (data.n) document.getElementById('n').value = data.n;
+                    if (data.p) document.getElementById('p').value = data.p;
+                    if (data.k) document.getElementById('k').value = data.k;
+
+                    // Optional: Show a small toast or indicator
+                    const header = document.querySelector('.header p');
+                    if (header) {
+                        const badge = document.createElement('span');
+                        badge.innerHTML = '✨ Data tanah dimuat dari analisis terakhir';
+                        badge.style.cssText = 'display:inline-block; background:rgba(255,255,255,0.2); padding:4px 12px; border-radius:20px; font-size:0.8em; margin-top:8px;';
+                        header.appendChild(document.createElement('br'));
+                        header.appendChild(badge);
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading saved data:', e);
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                n_value: parseFloat(form.n.value),
+                p_value: parseFloat(form.p.value),
+                k_value: parseFloat(form.k.value),
+                ph: parseFloat(form.ph.value),
+                temperature: parseFloat(form.temp.value),
+                humidity: parseFloat(form.humidity.value),
+                rainfall: parseFloat(form.rainfall.value)
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '🔄 Menganalisis...';
+            resultDiv.innerHTML = '';
+            resultDiv.classList.remove('show');
+
+            try {
+                const resp = await fetch('/recommend-crop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                const json = await resp.json();
+
+                if (json.success) {
+                    const crop = json.recommended_crop || json.recommendation || 'Unknown';
+                    const cropLower = crop.toLowerCase();
+                    const icon = cropIcons[cropLower] || cropIcons['default'];
+
+                    resultDiv.innerHTML = `
+                        <div class="card">
+                            <div class="crop-header">
+                                <div class="crop-icon">${icon}</div>
+                                <div class="crop-name">${crop}</div>
+                                <div class="crop-subtitle">Tanaman yang paling cocok untuk kondisi lahan Anda</div>
+                            </div>
+
+                            <div class="insight-grid">
+                                <div class="insight-card">
+                                    <h3>🌱 Analisis Nutrisi Tanah</h3>
+                                    <div class="param-list">
+                                        <div class="param-item">
+                                            <span class="param-label">Nitrogen (N)</span>
+                                            <div>
+                                                <span class="param-value">${formData.n_value} kg/ha</span>
+                                                <span class="status-badge ${getStatusBadge(formData.n_value, [40, 100], [20, 120])}">
+                                                    ${getStatusText(formData.n_value, [40, 100], [20, 120])}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="param-item">
+                                            <span class="param-label">Fosfor (P)</span>
+                                            <div>
+                                                <span class="param-value">${formData.p_value} kg/ha</span>
+                                                <span class="status-badge ${getStatusBadge(formData.p_value, [20, 80], [10, 100])}">
+                                                    ${getStatusText(formData.p_value, [20, 80], [10, 100])}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="param-item">
+                                            <span class="param-label">Kalium (K)</span>
+                                            <div>
+                                                <span class="param-value">${formData.k_value} kg/ha</span>
+                                                <span class="status-badge ${getStatusBadge(formData.k_value, [30, 100], [15, 120])}">
+                                                    ${getStatusText(formData.k_value, [30, 100], [15, 120])}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="param-item">
+                                            <span class="param-label">pH Tanah</span>
+                                            <div>
+                                                <span class="param-value">${formData.ph}</span>
+                                                <span class="status-badge ${getStatusBadge(formData.ph, [6.0, 7.5], [5.5, 8.0])}">
+                                                    ${getStatusText(formData.ph, [6.0, 7.5], [5.5, 8.0])}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="insight-card">
+                                    <h3>🌤️ Analisis Kondisi Iklim</h3>
+                                    <div class="param-list">
+                                        <div class="param-item">
+                                            <span class="param-label">Suhu</span>
+                                            <div>
+                                                <span class="param-value">${formData.temperature}°C</span>
+                                                <span class="status-badge ${getStatusBadge(formData.temperature, [20, 30], [15, 35])}">
+                                                    ${getStatusText(formData.temperature, [20, 30], [15, 35])}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="param-item">
+                                            <span class="param-label">Kelembaban</span>
+                                            <div>
+                                                <span class="param-value">${formData.humidity}%</span>
+                                                <span class="status-badge ${getStatusBadge(formData.humidity, [60, 80], [50, 90])}">
+                                                    ${getStatusText(formData.humidity, [60, 80], [50, 90])}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="param-item">
+                                            <span class="param-label">Curah Hujan</span>
+                                            <div>
+                                                <span class="param-value">${formData.rainfall} mm</span>
+                                                <span class="status-badge ${getStatusBadge(formData.rainfall, [100, 200], [50, 250])}">
+                                                    ${getStatusText(formData.rainfall, [100, 200], [50, 250])}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="recommendation-box">
+                                <h3>💡 Rekomendasi Budidaya ${crop}</h3>
+                                <ul>
+                                    <li>Pastikan drainase tanah baik untuk mencegah genangan air yang dapat merusak akar</li>
+                                    <li>Lakukan pemupukan berimbang sesuai kebutuhan NPK tanaman ${crop}</li>
+                                    <li>Monitor pH tanah secara berkala dan lakukan pengapuran jika diperlukan</li>
+                                    <li>Perhatikan jadwal penyiraman sesuai dengan curah hujan dan kebutuhan air tanaman</li>
+                                    <li>Lakukan rotasi tanaman untuk menjaga kesuburan tanah jangka panjang</li>
+                                    <li>Gunakan mulsa organik untuk menjaga kelembaban dan suhu tanah yang stabil</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                    resultDiv.classList.add('show');
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="card" style="text-align: center; padding: 3rem;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
+                            <h2 style="color: #e53e3e; margin-bottom: 0.5rem;">Gagal Mendapatkan Rekomendasi</h2>
+                            <p style="color: #718096;">${json.error || 'Terjadi kesalahan. Silakan periksa input Anda.'}</p>
+                        </div>
+                    `;
+                    resultDiv.classList.add('show');
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                resultDiv.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 3rem;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+                        <h2 style="color: #e53e3e; margin-bottom: 0.5rem;">Terjadi Kesalahan Jaringan</h2>
+                        <p style="color: #718096;">Silakan coba lagi nanti.</p>
+                    </div>
+                `;
+                resultDiv.classList.add('show');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🔍 Analisis & Dapatkan Rekomendasi';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Pusat Pengetahuan pH Tanah - AgriSensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.gstatic.com" crossorigin="" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #10b981;
+            /* Emerald 500 */
+            --primary-dark: #059669;
+            /* Emerald 600 */
+            --secondary: #3b82f6;
+            /* Blue 500 */
+            --accent: #f59e0b;
+            /* Amber 500 */
+            --bg-body: #f0fdf4;
+            /* Emerald 50 */
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            /* Gray 800 */
+            --text-muted: #6b7280;
+            /* Gray 500 */
+            --border: #e5e7eb;
+            /* Gray 200 */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 40px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 100px;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-btn:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+
+        .nav-btn.active {
+            background: #ecfdf5;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        /* Content */
+        .content-area {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            min-height: 600px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecfdf5;
+            padding-bottom: 15px;
+        }
+
+        .section-content h3 {
+            font-size: 1.4rem;
+            color: var(--text-main);
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .section-content p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            color: #374151;
+        }
+
+        .highlight-box {
+            background: #ecfdf5;
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        /* pH Scale Visualization */
+        .ph-scale {
+            display: flex;
+            height: 40px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 30px 0;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            line-height: 40px;
+            font-size: 0.9rem;
+        }
+
+        .ph-acid {
+            flex: 1;
+            background: #ef4444;
+        }
+
+        .ph-neutral {
+            flex: 1;
+            background: #10b981;
+        }
+
+        .ph-alkaline {
+            flex: 1;
+            background: #3b82f6;
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                margin-bottom: 20px;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/" class="brand">
+                <span>🧪</span> AgriSensa pH Knowledge
+            </a>
+            <a href="/dashboard" class="back-link">
+                ← Kembali
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Daftar Isi</div>
+            <button class="nav-btn active" onclick="switchSection('intro')">1. Pengantar pH Tanah</button>
+            <button class="nav-btn" onclick="switchSection('nutrient')">2. Ketersediaan Nutrisi</button>
+            <button class="nav-btn" onclick="switchSection('measurement')">3. Cara Mengukur pH</button>
+            <button class="nav-btn" onclick="switchSection('adjustment')">4. Memperbaiki pH Tanah</button>
+            <button class="nav-btn" onclick="switchSection('crop-guide')">5. pH Ideal Tanaman</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content-area">
+
+            <!-- SECTION 1: INTRO -->
+            <div id="intro" class="section active">
+                <h2 class="section-title">Apa itu pH Tanah?</h2>
+                <div class="section-content">
+                    <p><strong>pH (Potential of Hydrogen)</strong> adalah ukuran keasaman atau kebasaan suatu larutan.
+                        Dalam konteks pertanian, pH tanah adalah indikator kimiawi terpenting yang menentukan kesehatan
+                        tanah dan kemampuan tanaman menyerap nutrisi.</p>
+
+                    <div class="ph-scale">
+                        <div class="ph-acid">Asam (0-6)</div>
+                        <div class="ph-neutral">Netral (6-7)</div>
+                        <div class="ph-alkaline">Basa (7-14)</div>
+                    </div>
+
+                    <p>Skala pH berkisar dari 0 hingga 14:</p>
+                    <ul>
+                        <li><strong>pH < 7 (Asam):</strong> Tanah gambut, tanah rawa, atau tanah yang sering hujan
+                                    lebat.</li>
+                        <li><strong>pH = 7 (Netral):</strong> Kondisi ideal bagi sebagian besar tanaman pangan.</li>
+                        <li><strong>pH > 7 (Basa/Alkali):</strong> Tanah kapur atau daerah kering (arid).</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <strong>Mengapa pH Penting?</strong><br>
+                        Ibarat "pintu gerbang" nutrisi. Jika pH tidak sesuai, pintu tertutup. Sebanyak apapun pupuk yang
+                        Anda berikan, tanaman tidak akan bisa memakannya jika pH tanah bermasalah.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: NUTRIENT -->
+            <div id="nutrient" class="section">
+                <h2 class="section-title">Pengaruh pH pada Nutrisi</h2>
+                <div class="section-content">
+                    <p>Ketersediaan unsur hara makro dan mikro sangat bergantung pada pH tanah. Berikut adalah
+                        panduannya:</p>
+
+                    <h3>1. Pada Tanah Asam (pH < 5.5)</h3>
+                            <p>Masalah yang sering muncul:</p>
+                            <ul>
+                                <li><strong>Keracunan Aluminium (Al) & Besi (Fe):</strong> Akar tanaman rusak,
+                                    pertumbuhan terhambat.</li>
+                                <li><strong>Defisiensi Fosfor (P):</strong> Fosfor terikat kuat oleh Al dan Fe sehingga
+                                    tidak tersedia bagi tanaman.</li>
+                                <li><strong>Kekurangan Kalsium (Ca) & Magnesium (Mg).</strong></li>
+                                <li><strong>Aktivitas Mikroba Menurun:</strong> Bakteri pengurai bahan organik bekerja
+                                    lambat.</li>
+                            </ul>
+
+                            <h3>2. Pada Tanah Basa (pH > 7.5)</h3>
+                            <p>Masalah yang sering muncul:</p>
+                            <ul>
+                                <li><strong>Defisiensi Mikronutrien:</strong> Zat Besi (Fe), Mangan (Mn), Seng (Zn), dan
+                                    Tembaga (Cu) menjadi tidak larut.</li>
+                                <li><strong>Keracunan Boron (B).</strong></li>
+                            </ul>
+
+                            <div class="warning-box">
+                                <strong>Zona Emas (The Golden Range):</strong><br>
+                                Sebagian besar nutrisi tersedia secara optimal pada rentang pH <strong>6.0 -
+                                    7.0</strong>. Usahakan menjaga tanah Anda di angka ini.
+                            </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: MEASUREMENT -->
+            <div id="measurement" class="section">
+                <h2 class="section-title">Cara Mengukur pH Tanah</h2>
+                <div class="section-content">
+                    <p>Ada beberapa metode untuk mengetahui pH tanah Anda, dari yang sederhana hingga presisi.</p>
+
+                    <h3>1. pH Meter Digital (Paling Akurat)</h3>
+                    <p>Alat elektronik yang ditancapkan ke tanah basah. Memberikan angka pasti (misal: 6.2).</p>
+                    <ul>
+                        <li><em>Cara:</em> Basahi tanah dengan air destilasi, tancapkan probe, tunggu 1 menit.</li>
+                        <li><em>Tips:</em> Kalibrasi alat secara berkala dengan larutan buffer.</li>
+                    </ul>
+
+                    <h3>2. Kertas Lakmus / pH Indicator</h3>
+                    <p>Menggunakan perubahan warna kertas untuk estimasi pH.</p>
+                    <ul>
+                        <li><em>Cara:</em> Ambil sampel tanah, campur air (1:1), aduk, biarkan mengendap. Celupkan
+                            kertas ke air yang bening.</li>
+                        <li><em>Kelemahan:</em> Kurang presisi, hanya estimasi kasar.</li>
+                    </ul>
+
+                    <h3>3. Metode Tradisional (Kunyit)</h3>
+                    <p>Indikator alami sederhana.</p>
+                    <ul>
+                        <li><em>Cara:</em> Masukkan potongan kunyit ke dalam larutan tanah.</li>
+                        <li><em>Hasil:</em> Jika warna kunyit memudar (kuning pucat) = Asam. Jika tetap/pekat =
+                            Netral/Basa.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SECTION 4: ADJUSTMENT -->
+            <div id="adjustment" class="section">
+                <h2 class="section-title">Memperbaiki pH Tanah</h2>
+                <div class="section-content">
+                    <h3>Menaikkan pH (Mengatasi Tanah Asam)</h3>
+                    <p>Solusi utama adalah <strong>Pengapuran (Liming)</strong>.</p>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Jenis Kapur</th>
+                                <th>Kandungan</th>
+                                <th>Karakteristik</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Kapur Dolomit</strong></td>
+                                <td>Ca + Mg</td>
+                                <td>Paling disarankan. Memperbaiki pH sekaligus menambah hara Magnesium.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kapur Pertanian (Kaptan)</strong></td>
+                                <td>CaCO3</td>
+                                <td>Reaksi lebih lambat, murah, sumber Kalsium.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kapur Tohor (Quick Lime)</strong></td>
+                                <td>CaO</td>
+                                <td>Reaksi sangat cepat & panas. Hati-hati overdosis.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 10px;"><em>Dosis Umum:</em> 1-2 ton/ha untuk menaikkan 1 poin pH (tergantung
+                        tekstur tanah).</p>
+
+                    <h3>Menurunkan pH (Mengatasi Tanah Basa)</h3>
+                    <p>Jarang terjadi di Indonesia (tropis basah), tapi bisa terjadi di tanah berpasir pantai.</p>
+                    <ul>
+                        <li><strong>Belerang (Sulfur):</strong> Diubah bakteri menjadi asam sulfat.</li>
+                        <li><strong>Pupuk ZA (Amonium Sulfat):</strong> Pupuk nitrogen yang bereaksi asam.</li>
+                        <li><strong>Bahan Organik:</strong> Kompos matang secara alami bersifat buffer menetralkan pH
+                            tinggi.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SECTION 5: CROP GUIDE -->
+            <div id="crop-guide" class="section">
+                <h2 class="section-title">pH Ideal Tanaman</h2>
+                <div class="section-content">
+                    <p>Setiap tanaman memiliki preferensi pH yang berbeda. Berikut daftarnya:</p>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Komoditas</th>
+                                <th>pH Ideal</th>
+                                <th>Toleransi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Padi</strong></td>
+                                <td>5.5 - 7.0</td>
+                                <td>Tahan agak asam</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Jagung</strong></td>
+                                <td>5.8 - 7.0</td>
+                                <td>Sensitif asam</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cabai</strong></td>
+                                <td>6.0 - 7.0</td>
+                                <td>Butuh Ca tinggi</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bawang Merah</strong></td>
+                                <td>6.0 - 6.8</td>
+                                <td>Sangat sensitif asam</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tomat</strong></td>
+                                <td>6.0 - 6.8</td>
+                                <td>Butuh drainase baik</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kentang</strong></td>
+                                <td>5.0 - 6.0</td>
+                                <td>Suka agak asam (cegah kudis)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sawit</strong></td>
+                                <td>5.0 - 6.5</td>
+                                <td>Toleran asam</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function switchSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+
+            // Deactivate all buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show target section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Activate target button
+            // Find button with onclick containing the sectionId
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('onclick').includes(sectionId)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Scroll to top of content on mobile
+            if (window.innerWidth <= 768) {
+                document.querySelector('.content-area').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+
+</html>

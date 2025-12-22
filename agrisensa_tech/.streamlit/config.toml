@@ -1,0 +1,14 @@
+[theme]
+# AgriSensa Emerald Theme
+primaryColor = "#059669"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#ECFDF5"
+textColor = "#1F2937"
+font = "sans serif"
+
+[server]
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false

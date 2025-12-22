@@ -1,0 +1,17 @@
+streamlit
+pandas
+plotly
+folium
+streamlit-folium
+requests
+scikit-learn
+numpy
+opencv-python-headless
+beautifulsoup4
+lxml
+google-generativeai
+matplotlib
+scipy
+xlsxwriter
+openpyxl
+qrcode

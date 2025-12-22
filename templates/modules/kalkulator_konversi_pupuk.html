@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>⚖️ Modul 17: Kalkulator Konversi Pupuk - Agrisensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #4caf50;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .module {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+            color: var(--text-color);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background-color: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
+        }
+
+        .result-box h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .result-box p {
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .result-box small {
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/" style="display: inline-block; margin-bottom: 20px;">← Kembali ke Beranda</a>
+
+        <div class="module">
+            <h2>⚖️ Modul 17: Kalkulator Konversi Pupuk</h2>
+            <p>Ubah kebutuhan unsur hara murni (kg) menjadi jumlah pupuk yang harus Anda siapkan. Mendukung pupuk
+                anorganik (kimia) dan organik (alami).</p>
+
+            <form id="fertilizer-conversion-form">
+                <label for="fertilizer-category-select">Jenis Pupuk:</label>
+                <select id="fertilizer-category-select" required>
+                    <option value="anorganik">Pupuk Anorganik (Kimia)</option>
+                    <option value="organik">Pupuk Organik (Alami)</option>
+                </select>
+
+                <div class="input-grid">
+                    <div>
+                        <label for="nutrient-needed-select">Unsur Hara yang Dibutuhkan:</label>
+                        <select id="nutrient-needed-select" required>
+                            <option value="N">Nitrogen (N)</option>
+                            <option value="P">Fosfor (P)</option>
+                            <option value="K">Kalium (K)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="nutrient-amount-input">Jumlah Kebutuhan (kg):</label>
+                        <input id="nutrient-amount-input" placeholder="Contoh: 10" required step="any" type="number"
+                            min="0" />
+                    </div>
+                </div>
+
+                <label for="fertilizer-type-select">Sumber Pupuk yang Akan Digunakan:</label>
+                <select id="fertilizer-type-select" required>
+                    <option disabled selected value="">-- Pilih Jenis Pupuk --</option>
+                </select>
+
+                <button type="submit">Hitung Kebutuhan Pupuk</button>
+            </form>
+
+            <div class="result-box" id="result-fertilizer-conversion" style="display: none;">
+                <p>Hasil perhitungan akan muncul di sini.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Modul 17 loaded');
+
+            const categorySelect = document.getElementById('fertilizer-category-select');
+            const fertTypeSelect = document.getElementById('fertilizer-type-select');
+            const form = document.getElementById('fertilizer-conversion-form');
+            const resultDiv = document.getElementById('result-fertilizer-conversion');
+
+            // Fertilizer options database
+            const fertilizerOptions = {
+                anorganik: [
+                    { value: 'urea', name: 'Urea' },
+                    { value: 'sp36', name: 'SP-36' },
+                    { value: 'kcl', name: 'KCL (MOP)' },
+                    { value: 'npk_mutiara', name: 'NPK Mutiara (16-16-16)' }
+                ],
+                organik: [
+                    { value: 'kompos', name: 'Kompos' },
+                    { value: 'pupuk_kandang_sapi', name: 'Pupuk Kandang Sapi' },
+                    { value: 'pupuk_kandang_ayam', name: 'Pupuk Kandang Ayam' },
+                    { value: 'pupuk_kandang_kambing', name: 'Pupuk Kandang Kambing' },
+                    { value: 'bokashi', name: 'Bokashi' },
+                    { value: 'vermikompos', name: 'Vermikompos (Kascing)' }
+                ]
+            };
+
+            // Update fertilizer dropdown based on category
+            function updateFertilizerOptions() {
+                const category = categorySelect.value;
+                const options = fertilizerOptions[category] || [];
+
+                fertTypeSelect.innerHTML = '<option disabled selected value="">-- Pilih Jenis Pupuk --</option>';
+
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.name;
+                    fertTypeSelect.appendChild(option);
+                });
+            }
+
+            // Initialize with anorganik options
+            updateFertilizerOptions();
+
+            // Update when category changes
+            categorySelect.addEventListener('change', updateFertilizerOptions);
+
+            // Handle form submission
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '<p>Menghitung konversi...</p>';
+
+                const requestData = {
+                    nutrient_needed: document.getElementById('nutrient-needed-select').value,
+                    nutrient_amount_kg: parseFloat(document.getElementById('nutrient-amount-input').value),
+                    fertilizer_type: fertTypeSelect.value
+                };
+
+                try {
+                    const response = await fetch('/calculate-fertilizer-bags', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestData)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const category = categorySelect.value;
+                        const fertName = fertTypeSelect.options[fertTypeSelect.selectedIndex].text;
+                        let additionalInfo = '';
+
+                        // Add helpful context for organic fertilizers
+                        if (category === 'organik') {
+                            const volumeEstimate = Math.round(data.required_fertilizer_kg * 1.5);
+                            additionalInfo = `
+                                <p><small>💡 <strong>Perkiraan Volume:</strong> Sekitar ${volumeEstimate} liter (tergantung kepadatan bahan)</small></p>
+                                <p><small>📝 <strong>Catatan:</strong> Pupuk organik memiliki kandungan hara lebih rendah dibanding pupuk kimia, sehingga membutuhkan jumlah lebih banyak. Namun, pupuk organik juga memperbaiki struktur tanah dan meningkatkan aktivitas mikroba tanah.</small></p>
+                            `;
+                        }
+
+                        resultDiv.innerHTML = `
+                            <h3>Hasil Perhitungan</h3>
+                            <p>Untuk memenuhi kebutuhan <strong>${requestData.nutrient_amount_kg} kg</strong> unsur hara <strong>${requestData.nutrient_needed}</strong>, Anda memerlukan:</p>
+                            <p style="font-size: 1.8em; text-align: center; font-weight: bold; color: var(--primary-color); margin: 20px 0;">
+                                ${data.required_fertilizer_kg.toFixed(2)} kg ${fertName}
+                            </p>
+                            ${additionalInfo}
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error || 'Kalkulasi gagal'}</p>`;
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                    resultDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> Tidak dapat terhubung ke server. Pastikan server berjalan.</p>`;
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

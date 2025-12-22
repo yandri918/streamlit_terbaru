@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dasbor Agrisensa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #4caf50;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2.5em;
+        }
+        .module-list {
+            list-style-type: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .module-link {
+            display: block;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 25px;
+            text-decoration: none;
+            color: var(--text-color);
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .module-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+        }
+        .module-link h2 {
+            margin: 0;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        /* Price Ticker */
+        .price-ticker-section {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .price-ticker-title {
+            text-align: center;
+            color: white;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .price-ticker-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 12px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .price-ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-left 35s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            margin: 0 25px;
+            color: white;
+        }
+
+        .ticker-item .name {
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .ticker-item .price {
+            font-weight: 700;
+            color: #ffeb3b;
+            font-size: 1.1em;
+        }
+
+        .ticker-item .unit {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-left: 4px;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Dasbor Modul Agrisensa</h1>
+        <p style="color: var(--text-muted);">Pilih modul untuk memulai</p>
+    </header>
+
+    <!-- Real-time Price Ticker -->
+    <div class="price-ticker-section">
+        <h3 class="price-ticker-title">💰 Harga Komoditas Real-time</h3>
+        <div class="price-ticker-container">
+            <div id="price-ticker-content" class="price-ticker-content">
+                <div class="ticker-item">
+                    <span class="name">Memuat data harga...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="module-list">
+        <li><a href="/modules/dokter-tanaman" class="module-link"><h2>🔬 Modul 1: Dokter Tanaman</h2></a></li>
+        <li><a href="/modules/asisten-agronomi" class="module-link"><h2>👨‍🔬 Modul 2: Asisten Agronomi</h2></a></li>
+        <li><a href="/modules/analisis-npk" class="module-link"><h2>🧪 Modul 3: Analisis NPK Manual</h2></a></li>
+        <li><a href="/modules/intelijen-harga" class="module-link"><h2>📈 Modul 4: Intelijen Harga Pasar</h2></a></li>
+        <li><a href="/modules/pengetahuan-budidaya" class="module-link"><h2>📖 Modul 5: Basis Pengetahuan Budidaya</h2></a></li>
+        <li><a href="/modules/pusat-pengetahuan" class="module-link"><h2>🔬 Modul 6: Pusat Pengetahuan Pertanian</h2></a></li>
+        <li><a href="/modules/kalkulator-pupuk" class="module-link"><h2>🧮 Modul 7: Kalkulator Pupuk Holistik</h2></a></li>
+        <li><a href="/modules/pustaka-dokumen" class="module-link"><h2>📂 Modul 8: Pustaka Dokumen</h2></a></li>
+        <li><a href="/modules/rekomendasi-terpadu" class="module-link"><h2>💡 Modul 9: Dasbor Rekomendasi Terpadu</h2></a></li>
+        <li><a href="/modules/strategi-semprot" class="module-link"><h2>🛡️ Modul 10: Strategi Penyemprotan Cerdas</h2></a></li>
+        <li><a href="/modules/analisis-tren-harga" class="module-link"><h2>📊 Modul 11: Analisis Tren Harga</h2></a></li>
+        <li><a href="/modules/ensiklopedia-komoditas" class="module-link"><h2>🌶️ Modul 12: Ensiklopedia Komoditas Cerdas</h2></a></li>
+        <li><a href="/modules/pengetahuan-ph" class="module-link"><h2>🧪 Modul 13: Pusat Pengetahuan pH Tanah</h2></a></li>
+        <li><a href="/modules/rekomendasi-tanaman" class="module-link"><h2>🌱 Modul 14: Rekomendasi Tanaman Cerdas (Agrimap AI)</h2></a></li>
+        <li><a href="/modules/prediksi-panen" class="module-link"><h2>📈 Modul 15: Prediksi Hasil Panen Cerdas</h2></a></li>
+        <li><a href="/modules/intelijen-prediktif" class="module-link"><h2>🧠 Modul 16: Intelijen Prediktif (XAI)</h2></a></li>
+        <li><a href="/modules/konversi-pupuk" class="module-link"><h2>⚖️ Modul 17: Kalkulator Konversi Pupuk</h2></a></li>
+        <li><a href="/modules/diagnostik-gejala" class="module-link"><h2>🧑‍⚕️ Modul 18: Diagnostik Gejala Cerdas</h2></a></li>
+        <li><a href="/modules/perencana-panen" class="module-link"><h2>🎯 Modul 19: Perencana Hasil Panen (AI)</h2></a></li>
+        <li><a href="/modules/analis-risiko" class="module-link"><h2>⚖️ Modul 21: Analis Risiko Keberhasilan (AI)</h2></a></li>
+        <li><a href="/modules/dokter-tanaman-canggih" class="module-link"><h2>📸 Modul 20: Dokter Tanaman Canggih (Roboflow AI)</h2></a></li>
+    </ul>
+
+    <script>
+        // Real-time Price Ticker
+        const tickerContent = document.getElementById('price-ticker-content');
+        
+        function formatRupiah(angka) {
+            if (angka === null || angka === undefined) return "N/A";
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(angka);
+        }
+
+        async function fetchTickerData() {
+            try {
+                const response = await fetch('/get-ticker-prices');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const responseData = await response.json();
+                if (responseData.success && responseData.data) {
+                    let tickerHtml = '';
+                    // Duplikasi untuk efek loop yang mulus
+                    const tickerItems = [...responseData.data, ...responseData.data, ...responseData.data];
+                    tickerItems.forEach(item => {
+                        tickerHtml +=
+                            `<div class="ticker-item">
+                                <span class="name">${item.name}:</span>
+                                <span class="price">${formatRupiah(item.price)}</span>
+                                <span class="unit">/${item.unit}</span>
+                            </div>`;
+                    });
+                    tickerContent.innerHTML = tickerHtml;
+                } else {
+                    console.warn("Ticker data tidak tersedia:", responseData);
+                    tickerContent.innerHTML = '<div class="ticker-item"><span class="name">Data harga sedang dimuat...</span></div>';
+                }
+            } catch (error) {
+                console.error("Gagal memuat data ticker:", error);
+                tickerContent.innerHTML = '<div class="ticker-item"><span class="name">Gagal memuat data harga. Silakan refresh halaman.</span></div>';
+            }
+        }
+
+        // Load data saat halaman dimuat
+        if (tickerContent) {
+            fetchTickerData();
+            // Refresh setiap 60 detik
+            setInterval(fetchTickerData, 60000);
+        }
+    </script>
+</body>
+</html>

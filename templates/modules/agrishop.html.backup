@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriShop - Marketplace Hasil Panen | AgriSensa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        /* Sidebar Filters */
+        .sidebar {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .filter-group {
+            margin-bottom: 25px;
+        }
+
+        .filter-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Product Grid */
+        .products-section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .products-header h2 {
+            color: #2d3748;
+            font-size: 1.8rem;
+        }
+
+        .product-count {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* Product Card */
+        .product-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-badges {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-quality-a {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-quality-b {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .badge-quality-c {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .badge-preorder {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .product-quantity {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .product-location {
+            color: #4a5568;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .product-seller {
+            color: #718096;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🛒 AgriShop - Marketplace Hasil Panen</h1>
+            <p>Jual beli hasil panen langsung dari petani ke pembeli</p>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="showAddProductModal()">
+                    ➕ Jual Produk Saya
+                </button>
+                <a href="/" class="btn btn-secondary">🏠 Kembali ke Beranda</a>
+            </div>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Sidebar Filters -->
+            <div class="sidebar">
+                <h3>🔍 Filter Produk</h3>
+
+                <div class="filter-group">
+                    <label>Jenis Komoditas</label>
+                    <select id="filter-commodity" onchange="applyFilters()">
+                        <option value="">Semua Komoditas</option>
+                        <option value="padi">Padi</option>
+                        <option value="jagung">Jagung</option>
+                        <option value="cabai">Cabai</option>
+                        <option value="tomat">Tomat</option>
+                        <option value="kentang">Kentang</option>
+                        <option value="bawang">Bawang Merah</option>
+                        <option value="kedelai">Kedelai</option>
+                        <option value="kacang">Kacang Tanah</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Kualitas</label>
+                    <select id="filter-quality" onchange="applyFilters()">
+                        <option value="">Semua Kualitas</option>
+                        <option value="A">Grade A (Premium)</option>
+                        <option value="B">Grade B (Standar)</option>
+                        <option value="C">Grade C (Ekonomis)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Harga Minimum (Rp/kg)</label>
+                    <input type="number" id="filter-min-price" placeholder="0" onchange="applyFilters()">
+                </div>
+
+                <div class="filter-group">
+                    <label>Harga Maksimum (Rp/kg)</label>
+                    <input type="number" id="filter-max-price" placeholder="999999" onchange="applyFilters()">
+                </div>
+
+                <div class="filter-group">
+                    <label>
+                        <input type="checkbox" id="filter-preorder" onchange="applyFilters()">
+                        Hanya Pre-Order
+                    </label>
+                </div>
+
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="resetFilters()">
+                    🔄 Reset Filter
+                </button>
+            </div>
+
+            <!-- Products Section -->
+            <div class="products-section">
+                <div class="products-header">
+                    <h2>Produk Tersedia</h2>
+                    <span class="product-count" id="product-count">Loading...</span>
+                </div>
+
+                <div id="products-container">
+                    <div class="loading">⏳ Memuat produk...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allProducts = [];
+
+        // Load products on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+        });
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/agrishop/products');
+                const result = await response.json();
+
+                if (result.success) {
+                    allProducts = result.data;
+                    displayProducts(allProducts);
+                } else {
+                    showError('Gagal memuat produk');
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showError('Terjadi kesalahan saat memuat produk');
+            }
+        }
+
+        function displayProducts(products) {
+            const container = document.getElementById('products-container');
+            const countEl = document.getElementById('product-count');
+
+            countEl.textContent = `${products.length} produk ditemukan`;
+
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <h3>Belum Ada Produk</h3>
+                        <p>Belum ada produk yang tersedia saat ini</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'products-grid';
+
+            products.forEach(product => {
+                const card = createProductCard(product);
+                grid.appendChild(card);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(grid);
+        }
+
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.onclick = () => viewProductDetail(product.id);
+
+            const commodityEmojis = {
+                'padi': '🌾',
+                'jagung': '🌽',
+                'cabai': '🌶️',
+                'tomat': '🍅',
+                'kentang': '🥔',
+                'bawang': '🧅',
+                'kedelai': '🫘',
+                'kacang': '🥜'
+            };
+
+            const emoji = commodityEmojis[product.commodity] || '🌱';
+
+            const badges = product.badges || [];
+            const qualityBadge = product.quality_grade === 'A' ? 'badge-quality-a' :
+                product.quality_grade === 'B' ? 'badge-quality-b' : 'badge-quality-c';
+
+            card.innerHTML = `
+                <div class="product-image">${emoji}</div>
+                <div class="product-info">
+                    <div class="product-badges">
+                        <span class="badge ${qualityBadge}">Grade ${product.quality_grade}</span>
+                        ${product.is_preorder ? '<span class="badge badge-preorder">Pre-Order</span>' : ''}
+                    </div>
+                    <div class="product-title">${product.commodity.charAt(0).toUpperCase() + product.commodity.slice(1)}</div>
+                    <div class="product-price">Rp ${product.price_per_kg.toLocaleString('id-ID')}/kg</div>
+                    <div class="product-quantity">📦 ${product.quantity_kg} kg tersedia</div>
+                    <div class="product-location">📍 ${product.location.address || 'Lokasi tidak tersedia'}</div>
+                    <div class="product-seller">👤 ${product.seller_name}</div>
+                    <div class="product-actions">
+                        <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); contactSeller('${product.seller_phone}', '${product.commodity}')">
+                            💬 Hubungi
+                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); viewProductDetail('${product.id}')">
+                            👁️ Detail
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function applyFilters() {
+            const commodity = document.getElementById('filter-commodity').value;
+            const quality = document.getElementById('filter-quality').value;
+            const minPrice = parseFloat(document.getElementById('filter-min-price').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('filter-max-price').value) || Infinity;
+            const preorderOnly = document.getElementById('filter-preorder').checked;
+
+            let filtered = allProducts.filter(product => {
+                if (commodity && product.commodity !== commodity) return false;
+                if (quality && product.quality_grade !== quality) return false;
+                if (product.price_per_kg < minPrice || product.price_per_kg > maxPrice) return false;
+                if (preorderOnly && !product.is_preorder) return false;
+                return true;
+            });
+
+            displayProducts(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-commodity').value = '';
+            document.getElementById('filter-quality').value = '';
+            document.getElementById('filter-min-price').value = '';
+            document.getElementById('filter-max-price').value = '';
+            document.getElementById('filter-preorder').checked = false;
+            displayProducts(allProducts);
+        }
+
+        function contactSeller(phone, commodity) {
+            const message = `Halo, saya tertarik dengan produk ${commodity} Anda di AgriShop`;
+            const whatsappUrl = `https://wa.me/${phone.replace(/^0/, '62')}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        function viewProductDetail(productId) {
+            alert(`Detail produk akan ditampilkan untuk ID: ${productId}\n\nFitur detail produk akan segera hadir!`);
+        }
+
+        function showAddProductModal() {
+            alert('Form tambah produk akan segera hadir!\n\nAnda akan dapat:\n- Upload foto produk\n- Set harga & kualitas\n- Pilih lokasi di peta\n- Aktifkan pre-order');
+        }
+
+        function showError(message) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <h3>Terjadi Kesalahan</h3>
+                    <p>${message}</p>
+                    <button class="btn btn-primary" onclick="loadProducts()">🔄 Coba Lagi</button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

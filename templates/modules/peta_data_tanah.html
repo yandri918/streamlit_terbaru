@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗺️ AgriMap - Peta Pertanian Cerdas</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f0fdf4;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #map {
+            flex: 1;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 380px;
+            background: white;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            color: #059669;
+            margin-bottom: 10px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #059669;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 15px;
+            gap: 5px;
+        }
+
+        .tab {
+            padding: 8px 12px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 0.85rem;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: #059669;
+            border-bottom-color: #059669;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background: #047857;
+        }
+
+        /* Cards */
+        .weather-card {
+            background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .weather-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .temp-big {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .weather-details {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .area-display {
+            background: #ecfdf5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #10b981;
+        }
+
+        .area-display h3 {
+            color: #059669;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .area-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #047857;
+        }
+
+        .recommendations {
+            background: #f0fdf4;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .recommendations h3 {
+            color: #059669;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendations li {
+            padding: 6px 0;
+            border-bottom: 1px solid #d1fae5;
+            font-size: 0.85rem;
+            color: #065f46;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 15px;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+        .instructions {
+            background: #eff6ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            color: #1e40af;
+        }
+
+        .instructions h4 {
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .instructions ol {
+            margin-left: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="map"></div>
+        <div class="sidebar">
+            <a href="/dashboard" class="back-link">← Kembali ke Dashboard</a>
+            <h1>🗺️ AgriMap</h1>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('overview')">📊 Overview</button>
+                <button class="tab" onclick="switchTab('npk')">🧪 Data NPK</button>
+                <button class="tab" onclick="switchTab('layers')">🗺️ Layer</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content active">
+                <div class="instructions">
+                    <h4>📐 Cara Menggunakan:</h4>
+                    <ol>
+                        <li>Gambar polygon untuk menandai lahan</li>
+                        <li>Tambahkan data NPK tanah</li>
+                        <li>Lihat rekomendasi pertanian</li>
+                    </ol>
+                </div>
+                <div id="area-display" class="area-display" style="display:none;">
+                    <h3>📏 Luas Lahan</h3>
+                    <div class="area-value" id="area-value">-</div>
+                    <div style="font-size:0.85rem; color:#065f46; margin-top:4px;" id="area-hectares">-</div>
+                </div>
+                <div id="weather-widget" class="loading">Memuat data cuaca...</div>
+                <div id="recommendations-widget" style="display:none;" class="recommendations">
+                    <h3>💡 Rekomendasi Pertanian</h3>
+                    <ul id="recommendations-list"></ul>
+                </div>
+            </div>
+
+            <!-- NPK Tab -->
+            <div id="npk-tab" class="tab-content">
+                <h3 style="font-size:0.95rem; color:#059669; margin-bottom:12px;">🧪 Input Data Lengkap</h3>
+                <form id="npk-form">
+                    <div class="form-group">
+                        <label>🌾 Jenis Tanaman</label>
+                        <select id="crop-type" required>
+                            <option value="">Pilih Tanaman</option>
+                            <option value="padi">Padi</option>
+                            <option value="jagung">Jagung</option>
+                            <option value="kedelai">Kedelai</option>
+                            <option value="cabai">Cabai</option>
+                            <option value="tomat">Tomat</option>
+                            <option value="kentang">Kentang</option>
+                            <option value="bawang_merah">Bawang Merah</option>
+                            <option value="terung">Terung</option>
+                            <option value="mentimun">Mentimun</option>
+                            <option value="kangkung">Kangkung</option>
+                            <option value="sawi">Sawi</option>
+                            <option value="bayam">Bayam</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🏔️ Tekstur Tanah</label>
+                        <select id="soil-texture" required>
+                            <option value="">Pilih Tekstur</option>
+                            <option value="pasir">Pasir (Sandy)</option>
+                            <option value="lempung_berpasir">Lempung Berpasir</option>
+                            <option value="lempung">Lempung (Loam)</option>
+                            <option value="lempung_berliat">Lempung Berliat</option>
+                            <option value="liat">Liat (Clay)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nitrogen (N)</label>
+                        <input type="number" id="n-input" step="0.1" required placeholder="Contoh: 45">
+                    </div>
+                    <div class="form-group">
+                        <label>Fosfor (P)</label>
+                        <input type="number" id="p-input" step="0.1" required placeholder="Contoh: 30">
+                    </div>
+                    <div class="form-group">
+                        <label>Kalium (K)</label>
+                        <input type="number" id="k-input" step="0.1" required placeholder="Contoh: 40">
+                    </div>
+                    <div class="form-group">
+                        <label>pH Tanah</label>
+                        <input type="number" id="ph-input" step="0.1" min="0" max="14" required
+                            placeholder="Contoh: 6.5">
+                    </div>
+                    <div class="form-group">
+                        <label>🌡️ Suhu Tanah (°C) - Opsional</label>
+                        <input type="number" id="soil-temp" step="0.1" placeholder="Contoh: 28.5">
+                    </div>
+                    <div class="form-group">
+                        <label>💧 Kelembaban Tanah (%) - Opsional</label>
+                        <input type="number" id="soil-moisture" step="0.1" min="0" max="100" placeholder="Contoh: 65">
+                    </div>
+                    <div class="form-group">
+                        <label>Catatan</label>
+                        <textarea id="npk-notes" rows="2" placeholder="Lokasi sampling, kondisi lahan, dll"></textarea>
+                    </div>
+                    <button type="submit">💾 Simpan Data</button>
+                </form>
+                <div id="npk-data-list" style="margin-top:15px;"></div>
+            </div>
+
+            <!-- Layers Tab -->
+            <div id="layers-tab" class="tab-content">
+                <h3 style="font-size:0.95rem; color:#059669; margin-bottom:12px;">🗺️ Kontrol Layer</h3>
+                <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #e5e7eb;">
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: normal;">
+                        <input type="checkbox" id="layer-npk-markers" checked style="width: auto;">
+                        📍 Marker NPK
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: normal;">
+                        <input type="checkbox" id="layer-weather" checked style="width: auto;">
+                        🌤️ Data Cuaca
+                    </label>
+                </div>
+                <div id="statistics-display"
+                    style="margin-top:15px; padding:10px; background:#f9fafb; border-radius:6px; font-size:0.85rem;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script>
+        let currentLocation = null;
+        let npkMarkers = [];
+
+        const map = L.map('map').setView([-2.5, 118], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        const drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        const drawControl = new L.Control.Draw({
+            draw: {
+                polygon: { allowIntersection: false, shapeOptions: { color: '#10b981', weight: 3 } },
+                rectangle: { shapeOptions: { color: '#3b82f6', weight: 3 } },
+                marker: true,
+                polyline: false,
+                circle: false,
+                circlemarker: false
+            },
+            edit: { featureGroup: drawnItems, remove: true }
+        });
+        map.addControl(drawControl);
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        map.on('draw:created', function (e) {
+            const layer = e.layer;
+            if (e.layerType === 'polygon' || e.layerType === 'rectangle') {
+                drawnItems.addLayer(layer);
+                const geojson = layer.toGeoJSON();
+                const area = turf.area(geojson);
+                const areaSqm = area.toFixed(2);
+                const areaHa = (area / 10000).toFixed(4);
+
+                document.getElementById('area-display').style.display = 'block';
+                document.getElementById('area-value').textContent = `${Number(areaSqm).toLocaleString('id-ID')} m²`;
+                document.getElementById('area-hectares').textContent = `${areaHa} hektar`;
+
+                layer.bindPopup(`<b>Luas Lahan:</b><br>${Number(areaSqm).toLocaleString('id-ID')} m²<br>${areaHa} hektar`).openPopup();
+
+                const center = turf.center(geojson);
+                const [lon, lat] = center.geometry.coordinates;
+                currentLocation = { lat, lon };
+                loadWeather(lat, lon);
+            } else if (e.layerType === 'marker') {
+                drawnItems.addLayer(layer);
+                const latlng = layer.getLatLng();
+                currentLocation = { lat: latlng.lat, lon: latlng.lng };
+                document.querySelectorAll('.tab')[1].click();
+            }
+        });
+
+        map.on('draw:edited', function (e) {
+            e.layers.eachLayer(function (layer) {
+                const geojson = layer.toGeoJSON();
+                const area = turf.area(geojson);
+                const areaSqm = area.toFixed(2);
+                const areaHa = (area / 10000).toFixed(4);
+                document.getElementById('area-value').textContent = `${Number(areaSqm).toLocaleString('id-ID')} m²`;
+                document.getElementById('area-hectares').textContent = `${areaHa} hektar`;
+                layer.setPopupContent(`<b>Luas Lahan:</b><br>${Number(areaSqm).toLocaleString('id-ID')} m²<br>${areaHa} hektar`);
+            });
+        });
+
+        map.on('draw:deleted', function (e) {
+            if (drawnItems.getLayers().length === 0) {
+                document.getElementById('area-display').style.display = 'none';
+            }
+        });
+
+        document.getElementById('npk-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            if (!currentLocation) {
+                alert('Klik marker di peta untuk menentukan lokasi sampling!');
+                return;
+            }
+
+            const cropType = document.getElementById('crop-type').value;
+            const soilTexture = document.getElementById('soil-texture').value;
+            const nValue = parseFloat(document.getElementById('n-input').value);
+            const pValue = parseFloat(document.getElementById('p-input').value);
+            const kValue = parseFloat(document.getElementById('k-input').value);
+            const phValue = parseFloat(document.getElementById('ph-input').value);
+            const soilTemp = document.getElementById('soil-temp').value;
+            const soilMoisture = document.getElementById('soil-moisture').value;
+            const notes = document.getElementById('npk-notes').value;
+
+            try {
+                const response = await fetch('/api/agrimap/npk-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        latitude: currentLocation.lat,
+                        longitude: currentLocation.lon,
+                        crop_type: cropType,
+                        soil_texture: soilTexture,
+                        n_value: nValue,
+                        p_value: pValue,
+                        k_value: kValue,
+                        ph: phValue,
+                        soil_temperature: soilTemp ? parseFloat(soilTemp) : null,
+                        soil_moisture: soilMoisture ? parseFloat(soilMoisture) : null,
+                        notes: notes
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Data berhasil disimpan!');
+                    const marker = L.marker([currentLocation.lat, currentLocation.lon], {
+                        icon: L.divIcon({ className: 'npk-marker', html: '🧪', iconSize: [30, 30] })
+                    }).addTo(map);
+                    marker.bindPopup(`<b>${cropType.toUpperCase()}</b><br>N: ${nValue} | P: ${pValue} | K: ${kValue}<br>pH: ${phValue}`);
+                    npkMarkers.push(marker);
+                    document.getElementById('npk-form').reset();
+                    loadNPKData();
+                } else {
+                    alert('❌ Gagal menyimpan: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Terjadi kesalahan');
+            }
+        });
+
+        async function loadWeather(lat, lon) {
+            const weatherWidget = document.getElementById('weather-widget');
+            weatherWidget.innerHTML = '<div class="loading">Memuat cuaca...</div>';
+            try {
+                const response = await fetch(`/api/weather/recommendations?lat=${lat}&lon=${lon}`);
+                const data = await response.json();
+                if (data.success) {
+                    const current = data.current_weather;
+                    if (current && current.success) {
+                        weatherWidget.innerHTML = `
+                            <div class="weather-card">
+                                <h3>🌤️ Cuaca Saat Ini</h3>
+                                <div style="display:flex; align-items:center; gap:15px;">
+                                    <div class="temp-big">${current.temperature}°C</div>
+                                    <div class="weather-details">
+                                        <div>💨 Angin: ${current.windspeed} km/h</div>
+                                        <div>🧭 Arah: ${current.winddirection}°</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    if (data.recommendations && data.recommendations.length > 0) {
+                        document.getElementById('recommendations-widget').style.display = 'block';
+                        document.getElementById('recommendations-list').innerHTML = data.recommendations.map(rec => `<li>${rec}</li>`).join('');
+                    }
+                } else {
+                    weatherWidget.innerHTML = `<div class="loading">Gagal memuat cuaca</div>`;
+                }
+            } catch (error) {
+                console.error('Weather error:', error);
+                weatherWidget.innerHTML = '<div class="loading">Gagal memuat cuaca</div>';
+            }
+        }
+
+        async function loadNPKData() {
+            try {
+                const response = await fetch('/api/agrimap/npk-data');
+                const result = await response.json();
+                if (result.success && result.data.length > 0) {
+                    const listDiv = document.getElementById('npk-data-list');
+
+                    let html = '<div style="display: flex; justify-content: space-between; align-items: center; margin:15px 0 8px 0;">';
+                    html += '<h4 style="font-size:0.9rem; color:#059669; margin:0;">📋 Data Tersimpan</h4>';
+                    html += '<button onclick="exportToExcel()" style="width: auto; padding: 6px 12px; font-size: 0.75rem; background: #10b981; margin: 0;">📥 Unduh CSV</button>';
+                    html += '</div>';
+                    html += `
+                        <div style="overflow-x: auto; margin-top:10px;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.7rem; background: white;">
+                                <thead>
+                                    <tr style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                                        <th style="padding: 6px; text-align: left; font-weight: 600;">Tanaman</th>
+                                        <th style="padding: 6px; text-align: center; font-weight: 600;">N</th>
+                                        <th style="padding: 6px; text-align: center; font-weight: 600;">P</th>
+                                        <th style="padding: 6px; text-align: center; font-weight: 600;">K</th>
+                                        <th style="padding: 6px; text-align: center; font-weight: 600;">pH</th>
+                                        <th style="padding: 6px; text-align: center; font-weight: 600;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    result.data.forEach(npk => {
+                        const nColor = npk.n_value < 40 ? '#ef4444' : npk.n_value > 100 ? '#f59e0b' : '#10b981';
+                        const pColor = npk.p_value < 20 ? '#ef4444' : npk.p_value > 60 ? '#f59e0b' : '#10b981';
+                        const kColor = npk.k_value < 30 ? '#ef4444' : npk.k_value > 80 ? '#f59e0b' : '#10b981';
+                        const phColor = npk.ph < 5.5 ? '#ef4444' : npk.ph > 7.5 ? '#f59e0b' : '#10b981';
+
+                        html += `
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 6px; font-size: 0.7rem; font-weight: 600;">${npk.crop_type || '-'}</td>
+                                <td style="padding: 6px; text-align: center;">
+                                    <span style="color: ${nColor}; font-weight: 600;">${npk.n_value}</span>
+                                </td>
+                                <td style="padding: 6px; text-align: center;">
+                                    <span style="color: ${pColor}; font-weight: 600;">${npk.p_value}</span>
+                                </td>
+                                <td style="padding: 6px; text-align: center;">
+                                    <span style="color: ${kColor}; font-weight: 600;">${npk.k_value}</span>
+                                </td>
+                                <td style="padding: 6px; text-align: center;">
+                                    <span style="color: ${phColor}; font-weight: 600;">${npk.ph || '-'}</span>
+                                </td>
+                                <td style="padding: 6px; text-align: center;">
+                                    <button onclick="deleteNPKData('${npk.id}')" style="width: auto; padding: 4px 8px; font-size: 0.65rem; background: #ef4444; margin: 0;">🗑️</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin-top: 8px; padding: 6px; background: #f9fafb; border-radius: 4px; font-size: 0.65rem; color: #6b7280;">
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <div><span style="color: #10b981;">●</span> Optimal</div>
+                                <div><span style="color: #ef4444;">●</span> Rendah</div>
+                                <div><span style="color: #f59e0b;">●</span> Tinggi</div>
+                            </div>
+                        </div>
+                    `;
+
+                    listDiv.innerHTML = html;
+                } else {
+                    const listDiv = document.getElementById('npk-data-list');
+                    listDiv.innerHTML = `
+                        <div style="padding: 15px; text-align: center; color: #6b7280; font-size: 0.85rem; background: #f9fafb; border-radius: 6px; margin-top: 15px;">
+                            Belum ada data tersimpan.<br>
+                            Klik marker di peta untuk menambah data.
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading NPK data:', error);
+            }
+        }
+
+        async function deleteNPKData(npkId) {
+            if (!confirm('Yakin ingin menghapus data ini?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/agrimap/npk-data/${npkId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Data berhasil dihapus!');
+                    loadNPKData();
+                    loadStatistics();
+                } else {
+                    alert('❌ Gagal menghapus: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Terjadi kesalahan');
+            }
+        }
+
+        async function exportToExcel() {
+            try {
+                const response = await fetch('/api/agrimap/npk-data');
+                const result = await response.json();
+
+                if (!result.success || result.data.length === 0) {
+                    alert('Tidak ada data untuk diexport');
+                    return;
+                }
+
+                const excelData = result.data.map(npk => ({
+                    'Tanggal': new Date(npk.created_at).toLocaleDateString('id-ID'),
+                    'Jenis Tanaman': npk.crop_type || '-',
+                    'Tekstur Tanah': npk.soil_texture || '-',
+                    'Nitrogen (N)': npk.n_value,
+                    'Fosfor (P)': npk.p_value,
+                    'Kalium (K)': npk.k_value,
+                    'pH': npk.ph || '-',
+                    'Suhu Tanah (°C)': npk.soil_temperature || '-',
+                    'Kelembaban (%)': npk.soil_moisture || '-',
+                    'Latitude': npk.latitude,
+                    'Longitude': npk.longitude,
+                    'Catatan': npk.notes || '-'
+                }));
+
+                const headers = Object.keys(excelData[0]);
+                let csv = headers.join(',') + '\n';
+                excelData.forEach(row => {
+                    csv += headers.map(header => row[header]).join(',') + '\n';
+                });
+
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `AgriMap_NPK_Data_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                alert('✅ Data berhasil diunduh!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Gagal mengunduh data');
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/api/agrimap/statistics');
+                const data = await response.json();
+                if (data.success) {
+                    const stats = data.data;
+                    document.getElementById('statistics-display').innerHTML = `
+                        <div style="color:#374151;">
+                            <div style="margin-bottom:4px;">📍 Lahan: ${stats.total_polygons}</div>
+                            <div style="margin-bottom:4px;">📏 Total Area: ${stats.total_area_hectares} ha</div>
+                            <div>🧪 Sampel NPK: ${stats.total_npk_samples}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        document.getElementById('layer-npk-markers').addEventListener('change', function (e) {
+            npkMarkers.forEach(marker => {
+                if (e.target.checked) {
+                    marker.addTo(map);
+                } else {
+                    map.removeLayer(marker);
+                }
+            });
+        });
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    map.setView([lat, lon], 13);
+                    loadWeather(lat, lon);
+                },
+                function (error) {
+                    loadWeather(-6.2088, 106.8456);
+                }
+            );
+        } else {
+            loadWeather(-6.2088, 106.8456);
+        }
+
+        loadNPKData();
+        loadStatistics();
+    </script>
+</body>
+
+</html>

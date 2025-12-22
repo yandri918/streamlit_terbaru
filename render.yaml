@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: agrisensa-api
+    env: docker
+    dockerfilePath: Dockerfile
+    buildCommand: ''
+    startCommand: ''
+    envVars:
+      - key: FLASK_ENV
+        value: production
+    # Render will set the PORT env var automatically

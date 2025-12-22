@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Pestisida Nabati - AgriSensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.gstatic.com" crossorigin="" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-light: #10b981;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --bg-body: #f0fdf4;
+            --bg-card: #ffffff;
+            --bg-light: #ecfdf5;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #d1fae5;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 40px;
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            background: var(--bg-light);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Header Section */
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border-radius: var(--radius);
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header-section .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Search & Filter */
+        .search-container {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            min-width: 250px;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        .filter-select {
+            padding: 14px 20px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tag {
+            padding: 6px 12px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tag:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Grid Layout */
+        .plant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        /* Plant Card */
+        .plant-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .plant-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .plant-header {
+            margin-bottom: 15px;
+        }
+
+        .plant-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+
+        .plant-scientific {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .plant-body {
+            flex: 1;
+        }
+
+        .info-row {
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-weight: 500;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+        }
+
+        .info-value {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .pest-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .pest-tag {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #92400e;
+            font-weight: 500;
+        }
+
+        .formulation-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 30px;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 10;
+        }
+
+        .modal-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+        }
+
+        .modal-scientific {
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: var(--bg-light);
+            color: var(--primary);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .detail-section {
+            margin-bottom: 30px;
+        }
+
+        .detail-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid var(--bg-light);
+        }
+
+        .taxonomy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .taxonomy-item {
+            font-size: 0.9rem;
+        }
+
+        .taxonomy-label {
+            color: var(--text-muted);
+            font-weight: 500;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .taxonomy-value {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .compound-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .compound-tag {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #1e40af;
+            font-weight: 500;
+        }
+
+        .formulation-card {
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .formulation-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .materials-section {
+            margin-bottom: 15px;
+        }
+
+        .materials-title {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .materials-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .materials-list li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .materials-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .steps-list {
+            list-style: none;
+            counter-reset: step-counter;
+            padding-left: 0;
+        }
+
+        .steps-list li {
+            counter-increment: step-counter;
+            padding: 10px 0 10px 40px;
+            position: relative;
+            border-left: 2px solid var(--border);
+            margin-left: 15px;
+        }
+
+        .steps-list li:before {
+            content: counter(step-counter);
+            position: absolute;
+            left: -15px;
+            top: 8px;
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .application-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .application-title {
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .safety-box {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .safety-title {
+            color: var(--primary-dark);
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .benefit-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            grid-column: 1/-1;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 2rem;
+                flex-direction: column;
+            }
+
+            .search-row {
+                flex-direction: column;
+            }
+
+            .search-input,
+            .filter-select {
+                width: 100%;
+            }
+
+            .plant-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-width: 100%;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/" class="brand">
+                <span>🌿</span> Pestisida Nabati
+            </a>
+            <a href="/" class="back-link">
+                ← Kembali ke Beranda
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header-section">
+            <h1>
+                <span>🌱</span>
+                Pestisida Nabati
+                <span>🌿</span>
+            </h1>
+            <p class="subtitle">
+                Panduan lengkap tumbuhan bahan pestisida nabati dan cara pembuatannya untuk pengendalian OPT
+                (Organisme Pengganggu Tumbuhan) secara organik dan ramah lingkungan
+            </p>
+            <span class="header-badge">📚 Sumber: BALITSA 2008</span>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value" id="totalPlants">-</div>
+                <div class="stat-label">Jenis Tumbuhan</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalFormulations">-</div>
+                <div class="stat-label">Formulasi Tersedia</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalPests">-</div>
+                <div class="stat-label">Hama Target</div>
+            </div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="search-container">
+            <div class="search-row">
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="🔍 Cari tumbuhan, hama, atau senyawa kimia...">
+                <select id="partFilter" class="filter-select">
+                    <option value="all">Semua Bagian Tanaman</option>
+                </select>
+            </div>
+            <div class="filter-tags" id="pestFilters">
+                <!-- Pest filter tags will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Plant Grid -->
+        <div id="plantGrid" class="plant-grid">
+            <div class="loading">
+                <div class="spinner"></div>
+                Memuat data tumbuhan pestisida nabati...
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-row">
+                    <div>
+                        <h2 id="modalName" class="modal-title">Nama Tumbuhan</h2>
+                        <p id="modalScientific" class="modal-scientific">Nama Ilmiah</p>
+                    </div>
+                    <button class="close-btn" onclick="closeModal()">×</button>
+                </div>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be dynamically inserted -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allPlants = [];
+        let allPests = [];
+        let allParts = [];
+        let selectedPest = 'all';
+
+        // Fetch Data
+        async function loadData() {
+            try {
+                // Load plants
+                const plantsResponse = await fetch('/api/natural-pesticide/list');
+                const plantsResult = await plantsResponse.json();
+
+                if (plantsResult.success) {
+                    allPlants = plantsResult.data;
+                    renderPlants(allPlants);
+                    updateStats();
+                }
+
+                // Load pests for filters
+                const pestsResponse = await fetch('/api/natural-pesticide/pests');
+                const pestsResult = await pestsResponse.json();
+
+                if (pestsResult.success) {
+                    allPests = pestsResult.data;
+                    renderPestFilters();
+                }
+
+                // Load plant parts for filter
+                const partsResponse = await fetch('/api/natural-pesticide/plant-parts');
+                const partsResult = await partsResponse.json();
+
+                if (partsResult.success) {
+                    allParts = partsResult.data;
+                    renderPartFilter();
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('plantGrid').innerHTML = '<p class="empty-state"><span class="empty-icon">⚠️</span><br>Gagal memuat data. Silakan refresh halaman.</p>';
+            }
+        }
+
+        // Update Stats
+        function updateStats() {
+            const totalFormulations = allPlants.reduce((sum, plant) => sum + plant.formulation_count, 0);
+            document.getElementById('totalPlants').textContent = allPlants.length;
+            document.getElementById('totalFormulations').textContent = totalFormulations;
+            document.getElementById('totalPests').textContent = allPests.length;
+        }
+
+        // Render Pest Filters
+        function renderPestFilters() {
+            const container = document.getElementById('pestFilters');
+            container.innerHTML = `
+                <div class="filter-tag ${selectedPest === 'all' ? 'active' : ''}" onclick="filterByPest('all')">
+                    Semua Hama
+                </div>
+            ` + allPests.slice(0, 8).map(pest => `
+                <div class="filter-tag" onclick="filterByPest('${pest}')">
+                    ${pest}
+                </div>
+            `).join('');
+        }
+
+        // Render Part Filter
+        function renderPartFilter() {
+            const select = document.getElementById('partFilter');
+            select.innerHTML = '<option value="all">Semua Bagian Tanaman</option>' +
+                allParts.map(part => `<option value="${part}">${part}</option>`).join('');
+        }
+
+        // Render Plants
+        function renderPlants(data) {
+            const grid = document.getElementById('plantGrid');
+
+            if (data.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h3>Tidak ada tumbuhan ditemukan</h3>
+                        <p>Coba ubah filter atau kata kunci pencarian</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = data.map(plant => `
+                <div class="plant-card" onclick="showDetail('${plant.id}')">
+                    <div class="plant-icon">🌿</div>
+                    <div class="plant-header">
+                        <div class="plant-name">${plant.name}</div>
+                        <div class="plant-scientific">${plant.scientific_name}</div>
+                    </div>
+                    <div class="plant-body">
+                        <div class="info-row">
+                            <span class="info-label">Nama Inggris</span>
+                            <span class="info-value">${plant.english_name}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Bagian yang Digunakan</span>
+                            <div class="pest-tags">
+                                ${plant.parts_used.map(part => `<span class="pest-tag">${part.split('(')[0].trim()}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Hama Target</span>
+                            <div class="pest-tags">
+                                ${plant.target_pests.slice(0, 3).map(pest => `<span class="pest-tag">${pest}</span>`).join('')}
+                                ${plant.target_pests.length > 3 ? `<span class="pest-tag">+${plant.target_pests.length - 3} lainnya</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="formulation-badge">
+                            ${plant.formulation_count} Formulasi Tersedia
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter Functions
+        function filterByPest(pest) {
+            selectedPest = pest;
+            renderPestFilters();
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const part = document.getElementById('partFilter').value;
+
+            let filtered = allPlants;
+
+            // Filter by search query
+            if (query) {
+                filtered = filtered.filter(plant =>
+                    plant.name.toLowerCase().includes(query) ||
+                    plant.scientific_name.toLowerCase().includes(query) ||
+                    plant.target_pests.some(p => p.toLowerCase().includes(query))
+                );
+            }
+
+            // Filter by pest
+            if (selectedPest !== 'all') {
+                filtered = filtered.filter(plant =>
+                    plant.target_pests.some(p => p.includes(selectedPest))
+                );
+            }
+
+            // Filter by plant part
+            if (part !== 'all') {
+                filtered = filtered.filter(plant =>
+                    plant.parts_used.some(p => p.includes(part))
+                );
+            }
+
+            renderPlants(filtered);
+        }
+
+        // Show Detail Modal
+        async function showDetail(plantId) {
+            try {
+                const response = await fetch(`/api/natural-pesticide/detail/${plantId}`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    alert('Gagal memuat detail tumbuhan');
+                    return;
+                }
+
+                const plant = result.data;
+
+                document.getElementById('modalName').textContent = plant.names.common;
+                document.getElementById('modalScientific').textContent = plant.taxonomy.jenis;
+
+                const modalBody = document.getElementById('modalBody');
+                modalBody.innerHTML = `
+                    <!-- Taxonomy -->
+                    <div class="detail-section">
+                        <div class="detail-title">📋 Klasifikasi Taksonomi</div>
+                        <div class="taxonomy-grid">
+                            <div class="taxonomy-item">
+                                <span class="taxonomy-label">Divisi</span>
+                                <span class="taxonomy-value">${plant.taxonomy.divisi}</span>
+                            </div>
+                            <div class="taxonomy-item">
+                                <span class="taxonomy-label">Kelas</span>
+                                <span class="taxonomy-value">${plant.taxonomy.kelas}</span>
+                            </div>
+                            <div class="taxonomy-item">
+                                <span class="taxonomy-label">Bangsa</span>
+                                <span class="taxonomy-value">${plant.taxonomy.bangsa}</span>
+                            </div>
+                            <div class="taxonomy-item">
+                                <span class="taxonomy-label">Suku</span>
+                                <span class="taxonomy-value">${plant.taxonomy.suku}</span>
+                            </div>
+                            <div class="taxonomy-item">
+                                <span class="taxonomy-label">Warga</span>
+                                <span class="taxonomy-value">${plant.taxonomy.warga}</span>
+                            </div>
+                            <div class="taxonomy-item">
+                                <span class="taxonomy-label">Jenis</span>
+                                <span class="taxonomy-value">${plant.taxonomy.jenis}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="detail-section">
+                        <div class="detail-title">📖 Deskripsi</div>
+                        <p style="margin-bottom: 10px;"><strong>Gambaran Umum:</strong> ${plant.description.overview}</p>
+                        <p style="margin-bottom: 10px;"><strong>Karakteristik:</strong> ${plant.description.characteristics}</p>
+                        <p style="margin-bottom: 10px;"><strong>Habitat:</strong> ${plant.description.habitat}</p>
+                        <p><strong>Distribusi:</strong> ${plant.description.distribution}</p>
+                    </div>
+
+                    <!-- Names -->
+                    <div class="detail-section">
+                        <div class="detail-title">🏷️ Nama-Nama</div>
+                        <p><strong>Nama Umum:</strong> ${plant.names.common}</p>
+                        <p><strong>Nama Inggris:</strong> ${plant.names.english}</p>
+                        <p><strong>Nama Daerah:</strong></p>
+                        <ul style="margin-left: 20px;">
+                            ${Object.entries(plant.names.regional).map(([region, name]) =>
+                    `<li><strong>${region.charAt(0).toUpperCase() + region.slice(1)}:</strong> ${name}</li>`
+                ).join('')}
+                        </ul>
+                    </div>
+
+                    <!-- Chemical Compounds -->
+                    <div class="detail-section">
+                        <div class="detail-title">🧪 Kandungan Kimia</div>
+                        <div class="compound-tags">
+                            ${plant.chemical_compounds.map(compound =>
+                    `<span class="compound-tag">${compound}</span>`
+                ).join('')}
+                        </div>
+                        <p style="margin-top: 15px;"><strong>Cara Kerja:</strong> ${plant.mode_of_action}</p>
+                    </div>
+
+                    <!-- Target Pests -->
+                    <div class="detail-section">
+                        <div class="detail-title">🐛 Hama & Penyakit Target</div>
+                        <div class="pest-tags">
+                            ${plant.target_pests.map(pest =>
+                    `<span class="pest-tag">${pest}</span>`
+                ).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Formulations -->
+                    <div class="detail-section">
+                        <div class="detail-title">⚗️ Formulasi & Cara Pembuatan</div>
+                        ${plant.formulations.map((formulation, index) => `
+                            <div class="formulation-card">
+                                <div class="formulation-title">${index + 1}. ${formulation.name}</div>
+                                
+                                <div class="materials-section">
+                                    <div class="materials-title">Bahan Utama:</div>
+                                    <ul class="materials-list">
+                                        ${formulation.materials.main.map(m =>
+                    `<li>${m.item}: ${m.amount}</li>`
+                ).join('')}
+                                    </ul>
+                                </div>
+
+                                <div class="materials-section">
+                                    <div class="materials-title">Bahan Tambahan:</div>
+                                    <ul class="materials-list">
+                                        ${formulation.materials.additives.map(m =>
+                    `<li>${m.item}: ${m.amount}</li>`
+                ).join('')}
+                                    </ul>
+                                </div>
+
+                                <div class="materials-section">
+                                    <div class="materials-title">Alat yang Diperlukan:</div>
+                                    <ul class="materials-list">
+                                        ${formulation.materials.tools.map(tool =>
+                    `<li>${tool}</li>`
+                ).join('')}
+                                    </ul>
+                                </div>
+
+                                <div class="materials-section">
+                                    <div class="materials-title">Langkah Pembuatan:</div>
+                                    <ol class="steps-list">
+                                        ${formulation.preparation_steps.map(step =>
+                    `<li>${step}</li>`
+                ).join('')}
+                                    </ol>
+                                </div>
+
+                                <div class="application-box">
+                                    <div class="application-title">📌 Cara Aplikasi</div>
+                                    <p>${formulation.application_method}</p>
+                                    <p style="margin-top: 10px;"><strong>Target Hama:</strong> ${formulation.target_pests.join(', ')}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Safety -->
+                    <div class="safety-box">
+                        <div class="safety-title">✅ Informasi Keamanan</div>
+                        <p><strong>Pengaruh terhadap Organisme Berguna:</strong> ${plant.safety.effect_on_beneficial_organisms}</p>
+                        <p><strong>Tingkat Toksisitas:</strong> ${plant.safety.toxicity_level}</p>
+                        <div style="margin-top: 10px;">
+                            <strong>Tindakan Pencegahan:</strong>
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                ${plant.safety.precautions.map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Other Benefits -->
+                    ${plant.other_benefits && plant.other_benefits.length > 0 ? `
+                    <div class="detail-section">
+                        <div class="detail-title">💊 Manfaat Lain</div>
+                        <div class="benefits-list">
+                            ${plant.other_benefits.map(benefit =>
+                    `<div class="benefit-item">✓ ${benefit}</div>`
+                ).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- Source -->
+                    <div class="detail-section" style="border-top: 2px solid var(--border); padding-top: 20px; margin-top: 30px;">
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">
+                            <strong>Sumber:</strong> ${plant.source.publication} (${plant.source.publisher}, ${plant.source.year})
+                            ${plant.source.page_reference ? ` - Hal. ${plant.source.page_reference}` : ''}
+                        </p>
+                    </div>
+                `;
+
+                document.getElementById('detailModal').classList.add('active');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal memuat detail tumbuhan');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // Close modal on outside click
+        window.onclick = function (event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('partFilter').addEventListener('change', applyFilters);
+
+        // Init
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+
+</html>

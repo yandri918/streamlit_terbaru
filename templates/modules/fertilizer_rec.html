@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rekomendasi Pupuk – AgriSensa</title>
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .description {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        button {
+            background: #27ae60;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        button:hover {
+            background: #219150;
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+
+        /* Tab Styles */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #7f8c8d;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #27ae60;
+            border-bottom-color: #27ae60;
+        }
+
+        .mode-content {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .mode-content.active {
+            display: block;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #2c3e50;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Rekomendasi Pupuk</h1>
+        <p class="description">Pilih metode rekomendasi yang sesuai dengan kebutuhan Anda.</p>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('basic')">Kalkulator Dosis (Basic)</button>
+            <button class="tab-btn" onclick="switchTab('advanced')">Rekomendasi Cerdas (Advanced)</button>
+        </div>
+
+        <!-- Basic Mode: Kalkulator Dosis -->
+        <div id="basic-mode" class="mode-content active">
+            <div class="info-box">
+                <p>🔢 Hitung dosis pupuk dasar berdasarkan luas lahan dan komoditas.</p>
+            </div>
+            <form id="fertilizer-form" class="upload-form">
+                <div class="form-group">
+                    <label for="ph">pH Tanah</label>
+                    <input type="number" step="0.1" id="ph" name="ph" placeholder="Contoh: 6.5" required />
+                </div>
+                <div class="form-group">
+                    <label for="area">Luas Area (m²)</label>
+                    <input type="number" step="1" id="area" name="area" placeholder="Contoh: 1000" required />
+                </div>
+                <div class="form-group">
+                    <label for="commodity">Komoditas</label>
+                    <select id="commodity" name="commodity" required>
+                        <option value="padi">Padi</option>
+                        <option value="jagung">Jagung</option>
+                        <option value="kedelai">Kedelai</option>
+                        <option value="cabai">Cabai</option>
+                    </select>
+                </div>
+                <button type="submit">Hitung Dosis</button>
+            </form>
+        </div>
+
+        <!-- Advanced Mode: Rekomendasi Cerdas -->
+        <div id="advanced-mode" class="mode-content">
+            <div class="info-box" style="background: #e8f5e9; border-left-color: #27ae60;">
+                <p>🧠 Analisis mendalam menggunakan AI berdasarkan kondisi tanah dan tanaman.</p>
+            </div>
+
+            <!-- BWD Analysis Section -->
+            <div
+                style="background: white; border: 2px dashed #ddd; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                <h4 style="margin-top: 0; color: #2c3e50;">📸 Analisis Kesehatan Daun (BWD)</h4>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Upload foto daun untuk mendapatkan skor
+                    BWD otomatis dan deteksi penyakit.</p>
+
+                <form id="bwd-form" enctype="multipart/form-data" style="margin-bottom: 10px;">
+                    <input type="file" id="leaf-image" name="file" accept="image/*" style="display: none;"
+                        onchange="handleFileSelect(this)">
+                    <button type="button" onclick="document.getElementById('leaf-image').click()"
+                        style="background: #3498db; margin-bottom: 10px;">📂 Pilih Foto Daun</button>
+                    <p id="file-name" style="font-size: 0.85rem; color: #27ae60; margin: 5px 0; display: none;"></p>
+                    <button type="submit" id="analyze-btn" style="background: #f39c12; display: none; width: 100%;">🔍
+                        Analisis Sekarang</button>
+                </form>
+                <div id="bwd-loading" style="display: none; color: #666;">⏳ Menganalisis...</div>
+
+                <!-- Disease Analysis Result -->
+                <div id="disease-result"
+                    style="display: none; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #eee;">
+                    <h5 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+                        🩺 Hasil Diagnosa Penyakit</h5>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;">
+                        <div>
+                            <strong>Kondisi:</strong> <span id="disease-condition" style="color: #e74c3c;">-</span>
+                        </div>
+                        <div>
+                            <strong>Confidence:</strong> <span id="disease-confidence">-</span>%
+                        </div>
+                        <div>
+                            <strong>Bercak Coklat:</strong> <span id="disease-brown">-</span>
+                        </div>
+                        <div>
+                            <strong>Bercak Putih:</strong> <span id="disease-white">-</span>
+                        </div>
+                    </div>
+                    <p id="disease-details"
+                        style="font-size: 0.85rem; color: #666; margin: 10px 0 0 0; line-height: 1.4;"></p>
+                </div>
+            </div>
+
+            <form id="advanced-form" class="upload-form">
+                <div class="form-group">
+                    <label for="ph-adv">pH Tanah</label>
+                    <input type="number" step="0.1" id="ph-adv" name="ph_tanah" placeholder="Contoh: 6.0" required />
+                </div>
+                <div class="form-group">
+                    <label for="bwd">Skor BWD (Kesehatan Daun 0-100)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" step="0.1" id="bwd" name="skor_bwd" placeholder="Contoh: 75 (Opsional)"
+                            style="flex: 1;" />
+                        <span id="bwd-status-badge"
+                            style="display: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; align-items: center;"></span>
+                    </div>
+                    <small style="color: #666;">Diisi manual atau otomatis dari hasil analisis foto di atas.</small>
+                </div>
+                <div class="form-group">
+                    <label for="moisture">Kelembaban Tanah (%)</label>
+                    <input type="number" step="1" id="moisture" name="kelembaban_tanah" placeholder="Contoh: 60"
+                        required />
+                </div>
+                <div class="form-group">
+                    <label for="age">Umur Tanaman (Hari)</label>
+                    <input type="number" step="1" id="age" name="umur_tanaman_hari" placeholder="Contoh: 30" required />
+                </div>
+                <button type="submit" style="background: #2980b9;">Dapatkan Analisis AI</button>
+            </form>
+        </div>
+
+        <div id="result" class="result"></div>
+
+        <a href="/dashboard"
+            style="display: block; text-align: center; margin-top: 20px; color: #666; text-decoration: none;">← Kembali
+            ke Dashboard</a>
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(mode) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.mode-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(mode + '-mode').classList.add('active');
+
+            // Clear result
+            document.getElementById('result').innerHTML = '';
+        }
+
+        const resultDiv = document.getElementById('result');
+
+        // BWD Analysis Logic
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                const fileName = input.files[0].name;
+                const nameDisplay = document.getElementById('file-name');
+                nameDisplay.textContent = "File: " + fileName;
+                nameDisplay.style.display = 'block';
+                document.getElementById('analyze-btn').style.display = 'block';
+            }
+        }
+
+        document.getElementById('bwd-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loading = document.getElementById('bwd-loading');
+            const btn = document.getElementById('analyze-btn');
+
+            loading.style.display = 'block';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+
+            const formData = new FormData(e.target);
+
+            try {
+                const resp = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await resp.json();
+
+                if (data.success) {
+                    const score = data.bwd_score;
+                    const input = document.getElementById('bwd');
+                    input.value = score;
+
+                    // Update badge
+                    const badge = document.getElementById('bwd-status-badge');
+                    badge.style.display = 'flex';
+                    if (score >= 70) {
+                        badge.style.background = '#d4edda';
+                        badge.style.color = '#155724';
+                        badge.textContent = '✅ Sehat';
+                    } else if (score >= 40) {
+                        badge.style.background = '#fff3cd';
+                        badge.style.color = '#856404';
+                        badge.textContent = '⚠️ Sedang';
+                    } else {
+                        badge.style.background = '#f8d7da';
+                        badge.style.color = '#721c24';
+                        badge.textContent = '❌ Tidak Sehat';
+                    }
+
+                    // Show Disease Analysis
+                    if (data.disease_analysis) {
+                        document.getElementById('disease-result').style.display = 'block';
+                        document.getElementById('disease-condition').textContent = data.disease_analysis.condition;
+                        document.getElementById('disease-confidence').textContent = data.confidence || '-';
+                        document.getElementById('disease-brown').textContent = data.disease_analysis.brown_spots;
+                        document.getElementById('disease-white').textContent = data.disease_analysis.white_spots;
+                        document.getElementById('disease-details').textContent = data.disease_analysis.details;
+                    }
+
+                    // Flash effect
+                    input.style.transition = 'background 0.5s';
+                    input.style.background = '#d4edda';
+                    setTimeout(() => input.style.background = 'white', 1000);
+                } else {
+                    alert('Gagal menganalisis: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Terjadi kesalahan koneksi.');
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        });
+
+        // Basic Form Handler
+        document.getElementById('fertilizer-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                ph: parseFloat(form.ph.value),
+                area_sqm: parseFloat(form.area.value),
+                commodity: form.commodity.value
+            };
+            submitRecommendation(data, 'basic');
+        });
+
+        // Advanced Form Handler
+        document.getElementById('advanced-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                ph_tanah: parseFloat(form.ph_tanah.value),
+                skor_bwd: parseFloat(form.skor_bwd.value) || 50, // Default 50 if empty
+                kelembaban_tanah: parseFloat(form.kelembaban_tanah.value),
+                umur_tanaman_hari: parseInt(form.umur_tanaman_hari.value)
+            };
+            submitRecommendation(data, 'advanced');
+        });
+
+        async function submitRecommendation(data, mode) {
+            resultDiv.innerHTML = '<p style="text-align:center;">🔄 Memproses data...</p>';
+
+            try {
+                const resp = await fetch('/recommendation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const json = await resp.json();
+
+                if (json.success) {
+                    const rec = json.recommendation;
+
+                    if (mode === 'basic') {
+                        // Render Basic Result
+                        resultDiv.innerHTML = `
+                            <div style="padding: 1.5rem;">
+                                <h3 style="color: #27ae60; text-align: center;">🌿 Hasil Perhitungan Dosis</h3>
+                                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                                    <p><strong>Komoditas:</strong> ${rec.commodity_name || data.commodity}</p>
+                                    <p><strong>Luas Lahan:</strong> ${rec.area_sqm} m² (${rec.area_ha} ha)</p>
+                                </div>
+                                
+                                <h4>Pupuk Anorganik:</h4>
+                                <ul style="list-style: none; padding: 0;">
+                                    ${Object.entries(rec.anorganik).map(([k, v]) =>
+                            `<li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                            <span>${k}</span> <strong>${v} kg</strong>
+                                        </li>`
+                        ).join('')}
+                                </ul>
+
+                                ${Object.keys(rec.organik).length > 0 ? `
+                                    <h4>Pupuk Organik:</h4>
+                                    <ul style="list-style: none; padding: 0;">
+                                        ${Object.entries(rec.organik).map(([k, v]) =>
+                            `<li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                                <span>${k}</span> <strong>${v} kg</strong>
+                                            </li>`
+                        ).join('')}
+                                    </ul>
+                                ` : ''}
+
+                                ${rec.ph_warning ? `
+                                    <div style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                                        ⚠️ <strong>Perhatian:</strong> pH tanah Anda (${rec.ph}) tergolong asam. Disarankan menambahkan <strong>${rec.perbaikan_tanah.Dolomit} kg Dolomit</strong>.
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    } else {
+                        // Render Advanced Result
+                        let html = `
+                            <div style="padding: 1.5rem;">
+                                <h3 style="color: #2980b9; text-align: center;">🧠 Analisis Cerdas AI</h3>
+                                <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #27ae60; margin-bottom: 1.5rem;">
+                                    <h4 style="margin-top: 0;">💡 Rekomendasi Utama</h4>
+                                    <p style="font-size: 1.1rem; font-weight: 500;">${rec.rekomendasi_utama}</p>
+                                </div>
+
+                                <!-- New: BWD & Health Analysis -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                                        <h4 style="color: #27ae60; margin-top: 0;">🍃 Analisa BWD</h4>
+                                        <p style="font-size: 0.95rem; color: #555;">${rec.analisa_bwd}</p>
+                                    </div>
+                                    <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                                        <h4 style="color: #e67e22; margin-top: 0;">🩺 Analisa Kesehatan</h4>
+                                        <ul style="padding-left: 20px; margin: 0; font-size: 0.95rem; color: #555;">
+                                            ${rec.analisa_kesehatan.map(k => `<li>${k}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                        `;
+
+                        if (rec.rekomendasi_pupuk_ml) {
+                            html += `
+                                <h4>Rekomendasi Nutrisi Spesifik:</h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                                    ${Object.entries(rec.rekomendasi_pupuk_ml).map(([k, v]) => `
+                                        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; border: 1px solid #eee;">
+                                            <div style="color: #7f8c8d; font-size: 0.9rem;">${k}</div>
+                                            <div style="color: #2c3e50; font-weight: bold; font-size: 1.1rem;">${v}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        }
+
+                        if (rec.peringatan_penting && rec.peringatan_penting.length > 0) {
+                            html += `
+                                <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px;">
+                                    <strong>⚠️ Catatan Penting:</strong>
+                                    <ul style="margin: 5px 0 0 0; padding-left: 20px;">
+                                        ${rec.peringatan_penting.map(w => `<li>${w}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            `;
+                        }
+
+                        html += '</div>';
+                        resultDiv.innerHTML = html;
+                    }
+
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red; text-align: center;">❌ Error: ${json.error || 'Gagal memproses permintaan'}</p>`;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                resultDiv.innerHTML = `<p style="color: red; text-align: center;">⚠️ Terjadi kesalahan koneksi.</p>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

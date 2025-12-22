@@ -1,0 +1,37 @@
+[
+  {
+    "farmer_name": "andri",
+    "farmer_phone": "082288410631",
+    "commodity": "Cabai Merah",
+    "location": "cilacap",
+    "harvest_date": "2025-12-05",
+    "harvest_sequence": 1,
+    "criteria": [
+      {
+        "size": "besar",
+        "quantity_kg": 76.0,
+        "price_per_kg": 150000.0,
+        "total": 11400000.0
+      }
+    ],
+    "total_quantity": 76.0,
+    "total_value": 11400000.0,
+    "costs": {
+      "bibit": 500000.0,
+      "pupuk": 1000000.0,
+      "pestisida": 100000.0,
+      "tenaga_kerja": 500000.0,
+      "peralatan": 2000000.0,
+      "lainnya": 0.0
+    },
+    "total_cost": 4100000.0,
+    "profit": 7300000.0,
+    "profit_margin": 64.04,
+    "roi": 178.05,
+    "weather": "Berawan",
+    "notes": "",
+    "id": "c8bae728-8fea-4299-a19d-d95eca3d8536",
+    "created_at": "2025-12-04T16:55:36.509249",
+    "updated_at": "2025-12-04T16:55:36.509249"
+  }
+]

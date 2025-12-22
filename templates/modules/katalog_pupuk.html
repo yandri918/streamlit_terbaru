@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Katalog Pupuk & Harga - AgriSensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.gstatic.com" crossorigin="" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #10b981;
+            /* Emerald 500 */
+            --primary-dark: #059669;
+            /* Emerald 600 */
+            --secondary: #3b82f6;
+            /* Blue 500 */
+            --accent: #f59e0b;
+            /* Amber 500 */
+            --bg-body: #f0fdf4;
+            /* Emerald 50 */
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            /* Gray 800 */
+            --text-muted: #6b7280;
+            /* Gray 500 */
+            --border: #e5e7eb;
+            /* Gray 200 */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 40px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Header */
+        .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        /* Hero & Search */
+        .hero-section {
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 24px;
+            padding-left: 50px;
+            border-radius: 50px;
+            border: 2px solid transparent;
+            background: white;
+            box-shadow: var(--shadow-md);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        /* Content Grid */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .category-section {
+            margin-bottom: 50px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .category-badge {
+            background: var(--bg-body);
+            color: var(--primary-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid var(--primary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* Product Card */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .card-image {
+            height: 180px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* Changed to contain to show full product */
+            padding: 10px;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-image img {
+            transform: scale(1.05);
+        }
+
+        .card-image-placeholder {
+            font-size: 3rem;
+            color: #d1d5db;
+        }
+
+        .card-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .manufacturer {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .price-tag {
+            background: #ecfdf5;
+            color: var(--primary-dark);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            display: inline-block;
+            margin-top: auto;
+            border: 1px solid #a7f3d0;
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: var(--text-main);
+            color: white;
+            padding: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+        }
+
+        /* States */
+        .loading-state {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 40px;
+            background: #fef2f2;
+            border-radius: var(--radius);
+            border: 1px solid #fee2e2;
+            color: #991b1b;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .retry-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/" class="brand">
+                <span>🌾</span> AgriSensa
+            </a>
+            <a href="/dashboard" class="back-link">
+                ← Kembali ke Dasbor
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero-section">
+        <h1 class="hero-title">Katalog Pupuk & Harga</h1>
+        <p class="hero-subtitle">Referensi harga pupuk terkini dari berbagai produsen terpercaya di Indonesia.</p>
+
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari nama pupuk, jenis, atau merk...">
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container" id="catalog-container">
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Sedang memuat data katalog terbaru...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('catalog-container');
+            const searchInput = document.getElementById('searchInput');
+            let allData = []; // Store data for filtering
+
+            // Fetch Data
+            async function fetchCatalog() {
+                try {
+                    // Ensure we hit the correct endpoint
+                    const response = await fetch('/api/catalog/fertilizers');
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.success && result.data.length > 0) {
+                        allData = result.data;
+                        renderCatalog(allData);
+                    } else {
+                        showError("Data katalog kosong atau tidak ditemukan.");
+                    }
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    showError("Gagal terhubung ke server. Pastikan Anda terhubung ke internet atau server berjalan.");
+                }
+            }
+
+            // Render Function
+            function renderCatalog(data) {
+                container.innerHTML = '';
+
+                if (data.length === 0) {
+                    container.innerHTML = `
+                        <div class="error-state" style="background: #f3f4f6; color: var(--text-muted); border-color: #e5e7eb;">
+                            <h3>Tidak ada hasil ditemukan</h3>
+                            <p>Coba kata kunci pencarian lain.</p>
+                        </div>`;
+                    return;
+                }
+
+                data.forEach(category => {
+                    // Create Category Section
+                    const section = document.createElement('div');
+                    section.className = 'category-section';
+
+                    const header = document.createElement('div');
+                    header.className = 'category-header';
+                    header.innerHTML = `
+                        <h2 class="category-title">${category.category}</h2>
+                        <span class="category-badge">${category.products.length} Produk</span>
+                    `;
+                    section.appendChild(header);
+
+                    // Create Grid
+                    const grid = document.createElement('div');
+                    grid.className = 'grid';
+
+                    category.products.forEach(product => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+
+                        // Image Handling
+                        let imageContent;
+                        if (product.image_url && product.image_url.trim() !== "") {
+                            imageContent = `<img src="${product.image_url}" alt="${product.name}" onerror="this.onerror=null; this.parentNode.innerHTML='<span class=\\'card-image-placeholder\\'>📦</span>'">`;
+                        } else {
+                            imageContent = `<span class="card-image-placeholder">📦</span>`;
+                        }
+
+                        // Link Handling
+                        const linkBtn = product.link
+                            ? `<a href="${product.link}" target="_blank" class="action-btn">Lihat Detail di Toko ↗</a>`
+                            : `<span class="action-btn" style="background: #e5e7eb; color: #9ca3af; cursor: not-allowed;">Info Detail Tidak Tersedia</span>`;
+
+                        card.innerHTML = `
+                            <div class="card-image">
+                                ${imageContent}
+                            </div>
+                            <div class="card-content">
+                                <div class="manufacturer">${product.manufacturer}</div>
+                                <h3 class="product-name">${product.name}</h3>
+                                <p class="description">${product.description}</p>
+                                <div class="price-tag">${product.price_range}</div>
+                                ${linkBtn}
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+
+                    section.appendChild(grid);
+                    container.appendChild(section);
+                });
+            }
+
+            // Error Display
+            function showError(message) {
+                container.innerHTML = `
+                    <div class="error-state">
+                        <h3>⚠️ Terjadi Kesalahan</h3>
+                        <p>${message}</p>
+                        <button class="retry-btn" onclick="window.location.reload()">Coba Lagi</button>
+                    </div>
+                `;
+            }
+
+            // Search Functionality
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+
+                if (!term) {
+                    renderCatalog(allData);
+                    return;
+                }
+
+                // Filter logic: Create a new structure containing only matching products
+                const filteredData = allData.map(category => {
+                    const matchingProducts = category.products.filter(p =>
+                        p.name.toLowerCase().includes(term) ||
+                        p.manufacturer.toLowerCase().includes(term) ||
+                        p.description.toLowerCase().includes(term)
+                    );
+
+                    if (matchingProducts.length > 0) {
+                        return { ...category, products: matchingProducts };
+                    }
+                    return null;
+                }).filter(Boolean); // Remove null categories
+
+                renderCatalog(filteredData);
+            });
+
+            // Initial Load
+            fetchCatalog();
+        });
+    </script>
+</body>
+
+</html>

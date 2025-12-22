@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>📈 Modul 4: Intelijen Harga Pasar - Agrisensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #4caf50;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2.5em;
+        }
+
+        .price-ticker-container {
+            background-color: var(--text-color);
+            color: white;
+            padding: 10px 0;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .price-ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-left 40s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            margin: 0 25px;
+        }
+
+        .ticker-item .name {
+            font-weight: 500;
+        }
+
+        .ticker-item .price {
+            font-weight: 700;
+            color: var(--primary-light);
+            margin-left: 8px;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .module {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-top: 0;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        button,
+        .option-button {
+            background-color: var(--primary-light);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+
+        button:hover,
+        .option-button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .item-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .price-item,
+        .fertilizer-item,
+        .pdf-item,
+        .shap-item,
+        .plan-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+        }
+
+        .item-name,
+        .plan-item-label {
+            font-weight: 500;
+        }
+
+        .item-value,
+        .plan-item-value {
+            font-size: 1.1em;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .pdf-item a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .pdf-item a:hover {
+            text-decoration: underline;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+        }
+
+        .tab-button.active {
+            border-bottom: 3px solid var(--primary-light);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .strategy-cycle {
+            border-left: 3px solid var(--primary-light);
+            padding-left: 20px;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        td.cost {
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .total-cost {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .shap-positive {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .shap-negative {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mx-auto p-4 md:p-8">
+        <a href="/dashboard"
+            style="display: inline-block; margin-bottom: 20px; color: var(--primary-color); text-decoration: none; font-weight: 500;">←
+            Kembali ke Dashboard</a>
+
+        <div class="header">
+            <h1>📈 Intelijen Harga Pasar</h1>
+            <p class="text-muted">Pantau harga komoditas terkini di berbagai tingkat pasar.</p>
+        </div>
+
+        <div class="price-ticker-container">
+            <div class="price-ticker-content" id="price-ticker-content">
+                <!-- Ticker items will be loaded here -->
+                <div class="ticker-item">Memuat data harga pasar terkini...</div>
+            </div>
+        </div>
+
+        <!-- Modul 4: Intelijen Harga Pasar -->
+        <div class="module" id="modul-4">
+            <h2>💰 Cek Harga Komoditas</h2>
+            <form id="price-form">
+                <label for="price-commodity-select">Pilih Komoditas:</label>
+                <select id="price-commodity-select" required>
+                    <option value="" disabled selected>-- Pilih Komoditas --</option>
+                    <optgroup label="Sayuran & Bumbu">
+                        <option value="cabai_merah_keriting">Cabai Merah</option>
+                        <option value="cabai_rawit_merah">Cabai Rawit</option>
+                        <option value="bawang_merah">Bawang Merah</option>
+                        <option value="bawang_putih">Bawang Putih</option>
+                        <option value="tomat">Tomat</option>
+                        <option value="kentang">Kentang</option>
+                        <option value="wortel">Wortel</option>
+                        <option value="kubis">Kubis</option>
+                    </optgroup>
+                    <optgroup label="Sembako & Pangan Pokok">
+                        <option value="beras_premium">Beras Premium</option>
+                        <option value="beras_medium">Beras Medium</option>
+                        <option value="gula_pasir">Gula Pasir</option>
+                        <option value="minyak_goreng_kemasan">Minyak Goreng</option>
+                        <option value="daging_ayam">Daging Ayam</option>
+                        <option value="telur_ayam">Telur Ayam</option>
+                        <option value="daging_sapi">Daging Sapi</option>
+                    </optgroup>
+                    <optgroup label="Palawija">
+                        <option value="jagung_pipilan">Jagung</option>
+                        <option value="kedelai">Kedelai</option>
+                        <option value="kacang_tanah">Kacang Tanah</option>
+                        <option value="ubi_kayu">Ubi Kayu</option>
+                    </optgroup>
+                </select>
+                <button type="submit">Cek Harga</button>
+            </form>
+            <div id="result-price" class="result-box"></div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Modul loaded:', window.location.pathname);
+            const baseUrl = ''; // Kosongkan jika file HTML berada di domain yang sama
+            const apiPrefix = ''; // Menggunakan legacy endpoints yang sudah tersedia
+
+            function formatRupiah(angka) {
+                if (angka === null || angka === undefined) return "N/A";
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0
+                }).format(angka);
+            }
+
+            // Fungsi openTab harus tersedia secara global atau dilampirkan ke window
+            window.openTab = function (evt, tabName, element) {
+                let i, tabcontent, tablinks;
+                const parent = element.closest('.module');
+                if (!parent) return; // Guard clause
+
+                tabcontent = parent.getElementsByClassName("tab-content");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = parent.getElementsByClassName("tab-button");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                const targetTab = document.getElementById(tabName);
+                if (targetTab) {
+                    targetTab.style.display = "block";
+                }
+                if (evt.currentTarget) {
+                    evt.currentTarget.className += " active";
+                }
+            }
+
+            const tickerContent = document.getElementById('price-ticker-content');
+            async function fetchTickerData() {
+                try {
+                    const response = await fetch(`${baseUrl}${apiPrefix}/get-ticker-prices`);
+                    const responseData = await response.json();
+                    if (responseData.success) {
+                        let tickerHtml = '';
+                        const tickerItems = [...responseData.data, ...responseData.data]; // Duplikasi untuk efek loop
+                        tickerItems.forEach(item => {
+                            tickerHtml +=
+                                `<div class="ticker-item"><span class="name">${item.name}:</span><span class="price">${formatRupiah(item.price)}/${item.unit}</span></div>`;
+                        });
+                        tickerContent.innerHTML = tickerHtml;
+                    }
+                } catch (error) {
+                    console.error("Gagal memuat data ticker:", error);
+                }
+            }
+            if (tickerContent) {
+                fetchTickerData();
+                setInterval(fetchTickerData, 60000); // Refresh setiap 60 detik
+            }
+
+            // --- Logika untuk Modul 4 (Intelijen Harga Pasar) ---
+            const priceForm = document.getElementById('price-form'),
+                resultPriceDiv = document.getElementById('result-price');
+            if (priceForm) {
+                priceForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log('📝 Modul 4: Price Check: Form submitted!');
+                    resultPriceDiv.innerHTML = '<p>Mengambil data harga...</p>';
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/get-prices`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                commodity: priceForm.querySelector('#price-commodity-select').value
+                            })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            const d = data.data;
+                            let html = `
+                                <div style="padding: 1.5rem;">
+                                    <div style="text-align: center; margin-bottom: 2rem;">
+                                        <div style="font-size: 4rem; margin-bottom: 1rem;">💰</div>
+                                        <h2 style="color: #3498db; margin-bottom: 0.5rem; justify-content: center;">${d.name}</h2>
+                                        <p style="color: #7f8c8d;">Harga per ${d.unit}</p>
+                                    </div>
+                                    
+                                    <div style="display: grid; gap: 1rem;">
+                                        ${Object.entries(d.prices).map(([market, price]) => `
+                                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 8px; color: white;">
+                                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <div>
+                                                        <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">📍 ${market}</div>
+                                                        <div style="font-size: 2rem; font-weight: 700;">${formatRupiah(price)}</div>
+                                                    </div>
+                                                    <div style="font-size: 2.5rem;">💵</div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    
+                                    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; margin-top: 1rem; border-left: 4px solid #3498db;">
+                                        <h3 style="margin-top: 0; color: #3498db; font-size: 1rem;">ℹ️ Informasi</h3>
+                                        <p style="margin: 0; color: #495057; font-size: 0.9rem; line-height: 1.6;">
+                                            Harga dapat berubah sewaktu-waktu. Data ini bersifat estimasi untuk referensi Anda.
+                                        </p>
+                                    </div>
+                                </div>
+                            `;
+                            resultPriceDiv.innerHTML = html;
+                        } else {
+                            resultPriceDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultPriceDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+# AgriBot - Asisten Pertanian Cerdas
+
+
+# 🤖 AgriBot
+[Keluar](http://localhost:5000/dashboard)
+Halo! Saya AgriBot, asisten pertanian pintar Anda. 🌱
+Ada yang bisa saya bantu mengenai tanaman, hama, atau harga pasar hari ini?

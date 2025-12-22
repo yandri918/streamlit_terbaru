@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>🧪 Modul 3: Analisis NPK Manual - Agrisensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #4caf50;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2.5em;
+        }
+
+        .module {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-top: 0;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        button {
+            background-color: var(--primary-light);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        ul {
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: white;
+        }
+
+        .label-danger {
+            background-color: #d32f2f;
+        }
+
+        .label-warning {
+            background-color: #f57c00;
+        }
+
+        .label-success {
+            background-color: #388e3c;
+        }
+
+        .label-info {
+            background-color: #0288d1;
+        }
+
+        .label-primary {
+            background-color: #1976d2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mx-auto p-4 md:p-8">
+        <a href="/dashboard"
+            style="display: inline-block; margin-bottom: 20px; color: var(--primary-color); text-decoration: none; font-weight: 500;">←
+            Kembali ke Dasbor</a>
+        <div class="module">
+            <h2>🧪 Modul 3: Analisis NPK Manual (Scientific)</h2>
+            <p class="text-muted" style="margin-bottom: 20px;">Masukkan data hasil uji tanah (ppm) untuk mendapatkan
+                analisis mendalam dan rekomendasi pemupukan presisi.</p>
+            <form id="npk-form">
+                <label for="n-input">Nitrogen (N) (ppm):</label>
+                <input id="n-input" placeholder="Contoh: 120" required="" type="number" step="0.1" />
+
+                <label for="p-input">Fosfor (P) (ppm):</label>
+                <input id="p-input" placeholder="Contoh: 25" required="" type="number" step="0.1" />
+
+                <label for="k-input">Kalium (K) (ppm):</label>
+                <input id="k-input" placeholder="Contoh: 180" required="" type="number" step="0.1" />
+
+                <button type="submit">Analisis Ilmiah</button>
+            </form>
+            <div class="result-box" id="result-npk" style="display:none;">
+                <p>Hasil analisis akan muncul di sini.</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Modul loaded:', window.location.pathname);
+            const baseUrl = '';
+            const apiPrefix = '';
+
+            const formNpk = document.getElementById('npk-form');
+            const resultNpkDiv = document.getElementById('result-npk');
+
+            if (formNpk) {
+                formNpk.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultNpkDiv.style.display = 'block';
+                    resultNpkDiv.innerHTML = '<p>🔄 Menganalisis data laboratorium...</p>';
+
+                    const requestData = {
+                        n_value: parseFloat(formNpk.querySelector('#n-input').value),
+                        p_value: parseFloat(formNpk.querySelector('#p-input').value),
+                        k_value: parseFloat(formNpk.querySelector('#k-input').value),
+                    };
+
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/analyze-npk`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(requestData)
+                        });
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // Save to localStorage for other modules
+                            const soilData = {
+                                n: requestData.n_value,
+                                p: requestData.p_value,
+                                k: requestData.k_value,
+                                timestamp: new Date().toISOString()
+                            };
+                            localStorage.setItem('agrisensa_soil_data', JSON.stringify(soilData));
+                            console.log('💾 Soil data saved to localStorage:', soilData);
+
+                            let html = '<h3>📊 Hasil Analisis Presisi:</h3><ul class="item-list">';
+
+                            for (const [key, r] of Object.entries(data.analysis)) {
+                                const cssClass = r.class ? `label-${r.class}` : 'label-info';
+                                html += `
+                                    <li style="border-bottom: 1px solid #eee; padding: 15px 0;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                            <strong style="font-size:1.1em;">${key}</strong>
+                                            <span class="label ${cssClass}">${r.label}</span>
+                                        </div>
+                                        <div style="background:#f9f9f9; padding:10px; border-radius:6px; border-left: 4px solid #ccc;">
+                                            ${r.rekomendasi}
+                                        </div>
+                                    </li>`;
+                            }
+                            html += '</ul><p style="margin-top:15px; font-size:0.9em; color:#666;">*Rekomendasi ini berdasarkan standar umum. Sesuaikan dengan jenis tanaman spesifik Anda.</p>';
+                            resultNpkDiv.innerHTML = html;
+                        } else {
+                            resultNpkDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultNpkDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> Gagal terhubung ke server analisis.</p>`;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

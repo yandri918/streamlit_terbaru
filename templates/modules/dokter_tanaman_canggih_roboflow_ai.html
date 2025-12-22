@@ -1,0 +1,1418 @@
+
+<!DOCTYPE html>
+
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>📸 Modul 20: Dokter Tanaman Canggih (Roboflow AI) - Agrisensa</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+ :root {
+            --primary-color: #2e7d32;
+            --primary-light: #4caf50;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2.5em;
+        }
+
+        .price-ticker-container {
+            background-color: var(--text-color);
+            color: white;
+            padding: 10px 0;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .price-ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-left 40s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            margin: 0 25px;
+        }
+
+        .ticker-item .name {
+            font-weight: 500;
+        }
+
+        .ticker-item .price {
+            font-weight: 700;
+            color: var(--primary-light);
+            margin-left: 8px;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .module {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-top: 0;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        button,
+        .option-button {
+            background-color: var(--primary-light);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+
+        button:hover,
+        .option-button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .item-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .price-item,
+        .fertilizer-item,
+        .pdf-item,
+        .shap-item,
+        .plan-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+        }
+
+        .item-name,
+        .plan-item-label {
+            font-weight: 500;
+        }
+
+        .item-value,
+        .plan-item-value {
+            font-size: 1.1em;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .pdf-item a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .pdf-item a:hover {
+            text-decoration: underline;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+        }
+
+        .tab-button.active {
+            border-bottom: 3px solid var(--primary-light);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .strategy-cycle {
+            border-left: 3px solid var(--primary-light);
+            padding-left: 20px;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        td.cost {
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .total-cost {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .shap-positive {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .shap-negative {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+</style>
+</head>
+<body>
+<div class="container mx-auto p-4 md:p-8">
+<a href="/dashboard" style="display: inline-block; margin-bottom: 20px; color: var(--primary-color); text-decoration: none; font-weight: 500;">← Kembali ke Dasbor</a>
+<div class="module">
+<h2>📸 Modul 20: Dokter Tanaman Canggih (Roboflow AI)</h2>
+<p>Unggah gambar untuk dianalisis oleh model deteksi objek canggih kami yang didukung oleh Roboflow.
+            </p>
+<form id="advanced-disease-form">
+<label for="disease-image-input">Pilih Gambar Penyakit:</label>
+<input accept="image/*" id="disease-image-input" required="" type="file"/>
+<button type="submit">Analisis dengan AI Canggih</button>
+</form>
+<div class="result-box" id="result-advanced-disease">
+<p>Hasil analisis dari Roboflow akan muncul di sini.</p>
+</div>
+</div></div>
+<script>
+ document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Modul loaded:', window.location.pathname);
+            const baseUrl = ''; // Kosongkan jika file HTML berada di domain yang sama
+            const apiPrefix = ''; // Menggunakan legacy endpoints yang sudah tersedia
+
+            function formatRupiah(angka) {
+                if (angka === null || angka === undefined) return "N/A";
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0
+                }).format(angka);
+            }
+
+            // Fungsi openTab harus tersedia secara global atau dilampirkan ke window
+            window.openTab = function(evt, tabName, element) {
+                let i, tabcontent, tablinks;
+                const parent = element.closest('.module');
+                tabcontent = parent.getElementsByClassName("tab-content");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = parent.getElementsByClassName("tab-button");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                const targetTab = document.getElementById(tabName);
+                if (targetTab) {
+                    targetTab.style.display = "block";
+                }
+                if (evt.currentTarget) {
+                    evt.currentTarget.className += " active";
+                }
+            }
+
+            const tickerContent = document.getElementById('price-ticker-content');
+            async function fetchTickerData() {
+                try {
+                    const response = await fetch(`${baseUrl}${apiPrefix}/get-ticker-prices`);
+                    const responseData = await response.json();
+                    if (responseData.success) {
+                        let tickerHtml = '';
+                        const tickerItems = [...responseData.data, ...responseData.data]; // Duplikasi untuk efek loop
+                        tickerItems.forEach(item => {
+                            tickerHtml +=
+                                `<div class="ticker-item"><span class="name">${item.name}:</span><span class="price">${formatRupiah(item.price)}/${item.unit}</span></div>`;
+                        });
+                        tickerContent.innerHTML = tickerHtml;
+                    }
+                } catch (error) {
+                    console.error("Gagal memuat data ticker:", error);
+                }
+            }
+            if (tickerContent) {
+                fetchTickerData();
+                setInterval(fetchTickerData, 60000); // Refresh setiap 60 detik
+            }
+
+            // --- Logika untuk Modul 1 (Analisis BWD) ---
+            const formBwd = document.getElementById('upload-form'),
+                resultBwdDiv = document.getElementById('result-bwd'),
+                bwdInput = document.getElementById('bwd-input');
+            if (formBwd) {
+                formBwd.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log('📝 Modul 1: BWD Analysis: Form submitted!');
+                    resultBwdDiv.innerHTML = '<p>Menganalisis gambar...</p>';
+                    const formData = new FormData(formBwd);
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/analyze`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (!response.ok && response.status !== 201) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                        if (data.success) {
+                            resultBwdDiv.innerHTML =
+                                `<p><strong>Skor BWD:</strong> ${data.bwd_score} | <strong>Kepercayaan:</strong> ${data.confidence_percent}%</p>`;
+                            if (bwdInput) bwdInput.value = data.bwd_score;
+                        } else {
+                            resultBwdDiv.innerHTML =
+                                `<p style="color: red;"><strong>Error:</strong> ${data.message || data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultBwdDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 2 (Rekomendasi Pupuk) ---
+            const formRec = document.getElementById('recommendation-form'),
+                resultRecDiv = document.getElementById('result-recommendation');
+            if (formRec) {
+                formRec.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log('📝 Modul 2: Recommendation: Form submitted!');
+                    resultRecDiv.innerHTML = '<p>Menghitung rekomendasi...</p>';
+                    const requestData = {
+                        ph_tanah: formRec.querySelector('#ph-input').value,
+                        skor_bwd: bwdInput.value,
+                        kelembaban_tanah: formRec.querySelector('#moisture-input').value,
+                        umur_tanaman_hari: formRec.querySelector('#age-input').value,
+                    };
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/recommendation`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            let html = `<h3>${data.recommendation.rekomendasi_utama}</h3><ul class="item-list">`;
+                            for (const [key, value] of Object.entries(data.recommendation.rekomendasi_pupuk_ml)) {
+                                html +=
+                                    `<li class="fertilizer-item"><span class="item-name">${key}</span><span class="item-value">${value}</li>`;
+                            }
+                            html += '</ul>';
+                            if (data.recommendation.peringatan_penting.length > 0) {
+                                html += '<h4 style="color: orange;">Peringatan:</h4><ul>';
+                                data.recommendation.peringatan_penting.forEach(w => {
+                                    html += `<li>${w}</li>`;
+                                });
+                                html += '</ul>';
+                            }
+                            resultRecDiv.innerHTML = html;
+                        } else {
+                            resultRecDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultRecDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 3 (Analisis NPK Manual) ---
+            const formNpk = document.getElementById('npk-form'),
+                resultNpkDiv = document.getElementById('result-npk');
+            if (formNpk) {
+                formNpk.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log('📝 Modul 3: NPK Analysis: Form submitted!');
+                    resultNpkDiv.innerHTML = '<p>Menganalisis data NPK...</p>';
+                    const requestData = {
+                        n_value: formNpk.querySelector('#n-input').value,
+                        p_value: formNpk.querySelector('#p-input').value,
+                        k_value: formNpk.querySelector('#k-input').value,
+                    };
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/analyze-npk`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            let html = '<h3>Hasil Analisis Tanah:</h3><ul class="item-list">';
+                            const labels = {
+                                'Rendah': 'label-rendah',
+                                'Optimal': 'label-optimal',
+                                'Berlebih': 'label-berlebih'
+                            };
+                            for (const [n, r] of Object.entries(data.analysis)) {
+                                html +=
+                                    `<li><strong>${n}:</strong> <span class="label ${labels[r.label] || ''}">${r.label}</span><br><small>${r.rekomendasi}</small></li>`;
+                            }
+                            html += '</ul><p><small>Data ini telah disimpan.</small></p>';
+                            resultNpkDiv.innerHTML = html;
+                        } else {
+                            resultNpkDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultNpkDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 4 (Intelijen Harga Pasar) ---
+            const priceForm = document.getElementById('price-form'),
+                resultPriceDiv = document.getElementById('result-price');
+            if (priceForm) {
+                priceForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log('📝 Modul 4: Price Check: Form submitted!');
+                    resultPriceDiv.innerHTML = '<p>Mengambil data harga...</p>';
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/get-prices`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                commodity: priceForm.querySelector('#price-commodity-select').value
+                            })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            let html = `<h3>Data Harga: ${data.data.name}</h3><ul class="item-list">`;
+                            for (const [m, p] of Object.entries(data.data.prices)) {
+                                html +=
+                                    `<li class="price-item"><span class="item-name">${m}</span><span class="item-value">${formatRupiah(p)} / ${data.data.unit}</span></li>`;
+                            }
+                            html += '</ul>';
+                            resultPriceDiv.innerHTML = html;
+                        } else {
+                            resultPriceDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultPriceDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 5 (Basis Pengetahuan Budidaya) ---
+            const knowledgeSelect = document.getElementById('knowledge-commodity-select'),
+                resultKnowledgeDiv = document.getElementById('result-knowledge');
+            if (knowledgeSelect) {
+                async function fetchKnowledge() {
+                    if (!knowledgeSelect.value) return;
+                    resultKnowledgeDiv.innerHTML = '<p>Mengambil data...</p>';
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/get-knowledge`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                commodity: knowledgeSelect.value
+                            })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            const kd = data.data;
+                            let html = `<h3>${kd.icon} ${kd.name}</h3><div class="tabs">`;
+                            Object.keys(kd.data).forEach((t, i) => {
+                                html +=
+                                    `<button class="tab-button ${i === 0 ? 'active' : ''}" onclick="openTab(event, 'k-${t.replace(/\s+/g, '-')}', this)">${t}</button>`;
+                            });
+                            html += '</div>';
+                            Object.entries(kd.data).forEach(([t, c], i) => {
+                                html +=
+                                    `<div id="k-${t.replace(/\s+/g, '-')}" class="tab-content ${i === 0 ? 'active' : ''}"><ul>`;
+                                c.forEach(item => {
+                                    html += `<li>${item}</li>`;
+                                });
+                                html += '</ul></div>';
+                            });
+                            resultKnowledgeDiv.innerHTML = html;
+                        } else {
+                            resultKnowledgeDiv.innerHTML =
+                                `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultKnowledgeDiv.innerHTML =
+                            `<p style="color: red;"><strong>Error:</strong> Gagal terhubung.</p>`;
+                    }
+                }
+                knowledgeSelect.addEventListener('change', fetchKnowledge);
+            }
+
+            // --- Logika untuk Modul 7 (Kalkulator Pupuk Holistik) ---
+            const fertForm = document.getElementById('fertilizer-calculator-form'),
+                resultFertDiv = document.getElementById('result-fertilizer');
+            if (fertForm) {
+                fertForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultFertDiv.innerHTML = '<p>Menghitung kebutuhan...</p>';
+                    const requestData = {
+                        commodity: fertForm.querySelector('#fert-commodity-select').value,
+                        area_sqm: fertForm.querySelector('#area-input').value,
+                        ph_tanah: fertForm.querySelector('#fert-ph-input').value
+                    };
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/calculate-fertilizer`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            const {
+                                data: d,
+                                commodity_name: cn,
+                                area_sqm: a
+                            } = data;
+                            let html =
+                                `<h3>Rekomendasi Pupuk untuk ${cn}</h3><p>Lahan <strong>${a} m²</strong> dengan pH <strong>${requestData.ph_tanah}</strong>:</p>`;
+                            const sections = {
+                                'Perbaikan Tanah': d.perbaikan_tanah,
+                                'Pupuk Organik': d.organik,
+                                'Pupuk Anorganik': d.anorganik
+                            };
+                            for (const [title, content] of Object.entries(sections)) {
+                                if (content && Object.keys(content).length > 0) {
+                                    html += `<h4>${title}:</h4><ul class="item-list">`;
+                                    for (const [fert, amount] of Object.entries(content)) {
+                                        html +=
+                                            `<li class="fertilizer-item"><span class="item-name">${fert}</span><span class="item-value">${amount} kg</span></li>`;
+                                    }
+                                    html += '</ul>';
+                                }
+                            }
+                            html +=
+                                '<br><small>Catatan: Rekomendasi pupuk dasar. Sesuaikan dengan kondisi tanah dan fase pertumbuhan.</small>';
+                            resultFertDiv.innerHTML = html;
+                        } else {
+                            resultFertDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultFertDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 8 (Pustaka Dokumen) ---
+            const pdfForm = document.getElementById('pdf-upload-form'),
+                pdfStatus = document.getElementById('pdf-upload-status'),
+                pdfList = document.getElementById('pdf-list');
+            if (pdfForm) {
+                async function fetchPdfs() {
+                    pdfList.innerHTML = '<p>Memuat daftar...</p>';
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/get-pdfs`);
+                        if (!response.ok && response.status !== 201) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                        if (data.success && data.files) {
+                            if (data.files.length > 0) {
+                                let html = '<ul class="item-list">';
+                                data.files.forEach(f => {
+                                    html +=
+                                        `<li class="pdf-item"><a href="${baseUrl}${apiPrefix}/view-pdf/${f}" target="_blank">${f}</a></li>`;
+                                });
+                                html += '</ul>';
+                                pdfList.innerHTML = html;
+                            } else {
+                                pdfList.innerHTML = '<p>Belum ada dokumen.</p>';
+                            }
+                        } else {
+                            pdfList.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        pdfList.innerHTML = `<p style="color: red;">Gagal terhubung.</p>`;
+                    }
+                }
+                fetchPdfs();
+                pdfForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    pdfStatus.style.display = 'block';
+                    pdfStatus.innerHTML = '<p>Mengunggah...</p>';
+                    const formData = new FormData(pdfForm);
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/upload-pdf`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (!response.ok && response.status !== 201) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                        if (data.success) {
+                            pdfStatus.innerHTML = `<p style="color: green;">Sukses: ${data.message}</p>`;
+                            pdfForm.reset();
+                            fetchPdfs();
+                        } else {
+                            pdfStatus.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        pdfStatus.innerHTML = `<p style="color: red;">Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 9 (Rekomendasi Terpadu) ---
+            const intForm = document.getElementById('integrated-recommendation-form'),
+                resultInt = document.getElementById('result-integrated');
+            if (intForm) {
+                intForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultInt.innerHTML = '<p>Menyusun rekomendasi...</p>';
+                    const requestData = {
+                        ketinggian: intForm.querySelector('#ketinggian-select').value,
+                        iklim: intForm.querySelector('#iklim-select').value,
+                        fase: intForm.querySelector('#fase-select').value,
+                        masalah: intForm.querySelector('#masalah-select').value
+                    };
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/get-integrated-recommendation`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            let html = '<h3>Rekomendasi Strategis:</h3>';
+                            html += `<h4>🌱 Pemilihan Bibit</h4><p>${data.data.bibit}</p>`;
+                            html += `<h4>🌿 Pemupukan</h4><p>${data.data.pemupukan}</p>`;
+                            html += `<h4>🛡️ Penyemprotan</h4><p>${data.data.penyemprotan}</p>`;
+                            resultInt.innerHTML = html;
+                        } else {
+                            resultInt.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultInt.innerHTML = `<p style="color: red;">Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 10 (Strategi Penyemprotan) ---
+            const sprayForm = document.getElementById('spraying-strategy-form'),
+                resultSpray = document.getElementById('result-spraying');
+            if (sprayForm) {
+                sprayForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultSpray.innerHTML = '<p>Menyusun rencana...</p>';
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/get-spraying-recommendation`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                pest: sprayForm.querySelector('#pest-select').value
+                            })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            const d = data.data;
+                            let html = `<h3>${d.strategy.name}</h3><p>${d.strategy.description}</p>`;
+                            d.strategy.cycles.forEach(c => {
+                                html +=
+                                    `<div class="strategy-cycle"><h4>${c.weeks}: ${c.level}</h4><p><strong>Bahan Aktif:</strong> ${c.active_ingredient}<br><strong>Grup IRAC:</strong> ${c.irac_code}<br><strong>SOP:</strong> ${c.sop}</p></div>`;
+                            });
+                            html += `<h3>${d.protocol.title}</h3><ul>`;
+                            d.protocol.steps.forEach(s => {
+                                html += `<li>${s}</li>`;
+                            });
+                            html += '</ul>';
+                            resultSpray.innerHTML = html;
+                        } else {
+                            resultSpray.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultSpray.innerHTML = `<p style="color: red;">Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 11 (Grafik Harga) ---
+            const histPriceForm = document.getElementById('historical-price-form'),
+                resultHistPrice = document.getElementById('result-historical-price');
+            let priceChart;
+            if (histPriceForm) {
+                const chartCanvas = document.getElementById('price-chart').getContext('2d');
+                histPriceForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultHistPrice.querySelector('p').textContent = 'Memvisualisasikan data...';
+                    const requestData = {
+                        commodity: histPriceForm.querySelector('#historical-commodity-select').value,
+                        range: histPriceForm.querySelector('#time-range-select').value
+                    };
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/get-historical-prices`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            resultHistPrice.querySelector('p').textContent = `Grafik tren harga:`;
+                            if (priceChart) priceChart.destroy();
+                            priceChart = new Chart(chartCanvas, {
+                                type: 'line',
+                                data: {
+                                    labels: data.labels,
+                                    datasets: [{
+                                        label: 'Harga (Rp)',
+                                        data: data.prices,
+                                        borderColor: 'rgba(46, 125, 50, 1)',
+                                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                                        borderWidth: 2,
+                                        fill: true,
+                                        tension: 0.3
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        y: {
+                                            ticks: {
+                                                callback: (v) => formatRupiah(v)
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        } else {
+                            resultHistPrice.querySelector('p').textContent = `Error: ${data.error}`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultHistPrice.querySelector('p').textContent = 'Error: Gagal terhubung.';
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 12 (Ensiklopedia Komoditas) ---
+            const guideForm = document.getElementById('guide-form'),
+                resultGuideDiv = document.getElementById('result-guide');
+            if (guideForm) {
+                guideForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultGuideDiv.style.display = 'block';
+                    resultGuideDiv.innerHTML = '<p>Memuat panduan...</p>';
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/get-commodity-guide`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                commodity: guideForm.querySelector('#guide-commodity-select').value
+                            })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            const gd = data.data;
+                            let html = `<h2>${gd.icon} Panduan Lengkap: ${gd.name}</h2><p>${gd.description}</p>`;
+                            html += '<div class="tabs">';
+                            html +=
+                                `<button class="tab-button active" onclick="openTab(event, 'sop-budidaya', this)">SOP Budidaya</button>`;
+                            html +=
+                                `<button class="tab-button" onclick="openTab(event, 'analisis-bisnis', this)">Analisis Bisnis</button>`;
+                            html += '</div>';
+                            html += `<div id="sop-budidaya" class="tab-content active">`;
+                            for (const [phase, steps] of Object.entries(gd.sop)) {
+                                html += `<h3>${phase}</h3><ul>`;
+                                steps.forEach(step => {
+                                    html += `<li>${step}</li>`;
+                                });
+                                html += `</ul>`;
+                            }
+                            html += `</div>`;
+                            const analysis = gd.business_analysis;
+                            html +=
+                                `<div id="analisis-bisnis" class="tab-content"><h3>${analysis.title}</h3><p><strong>Asumsi:</strong> Lahan ${analysis.assumptions.Luas_Lahan}, populasi ${analysis.assumptions.Populasi_Tanaman}.</p>`;
+                            html +=
+                                `<h4>Estimasi Biaya Produksi</h4><table><tr><th>Komponen</th><th>Kebutuhan</th><th style="text-align:right;">Biaya</th></tr>`;
+                            let totalCost = 0;
+                            analysis.costs.forEach(i => {
+                                html +=
+                                    `<tr><td>${i.item}</td><td>${i.amount}</td><td class="cost">${formatRupiah(i.cost)}</td></tr>`;
+                                totalCost += i.cost;
+                            });
+                            html +=
+                                `<tr><td colspan="2" class="total-cost"><strong>Total Biaya</strong></td><td class="total-cost"><strong>${formatRupiah(totalCost)}</strong></td></tr></table>`;
+                            html +=
+                                `<h4>Simulasi Pendapatan</h4><table><tr><th>Skenario Harga</th><th>Panen Konservatif</th><th>Panen Optimal</th></tr>`;
+                            analysis.revenue_scenarios.forEach(s => {
+                                const revCons = analysis.yield_potential[0].total_yield_kg * s.price_per_kg;
+                                const revOpt = analysis.yield_potential[1].total_yield_kg * s.price_per_kg;
+                                html +=
+                                    `<tr><td>${s.price_level} (${formatRupiah(s.price_per_kg)}/kg)</td><td>${formatRupiah(revCons)}</td><td>${formatRupiah(revOpt)}</td></tr>`;
+                            });
+                            html += `</table><br><small><strong>Disclaimer:</strong> Angka ini adalah estimasi.</small></div>`;
+                            resultGuideDiv.innerHTML = html;
+                        } else {
+                            resultGuideDiv.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultGuideDiv.innerHTML = `<p style="color: red;">Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 13 (Pusat Pengetahuan pH) ---
+            const showPhBtn = document.getElementById('show-ph-info-btn'),
+                resultPhDiv = document.getElementById('result-ph-info');
+            if (showPhBtn) {
+                showPhBtn.addEventListener('click', async (event) => {
+                    event.preventDefault();
+                    if (resultPhDiv.style.display === 'block') {
+                        resultPhDiv.style.display = 'none';
+                        showPhBtn.textContent = 'Tampilkan Informasi Lengkap';
+                        return;
+                    }
+                    resultPhDiv.style.display = 'block';
+                    showPhBtn.textContent = 'Sembunyikan Informasi';
+                    resultPhDiv.innerHTML = '<p>Memuat informasi...</p>';
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/get-ph-info`);
+                        if (!response.ok && response.status !== 201) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                        if (data.success) {
+                            const pd = data.data;
+                            let html = `<h2>${pd.icon} ${pd.title}</h2><div class="tabs">`;
+                            Object.keys(pd.sections).forEach((k, i) => {
+                                html +=
+                                    `<button class="tab-button ${i === 0 ? 'active' : ''}" onclick="openTab(event, 'ph-${k.replace(/[^a-zA-Z0-9]/g, '-')}', this)">${pd.sections[k].title}</button>`;
+                            });
+                            html += '</div>';
+                            Object.entries(pd.sections).forEach(([k, s], i) => {
+                                html +=
+                                    `<div id="ph-${k.replace(/[^a-zA-Z0-9]/g, '-')}" class="tab-content ${i === 0 ? 'active' : ''}"><ul>`;
+                                s.content.forEach(item => {
+                                    html += `<li>${item}</li>`;
+                                });
+                                html += `</ul></div>`;
+                            });
+                            resultPhDiv.innerHTML = html;
+                        } else {
+                            resultPhDiv.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultPhDiv.innerHTML = `<p style="color: red;">Gagal terhubung.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 14 (Rekomendasi Tanaman) ---
+            const cropForm = document.getElementById('crop-recommendation-form'),
+                resultCropDiv = document.getElementById('result-crop');
+            if (cropForm) {
+                cropForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultCropDiv.innerHTML = '<p>Menganalisis data dan mencari rekomendasi terbaik...</p>';
+                    const requestData = {
+                        n_value: document.getElementById('crop-n-input').value,
+                        p_value: document.getElementById('crop-p-input').value,
+                        k_value: document.getElementById('crop-k-input').value,
+                        temperature: document.getElementById('crop-temp-input').value,
+                        humidity: document.getElementById('crop-humidity-input').value,
+                        ph: document.getElementById('crop-ph-input').value,
+                        rainfall: document.getElementById('crop-rainfall-input').value
+                    };
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/recommend-crop`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const responseData = await response.json();
+                        if (responseData.success) {
+                            resultCropDiv.innerHTML =
+                                `<h3>Rekomendasi Tanaman Optimal</h3><p style="font-size: 1.5em; text-align: center; font-weight: bold; color: var(--primary-color);">${responseData.recommended_crop}</p><p><small>Rekomendasi ini dihasilkan oleh model Machine Learning berdasarkan data yang Anda masukkan.</small></p>`;
+                        } else {
+                            resultCropDiv.innerHTML =
+                                `<p style="color: red;"><strong>Error:</strong> ${responseData.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultCropDiv.innerHTML =
+                            `<p style="color: red;"><strong>Error:</strong> Tidak dapat terhubung ke server.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 15 (Prediksi Panen) ---
+            const yieldForm = document.getElementById('yield-prediction-form'),
+                resultYieldDiv = document.getElementById('result-yield');
+            if (yieldForm) {
+                yieldForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultYieldDiv.innerHTML = '<p>Menganalisis data dan membuat prediksi...</p>';
+                    const requestData = {
+                        nitrogen: document.getElementById('yield-n-input').value,
+                        phosphorus: document.getElementById('yield-p-input').value,
+                        potassium: document.getElementById('yield-k-input').value,
+                        temperature: document.getElementById('yield-temp-input').value,
+                        rainfall: document.getElementById('yield-rainfall-input').value,
+                        ph: document.getElementById('yield-ph-input').value,
+                    };
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/predict-yield`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const responseData = await response.json();
+                        if (responseData.success) {
+                            resultYieldDiv.innerHTML =
+                                `<h3>Estimasi Potensi Hasil Panen</h3><p style="font-size: 1.8em; text-align: center; font-weight: bold; color: var(--primary-color);">${responseData.predicted_yield_ton_ha} ton/ha</p><p><small>Estimasi ini dihasilkan oleh model Machine Learning berdasarkan data yang Anda masukkan.</small></p>`;
+                        } else {
+                            resultYieldDiv.innerHTML =
+                                `<p style="color: red;"><strong>Error:</strong> ${responseData.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultYieldDiv.innerHTML =
+                            `<p style="color: red;"><strong>Error:</strong> Tidak dapat terhubung ke server.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 16 (Prediksi Panen XAI) ---
+            const xaiYieldForm = document.getElementById('xai-yield-prediction-form'),
+                resultXaiYieldDiv = document.getElementById('result-xai-yield');
+            let importanceChart;
+            if (xaiYieldForm) {
+                xaiYieldForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultXaiYieldDiv.style.display = 'block';
+                    resultXaiYieldDiv.innerHTML = '<p>Menganalisis data dengan XAI...</p>';
+
+                    const requestData = {
+                        nitrogen: document.getElementById('xai-nitrogen').value,
+                        phosphorus: document.getElementById('xai-phosphorus').value,
+                        potassium: document.getElementById('xai-potassium').value,
+                        temperature: document.getElementById('xai-temperature').value,
+                        rainfall: document.getElementById('xai-rainfall').value,
+                        ph: document.getElementById('xai-ph').value,
+                    };
+
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/predict-yield-advanced`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const data = await response.json();
+
+                        if (data.success) {
+                            if (importanceChart) {
+                                importanceChart.destroy();
+                            }
+
+                            let htmlResult = `
+                                <h3>Hasil Prediksi & Analisis</h3>
+                                <p style="font-size: 1.8em; text-align: center; font-weight: bold; color: var(--primary-color);">
+                                    Estimasi Panen: ${data.predicted_yield_ton_ha} ton/ha
+                                </p>
+
+                                <h4>Faktor Pendorong & Penghambat (Analisis SHAP)</h4>
+                                <p>Analisis ini menjelaskan mengapa prediksi Anda berbeda dari rata-rata (${data.base_value} ton/ha).</p>
+                                <ul class="item-list">`;
+
+                            for (const [feature, value] of Object.entries(data.shap_values)) {
+                                const change = value / 1000;
+                                const direction = change >= 0 ? 'Meningkatkan' : 'Menurunkan';
+                                const cssClass = change >= 0 ? 'shap-positive' : 'shap-negative';
+                                htmlResult += `<li class="shap-item"><span>${feature}</span> <span class="${cssClass}">${direction} estimasi sebesar ${Math.abs(change).toFixed(2)} ton/ha</span></li>`;
+                            }
+
+                            htmlResult += `</ul>
+
+                                <h4>Faktor Paling Berpengaruh (Secara Umum)</h4>
+                                <canvas id="importance-chart"></canvas>
+                                `;
+
+                            resultXaiYieldDiv.innerHTML = htmlResult;
+
+                            const chartCtx = document.getElementById('importance-chart').getContext('2d');
+                            const labels = data.feature_importances.map(item => item[0]);
+                            const values = data.feature_importances.map(item => item[1]);
+
+                            importanceChart = new Chart(chartCtx, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Tingkat Kepentingan',
+                                        data: values,
+                                        backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                                        borderColor: 'rgba(46, 125, 50, 1)',
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    indexAxis: 'y',
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: 'Faktor yang Paling Memengaruhi Hasil Panen'
+                                        }
+                                    }
+                                }
+                            });
+
+                        } else {
+                            resultXaiYieldDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error('Error fetching XAI prediction:', error);
+                        resultXaiYieldDiv.innerHTML =
+                            `<p style="color: red;"><strong>Error:</strong> Tidak dapat terhubung ke server.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 17 (Kalkulator Konversi Pupuk) ---
+            const fertConversionForm = document.getElementById('fertilizer-conversion-form'),
+                resultFertConversionDiv = document.getElementById('result-fertilizer-conversion');
+            if (fertConversionForm) {
+                fertConversionForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultFertConversionDiv.innerHTML = '<p>Menghitung konversi...</p>';
+                    const requestData = {
+                        nutrient_needed: document.getElementById('nutrient-needed-select').value,
+                        nutrient_amount_kg: document.getElementById('nutrient-amount-input').value,
+                        fertilizer_type: document.getElementById('fertilizer-type-select').value
+                    };
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/calculate-fertilizer-bags`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            resultFertConversionDiv.innerHTML = `<h3>Hasil Perhitungan</h3>
+                                <p>Untuk memenuhi kebutuhan <strong>${data.nutrient_amount_kg} kg</strong> unsur hara <strong>${data.nutrient_needed}</strong>, Anda memerlukan:</p>
+                                <p style="font-size: 1.8em; text-align: center; font-weight: bold; color: var(--primary-color);">${data.required_fertilizer_kg} kg pupuk ${data.fertilizer_name}</p>`;
+                        } else {
+                            resultFertConversionDiv.innerHTML =
+                                `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultFertConversionDiv.innerHTML =
+                            `<p style="color: red;"><strong>Error:</strong> Tidak dapat terhubung ke server.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 18 (Diagnostik Gejala Cerdas) ---
+            const startBtn = document.getElementById('start-diagnostic-btn'),
+                questionsDiv = document.getElementById('diagnostic-questions'),
+                resultDiv = document.getElementById('diagnostic-result');
+            let diagnosticTree = null;
+            if (startBtn) {
+                async function startDiagnostic() {
+                    startBtn.style.display = 'none';
+                    questionsDiv.style.display = 'block';
+                    resultDiv.style.display = 'none';
+                    resultDiv.innerHTML = '';
+                    questionsDiv.innerHTML = '<p>Memuat data diagnostik...</p>';
+                    try {
+                        if (!diagnosticTree) {
+                            const response = await fetch(`${baseUrl}${apiPrefix}/get-diagnostic-tree`);
+                            const responseData = await response.json();
+                            if (responseData.success) {
+                                diagnosticTree = responseData.data;
+                            } else {
+                                throw new Error(responseData.error);
+                            }
+                        }
+                        renderQuestion(diagnosticTree.start, []);
+                    } catch (error) {
+                        console.error("Error:", error);
+                        questionsDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${error.message}</p>`;
+                    }
+                }
+
+                function renderQuestion(node, path) {
+                    questionsDiv.innerHTML = `<h4>${node.question}</h4>`;
+                    for (const [key, nextNode] of Object.entries(node.options)) {
+                        const button = document.createElement('button');
+                        button.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        button.classList.add('option-button');
+                        button.onclick = () => {
+                            if (typeof nextNode === 'string') {
+                                renderResult(nextNode);
+                            } else {
+                                renderQuestion(nextNode, [...path, key]);
+                            }
+                        };
+                        questionsDiv.appendChild(button);
+                    }
+                }
+
+                function renderResult(diagnosis) {
+                    questionsDiv.style.display = 'none';
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML =
+                        `<h3>Hasil Diagnosis</h3><p>${diagnosis}</p><button class="option-button" id="restart-diagnostic-btn">Mulai Lagi</button>`;
+                    document.getElementById('restart-diagnostic-btn').onclick = () => {
+                        startBtn.style.display = 'block';
+                        questionsDiv.style.display = 'none';
+                        resultDiv.style.display = 'none';
+                    };
+                }
+                startBtn.addEventListener('click', startDiagnostic);
+            }
+
+            // --- Logika untuk Modul 19 (Perencana Hasil Panen) ---
+            const yieldPlanForm = document.getElementById('yield-plan-form'),
+                resultYieldPlanDiv = document.getElementById('result-yield-plan');
+            if (yieldPlanForm) {
+                yieldPlanForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    resultYieldPlanDiv.innerHTML = '<p>Mencari resep lahan optimal...</p>';
+                    const requestData = {
+                        commodity: document.getElementById('plan-commodity-select').value,
+                        target_yield: document.getElementById('plan-target-yield-input').value
+                    };
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/generate-yield-plan`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            let htmlResult = `<h3>Rekomendasi Kondisi Lahan</h3>
+                                <p>Untuk mencapai target panen sekitar <strong>${requestData.target_yield} ton/ha</strong>, berikut adalah resep kondisi lahan berdasarkan data kami yang paling mendekati:</p>
+                                <ul class="item-list mt-4">`;
+                            for (const [key, value] of Object.entries(data.plan)) {
+                                htmlResult +=
+                                    `<li class="plan-item"><span class="plan-item-label">${key}</span><span class="plan-item-value">${value}</span></li>`;
+                            }
+                            htmlResult +=
+                                `</ul><br><small><strong>Disclaimer:</strong> Ini adalah target berdasarkan data historis, bukan jaminan.</small>`;
+                            resultYieldPlanDiv.innerHTML = htmlResult;
+                        } else {
+                            resultYieldPlanDiv.innerHTML = `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        resultYieldPlanDiv.innerHTML =
+                            `<p style="color: red;"><strong>Error:</strong> Gagal terhubung ke server.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 21 (Analis Risiko Keberhasilan) ---
+            const successPredictionForm = document.getElementById('success-prediction-form'),
+                resultSuccessPredictionDiv = document.getElementById('result-success-prediction');
+            if (successPredictionForm) {
+                successPredictionForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log('📝 Modul 21: Success Prediction form submitted!');
+                    resultSuccessPredictionDiv.innerHTML = '<p>Menganalisis probabilitas keberhasilan...</p>';
+
+                    const requestData = {
+                        nitrogen: document.getElementById('sp-nitrogen').value,
+                        phosphorus: document.getElementById('sp-phosphorus').value,
+                        potassium: document.getElementById('sp-potassium').value,
+                        temperature: document.getElementById('sp-temperature').value,
+                        rainfall: document.getElementById('sp-rainfall').value,
+                        ph: document.getElementById('sp-ph').value,
+                        penggunaan_benih: document.getElementById('sp-benih').value,
+                        aplikasi_organik: document.getElementById('sp-organik').value,
+                        manajemen_gulma: document.getElementById('sp-gulma').value
+                    };
+
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/predict-success`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            const statusColor = data.status === "Berhasil" ? "text-green-600" : "text-red-600";
+                            resultSuccessPredictionDiv.innerHTML = `
+                                <h3>Hasil Analisis Risiko</h3>
+                                <p>Berdasarkan parameter yang Anda masukkan, status rencana tanam Anda adalah:</p>
+                                <p style="font-size: 1.8em; text-align: center; font-weight: bold;" class="${statusColor}">
+                                    ${data.status}</p>
+                                <p class="text-center">Dengan probabilitas keberhasilan sebesar <strong>${data.probability_of_success}%</strong></p>
+                                `;
+                        } else {
+                            resultSuccessPredictionDiv.innerHTML =
+                                `<p style="color: red;"><strong>Error:</strong> ${data.error}</p>`;
+                        }
+                    } catch (error) {
+                        console.error('Error fetching success probability:', error);
+                        resultSuccessPredictionDiv.innerHTML =
+                            `<p style="color: red;"><strong>Error:</strong> Tidak dapat terhubung ke server.</p>`;
+                    }
+                });
+            }
+
+            // --- Logika untuk Modul 20 (Dokter Tanaman Canggih - Roboflow AI) ---
+            const advancedDiseaseForm = document.getElementById('advanced-disease-form');
+            const resultAdvancedDiseaseDiv = document.getElementById('result-advanced-disease');
+            if (advancedDiseaseForm) {
+                advancedDiseaseForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log('📝 Modul 20: Roboflow form submitted!');
+                    resultAdvancedDiseaseDiv.innerHTML = '<p>Menganalisis dengan Roboflow AI...</p>';
+                    const fileInput = document.getElementById('disease-image-input');
+                    const file = fileInput.files[0];
+                    if (!file) {
+                        resultAdvancedDiseaseDiv.innerHTML =
+                            '<p style="color: red;"><strong>Error:</strong> Silakan pilih file gambar terlebih dahulu.</p>';
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    try {
+                        const response = await fetch(`${baseUrl}${apiPrefix}/analyze-disease-advanced`, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const backendResponse = await response.json();
+
+                        if (backendResponse.success) {
+                            displayRoboflowResults(backendResponse.data);
+                        } else {
+                            resultAdvancedDiseaseDiv.innerHTML =
+                                `<p style="color: red;"><strong>Error dari server:</strong> ${backendResponse.error || 'Gagal menganalisis.'}</p>`;
+                        }
+                    } catch (error) {
+                        console.error('Error calling backend for advanced analysis:', error);
+                        resultAdvancedDiseaseDiv.innerHTML =
+                            `<p style="color: red;"><strong>Error:</strong> Tidak dapat terhubung ke server backend Anda.</p>`;
+                    }
+                });
+
+                function displayRoboflowResults(results) {
+                    let html = '<h3>Hasil Diagnosis dari Roboflow AI</h3>';
+                    if (results && results.outputs && results.outputs.length > 0) {
+                        html += '<ul style="list-style-type: none; padding-left: 0;">';
+                        results.outputs.forEach((output, index) => {
+                            const detection = output.detection;
+                            const classification = output.classification;
+                            html += `<li class="mb-4 p-4 border rounded-lg bg-white">`;
+                            html += `<strong class="text-lg text-emerald-700">Deteksi #${index + 1}</strong><br>`;
+                            if (detection && detection.predictions && detection.predictions.length > 0) {
+                                const pred = detection.predictions[0];
+                                html += `<strong>Objek Terdeteksi:</strong> ${pred.class} (Kepercayaan: ${Math.round(pred.confidence * 100)}%)<br>`;
+                            } else {
+                                html += `<strong>Objek Terdeteksi:</strong> Tidak ada.<br>`;
+                            }
+                            if (classification && classification.predictions && classification.predictions.length > 0) {
+                                const topClass = classification.predictions[0];
+                                html +=
+                                    `<strong>Klasifikasi Penyakit:</strong> ${topClass.class} (Kepercayaan: ${Math.round(topClass.confidence * 100)}%)`;
+                            } else {
+                                html += `<strong>Klasifikasi Penyakit:</strong> Tidak ada.`;
+                            }
+                            html += `</li>`;
+                        });
+                        html += '</ul>';
+                    } else {
+                        html += '<p>Tidak ada hasil deteksi atau klasifikasi yang ditemukan dalam gambar.</p>';
+                    }
+                    resultAdvancedDiseaseDiv.innerHTML = html;
+                }
+            }
+
+        }); // --- TUTUP DOMCONTENTLOADED UTAMA ---
+</script>
+</body>
+</html>

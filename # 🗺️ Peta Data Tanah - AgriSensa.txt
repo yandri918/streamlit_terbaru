@@ -1,0 +1,15 @@
+# 🗺️ Peta Data Tanah - AgriSensa
+
+[← Kembali ke Dashboard](http://localhost:5000/dashboard)
+
+# 🗺️ Peta Data Tanah
+
+#### 📐 Cara Mengukur Luas Lahan:
+1. Klik tombol polygon (⬟) di peta
+2. Klik titik-titik untuk menandai batas lahan
+3. Klik titik pertama lagi untuk selesai
+4. Luas akan ditampilkan otomatis!
+
+### 📏 Luas Lahan
+
+### 💡 Rekomendasi Pertanian

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostik Gejala Cerdas - AgriSensa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2e7d32',
+                        secondary: '#4caf50',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .option-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
+            background-color: #f0fdf4;
+        }
+
+        .step-active {
+            background-color: #2e7d32;
+            color: white;
+        }
+
+        .step-inactive {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <a href="/dashboard"
+            class="inline-flex items-center mb-6 text-green-700 hover:text-green-800 font-medium transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                    clip-rule="evenodd" />
+            </svg>
+            Kembali ke Dasbor
+        </a>
+
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-green-800 mb-2">🔍 Diagnostik Gejala Cerdas</h1>
+            <p class="text-gray-600">Jawab pertanyaan berikut untuk mengidentifikasi masalah pada tanaman Anda.</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between relative">
+                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 -z-10"></div>
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm step-active"
+                    id="step-1-indicator">1</div>
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm step-inactive"
+                    id="step-2-indicator">2</div>
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm step-inactive"
+                    id="step-3-indicator">3</div>
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm step-inactive"
+                    id="step-4-indicator">4</div>
+            </div>
+            <div class="flex justify-between mt-2 text-xs text-gray-500 font-medium">
+                <span>Bagian</span>
+                <span>Gejala</span>
+                <span>Detail</span>
+                <span>Hasil</span>
+            </div>
+        </div>
+
+        <!-- Wizard Container -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden min-h-[400px] relative">
+
+            <!-- Loading State -->
+            <div id="loading-state" class="absolute inset-0 flex items-center justify-center bg-white z-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
+            </div>
+
+            <!-- Step 1: Bagian Tanaman -->
+            <div id="step-1" class="p-8 wizard-step">
+                <h2 class="text-xl font-bold mb-6 text-gray-800">Bagian mana yang terserang?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-container-1">
+                    <!-- Options injected by JS -->
+                </div>
+            </div>
+
+            <!-- Step 2: Gejala Umum -->
+            <div id="step-2" class="p-8 wizard-step hidden">
+                <h2 class="text-xl font-bold mb-6 text-gray-800">Apa gejala yang terlihat?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-container-2">
+                    <!-- Options injected by JS -->
+                </div>
+                <button onclick="prevStep(1)" class="mt-6 text-gray-500 hover:text-gray-700 font-medium">←
+                    Kembali</button>
+            </div>
+
+            <!-- Step 3: Detail Spesifik -->
+            <div id="step-3" class="p-8 wizard-step hidden">
+                <h2 class="text-xl font-bold mb-6 text-gray-800">Seperti apa detailnya?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-container-3">
+                    <!-- Options injected by JS -->
+                </div>
+                <button onclick="prevStep(2)" class="mt-6 text-gray-500 hover:text-gray-700 font-medium">←
+                    Kembali</button>
+            </div>
+
+            <!-- Step 4: Hasil -->
+            <div id="step-4" class="p-8 wizard-step hidden">
+                <div id="result-content" class="text-center">
+                    <!-- Result injected by JS -->
+                </div>
+                <div class="mt-8 flex justify-center gap-4">
+                    <button onclick="resetWizard()"
+                        class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">
+                        Diagnosa Ulang
+                    </button>
+                    <a href="/dashboard"
+                        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                        Selesai
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let diagnosticTree = null;
+        let selections = {
+            part: null,
+            symptom: null,
+            detail: null
+        };
+
+        // Fetch tree on load
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/api/diagnostic/tree');
+                const result = await response.json();
+                if (result.success) {
+                    diagnosticTree = result.data;
+                    renderStep1();
+                    document.getElementById('loading-state').classList.add('hidden');
+                } else {
+                    alert('Gagal memuat data diagnostik.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan koneksi.');
+            }
+        });
+
+        function renderStep1() {
+            const container = document.getElementById('options-container-1');
+            container.innerHTML = '';
+
+            Object.keys(diagnosticTree).forEach(part => {
+                const card = createOptionCard(part, () => selectPart(part));
+                container.appendChild(card);
+            });
+            updateProgress(1);
+        }
+
+        function selectPart(part) {
+            selections.part = part;
+            renderStep2();
+            showStep(2);
+        }
+
+        function renderStep2() {
+            const container = document.getElementById('options-container-2');
+            container.innerHTML = '';
+
+            const symptoms = diagnosticTree[selections.part];
+            Object.keys(symptoms).forEach(symptom => {
+                const card = createOptionCard(symptom, () => selectSymptom(symptom));
+                container.appendChild(card);
+            });
+            updateProgress(2);
+        }
+
+        function selectSymptom(symptom) {
+            selections.symptom = symptom;
+            renderStep3();
+            showStep(3);
+        }
+
+        function renderStep3() {
+            const container = document.getElementById('options-container-3');
+            container.innerHTML = '';
+
+            const details = diagnosticTree[selections.part][selections.symptom];
+            Object.keys(details).forEach(detail => {
+                const pestId = details[detail]; // This is the leaf node (Pest ID)
+                const card = createOptionCard(detail, () => selectDetail(pestId));
+                container.appendChild(card);
+            });
+            updateProgress(3);
+        }
+
+        async function selectDetail(pestId) {
+            document.getElementById('loading-state').classList.remove('hidden');
+            try {
+                const response = await fetch(`/api/diagnostic/result/${pestId}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    renderResult(result.data);
+                    showStep(4);
+                } else {
+                    alert('Detail penyakit tidak ditemukan.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                document.getElementById('loading-state').classList.add('hidden');
+            }
+        }
+
+        function renderResult(data) {
+            const container = document.getElementById('result-content');
+            updateProgress(4);
+
+            container.innerHTML = `
+                <div class="text-6xl mb-4">${data.icon}</div>
+                <h2 class="text-2xl font-bold text-green-800 mb-2">${data.name}</h2>
+                <span class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium mb-6">${data.category}</span>
+                
+                <div class="text-left bg-gray-50 p-6 rounded-lg border border-gray-200 mb-6">
+                    <h3 class="font-bold text-gray-800 mb-2">Gejala Khas:</h3>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1 mb-4">
+                        ${data.symptoms.slice(0, 3).map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                    
+                    <h3 class="font-bold text-gray-800 mb-2">Solusi Pengendalian:</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded mr-2 mt-1">Kultural</span>
+                            <p class="text-sm text-gray-600">${data.control_methods.cultural[0]}</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded mr-2 mt-1">Biologis</span>
+                            <p class="text-sm text-gray-600">${data.control_methods.biological[0]}</p>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded mr-2 mt-1">Kimiawi</span>
+                            <p class="text-sm text-gray-600">${data.control_methods.chemical[0]}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createOptionCard(text, onClick) {
+            const div = document.createElement('div');
+            div.className = 'option-card p-4 border border-gray-200 rounded-lg bg-white flex items-center justify-between group';
+            div.innerHTML = `
+                <span class="font-medium text-gray-700 group-hover:text-green-700">${text}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            `;
+            div.onclick = onClick;
+            return div;
+        }
+
+        function showStep(stepNumber) {
+            document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`step-${stepNumber}`).classList.remove('hidden');
+        }
+
+        function prevStep(targetStep) {
+            showStep(targetStep);
+            updateProgress(targetStep);
+        }
+
+        function updateProgress(step) {
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById(`step-${i}-indicator`);
+                if (i <= step) {
+                    indicator.classList.remove('step-inactive');
+                    indicator.classList.add('step-active');
+                } else {
+                    indicator.classList.remove('step-active');
+                    indicator.classList.add('step-inactive');
+                }
+            }
+        }
+
+        function resetWizard() {
+            selections = { part: null, symptom: null, detail: null };
+            renderStep1();
+            showStep(1);
+        }
+    </script>
+</body>
+
+</html>

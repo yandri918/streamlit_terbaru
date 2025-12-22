@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15+ Modul Tambahan - Segera Hadir | AgriSensa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .coming-soon-badge {
+            display: inline-block;
+            background: rgba(255, 234, 167, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            padding: 10px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .modules-section {
+            background: white;
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-top: 30px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2em;
+            color: #667eea;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #43e97b, #38f9d7);
+            margin: 15px auto 0;
+            border-radius: 2px;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .module-card {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 3px dashed #667eea;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .module-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+            border-color: #43e97b;
+            animation: none;
+        }
+
+        .coming-soon-label {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+        }
+
+        .module-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            display: block;
+            filter: grayscale(20%);
+        }
+
+        .module-title {
+            font-size: 1.4em;
+            color: #667eea;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .module-desc {
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1em;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            cursor: default;
+            letter-spacing: 1px;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            }
+            50% {
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: white;
+            opacity: 0.9;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modules-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 Modul Tambahan</h1>
+            <p>15+ Modul Canggih Sedang Dalam Pengembangan</p>
+            <div class="coming-soon-badge">Segera Hadir!</div>
+        </div>
+
+        <!-- Modules Section -->
+        <div class="modules-section">
+            <h2 class="section-title">Modul yang Akan Datang</h2>
+
+            <div class="module-grid">
+                <!-- Modul 1 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">🌡️</span>
+                    <h3 class="module-title">Monitoring Iklim Real-time</h3>
+                    <p class="module-desc">Sistem monitoring suhu, kelembaban, dan curah hujan secara real-time dengan IoT sensors</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 2 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">💧</span>
+                    <h3 class="module-title">Sistem Irigasi Otomatis</h3>
+                    <p class="module-desc">Kontrol irigasi pintar berdasarkan kondisi tanah dan prediksi cuaca</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 3 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">📱</span>
+                    <h3 class="module-title">Aplikasi Mobile</h3>
+                    <p class="module-desc">Akses semua fitur AgriSensa melalui aplikasi mobile Android & iOS</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 4 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">🤝</span>
+                    <h3 class="module-title">Platform Komunitas Petani</h3>
+                    <p class="module-desc">Forum diskusi, berbagi pengalaman, dan kolaborasi antar petani</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 5 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">📦</span>
+                    <h3 class="module-title">Marketplace Pertanian</h3>
+                    <p class="module-desc">Platform jual-beli produk pertanian langsung dari petani ke konsumen</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 6 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">🚚</span>
+                    <h3 class="module-title">Logistik & Distribusi</h3>
+                    <p class="module-desc">Sistem manajemen logistik untuk distribusi hasil panen yang efisien</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 7 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">💳</span>
+                    <h3 class="module-title">Pembiayaan Pertanian</h3>
+                    <p class="module-desc">Akses ke pinjaman dan pembiayaan untuk pengembangan usaha tani</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 8 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">📊</span>
+                    <h3 class="module-title">Analitik Bisnis Tani</h3>
+                    <p class="module-desc">Dashboard analitik lengkap untuk monitoring keuangan usaha tani</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 9 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">🌍</span>
+                    <h3 class="module-title">Peta Lahan Digital</h3>
+                    <p class="module-desc">Pemetaan lahan pertanian dengan teknologi GIS dan satelit</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 10 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">🔬</span>
+                    <h3 class="module-title">Laboratorium Virtual</h3>
+                    <p class="module-desc">Simulasi uji coba pupuk, pestisida, dan teknik budidaya secara virtual</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 11 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">🎓</span>
+                    <h3 class="module-title">E-Learning Pertanian</h3>
+                    <p class="module-desc">Kursus online dan sertifikasi untuk meningkatkan skill bertani</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 12 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">🤖</span>
+                    <h3 class="module-title">Asisten AI Chatbot</h3>
+                    <p class="module-desc">Chatbot AI yang siap membantu 24/7 menjawab pertanyaan seputar pertanian</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 13 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">📅</span>
+                    <h3 class="module-title">Kalender Tanam Cerdas</h3>
+                    <p class="module-desc">Jadwal tanam optimal berdasarkan data iklim dan kondisi lahan</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 14 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">🌦️</span>
+                    <h3 class="module-title">Prediksi Cuaca Akurat</h3>
+                    <p class="module-desc">Prediksi cuaca jangka pendek dan panjang untuk perencanaan budidaya</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 15 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">🔔</span>
+                    <h3 class="module-title">Sistem Notifikasi Cerdas</h3>
+                    <p class="module-desc">Notifikasi otomatis untuk jadwal pemupukan, penyemprotan, dan panen</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+
+                <!-- Modul 16 -->
+                <div class="module-card">
+                    <span class="coming-soon-label">COMING SOON</span>
+                    <span class="module-icon">📈</span>
+                    <h3 class="module-title">Blockchain Traceability</h3>
+                    <p class="module-desc">Sistem pelacakan produk dari lahan hingga konsumen menggunakan blockchain</p>
+                    <div class="status-badge">Segera Hadir</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 50px;">
+                <a href="/" class="back-button">← Kembali ke Beranda</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2025 AgriSensa - Teknologi Pertanian untuk Indonesia</p>
+        <p style="font-size: 0.9em; margin-top: 10px;">Dibuat dengan ❤️ untuk petani Indonesia</p>
+    </div>
+</body>
+</html>
+

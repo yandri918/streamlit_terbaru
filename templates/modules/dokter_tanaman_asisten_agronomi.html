@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🩺 Dokter Tanaman & Asisten Agronomi – AgriSensa</title>
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <style>
+        :root {
+            --primary-color: #27ae60;
+            --primary-dark: #219150;
+            --secondary-color: #3498db;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --bg-light: #f8f9fa;
+            --text-dark: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.95;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .section {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 2rem;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .upload-area {
+            background: white;
+            border: 3px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: #f0fff4;
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background: #e6f7ff;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+        }
+
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .score-display {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .score-display.healthy {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+
+        .score-display.moderate {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .score-display.unhealthy {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .score-value {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-top: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .info-box {
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-box h4 {
+            margin: 0 0 0.75rem 0;
+            color: var(--text-dark);
+            font-size: 1.1rem;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+
+        .recommendation-list li {
+            background: white;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fertilizer-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .fertilizer-amount {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-left: 4px solid var(--warning-color);
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-left: 4px solid var(--secondary-color);
+            color: #0c5460;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid var(--success-color);
+            color: #155724;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin: 1.5rem 2rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            transform: translateX(-5px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                content: '.';
+            }
+
+            40% {
+                content: '..';
+            }
+
+            60%,
+            100% {
+                content: '...';
+            }
+        }
+
+        .tips-section {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+
+        .tips-section h4 {
+            margin: 0 0 1rem 0;
+            color: var(--text-dark);
+        }
+
+        .tips-section ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .tips-section li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/" class="back-button">← Kembali ke Menu Utama</a>
+
+    <div class="container">
+        <div class="header">
+            <h1>🩺 Dokter Tanaman & Asisten Agronomi</h1>
+            <p>Analisis kesehatan tanaman dan dapatkan rekomendasi pemupukan yang tepat</p>
+        </div>
+
+        <div class="content">
+            <!-- Section 1: Analisis BWD -->
+            <div class="section">
+                <h2 class="section-title">📸 Langkah 1: Analisis Kesehatan Daun (BWD)</h2>
+
+                <div class="alert alert-info">
+                    <span>ℹ️</span>
+                    <div>
+                        <strong>Petunjuk:</strong> Upload foto daun tanaman Anda untuk analisis otomatis tingkat
+                        kesehatan. Pastikan foto jelas dan fokus pada daun.
+                    </div>
+                </div>
+
+                <form id="bwd-form" enctype="multipart/form-data">
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-icon">📷</div>
+                        <h3>Klik atau Drag & Drop Foto Daun</h3>
+                        <p style="color: var(--text-muted);">Format: JPG, PNG (Max 5MB)</p>
+                        <input type="file" id="leaf-image" name="file" accept="image/*" required />
+                        <button type="button" onclick="document.getElementById('leaf-image').click()">Pilih
+                            Foto</button>
+                    </div>
+                    <button type="submit" style="margin-top: 1.5rem;">🔍 Analisis Sekarang</button>
+                </form>
+
+                <div id="bwd-result" class="result-card"></div>
+            </div>
+
+            <!-- Section 2: Rekomendasi Pemupukan -->
+            <div class="section">
+                <h2 class="section-title">🌱 Langkah 2: Rekomendasi Pemupukan</h2>
+
+                <div class="alert alert-warning" id="bwd-warning" style="display: none;">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>Perhatian:</strong> Silakan lakukan analisis BWD terlebih dahulu untuk mendapatkan
+                        rekomendasi yang akurat.
+                    </div>
+                </div>
+
+                <form id="recommendation-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bwd-score">Skor BWD (0-100)</label>
+                            <input type="number" id="bwd-score" placeholder="Otomatis dari analisis" readonly required
+                                min="0" max="100" step="0.1" />
+                        </div>
+                        <div class="form-group">
+                            <label for="ph-tanah">pH Tanah</label>
+                            <input type="number" id="ph-tanah" placeholder="Contoh: 6.5" required min="4" max="9"
+                                step="0.1" />
+                        </div>
+                        <div class="form-group">
+                            <label for="kelembaban">Kelembaban Tanah (%)</label>
+                            <input type="number" id="kelembaban" placeholder="Contoh: 60" required min="0" max="100" />
+                        </div>
+                        <div class="form-group">
+                            <label for="umur-tanaman">Umur Tanaman (Hari)</label>
+                            <input type="number" id="umur-tanaman" placeholder="Contoh: 30" required min="0" />
+                        </div>
+                    </div>
+                    <button type="submit">💊 Dapatkan Rekomendasi Pemupukan</button>
+                </form>
+
+                <div id="recommendation-result" class="result-card"></div>
+            </div>
+
+            <!-- Section 3: Tips & Informasi -->
+            <div class="tips-section">
+                <h4>💡 Tips Perawatan Tanaman</h4>
+                <ul>
+                    <li><strong>Monitoring Rutin:</strong> Lakukan pemeriksaan visual daun setiap 3-5 hari untuk
+                        deteksi dini masalah kesehatan</li>
+                    <li><strong>Waktu Pemupukan:</strong> Aplikasikan pupuk pada pagi hari (06:00-09:00) atau sore
+                        hari (16:00-18:00)</li>
+                    <li><strong>Kelembaban Optimal:</strong> Jaga kelembaban tanah 60-80% untuk pertumbuhan optimal
+                    </li>
+                    <li><strong>pH Tanah:</strong> Periksa pH tanah setiap 2-3 bulan dan lakukan penyesuaian jika
+                        diperlukan</li>
+                    <li><strong>Rotasi Pupuk:</strong> Gunakan kombinasi pupuk organik dan anorganik untuk hasil
+                        terbaik</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Drag & Drop functionality
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('leaf-image');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                updateFileName();
+            }
+        });
+
+        fileInput.addEventListener('change', updateFileName);
+
+        function updateFileName() {
+            if (fileInput.files.length > 0) {
+                const fileName = fileInput.files[0].name;
+                uploadArea.querySelector('p').textContent = `File dipilih: ${fileName}`;
+            }
+        }
+
+        // BWD Analysis Form
+        const bwdForm = document.getElementById('bwd-form');
+        const bwdResult = document.getElementById('bwd-result');
+        const bwdScoreInput = document.getElementById('bwd-score');
+        const bwdWarning = document.getElementById('bwd-warning');
+
+        bwdForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            bwdResult.innerHTML = '<div class="loading">Menganalisis gambar</div>';
+            bwdResult.classList.add('show');
+
+            const formData = new FormData(bwdForm);
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const bwdScore = data.bwd_score;
+                    const status = data.bwd_status || (bwdScore >= 70 ? 'Sehat' : bwdScore >= 40 ? 'Sedang' : 'Tidak Sehat');
+                    const statusClass = bwdScore >= 70 ? 'healthy' : bwdScore >= 40 ? 'moderate' : 'unhealthy';
+
+                    // Update BWD score input
+                    bwdScoreInput.value = bwdScore;
+                    bwdWarning.style.display = 'none';
+
+                    let html = `
+                        <div class="score-display ${statusClass}">
+                            <p class="score-value">${bwdScore}</p>
+                            <p class="score-label">Skor BWD - ${status}</p>
+                        </div>
+                    `;
+
+                    if (data.disease_analysis) {
+                        html += `
+                            <div class="info-grid">
+                                <div class="info-box">
+                                    <h4>🟤 Bercak Coklat</h4>
+                                    <p>${data.disease_analysis.brown_spots || 'Tidak terdeteksi'}</p>
+                                </div>
+                                <div class="info-box">
+                                    <h4>⚪ Bercak Putih</h4>
+                                    <p>${data.disease_analysis.white_spots || 'Tidak terdeteksi'}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    if (data.recommendation) {
+                        html += `
+                            <div class="alert alert-${bwdScore >= 70 ? 'success' : 'warning'}">
+                                <span>${bwdScore >= 70 ? '✅' : '⚠️'}</span>
+                                <div><strong>Rekomendasi:</strong> ${data.recommendation}</div>
+                            </div>
+                        `;
+                    }
+
+                    bwdResult.innerHTML = html;
+                } else {
+                    bwdResult.innerHTML = `
+                        <div class="alert alert-warning">
+                            <span>❌</span>
+                            <div><strong>Error:</strong> ${data.message || data.error}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                bwdResult.innerHTML = `
+                    <div class="alert alert-warning">
+                        <span>❌</span>
+                        <div><strong>Error:</strong> Gagal terhubung ke server</div>
+                    </div>
+                `;
+            }
+        });
+
+        // Recommendation Form
+        const recommendationForm = document.getElementById('recommendation-form');
+        const recommendationResult = document.getElementById('recommendation-result');
+
+        recommendationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!bwdScoreInput.value) {
+                bwdWarning.style.display = 'flex';
+                return;
+            }
+
+            recommendationResult.innerHTML = '<div class="loading">Menghitung rekomendasi</div>';
+            recommendationResult.classList.add('show');
+
+            const requestData = {
+                ph_tanah: document.getElementById('ph-tanah').value,
+                skor_bwd: bwdScoreInput.value,
+                kelembaban_tanah: document.getElementById('kelembaban').value,
+                umur_tanaman_hari: document.getElementById('umur-tanaman').value
+            };
+
+            try {
+                const response = await fetch('/recommendation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const rec = data.recommendation;
+
+                    let html = `
+                        <h3 style="color: var(--primary-color); margin-top: 0;">${rec.rekomendasi_utama}</h3>
+                    `;
+
+                    if (rec.peringatan_penting && rec.peringatan_penting.length > 0) {
+                        html += '<div class="alert alert-warning"><span>⚠️</span><div><strong>Peringatan:</strong><ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;">';
+                        rec.peringatan_penting.forEach(warning => {
+                            html += `<li>${warning}</li>`;
+                        });
+                        html += '</ul></div></div>';
+                    }
+
+                    if (rec.rekomendasi_pupuk_ml) {
+                        html += '<h4 style="margin-top: 1.5rem;">Rekomendasi Pupuk:</h4><ul class="recommendation-list">';
+                        for (const [name, amount] of Object.entries(rec.rekomendasi_pupuk_ml)) {
+                            html += `
+                                <li>
+                                    <span class="fertilizer-name">${name}</span>
+                                    <span class="fertilizer-amount">${amount}</span>
+                                </li>
+                            `;
+                        }
+                        html += '</ul>';
+                    }
+
+                    recommendationResult.innerHTML = html;
+                } else {
+                    recommendationResult.innerHTML = `
+                        <div class="alert alert-warning">
+                            <span>❌</span>
+                            <div><strong>Error:</strong> ${data.error}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                recommendationResult.innerHTML = `
+                    <div class="alert alert-warning">
+                        <span>❌</span>
+                        <div><strong>Error:</strong> Gagal terhubung ke server</div>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+
+</html>

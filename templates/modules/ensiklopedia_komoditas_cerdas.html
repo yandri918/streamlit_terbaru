@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Ensiklopedia Komoditas Cerdas - AgriSensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.gstatic.com" crossorigin="" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 30px;
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        /* Search & Filter */
+        .controls {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* Grid */
+        .commodity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .commodity-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .commodity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            background: var(--bg-body);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .commodity-card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+            background: #ecfdf5;
+        }
+
+        .card-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .card-type {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        /* Detail View */
+        .detail-view {
+            display: none;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            margin-top: 20px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+            padding: 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        .detail-icon {
+            font-size: 4rem;
+        }
+
+        .detail-title h2 {
+            font-size: 2rem;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+
+        .detail-desc {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: var(--text-main);
+        }
+
+        .detail-content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .sop-step {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .step-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-content li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .step-content li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .analysis-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .analysis-table th,
+        .analysis-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .analysis-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .analysis-table td {
+            color: var(--text-muted);
+        }
+
+        .analysis-table td.amount {
+            text-align: right;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .total-row td {
+            font-weight: 700;
+            color: var(--primary-dark);
+            background: #ecfdf5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .error-msg {
+            text-align: center;
+            padding: 20px;
+            color: #ef4444;
+            background: #fee2e2;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .detail-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .commodity-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-link">← Kembali ke Dasbor</a>
+
+        <div class="header">
+            <h1>Ensiklopedia Komoditas Cerdas</h1>
+            <p>Panduan lengkap budidaya dan analisis bisnis untuk berbagai komoditas.</p>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" placeholder="Cari komoditas (misal: Cabai, Pisang)...">
+            </div>
+        </div>
+
+        <div id="loading-grid" class="loading">Memuat daftar komoditas...</div>
+        <div id="error-grid" class="error-msg" style="display: none;"></div>
+
+        <div id="commodity-grid" class="commodity-grid">
+            <!-- Cards will be injected here -->
+        </div>
+
+        <div id="detail-view" class="detail-view">
+            <div class="detail-header">
+                <button class="close-btn" onclick="closeDetail()">×</button>
+                <div class="detail-icon" id="detail-icon"></div>
+                <div class="detail-title">
+                    <h2 id="detail-name"></h2>
+                    <p class="detail-desc" id="detail-desc"></p>
+                </div>
+            </div>
+            <div class="detail-content">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('sop')">SOP Budidaya</button>
+                    <button class="tab-btn" onclick="switchTab('analysis')">Analisis Bisnis</button>
+                </div>
+
+                <div id="tab-sop" class="tab-pane active">
+                    <div id="sop-content"></div>
+                </div>
+
+                <div id="tab-analysis" class="tab-pane">
+                    <div id="analysis-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allCommodities = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCommodities();
+
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                filterCommodities(e.target.value);
+            });
+        });
+
+        async function fetchCommodities() {
+            try {
+                const response = await fetch('/get-commodity-list');
+                const data = await response.json();
+
+                if (data.success) {
+                    allCommodities = data.data;
+                    renderGrid(allCommodities);
+                    document.getElementById('loading-grid').style.display = 'none';
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error fetching commodities:', error);
+                document.getElementById('loading-grid').style.display = 'none';
+                document.getElementById('error-grid').textContent = 'Gagal memuat data komoditas. Silakan coba lagi.';
+                document.getElementById('error-grid').style.display = 'block';
+            }
+        }
+
+        function renderGrid(commodities) {
+            const grid = document.getElementById('commodity-grid');
+            grid.innerHTML = '';
+
+            commodities.forEach(item => {
+                // Extract icon from name if possible, or use default
+                // The API returns name like "Cabai (Capsicum sp.)" and doesn't explicitly return icon in the list
+                // But wait, the get_all_commodities implementation I saw earlier returns [{"id": k, "name": v}]
+                // It does NOT return the icon. I should update the backend to return the icon too for better UI.
+                // For now, I'll try to guess or fetch detail. 
+                // Actually, let's update the backend to return icon in get_all_commodities if possible.
+                // But to save time, I will just render the name.
+                // Wait, I can't easily update backend again without another tool call.
+                // I'll check if I can extract icon from name string if it's there? No, it's just text.
+                // I'll use a generic icon map or just a leaf icon if missing.
+
+                // Correction: In cultivation_db.py, the icon is in the data.
+                // In KnowledgeService.get_all_commodities, it iterates guides.items().
+                // guides = {'cabai': "Cabai...", ...} -> Wait, the hardcoded ones are just strings?
+                // No, in get_commodity_guide they are dicts.
+                // In get_all_commodities:
+                // guides = {'cabai': "Cabai (Capsicum sp.)", ...} -> These are strings!
+                // And for new ones: guides[key] = data['name'] -> String.
+                // So get_all_commodities ONLY returns names.
+
+                // I will use a simple mapping for icons based on ID for the common ones, or a default.
+                const icons = {
+                    'cabai': '🌶️', 'padi': '🌾', 'jagung': '🌽', 'tomat': '🍅',
+                    'terung': '🍆', 'mentimun': '🥒', 'kangkung': '🥬', 'sawi': '🥬',
+                    'selada': '🥬', 'bayam': '🥬', 'kubis': '🥬', 'kedelai': '🌱',
+                    'kacang_tanah': '🥜', 'kacang_panjang': '🌱', 'melon': '🍈',
+                    'semangka': '🍉', 'kentang': '🥔', 'stroberi': '🍓', 'buah_naga': '🐉',
+                    'buah_tin': '🍐', 'wortel': '🥕', 'brokoli': '🥦', 'pisang': '🍌', 'pepaya': '🥭'
+                };
+
+                const icon = icons[item.id] || '🌱';
+
+                const card = document.createElement('div');
+                card.className = 'commodity-card';
+                card.onclick = () => loadDetail(item.id);
+                card.innerHTML = `
+                    <div class="card-icon">${icon}</div>
+                    <div class="card-name">${item.name}</div>
+                    <div class="card-type">Lihat Panduan</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCommodities(query) {
+            const filtered = allCommodities.filter(item =>
+                item.name.toLowerCase().includes(query.toLowerCase())
+            );
+            renderGrid(filtered);
+        }
+
+        async function loadDetail(id) {
+            // Show loading state in detail view or overlay?
+            // For simplicity, scroll to detail view and show loading
+            const detailView = document.getElementById('detail-view');
+            detailView.style.display = 'block';
+            detailView.scrollIntoView({ behavior: 'smooth' });
+
+            document.getElementById('detail-name').textContent = 'Memuat...';
+            document.getElementById('sop-content').innerHTML = '<div class="loading">Mengambil data...</div>';
+            document.getElementById('analysis-content').innerHTML = '';
+
+            try {
+                const response = await fetch('/get-commodity-guide', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ commodity: id })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderDetail(data.data);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error loading detail:', error);
+                document.getElementById('detail-name').textContent = 'Error';
+                document.getElementById('sop-content').innerHTML = `<div class="error-msg">${error.message}</div>`;
+            }
+        }
+
+        function renderDetail(data) {
+            document.getElementById('detail-icon').textContent = data.icon;
+            document.getElementById('detail-name').textContent = data.name;
+            document.getElementById('detail-desc').textContent = data.description;
+
+            // Render SOP
+            let sopHtml = '';
+            let stepCount = 1;
+            for (const [phase, steps] of Object.entries(data.sop)) {
+                sopHtml += `
+                    <div class="sop-step">
+                        <div class="step-number">${stepCount++}</div>
+                        <div class="step-content">
+                            <h3>${phase}</h3>
+                            <ul>
+                                ${steps.map(step => `<li>${step}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('sop-content').innerHTML = sopHtml;
+
+            // Render Analysis
+            const analysis = data.business_analysis;
+            let analysisHtml = `
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px; color: var(--primary-dark);">${analysis.title}</h3>
+                    <p style="color: var(--text-muted);"><strong>Asumsi:</strong> Lahan ${analysis.assumptions.Luas_Lahan}, Populasi ${analysis.assumptions.Populasi_Tanaman}</p>
+                </div>
+                
+                <h4>Estimasi Biaya Produksi</h4>
+                <table class="analysis-table">
+                    <tr><th>Komponen</th><th>Jumlah</th><th style="text-align:right;">Biaya</th></tr>
+                    ${analysis.costs.map(cost => `
+                        <tr>
+                            <td>${cost.item}</td>
+                            <td>${cost.amount}</td>
+                            <td class="amount">${formatRupiah(cost.cost)}</td>
+                        </tr>
+                    `).join('')}
+                    <tr class="total-row">
+                        <td colspan="2">Total Biaya</td>
+                        <td class="amount">${formatRupiah(analysis.costs.reduce((sum, item) => sum + item.cost, 0))}</td>
+                    </tr>
+                </table>
+
+                <h4 style="margin-top: 30px;">Potensi Pendapatan</h4>
+                <table class="analysis-table">
+                    <tr><th>Skenario</th><th>Harga/kg</th><th>Pendapatan (Konservatif)</th><th>Pendapatan (Optimal)</th></tr>
+                    ${analysis.revenue_scenarios.map(s => {
+                const yieldCons = analysis.yield_potential[0].total_yield_kg;
+                const yieldOpt = analysis.yield_potential[1].total_yield_kg;
+                return `
+                            <tr>
+                                <td>${s.price_level}</td>
+                                <td class="amount">${formatRupiah(s.price_per_kg)}</td>
+                                <td class="amount">${formatRupiah(yieldCons * s.price_per_kg)}</td>
+                                <td class="amount">${formatRupiah(yieldOpt * s.price_per_kg)}</td>
+                            </tr>
+                        `;
+            }).join('')}
+                </table>
+            `;
+            document.getElementById('analysis-content').innerHTML = analysisHtml;
+        }
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+            document.querySelector(`.tab-btn[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('commodity-grid').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>

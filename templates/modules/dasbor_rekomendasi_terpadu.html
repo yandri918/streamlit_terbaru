@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>💡 Modul 9: Dasbor Rekomendasi Terpadu - Agrisensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #4caf50;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2.5em;
+        }
+
+        .price-ticker-container {
+            background-color: var(--text-color);
+            color: white;
+            padding: 10px 0;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .price-ticker-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-left 40s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            margin: 0 25px;
+        }
+
+        .ticker-item .name {
+            font-weight: 500;
+        }
+
+        .ticker-item .price {
+            font-weight: 700;
+            color: var(--primary-light);
+            margin-left: 8px;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .module {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-top: 0;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        button,
+        .option-button {
+            background-color: var(--primary-light);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+
+        button:hover,
+        .option-button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .item-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .price-item,
+        .fertilizer-item,
+        .pdf-item,
+        .shap-item,
+        .plan-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+        }
+
+        .item-name,
+        .plan-item-label {
+            font-weight: 500;
+        }
+
+        .item-value,
+        .plan-item-value {
+            font-size: 1.1em;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .pdf-item a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .pdf-item a:hover {
+            text-decoration: underline;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+        }
+
+        .tab-button.active {
+            border-bottom: 3px solid var(--primary-light);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .strategy-cycle {
+            border-left: 3px solid var(--primary-light);
+            padding-left: 20px;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        td.cost {
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .total-cost {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .shap-positive {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .shap-negative {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mx-auto p-4 md:p-8">
+        <a href="/dashboard"
+            style="display: inline-block; margin-bottom: 20px; color: var(--primary-color); text-decoration: none; font-weight: 500;">←
+            Kembali ke Dasbor</a>
+        <div class="module">
+            <h2>💡 Modul 9: Dasbor Rekomendasi Terpadu</h2>
+            <form id="integrated-recommendation-form">
+                <label for="ketinggian-select">Ketinggian Lahan:</label>
+                <select id="ketinggian-select" required="">
+                    <option disabled="" selected="" value="">-- Pilih Ketinggian --</option>
+                    <option value="dataran_rendah">Dataran Rendah (&lt; 700 mdpl)</option>
+                    <option value="dataran_tinggi">Dataran Tinggi (&gt; 700 mdpl)</option>
+                </select>
+
+                <label for="iklim-select">Tipe Iklim:</label>
+                <select id="iklim-select" required="">
+                    <option disabled="" selected="" value="">-- Pilih Tipe Iklim --</option>
+                    <option value="tropis">Tropis</option>
+                    <option value="subtropis">Subtropis</option>
+                </select>
+
+                <label for="fase-select">Fase Pertumbuhan Saat Ini:</label>
+                <select id="fase-select" required="">
+                    <option disabled="" selected="" value="">-- Pilih Fase --</option>
+                    <option value="vegetatif">Vegetatif</option>
+                    <option value="generatif">Generatif</option>
+                </select>
+
+                <label for="masalah-select">Masalah Utama:</label>
+                <select id="masalah-select" required="">
+                    <option selected="" value="none">Tidak Ada Masalah</option>
+                    <optgroup label="Hama">
+                        <option value="thrips">Hama Thrips</option>
+                        <option value="ulat_grayak">Ulat Grayak</option>
+                        <option value="ulat_tanah">Ulat Tanah</option>
+                        <option value="penggerek_batang">Penggerek Batang</option>
+                        <option value="lalat_buah">Lalat Buah</option>
+                        <option value="kutu_daun">Kutu Daun (Aphids)</option>
+                    </optgroup>
+                    <optgroup label="Penyakit">
+                        <option value="antraknosa">Jamur Antraknosa (Patek)</option>
+                        <option value="blas">Blas Padi</option>
+                        <option value="busuk_daun">Busuk Daun (Phytophthora)</option>
+                    </optgroup>
+                </select>
+
+                <button type="submit">Dapatkan Rekomendasi</button>
+            </form>
+            <div id="result-integrated" class="result-box" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Modul 1: BWD Analysis -->
+        <div class="module">
+            <h2>📸 Modul 1: Dokter Tanaman (Analisis BWD)</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <input type="file" name="file" accept="image/*" required>
+                <input type="hidden" id="bwd-input" name="bwd_score">
+                <button type="submit">Analisis Gambar</button>
+            </form>
+            <div id="result-bwd" class="result-box"></div>
+        </div>
+
+        <!-- Modul 12: Panduan Budidaya -->
+        <div class="module">
+            <h2>📚 Modul 12: Panduan Budidaya</h2>
+            <form id="guide-form">
+                <label for="guide-commodity-select">Pilih Komoditas:</label>
+                <select id="guide-commodity-select" required>
+                    <option value="" disabled selected>-- Pilih Komoditas --</option>
+                    <option value="padi">Padi</option>
+                    <option value="jagung">Jagung</option>
+                    <option value="kedelai">Kedelai</option>
+                    <option value="cabai">Cabai</option>
+                    <option value="bawang_merah">Bawang Merah</option>
+                </select>
+                <button type="submit">Lihat Panduan</button>
+            </form>
+            <div id="result-guide" class="result-box"></div>
+        </div>
+
+        <!-- Modul 13: Pusat Pengetahuan pH -->
+        <div class="module">
+            <h2>🧪 Modul 13: Pusat Pengetahuan pH Tanah</h2>
+            <button id="show-ph-info-btn">Tampilkan Informasi Lengkap</button>
+            <div id="result-ph-info" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- Modul 14: Rekomendasi Tanaman -->
+        <div class="module">
+            <h2>🌱 Modul 14: Rekomendasi Tanaman Cerdas</h2>
+            <form id="crop-recommendation-form">
+                <div class="input-grid">
+                    <div><label>Nitrogen (N):</label><input type="number" id="crop-n-input" required></div>
+                    <div><label>Fosfor (P):</label><input type="number" id="crop-p-input" required></div>
+                    <div><label>Kalium (K):</label><input type="number" id="crop-k-input" required></div>
+                    <div><label>Suhu (°C):</label><input type="number" id="crop-temp-input" required></div>
+                    <div><label>Kelembaban (%):</label><input type="number" id="crop-humidity-input" required></div>
+                    <div><label>pH Tanah:</label><input type="number" id="crop-ph-input" step="0.1" required></div>
+                    <div><label>Curah Hujan (mm):</label><input type="number" id="crop-rainfall-input" required></div>
+                </div>
+                <button type="submit">Cari Rekomendasi</button>
+            </form>
+            <div id="result-crop" class="result-box"></div>
+        </div>
+
+        <!-- Modul 15: Prediksi Panen -->
+        <div class="module">
+            <h2>⚖️ Modul 15: Prediksi Hasil Panen</h2>
+            <form id="yield-prediction-form">
+                <div class="input-grid">
+                    <div><label>Nitrogen (N):</label><input type="number" id="yield-n-input" required></div>
+                    <div><label>Fosfor (P):</label><input type="number" id="yield-p-input" required></div>
+                    <div><label>Kalium (K):</label><input type="number" id="yield-k-input" required></div>
+                    <div><label>Suhu (°C):</label><input type="number" id="yield-temp-input" required></div>
+                    <div><label>Curah Hujan (mm):</label><input type="number" id="yield-rainfall-input" required></div>
+                    <div><label>pH Tanah:</label><input type="number" id="yield-ph-input" step="0.1" required></div>
+                </div>
+                <button type="submit">Prediksi Panen</button>
+            </form>
+            <div id="result-yield" class="result-box"></div>
+        </div>
+
+        <!-- Modul 16: Prediksi Panen XAI -->
+        <div class="module">
+            <h2>🧠 Modul 16: Prediksi Panen (XAI)</h2>
+            <form id="xai-yield-prediction-form">
+                <div class="input-grid">
+                    <div><label>Nitrogen (N):</label><input type="number" id="xai-nitrogen" required></div>
+                    <div><label>Fosfor (P):</label><input type="number" id="xai-phosphorus" required></div>
+                    <div><label>Kalium (K):</label><input type="number" id="xai-potassium" required></div>
+                    <div><label>Suhu (°C):</label><input type="number" id="xai-temperature" required></div>
+                    <div><label>Curah Hujan (mm):</label><input type="number" id="xai-rainfall" required></div>
+                    <div><label>pH Tanah:</label><input type="number" id="xai-ph" step="0.1" required></div>
+                </div>
+                <button type="submit">Analisis XAI</button>
+            </form>
+            <div id="result-xai-yield" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- Modul 17: Kalkulator Konversi Pupuk -->
+        <div class="module">
+            <h2>🧮 Modul 17: Kalkulator Konversi Pupuk</h2>
+            <form id="fertilizer-conversion-form">
+                <label>Kebutuhan Hara:</label>
+                <select id="nutrient-needed-select">
+                    <option value="N">Nitrogen (N)</option>
+                    <option value="P">Fosfor (P)</option>
+                    <option value="K">Kalium (K)</option>
+                </select>
+                <label>Jumlah (kg):</label>
+                <input type="number" id="nutrient-amount-input" required>
+                <label>Jenis Pupuk:</label>
+                <select id="fertilizer-type-select">
+                    <option value="Urea">Urea (46% N)</option>
+                    <option value="SP-36">SP-36 (36% P)</option>
+                    <option value="KCl">KCl (60% K)</option>
+                    <option value="ZA">ZA (21% N)</option>
+                </select>
+                <button type="submit">Hitung Konversi</button>
+            </form>
+            <div id="result-fertilizer-conversion" class="result-box"></div>
+        </div>
+
+        <!-- Modul 18: Diagnostik Gejala -->
+        <div class="module">
+            <h2>🩺 Modul 18: Diagnostik Gejala Cerdas</h2>
+            <button id="start-diagnostic-btn">Mulai Diagnosis</button>
+            <div id="diagnostic-questions" class="result-box" style="display: none;"></div>
+            <div id="diagnostic-result" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- Modul 19: Perencana Hasil Panen -->
+        <div class="module">
+            <h2>🎯 Modul 19: Perencana Hasil Panen (Yield Planner)</h2>
+            <form id="yield-plan-form">
+                <label>Komoditas:</label>
+                <select id="plan-commodity-select">
+                    <option value="padi">Padi</option>
+                    <option value="jagung">Jagung</option>
+                    <option value="kedelai">Kedelai</option>
+                </select>
+                <label>Target Panen (ton/ha):</label>
+                <input type="number" id="plan-target-yield-input" step="0.1" required>
+                <button type="submit">Cari Resep Lahan</button>
+            </form>
+            <div id="result-yield-plan" class="result-box"></div>
+        </div>
+
+        <!-- Modul 20: Dokter Tanaman Canggih (Roboflow) -->
+        <div class="module">
+            <h2>🤖 Modul 20: Dokter Tanaman Canggih (Roboflow AI)</h2>
+            <form id="advanced-disease-form">
+                <input type="file" id="disease-image-input" accept="image/*" required>
+                <button type="submit">Analisis AI</button>
+            </form>
+            <div id="result-advanced-disease" class="result-box"></div>
+        </div>
+
+        <!-- Modul 21: Analis Risiko Keberhasilan -->
+        <div class="module">
+            <h2>📊 Modul 21: Analis Risiko Keberhasilan</h2>
+            <form id="success-prediction-form">
+                <div class="input-grid">
+                    <div><label>Nitrogen:</label><input type="number" id="sp-nitrogen" value="100"></div>
+                    <div><label>Fosfor:</label><input type="number" id="sp-phosphorus" value="50"></div>
+                    <div><label>Kalium:</label><input type="number" id="sp-potassium" value="50"></div>
+                    <div><label>Suhu:</label><input type="number" id="sp-temperature" value="28"></div>
+                    <div><label>Curah Hujan:</label><input type="number" id="sp-rainfall" value="1200"></div>
+                    <div><label>pH:</label><input type="number" id="sp-ph" value="6.5"></div>
+                    <div><label>Benih Unggul (0/1):</label><input type="number" id="sp-benih" value="1"></div>
+                    <div><label>Organik (0/1):</label><input type="number" id="sp-organik" value="1"></div>
+                    <div><label>Gulma Terkontrol (0/1):</label><input type="number" id="sp-gulma" value="1"></div>
+                </div>
+                <button type="submit">Analisis Risiko</button>
+            </form>
+            <div id="result-success-prediction" class="result-box"></div>
+        </div>
+
+        <!-- Modul 22: Asisten Penelitian Agronomi -->
+        <div class="module">
+            <h2>📊 Modul 22: Asisten Penelitian Agronomi</h2>
+            <p>Analisis statistik otomatis untuk penelitian pertanian (RAL/RAK).</p>
+            <a href="/modules/asisten_penelitian" target="_blank">
+                <button>Buka Asisten Penelitian 🚀</button>
+            </a>
+        </div>
+
+        <!-- Modul 3: Analisis NPK Manual (Scientific) -->
+        <div class="module">
+            <h2>🧪 Modul 3: Analisis NPK Manual (Scientific)</h2>
+            <p>Analisis mendalam hasil uji tanah dengan rekomendasi presisi.</p>
+            <a href="/modules/analisis_npk_manual" target="_blank">
+                <button>Buka Analisis NPK 🧪</button>
+            </a>
+        </div>
+
+    </div>
+
+    <div id="debug-log"
+        style="margin-top: 30px; padding: 15px; background: #f0f0f0; border: 1px solid #ccc; font-family: monospace; max-height: 200px; overflow-y: auto;">
+        <strong>Debug Log:</strong><br>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/pages/dasbor_rekomendasi_terpadu.js') }}?v=4"></script>
+</body>
+
+</html>

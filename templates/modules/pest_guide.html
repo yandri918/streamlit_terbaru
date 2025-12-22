@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panduan Lengkap Hama & Penyakit – AgriSensa</title>
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 2rem;
+        }
+
+        .pest-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .pest-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .pest-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            border-color: #e74c3c;
+        }
+
+        .pest-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .pest-icon {
+            font-size: 3rem;
+        }
+
+        .pest-title {
+            flex: 1;
+        }
+
+        .pest-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+
+        .pest-category {
+            font-size: 0.85rem;
+            color: #e74c3c;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pest-crops {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e74c3c;
+        }
+
+        .symptom-list,
+        .prevention-list {
+            background: #fff3cd;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .symptom-list ul,
+        .prevention-list ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .symptom-list li,
+        .prevention-list li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .control-card {
+            background: #f8f9fa;
+            padding: 1.25rem;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .control-card h4 {
+            color: #3498db;
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .control-card ul {
+            margin: 0;
+            padding-left: 1.25rem;
+            font-size: 0.9rem;
+        }
+
+        .control-card li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .info-box {
+            background: #e8f5e9;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+            margin-top: 1rem;
+        }
+
+        .loader {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🐛 Panduan Lengkap Hama & Penyakit Tanaman</h1>
+        <p class="subtitle">Database komprehensif hama dan penyakit dengan strategi pengendalian terpadu</p>
+
+        <div id="pest-container" class="pest-grid">
+            <div class="loader">⏳ Memuat data...</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="/"
+                style="display: inline-block; padding: 0.75rem 2rem; background: #3498db; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">
+                ← Kembali ke Menu Utama
+            </a>
+        </div>
+    </div>
+
+    <div id="detailModal" class="detail-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let pestsData = [];
+
+        async function loadPests() {
+            try {
+                const resp = await fetch('/get-pest-list');
+                const json = await resp.json();
+
+                if (json.success && json.data) {
+                    pestsData = json.data;
+                    displayPests(pestsData);
+                } else {
+                    document.getElementById('pest-container').innerHTML = '<p style="text-align:center;color:#e74c3c;">❌ Gagal memuat data</p>';
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('pest-container').innerHTML = '<p style="text-align:center;color:#e74c3c;">⚠️ Kesalahan jaringan</p>';
+            }
+        }
+
+        function displayPests(pests) {
+            const container = document.getElementById('pest-container');
+            container.innerHTML = pests.map(pest => `
+                <div class="pest-card" onclick="showDetail('${pest.id}')">
+                    <div class="pest-card-header">
+                        <div class="pest-icon">${pest.icon}</div>
+                        <div class="pest-title">
+                            <div class="pest-name">${pest.name}</div>
+                            <div class="pest-category">${pest.category}</div>
+                        </div>
+                    </div>
+                    <div class="pest-crops">
+                        <span>🌱</span>
+                        <span><strong>Target:</strong> ${pest.target_crops}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function showDetail(pestId) {
+            try {
+                const resp = await fetch('/get-pest-detail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pest: pestId
+                    })
+                });
+                const json = await resp.json();
+
+                if (json.success && json.data) {
+                    displayDetail(json.data);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        function displayDetail(data) {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+
+            let controlMethodsHtml = '';
+
+            if (data.control_methods) {
+                const methods = data.control_methods;
+                controlMethodsHtml = `
+                    <div class="section">
+                        <h3 class="section-title">🎯 Metode Pengendalian</h3>
+                        <div class="control-grid">
+                            ${methods.cultural ? `
+                                <div class="control-card">
+                                    <h4>🌾 Kultur Teknis</h4>
+                                    <ul>${methods.cultural.map(m => `<li>${m}</li>`).join('')}</ul>
+                                </div>
+                            ` : ''}
+                            ${methods.mechanical ? `
+                                <div class="control-card">
+                                    <h4>🛠️ Mekanis</h4>
+                                    <ul>${methods.mechanical.map(m => `<li>${m}</li>`).join('')}</ul>
+                                </div>
+                            ` : ''}
+                            ${methods.biological ? `
+                                <div class="control-card">
+                                    <h4>🐛 Biologis</h4>
+                                    <ul>${methods.biological.map(m => `<li>${m}</li>`).join('')}</ul>
+                                </div>
+                            ` : ''}
+                            ${methods.chemical ? `
+                                <div class="control-card">
+                                    <h4>⚗️ Kimiawi</h4>
+                                    <ul>${methods.chemical.map(m => `<li>${m}</li>`).join('')}</ul>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            content.innerHTML = `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">${data.icon}</div>
+                    <h2 style="color: #e74c3c; margin: 0;">${data.name}</h2>
+                    <p style="color: #7f8c8d; margin-top: 0.5rem;">
+                        <strong>${data.category}</strong> • ${Array.isArray(data.target_crops) ? data.target_crops.join(', ') : (data.target_crops || 'N/A')}
+                    </p>
+                </div>
+                ${data.symptoms ? `
+                    <div class="section">
+                        <h3 class="section-title">⚠️ Gejala Serangan</h3>
+                        <div class="symptom-list">
+                            <ul>${data.symptoms.map(s => `<li>${s}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                ` : ''}
+                ${data.damage ? `
+                    <div class="info-box">
+                        <strong>💥 Tingkat Kerusakan:</strong> ${data.damage}
+                    </div>
+                ` : ''}
+                ${controlMethodsHtml}
+                ${data.prevention ? `
+                    <div class="section">
+                        <h3 class="section-title">🛡️ Strategi Pencegahan</h3>
+                        <div class="prevention-list">
+                            <ul>${data.prevention.map(p => `<li>${p}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                ` : ''}
+                ${data.lifecycle ? `
+                    <div class="info-box">
+                        <strong>🔄 Siklus Hidup:</strong> ${data.lifecycle}
+                    </div>
+                ` : ''}
+                ${data.economic_threshold ? `
+                    <div class="info-box" style="margin-top: 0.5rem;">
+                        <strong>📊 Ambang Ekonomi:</strong> ${data.economic_threshold}
+                    </div>
+                ` : ''}
+                ${data.favorable_conditions ? `
+                    <div class="info-box" style="margin-top: 0.5rem; background: #fee; border-left-color: #e74c3c;">
+                        <strong>🌡️ Kondisi Optimal Serangan:</strong> ${data.favorable_conditions}
+                    </div>
+                ` : ''}
+                ${data.peak_season ? `
+                    <div class="info-box" style="margin-top: 0.5rem; background: #ffe; border-left-color: #f39c12;">
+                        <strong>📅 Musim Puncak:</strong> ${data.peak_season}
+                    </div>
+                ` : ''}
+            `;
+
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('detailModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Load pests on page load
+        loadPests();
+    </script>
+</body>
+
+</html>

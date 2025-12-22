@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dll
+
+# Virtual env
+venv/
+.env
+.env.local
+.venv/
+ENV/
+
+# Byte-compiled / optimized / DLL files
+*.egg-info/
+.eggs/
+*.egg
+
+# Logs
+logs/
+*.log
+
+# Database & instance
+instance/
+*.db
+*.sqlite3
+
+# Uploads & outputs
+uploads/
+output/
+
+# ML models and large data
+*.pkl
+*.joblib
+*.onnx
+*.h5
+*.pt
+*.weights
+*.sav
+*.model
+*.pickle
+*.npz
+*.npy
+*.parquet
+*.feather
+*.xls
+*.xlsx
+*.csv
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Portfolio submodule (local only)
+agrisensa-portfolio/
+
+# Binary assets (icons)
+static/icons/*.png
+
+# Streamlit secrets
+.streamlit/secrets.toml

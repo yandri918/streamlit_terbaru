@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Pusat Pengetahuan Pertanian - AgriSensa</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.gstatic.com" crossorigin="" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #10b981;
+            /* Emerald 500 */
+            --primary-dark: #059669;
+            /* Emerald 600 */
+            --secondary: #3b82f6;
+            /* Blue 500 */
+            --accent: #f59e0b;
+            /* Amber 500 */
+            --bg-body: #f0fdf4;
+            /* Emerald 50 */
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            /* Gray 800 */
+            --text-muted: #6b7280;
+            /* Gray 500 */
+            --border: #e5e7eb;
+            /* Gray 200 */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 40px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .tabs-header {
+            display: flex;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .tabs-header::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari */
+        }
+
+        .tab-btn {
+            padding: 16px 24px;
+            border: none;
+            background: none;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: #f1f5f9;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-dark);
+            border-bottom-color: var(--primary);
+            background: white;
+        }
+
+        /* Content */
+        .tab-content {
+            padding: 30px;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-section h3 {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ecfdf5;
+            padding-bottom: 10px;
+        }
+
+        .content-section h4 {
+            font-size: 1.3rem;
+            color: var(--text-main);
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .content-section p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            color: #374151;
+        }
+
+        .content-section ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .content-section li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background: #ecfdf5;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .tab-btn {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+
+            .tab-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/" class="brand">
+                <span>📚</span> AgriSensa Knowledge
+            </a>
+            <a href="/dashboard" class="back-link">
+                ← Kembali
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <h1 class="page-title">Pusat Pengetahuan Pertanian</h1>
+            <p class="page-subtitle">Ensiklopedia lengkap nutrisi tanaman, pupuk, dan pengendalian hama alami.</p>
+        </div>
+
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('pupuk-makro')">Pupuk Makro</button>
+                <button class="tab-btn" onclick="switchTab('pupuk-mikro')">Pupuk Mikro</button>
+                <button class="tab-btn" onclick="switchTab('pupuk-organik')">Pupuk Organik & Hayati</button>
+                <button class="tab-btn" onclick="switchTab('poc-mol')">POC, MOL & ZPT</button>
+                <button class="tab-btn" onclick="switchTab('pestisida-nabati')">Pestisida Nabati</button>
+            </div>
+
+            <!-- TAB 1: PUPUK MAKRO -->
+            <div id="pupuk-makro" class="tab-content active content-section">
+                <h3>Pupuk Makro: Nutrisi Utama Tanaman</h3>
+                <p>Dibutuhkan dalam jumlah besar. Terbagi menjadi Makro Primer (N, P, K) dan Makro Sekunder (Ca, Mg, S).
+                </p>
+
+                <div class="highlight-box">
+                    <strong>Prinsip Dasar:</strong> Tanaman membutuhkan keseimbangan nutrisi. Kelebihan satu unsur dapat
+                    menghambat penyerapan unsur lain (Antagonisme).
+                </div>
+
+                <h4>A. Makro Primer</h4>
+                <ul>
+                    <li><strong>Nitrogen (N) - "Unsur Daun"</strong><br>
+                        <em>Fungsi:</em> Memacu pertumbuhan vegetatif (daun, batang), pembentuk klorofil (hijau daun),
+                        dan protein.<br>
+                        <em>Gejala Kekurangan:</em> Daun menguning (klorosis) mulai dari daun tua, tanaman kerdil.<br>
+                        <em>Sumber:</em> Urea (46% N), ZA (21% N), NPK.
+                    </li>
+                    <li><strong>Fosfor (P) - "Unsur Akar & Energi"</strong><br>
+                        <em>Fungsi:</em> Merangsang pertumbuhan akar, pembungaan, pematangan biji, dan transfer energi
+                        (ATP).<br>
+                        <em>Gejala Kekurangan:</em> Daun tua berwarna ungu kemerahan, akar sedikit, pematangan buah
+                        terlambat.<br>
+                        <em>Sumber:</em> SP-36 (36% P2O5), TSP, Rock Phosphate.
+                    </li>
+                    <li><strong>Kalium (K) - "Unsur Kualitas & Imunitas"</strong><br>
+                        <em>Fungsi:</em> Memperkuat batang, meningkatkan bobot & rasa buah, mengatur pembukaan stomata
+                        (tahan kekeringan), dan ketahanan terhadap penyakit.<br>
+                        <em>Gejala Kekurangan:</em> Tepi daun tua hangus/kering, buah kecil/rontok, batang lemah.<br>
+                        <em>Sumber:</em> KCL (60% K2O), ZK (Bebas Klor), NPK.
+                    </li>
+                </ul>
+
+                <h4>B. Makro Sekunder</h4>
+                <ul>
+                    <li><strong>Kalsium (Ca)</strong><br>
+                        <em>Fungsi:</em> Memperkuat dinding sel, mencegah kerontokan bunga/buah, menetralkan asam
+                        organik.<br>
+                        <em>Kekurangan:</em> Pucuk daun muda mati/keriting, busuk ujung buah (blossom end rot).<br>
+                        <em>Sumber:</em> Dolomit, Kapur Pertanian (Kaptan), Cangkang Telur.
+                    </li>
+                    <li><strong>Magnesium (Mg)</strong><br>
+                        <em>Fungsi:</em> Inti dari molekul klorofil (pusat fotosintesis), aktivator enzim.<br>
+                        <em>Kekurangan:</em> Daun tua menguning di antara tulang daun (tulang daun tetap hijau).<br>
+                        <em>Sumber:</em> Dolomit (Ca+Mg), Kieserite, Garam Inggris.
+                    </li>
+                    <li><strong>Sulfur (S)</strong><br>
+                        <em>Fungsi:</em> Pembentuk asam amino, protein, dan vitamin (B1). Menambah aroma pada
+                        bawang/durian.<br>
+                        <em>Kekurangan:</em> Daun muda menguning pucat (kebalikan dari N).<br>
+                        <em>Sumber:</em> ZA (Zwavelzure Ammoniak), Gipsum, Belerang.
+                    </li>
+                </ul>
+            </div>
+
+            <!-- TAB 2: PUPUK MIKRO -->
+            <div id="pupuk-mikro" class="tab-content content-section">
+                <h3>Pupuk Mikro: Kecil tapi Vital</h3>
+                <p>Dibutuhkan dalam jumlah sedikit (ppm), namun tanpanya tanaman bisa mati atau gagal panen (Hukum
+                    Minimum Liebig).</p>
+
+                <div class="highlight-box">
+                    <strong>Tips:</strong> Kekurangan unsur mikro sering terjadi pada tanah yang terlalu asam atau
+                    terlalu basa. Cek pH tanah Anda terlebih dahulu.
+                </div>
+
+                <ul>
+                    <li><strong>Besi (Fe):</strong> Penting untuk pembentukan klorofil. Kekurangan menyebabkan daun muda
+                        memutih/kuning (klorosis besi).</li>
+                    <li><strong>Mangan (Mn):</strong> Berperan dalam fotosintesis dan asimilasi nitrogen. Kekurangan
+                        mirip Fe tapi ada bercak.</li>
+                    <li><strong>Seng (Zn):</strong> Aktivator enzim pertumbuhan (auksin). Kekurangan menyebabkan ruas
+                        batang memendek (roset) dan daun kecil.</li>
+                    <li><strong>Boron (B):</strong> Sangat krusial untuk <strong>penyerbukan</strong>, pembentukan biji,
+                        dan transportasi gula. Kekurangan menyebabkan buah cacat, batang retak, atau pucuk mati.</li>
+                    <li><strong>Tembaga (Cu):</strong> Pembentuk lignin (kayu) dan enzim. Kekurangan menyebabkan daun
+                        muda layu/mati pucuk.</li>
+                    <li><strong>Molibdenum (Mo):</strong> Penting untuk fiksasi nitrogen (bintil akar legum).</li>
+                    <li><strong>Klor (Cl):</strong> Terlibat dalam osmosis dan fotosintesis. Jarang kurang, seringkali
+                        berlebih (toksik).</li>
+                </ul>
+                <p><em>Sumber Mikro:</em> Pupuk daun mikro majemuk (seperti Gandasil D/B, Meroke Vitoflex), pupuk
+                    kandang, dan ekstrak rumput laut.</p>
+            </div>
+
+            <!-- TAB 3: PUPUK ORGANIK -->
+            <div id="pupuk-organik" class="tab-content content-section">
+                <h3>Pupuk Organik & Agen Hayati</h3>
+                <p>Kunci kesuburan tanah jangka panjang dan keberlanjutan lahan.</p>
+
+                <h4>1. Pupuk Kandang</h4>
+                <ul>
+                    <li><strong>Sapi/Kerbau:</strong> Kaya serat, C/N ratio tinggi. Baik untuk memperbaiki struktur
+                        tanah liat. Dingin (lambat urai).</li>
+                    <li><strong>Kambing/Domba:</strong> Kandungan N & K lebih tinggi dari sapi. Panas (perlu fermentasi
+                        matang).</li>
+                    <li><strong>Ayam/Unggas:</strong> Paling kaya N & P. Reaksi cepat, tapi "panas". Hati-hati overdosis
+                        pada tanaman muda.</li>
+                </ul>
+
+                <h4>2. Kompos & Vermikompos</h4>
+                <ul>
+                    <li><strong>Kompos:</strong> Hasil pelapukan sisa tanaman (jerami, daun). Sumber C-organik terbaik.
+                    </li>
+                    <li><strong>Vermikompos (Kascing):</strong> Bekas cacing. Mengandung hormon tumbuh alami dan mikroba
+                        menguntungkan. Sangat baik untuk pembibitan.</li>
+                </ul>
+
+                <h4>3. Agen Hayati (Biofertilizer)</h4>
+                <ul>
+                    <li><strong>Trichoderma sp.:</strong> Jamur antagonis yang memakan jamur jahat (Fusarium). Wajib
+                        untuk cegah layu.</li>
+                    <li><strong>Mikoriza:</strong> Jamur akar yang memperluas jangkauan akar hingga 100x lipat.
+                        Spesialis penyerap Fosfor dan air (tahan kekeringan).</li>
+                    <li><strong>PGPR (Plant Growth Promoting Rhizobacteria):</strong> Bakteri perakaran pemacu tumbuh.
+                        Mengikat N dari udara dan melarutkan P.</li>
+                </ul>
+            </div>
+
+            <!-- TAB 4: POC & MOL -->
+            <div id="poc-mol" class="tab-content content-section">
+                <h3>POC, MOL & ZPT Alami</h3>
+                <p>Teknologi biaya rendah untuk nutrisi cair dan stimulasi hormon.</p>
+
+                <h4>MOL (Mikroorganisme Lokal)</h4>
+                <p>Larutan fermentasi yang berfungsi sebagai starter kompos, pupuk cair, dan pestisida nabati ringan.
+                </p>
+                <ul>
+                    <li><strong>MOL Nasi Basi:</strong> Sumber Karbohidrat & Mikroba pengurai tanah.<br><em>Cara:</em>
+                        Nasi basi didiamkan hingga berjamur (orange/abu) -> campur air gula -> fermentasi 7 hari.</li>
+                    <li><strong>MOL Bonggol Pisang:</strong> Sumber <strong>Kalium (K)</strong> & Hormon
+                        Sitokinin.<br><em>Fungsi:</em> Perangsang buah dan penguat batang.</li>
+                    <li><strong>MOL Buah Maja/Mengkudu:</strong> Sumber Nitrogen & Zat perangsang
+                        tumbuh.<br><em>Fungsi:</em> Untuk fase vegetatif (daun).</li>
+                    <li><strong>MOL Rebung Bambu:</strong> Sumber Hormon <strong>Giberelin</strong>.<br><em>Fungsi:</em>
+                        Memacu pertumbuhan tunas dan tinggi tanaman.</li>
+                </ul>
+
+                <h4>ZPT (Zat Pengatur Tumbuh) Alami</h4>
+                <ul>
+                    <li><strong>Air Kelapa:</strong> Kaya <strong>Sitokinin</strong>. Untuk merangsang pembelahan sel
+                        dan tunas baru.</li>
+                    <li><strong>Ekstrak Bawang Merah:</strong> Kaya <strong>Auksin</strong>. Untuk perangsang akar pada
+                        stek/cangkok.</li>
+                    <li><strong>Ekstrak Tauge/Kecambah:</strong> Kaya Auksin & Vitamin E. Untuk kesuburan dan
+                        pertumbuhan pucuk.</li>
+                </ul>
+            </div>
+
+            <!-- TAB 5: PESTISIDA NABATI -->
+            <div id="pestisida-nabati" class="tab-content content-section">
+                <h3>Pestisida Nabati (Pesnab)</h3>
+                <p>Pengendalian hama ramah lingkungan. Ingat: Sifatnya lebih ke <em>repellent</em> (penolak) dan
+                    penghambat nafsu makan, bukan pembunuh instan (knock-down).</p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Bahan Utama</th>
+                            <th>Target Hama</th>
+                            <th>Cara Kerja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Daun Mimba</strong><br>(Azadirachtin)</td>
+                            <td>Ulat, Wereng, Kutu daun, Tungau</td>
+                            <td>Menghambat pergantian kulit, mengurangi nafsu makan, memandulkan hama.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bawang Putih</strong></td>
+                            <td>Kutu-kutuan (Aphids, Thrips), Jamur</td>
+                            <td>Bau menyengat (penolak), antibiotik alami.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Daun Sirsak</strong></td>
+                            <td>Trips, Kutu daun, Ulat</td>
+                            <td>Racun kontak dan lambung.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tembakau</strong><br>(Nikotin)</td>
+                            <td>Ulat, Kutu kebul, Walang sangit</td>
+                            <td>Racun syaraf yang kuat (Hati-hati: juga toksik bagi musuh alami).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sereh Wangi</strong></td>
+                            <td>Lalat buah, Nyamuk, Kutu</td>
+                            <td>Penolak (Repellent) karena aroma sitronela.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gadung</strong></td>
+                            <td>Tikus, Ulat tanah</td>
+                            <td>Racun perut (Sianida alami). Perlu fermentasi.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="highlight-box" style="margin-top: 20px;">
+                    <strong>Tips Aplikasi:</strong> Semprotkan pada sore hari (UV matahari merusak bahan aktif nabati).
+                    Tambahkan perekat (sabun cuci piring sedikit) agar tahan hujan.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Deactivate all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show target content
+            document.getElementById(tabId).classList.add('active');
+
+            // Activate target button
+            // Find the button that calls this function with this tabId
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('onclick').includes(tabId)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

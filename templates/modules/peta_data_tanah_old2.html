@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗺️ Peta Data Tanah - AgriSensa</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Leaflet.draw CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f0fdf4;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #map {
+            flex: 1;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: white;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: #059669;
+            margin-bottom: 10px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #059669;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .weather-card {
+            background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .weather-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .weather-current {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .temp-big {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .weather-details {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .weather-details div {
+            margin: 5px 0;
+        }
+
+        .recommendations {
+            background: #f0fdf4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .recommendations h3 {
+            color: #059669;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendations li {
+            padding: 8px 0;
+            border-bottom: 1px solid #d1fae5;
+            font-size: 0.9rem;
+            color: #065f46;
+        }
+
+        .recommendations li:last-child {
+            border-bottom: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        .area-display {
+            background: #ecfdf5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #10b981;
+        }
+
+        .area-display h3 {
+            color: #059669;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .area-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #047857;
+        }
+
+        .instructions {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #1e40af;
+        }
+
+        .instructions h4 {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="map"></div>
+
+        <div class="sidebar">
+            <a href="/dashboard" class="back-link">← Kembali ke Dashboard</a>
+            <h1>🗺️ Peta Data Tanah</h1>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <h4>📐 Cara Mengukur Luas Lahan:</h4>
+                <ol>
+                    <li>Klik tombol polygon (⬟) di peta</li>
+                    <li>Klik titik-titik untuk menandai batas lahan</li>
+                    <li>Klik titik pertama lagi untuk selesai</li>
+                    <li>Luas akan ditampilkan otomatis!</li>
+                </ol>
+            </div>
+
+            <!-- Area Display -->
+            <div id="area-display" class="area-display" style="display:none;">
+                <h3>📏 Luas Lahan</h3>
+                <div class="area-value" id="area-value">-</div>
+                <div style="font-size:0.9rem; color:#065f46; margin-top:5px;" id="area-hectares">-</div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div id="weather-widget" class="loading">
+                Memuat data cuaca...
+            </div>
+
+            <!-- Recommendations -->
+            <div id="recommendations-widget" style="display:none;" class="recommendations">
+                <h3>💡 Rekomendasi Pertanian</h3>
+                <ul id="recommendations-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Leaflet.draw JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+    <!-- Turf.js for area calculation -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+    <script>
+        // Initialize map (centered on Indonesia)
+        const map = L.map('map').setView([-2.5, 118], 5);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Layer for drawn items
+        const drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        // Drawing controls
+        const drawControl = new L.Control.Draw({
+            draw: {
+                polygon: {
+                    allowIntersection: false,
+                    shapeOptions: {
+                        color: '#10b981',
+                        weight: 3
+                    }
+                },
+                rectangle: {
+                    shapeOptions: {
+                        color: '#3b82f6',
+                        weight: 3
+                    }
+                },
+                polyline: false,
+                circle: false,
+                marker: false,
+                circlemarker: false
+            },
+            edit: {
+                featureGroup: drawnItems,
+                remove: true
+            }
+        });
+        map.addControl(drawControl);
+
+        // Handle polygon creation
+        map.on('draw:created', function (e) {
+            const layer = e.layer;
+            drawnItems.addLayer(layer);
+
+            // Calculate area using Turf.js
+            const geojson = layer.toGeoJSON();
+            const area = turf.area(geojson);
+            const areaSqm = area.toFixed(2);
+            const areaHa = (area / 10000).toFixed(4);
+
+            // Display area
+            document.getElementById('area-display').style.display = 'block';
+            document.getElementById('area-value').textContent = `${Number(areaSqm).toLocaleString('id-ID')} m²`;
+            document.getElementById('area-hectares').textContent = `${areaHa} hektar`;
+
+            // Add popup to polygon
+            layer.bindPopup(`
+                <b>Luas Lahan:</b><br>
+                ${Number(areaSqm).toLocaleString('id-ID')} m²<br>
+                ${areaHa} hektar
+            `).openPopup();
+
+            // Get center of polygon for weather
+            const center = turf.center(geojson);
+            const [lon, lat] = center.geometry.coordinates;
+            loadWeather(lat, lon);
+        });
+
+        // Handle polygon edit
+        map.on('draw:edited', function (e) {
+            const layers = e.layers;
+            layers.eachLayer(function (layer) {
+                const geojson = layer.toGeoJSON();
+                const area = turf.area(geojson);
+                const areaSqm = area.toFixed(2);
+                const areaHa = (area / 10000).toFixed(4);
+
+                document.getElementById('area-value').textContent = `${Number(areaSqm).toLocaleString('id-ID')} m²`;
+                document.getElementById('area-hectares').textContent = `${areaHa} hektar`;
+
+                layer.setPopupContent(`
+                    <b>Luas Lahan:</b><br>
+                    ${Number(areaSqm).toLocaleString('id-ID')} m²<br>
+                    ${areaHa} hektar
+                `);
+            });
+        });
+
+        // Handle polygon delete
+        map.on('draw:deleted', function (e) {
+            if (drawnItems.getLayers().length === 0) {
+                document.getElementById('area-display').style.display = 'none';
+            }
+        });
+
+        // Load weather data
+        async function loadWeather(lat, lon) {
+            const weatherWidget = document.getElementById('weather-widget');
+            weatherWidget.innerHTML = '<div class="loading">Memuat cuaca...</div>';
+
+            try {
+                // Get recommendations (includes current weather, forecast, soil data)
+                const response = await fetch(`/api/weather/recommendations?lat=${lat}&lon=${lon}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    // Display current weather
+                    const current = data.current_weather;
+                    if (current && current.success) {
+                        weatherWidget.innerHTML = `
+                            <div class="weather-card">
+                                <h3>🌤️ Cuaca Saat Ini</h3>
+                                <div class="weather-current">
+                                    <div class="temp-big">${current.temperature}°C</div>
+                                    <div class="weather-details">
+                                        <div>💨 Angin: ${current.windspeed} km/h</div>
+                                        <div>🧭 Arah: ${current.winddirection}°</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Display recommendations
+                    if (data.recommendations && data.recommendations.length > 0) {
+                        document.getElementById('recommendations-widget').style.display = 'block';
+                        const list = document.getElementById('recommendations-list');
+                        list.innerHTML = data.recommendations.map(rec => `<li>${rec}</li>`).join('');
+                    }
+                } else {
+                    weatherWidget.innerHTML = `<div class="loading">Gagal memuat cuaca: ${data.error}</div>`;
+                }
+            } catch (error) {
+                console.error('Weather error:', error);
+                weatherWidget.innerHTML = '<div class="loading">Gagal memuat cuaca</div>';
+            }
+        }
+
+        // Try to get user location for initial weather
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    map.setView([lat, lon], 13);
+                    loadWeather(lat, lon);
+                },
+                function (error) {
+                    // Default to Jakarta if geolocation fails
+                    loadWeather(-6.2088, 106.8456);
+                }
+            );
+        } else {
+            // Default to Jakarta
+            loadWeather(-6.2088, 106.8456);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test AgriSensa API</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        input { width: 100%; padding: 8px; margin: 5px 0; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test AgriSensa API</h1>
+    
+    <h2>Test 1: Analisis NPK</h2>
+    <form id="test-form">
+        <label>Nitrogen (N):</label>
+        <input type="number" id="n" value="150" required>
+        
+        <label>Fosfor (P):</label>
+        <input type="number" id="p" value="30" required>
+        
+        <label>Kalium (K):</label>
+        <input type="number" id="k" value="200" required>
+        
+        <button type="submit">Test API</button>
+    </form>
+    
+    <div id="result" class="result">
+        <p>Hasil akan muncul di sini...</p>
+    </div>
+
+    <script>
+        console.log('Script loaded!');
+        
+        document.getElementById('test-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Form submitted!');
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>⏳ Mengirim request...</p>';
+            
+            const data = {
+                n_value: parseInt(document.getElementById('n').value),
+                p_value: parseInt(document.getElementById('p').value),
+                k_value: parseInt(document.getElementById('k').value)
+            };
+            
+            console.log('Sending data:', data);
+            
+            try {
+                const response = await fetch('/analyze-npk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                const result = await response.json();
+                console.log('Response data:', result);
+                
+                if (result.success) {
+                    let html = '<h3>✅ SUCCESS!</h3>';
+                    html += '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = '<p style="color: red;">❌ Error: ' + result.error + '</p>';
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = '<p style="color: red;">❌ Network Error: ' + error.message + '</p>';
+            }
+        });
+        
+        console.log('Event listener attached!');
+    </script>
+</body>
+</html>

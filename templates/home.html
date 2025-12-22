@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>AgriSensa - Platform Pertanian Cerdas AI</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link href="https://fonts.gstatic.com" crossorigin="" rel="preconnect" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --bg-body: #f0fdf4;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: rgba(226, 232, 240, 0.8);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius: 24px;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 100px 20px 80px;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #059669 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+            animation: fadeUp 0.8s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            line-height: 1.6;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: var(--glass-border);
+            box-shadow: var(--shadow-md);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            animation: fadeUp 0.8s ease-out 0.4s backwards;
+        }
+
+        /* Ticker */
+        .ticker-wrap {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 50px;
+            line-height: 50px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: ticker 40s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            padding: 0 2rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        @keyframes ticker {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+
+            100% {
+                transform: translate3d(-100%, 0, 0);
+            }
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .section-header {
+            margin-bottom: 50px;
+            text-align: center;
+            animation: fadeUp 0.8s ease-out 0.6s backwards;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        /* Grid */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        /* Module Card */
+        .module-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: var(--glass-border);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            height: 100%;
+            animation: fadeUp 0.8s ease-out backwards;
+        }
+
+        /* Staggered animation for cards */
+        .module-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .module-card:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .module-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .module-card:nth-child(4) {
+            animation-delay: 0.25s;
+        }
+
+        .module-card:nth-child(5) {
+            animation-delay: 0.3s;
+        }
+
+        .module-card:nth-child(6) {
+            animation-delay: 0.35s;
+        }
+
+        /* ... add more if needed or use JS */
+
+        .module-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-lg);
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .module-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ecfdf5 0%, #eff6ff 100%);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            transition: transform 0.4s ease;
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .module-card:hover .module-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .module-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+        }
+
+        .module-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+            flex-grow: 1;
+        }
+
+        .module-link {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: auto;
+        }
+
+        .module-link::after {
+            content: '→';
+            transition: transform 0.2s;
+        }
+
+        .module-card:hover .module-link::after {
+            transform: translateX(6px);
+        }
+
+        /* Badges */
+        .badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .badge-new {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+        }
+
+        .badge-hot {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 80px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.75rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Ticker -->
+    <div class="ticker-wrap">
+        <div class="ticker" id="price-ticker">
+            <div class="ticker-item">Memuat data harga pasar terkini...</div>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>AgriSensa</h1>
+            <p>Platform Pertanian Cerdas Berbasis AI untuk Meningkatkan Produktivitas & Keberlanjutan</p>
+            <div class="hero-badge">✨ 25+ Modul Canggih | 🤖 AI-Powered | 📊 Data-Driven</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Eksplorasi Modul</h2>
+            <p class="section-subtitle">Pilih alat bantu cerdas untuk kebutuhan pertanian Anda</p>
+        </div>
+
+        <div class="module-grid">
+
+            <!-- Featured Modules -->
+            <a href="/modules/katalog-pupuk" class="module-card">
+                <span class="badge badge-new">Baru</span>
+                <div class="module-icon">📋</div>
+                <h3 class="module-title">Katalog Pupuk</h3>
+                <p class="module-desc">Referensi lengkap harga dan spesifikasi pupuk dari berbagai produsen.</p>
+                <span class="module-link">Buka Katalog</span>
+            </a>
+
+            <a href="/modules/chatbot" class="module-card">
+                <span class="badge badge-hot">AI</span>
+                <div class="module-icon">🤖</div>
+                <h3 class="module-title">AgriBot</h3>
+                <p class="module-desc">Asisten pertanian cerdas siap menjawab pertanyaan Anda 24/7.</p>
+                <span class="module-link">Chat Sekarang</span>
+            </a>
+
+            <a href="/modules/kalkulator-pupuk-holistik" class="module-card">
+                <span class="badge badge-hot">Update</span>
+                <div class="module-icon">🧮</div>
+                <h3 class="module-title">Kalkulator Pupuk Holistik</h3>
+                <p class="module-desc">Hitung kebutuhan pupuk presisi dengan jadwal bertahap.</p>
+                <span class="module-link">Hitung Sekarang</span>
+            </a>
+
+            <a href="/modules/peta-data-tanah" class="module-card">
+                <span class="badge badge-new">New</span>
+                <div class="module-icon">🗺️</div>
+                <h3 class="module-title">Peta Data Tanah</h3>
+                <p class="module-desc">Ukur luas lahan & lihat cuaca real-time dengan peta interaktif.</p>
+                <span class="module-link">Buka Peta</span>
+            </a>
+
+            <a href="/modules/agrishop" class="module-card">
+                <span class="badge badge-new">New</span>
+                <div class="module-icon">🛒</div>
+                <h3 class="module-title">AgriShop Marketplace</h3>
+                <p class="module-desc">Jual beli hasil panen langsung dari petani dengan pre-order & smart pricing.</p>
+                <span class="module-link">Buka Marketplace</span>
+            </a>
+
+            <a href="/modules/diagnostik-gejala-cerdas" class="module-card">
+                <span class="badge badge-new">AI</span>
+                <div class="module-icon">🔍</div>
+                <h3 class="module-title">Diagnostik Gejala</h3>
+                <p class="module-desc">Identifikasi hama & penyakit melalui kuesioner interaktif.</p>
+                <span class="module-link">Mulai Diagnosa</span>
+            </a>
+
+            <a href="/modules/harvest-database" class="module-card">
+                <span class="badge badge-new">New</span>
+                <div class="module-icon">📊</div>
+                <h3 class="module-title">Database Panen</h3>
+                <p class="module-desc">Catat, analisis, dan ekspor data hasil panen Anda.</p>
+                <span class="module-link">Kelola Panen</span>
+            </a>
+
+            <!-- Core Modules -->
+            <a href="/fruit-guide" class="module-card">
+                <div class="module-icon">🍎</div>
+                <h3 class="module-title">Panduan Buah</h3>
+                <p class="module-desc">Ensiklopedia lengkap budidaya tanaman buah tropis.</p>
+                <span class="module-link">Pelajari</span>
+            </a>
+
+            <a href="/modules/dasbor-rekomendasi-terpadu" class="module-card">
+                <div class="module-icon">🖥️</div>
+                <h3 class="module-title">Dasbor Terpadu</h3>
+                <p class="module-desc">Pusat rekomendasi pertanian terintegrasi dalam satu layar.</p>
+                <span class="module-link">Lihat Dasbor</span>
+            </a>
+
+            <a href="/modules/intelijen-harga-pasar" class="module-card">
+                <div class="module-icon">💰</div>
+                <h3 class="module-title">Intelijen Pasar</h3>
+                <p class="module-desc">Monitor harga komoditas real-time dari berbagai pasar.</p>
+                <span class="module-link">Cek Harga</span>
+            </a>
+
+            <a href="/modules/analisis-tren-harga" class="module-card">
+                <div class="module-icon">📈</div>
+                <h3 class="module-title">Analisis Tren</h3>
+                <p class="module-desc">Visualisasi dan prediksi tren harga komoditas dengan AI.</p>
+                <span class="module-link">Lihat Tren</span>
+            </a>
+
+            <a href="/modules/bwd-analysis" class="module-card">
+                <div class="module-icon">🍂</div>
+                <h3 class="module-title">Analisis BWD</h3>
+                <p class="module-desc">Deteksi penyakit padi menggunakan Computer Vision.</p>
+                <span class="module-link">Analisis Foto</span>
+            </a>
+
+            <a href="/modules/dokter-tanaman-canggih-roboflow-ai" class="module-card">
+                <div class="module-icon">🤖</div>
+                <h3 class="module-title">Dokter Tanaman AI</h3>
+                <p class="module-desc">Deteksi penyakit canggih berbasis Roboflow AI.</p>
+                <span class="module-link">Scan Tanaman</span>
+            </a>
+
+            <a href="/modules/fertilizer-rec" class="module-card">
+                <div class="module-icon">🌱</div>
+                <h3 class="module-title">Rekomendasi Pupuk</h3>
+                <p class="module-desc">Saran pemupukan dasar berdasarkan kondisi tanah.</p>
+                <span class="module-link">Dapatkan Saran</span>
+            </a>
+
+            <a href="/modules/crop-rec" class="module-card">
+                <div class="module-icon">🌾</div>
+                <h3 class="module-title">Rekomendasi Tanaman</h3>
+                <p class="module-desc">Pilih tanaman terbaik sesuai kondisi lahan Anda.</p>
+                <span class="module-link">Cari Tanaman</span>
+            </a>
+
+            <a href="/modules/pest-guide" class="module-card">
+                <div class="module-icon">🐛</div>
+                <h3 class="module-title">Panduan Hama</h3>
+                <p class="module-desc">Database lengkap hama dan cara pengendaliannya.</p>
+                <span class="module-link">Cari Hama</span>
+            </a>
+
+            <a href="/modules/pestisida-nabati" class="module-card">
+                <span class="badge badge-new">Organik</span>
+                <div class="module-icon">🌿</div>
+                <h3 class="module-title">Pestisida Nabati</h3>
+                <p class="module-desc">Panduan lengkap 60+ tumbuhan pestisida alami untuk pengendalian OPT organik.</p>
+                <span class="module-link">Lihat Tumbuhan</span>
+            </a>
+
+            <!-- Additional Tools -->
+            <a href="/modules/analis-risiko-keberhasilan-ai" class="module-card">
+                <div class="module-icon">📊</div>
+                <h3 class="module-title">Analis Risiko</h3>
+                <p class="module-desc">Evaluasi potensi keberhasilan usaha tani Anda.</p>
+                <span class="module-link">Analisis</span>
+            </a>
+
+            <a href="/modules/asisten_penelitian" class="module-card">
+                <span class="badge badge-new">Baru</span>
+                <div class="module-icon">🎓</div>
+                <h3 class="module-title">Asisten Penelitian</h3>
+                <p class="module-desc">Analisis statistik otomatis (RAL/RAK) untuk riset agronomi.</p>
+                <span class="module-link">Mulai Riset</span>
+            </a>
+
+            <a href="/modules/analisis-npk-manual" class="module-card">
+                <div class="module-icon">🧪</div>
+                <h3 class="module-title">Analisis NPK</h3>
+                <p class="module-desc">Input manual data NPK untuk analisis kesuburan.</p>
+                <span class="module-link">Input Data</span>
+            </a>
+
+            <a href="/modules/basis-pengetahuan-budidaya" class="module-card">
+                <div class="module-icon">📚</div>
+                <h3 class="module-title">Basis Pengetahuan</h3>
+                <p class="module-desc">Kumpulan SOP dan teknik budidaya terbaik.</p>
+                <span class="module-link">Baca</span>
+            </a>
+
+            <a href="/modules/ensiklopedia-komoditas-cerdas" class="module-card">
+                <div class="module-icon">📖</div>
+                <h3 class="module-title">Ensiklopedia</h3>
+                <p class="module-desc">Informasi mendalam tentang berbagai komoditas.</p>
+                <span class="module-link">Jelajahi</span>
+            </a>
+
+            <a href="/modules/intelijen-prediktif-xai" class="module-card">
+                <div class="module-icon">🔮</div>
+                <h3 class="module-title">Prediksi XAI</h3>
+                <p class="module-desc">Prediksi cerdas dengan penjelasan transparan.</p>
+                <span class="module-link">Lihat Prediksi</span>
+            </a>
+
+            <a href="/modules/kalkulator-konversi-pupuk" class="module-card">
+                <div class="module-icon">🔄</div>
+                <h3 class="module-title">Konversi Pupuk</h3>
+                <p class="module-desc">Alat bantu konversi dosis antar jenis pupuk.</p>
+                <span class="module-link">Konversi</span>
+            </a>
+
+            <a href="/modules/perencana-hasil-panen-ai" class="module-card">
+                <div class="module-icon">📅</div>
+                <h3 class="module-title">Perencana Panen</h3>
+                <p class="module-desc">Jadwalkan target panen Anda dengan bantuan AI.</p>
+                <span class="module-link">Rencanakan</span>
+            </a>
+
+            <a href="/modules/prediksi-hasil-panen-cerdas" class="module-card">
+                <div class="module-icon">⚖️</div>
+                <h3 class="module-title">Prediksi Hasil</h3>
+                <p class="module-desc">Estimasi tonase panen berdasarkan parameter lahan.</p>
+                <span class="module-link">Prediksi</span>
+            </a>
+
+            <a href="/modules/pusat-pengetahuan-pertanian" class="module-card">
+                <div class="module-icon">🏫</div>
+                <h3 class="module-title">Pusat Belajar</h3>
+                <p class="module-desc">Materi edukasi pertanian untuk semua level.</p>
+                <span class="module-link">Belajar</span>
+            </a>
+
+            <a href="/modules/pusat-pengetahuan-ph-tanah" class="module-card">
+                <div class="module-icon">💧</div>
+                <h3 class="module-title">Info pH Tanah</h3>
+                <p class="module-desc">Panduan manajemen keasaman tanah.</p>
+                <span class="module-link">Pelajari pH</span>
+            </a>
+
+            <a href="/modules/pustaka-dokumen" class="module-card">
+                <div class="module-icon">📂</div>
+                <h3 class="module-title">Pustaka Dokumen</h3>
+                <p class="module-desc">Regulasi dan dokumen resmi pertanian.</p>
+                <span class="module-link">Unduh</span>
+            </a>
+
+            <a href="/modules/pesticide-knowledge" class="module-card">
+                <div class="module-icon">🧪</div>
+                <h3 class="module-title">Info Pestisida</h3>
+                <p class="module-desc">Direktori bahan aktif, cara kerja, dan keamanan.</p>
+                <span class="module-link">Cari Bahan Aktif</span>
+            </a>
+
+            <a href="/modules/rekomendasi-tanaman-cerdas-agrimap-ai" class="module-card">
+                <div class="module-icon">🗺️</div>
+                <h3 class="module-title">AgriMap AI</h3>
+                <p class="module-desc">Rekomendasi tanaman berbasis lokasi (Geospatial).</p>
+                <span class="module-link">Buka Peta</span>
+            </a>
+
+            <a href="/modules/strategi-penyemprotan-cerdas" class="module-card">
+                <div class="module-icon">🚿</div>
+                <h3 class="module-title">Strategi Semprot</h3>
+                <p class="module-desc">Optimalkan jadwal dan dosis penyemprotan.</p>
+                <span class="module-link">Atur Strategi</span>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 AgriSensa. Teknologi Pertanian untuk Masa Depan Indonesia.</p>
+    </footer>
+
+    <script>
+        // Ticker Logic
+        async function updateTicker() {
+            const ticker = document.getElementById('price-ticker');
+            try {
+                // Add timestamp to prevent caching
+                const response = await fetch('/get-ticker-prices?t=' + new Date().getTime());
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.success && data.data.length > 0) {
+                    let html = '';
+                    // Duplicate for seamless loop
+                    const items = [...data.data, ...data.data, ...data.data];
+
+                    items.forEach(item => {
+                        html += `<div class="ticker-item">
+                            ${item.name}: <span style="color: #10b981; font-weight: 700;">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price)}</span> / ${item.unit}
+                        </div>`;
+                    });
+                    ticker.innerHTML = html;
+                } else {
+                    console.warn("Ticker data empty or unsuccessful", data);
+                    ticker.innerHTML = '<div class="ticker-item">Data harga pasar sedang tidak tersedia.</div>';
+                }
+            } catch (e) {
+                console.error("Ticker update failed", e);
+                ticker.innerHTML = `<div class="ticker-item">Gagal memuat harga pasar (Koneksi: ${e.message}).</div>`;
+            }
+        }
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Init
+        updateTicker();
+        setInterval(updateTicker, 60000);
+    </script>
+</body>
+
+</html>
