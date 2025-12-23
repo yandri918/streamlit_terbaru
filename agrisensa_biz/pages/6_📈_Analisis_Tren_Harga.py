@@ -15,7 +15,12 @@ import sys
 import os
 from utils.auth import require_auth, show_user_info_sidebar
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Add parent directory to path for imports (required for Streamlit Cloud)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
 from services.bapanas_service import BapanasService
 from utils.bapanas_constants import PROVINCE_MAPPING, COMMODITY_MAPPING
 

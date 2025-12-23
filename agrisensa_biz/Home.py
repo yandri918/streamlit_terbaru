@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 
 st.set_page_config(page_title="AgriSensa Biz", page_icon="📈", layout="wide")
 
@@ -37,3 +38,24 @@ with c6:
     st.page_link("pages/50_📋_Manajemen_Proyek_Pertanian.py", label="Manajemen Proyek (Baru)", icon="📋", use_container_width=True)
 with c7:
     st.page_link("pages/53_🎓_Kurikulum_Pelatihan.py", label="Kurikulum Pelatihan", icon="🎓", use_container_width=True)
+
+# Footer
+st.markdown("---")
+# Debugging Section (Visible only to Admin/Dev)
+with st.expander("🔧 Debug Page Paths (System Info)"):
+    st.write("Current File:", __file__)
+    st.write("CWD:", os.getcwd())
+    
+    try:
+        from streamlit.source_util import get_pages
+        pages = get_pages("Home.py")
+        st.write("Registered Pages in Streamlit:", pages)
+        
+        st.write("Files in 'pages' directory:")
+        if os.path.exists("pages"):
+            st.write(sorted(os.listdir("pages")))
+        else:
+            st.error("'pages' directory not found!")
+            
+    except Exception as e:
+        st.error(f"Error reading pages: {e}")
