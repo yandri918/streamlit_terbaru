@@ -722,8 +722,10 @@ with tab2:
             # Simple serialization for URL
             params['milestones'] = json.dumps(data['milestones'])
         
+        # Encode Batch ID to handle spaces
+        safe_id = urllib.parse.quote(data['id'])
         query_string = urllib.parse.urlencode(params)
-        qr_url = f"{base_url}/{data['id']}?{query_string}"
+        qr_url = f"{base_url}/{safe_id}?{query_string}"
         
         qr.add_data(qr_url)
         qr.make(fit=True)
