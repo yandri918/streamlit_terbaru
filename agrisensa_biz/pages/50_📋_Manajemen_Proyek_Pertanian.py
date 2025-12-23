@@ -178,12 +178,103 @@ elif active_project:
         st.caption(f"{active_project['crop_type']} | {active_project['area_hectare']} ha | {active_project['start_date']} - {active_project['end_date']}")
     
     with col_h2:
-        if st.button("⚙️ Edit Proyek"):
+        if st.button("⚙️ Edit Proyek", use_container_width=True):
             st.session_state.show_edit_project = True
     
     with col_h3:
-        if st.button("🗑️ Hapus Proyek", type="secondary"):
+        if st.button("🗑️ Hapus Proyek", type="secondary", use_container_width=True):
             st.session_state.show_delete_confirm = True
+    
+    # Edit Project Dialog
+    if st.session_state.get('show_edit_project', False):
+        st.divider()
+        st.subheader("⚙️ Edit Proyek")
+        
+        with st.form("edit_project_form"):
+            col_e1, col_e2 = st.columns(2)
+            
+            with col_e1:
+                edit_name = st.text_input("Nama Proyek", value=active_project['name'])
+                edit_crop = st.selectbox("Jenis Tanaman", 
+                    ["Cabai", "Tomat", "Terong", "Bawang Merah", "Bawang Putih",
+                     "Kentang", "Wortel", "Jagung", "Padi", "Kedelai", "Lainnya"],
+                    index=["Cabai", "Tomat", "Terong", "Bawang Merah", "Bawang Putih",
+                           "Kentang", "Wortel", "Jagung", "Padi", "Kedelai", "Lainnya"].index(active_project['crop_type']) 
+                           if active_project['crop_type'] in ["Cabai", "Tomat", "Terong", "Bawang Merah", "Bawang Putih",
+                                                               "Kentang", "Wortel", "Jagung", "Padi", "Kedelai", "Lainnya"] else 0
+                )
+                edit_area = st.number_input("Luas Lahan (hektar)", min_value=0.1, max_value=1000.0, 
+                                           value=float(active_project['area_hectare']), step=0.1)
+            
+            with col_e2:
+                edit_start = st.date_input("Tanggal Mulai", 
+                                          value=datetime.strptime(active_project['start_date'], "%Y-%m-%d"))
+                edit_end = st.date_input("Tanggal Target Selesai",
+                                        value=datetime.strptime(active_project['end_date'], "%Y-%m-%d"))
+                edit_budget = st.number_input("Total Budget (Rp)", min_value=0, 
+                                             value=int(active_project['budget_total']), step=1000000)
+            
+            col_btn1, col_btn2 = st.columns(2)
+            
+            with col_btn1:
+                if st.form_submit_button("💾 Simpan Perubahan", type="primary", use_container_width=True):
+                    # Update project
+                    active_project['name'] = edit_name
+                    active_project['crop_type'] = edit_crop
+                    active_project['area_hectare'] = edit_area
+                    active_project['start_date'] = edit_start.strftime("%Y-%m-%d")
+                    active_project['end_date'] = edit_end.strftime("%Y-%m-%d")
+                    active_project['budget_total'] = edit_budget
+                    
+                    st.session_state.show_edit_project = False
+                    st.success("✅ Proyek berhasil diupdate!")
+                    st.rerun()
+            
+            with col_btn2:
+                if st.form_submit_button("❌ Batal", use_container_width=True):
+                    st.session_state.show_edit_project = False
+                    st.rerun()
+        
+        st.divider()
+    
+    # Delete Confirmation Dialog
+    if st.session_state.get('show_delete_confirm', False):
+        st.divider()
+        st.warning(f"⚠️ **Konfirmasi Hapus Proyek**")
+        st.markdown(f"Apakah Anda yakin ingin menghapus proyek **{active_project['name']}**?")
+        st.error("⚠️ Semua data tasks, expenses, dan activities akan ikut terhapus!")
+        
+        col_del1, col_del2 = st.columns(2)
+        
+        with col_del1:
+            if st.button("🗑️ Ya, Hapus Proyek", type="primary", use_container_width=True):
+                project_id = active_project['id']
+                
+                # Remove project
+                st.session_state.projects = [p for p in st.session_state.projects if p['id'] != project_id]
+                
+                # Remove related tasks
+                st.session_state.tasks = [t for t in st.session_state.tasks if t['project_id'] != project_id]
+                
+                # Remove related expenses
+                st.session_state.expenses = [e for e in st.session_state.expenses if e['project_id'] != project_id]
+                
+                # Remove related activities
+                st.session_state.activities = [a for a in st.session_state.activities if a['project_id'] != project_id]
+                
+                # Reset active project
+                st.session_state.active_project_id = None
+                st.session_state.show_delete_confirm = False
+                
+                st.success("✅ Proyek berhasil dihapus!")
+                st.rerun()
+        
+        with col_del2:
+            if st.button("❌ Batal", use_container_width=True):
+                st.session_state.show_delete_confirm = False
+                st.rerun()
+        
+        st.divider()
     
     st.divider()
     
