@@ -717,14 +717,22 @@ with tab2:
             'certifications': ['Organik', 'Premium', 'Lokal']
         }
         
-        # Encode to URL-Safe Base64
+        # Encode to URL-Safe Base64 (Strip Padding for Cleaner URL)
         import base64
         json_str = json.dumps(payload, separators=(',', ':'))
-        b64_str = base64.urlsafe_b64encode(json_str.encode()).decode()
+        b64_str = base64.urlsafe_b64encode(json_str.encode()).decode().rstrip("=")
         
         # Final Robust URL
         qr_url = f"{base_url}/{b64_str}"
         
+        # Generate QR Code (Auto-Version to handle long data)
+        # version=None implies "fit=True" will determine the smallest version needed
+        qr = qrcode.QRCode(
+            version=None, 
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10, 
+            border=4
+        )
         qr.add_data(qr_url)
         qr.make(fit=True)
         img_qr = qr.make_image(fill_color="black", back_color="white")
