@@ -1,15 +1,15 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import datetime
+from datetime import datetime, timedelta
+import uuid
+import hashlib
 
-# Page Config
 from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(
-    page_title="Rantai Pasok & Logistik",
+    page_title="Supply Chain Visibility - AgriSensa",
     page_icon="🚚",
     layout="wide"
 )
@@ -19,414 +19,468 @@ user = require_auth()
 show_user_info_sidebar()
 # ================================
 
+# ==========================================
+# INITIALIZE SESSION STATE
+# ==========================================
 
+if 'shipments' not in st.session_state:
+    st.session_state.shipments = []
 
+if 'routes' not in st.session_state:
+    st.session_state.routes = []
 
+if 'market_prices' not in st.session_state:
+    st.session_state.market_prices = []
 
-
-# Custom CSS
-st.markdown("""
-<style>
-    .main-header {
-        background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-        color: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-bottom: 2rem;
-        text-align: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-    }
-    .metric-card {
-        background: #fff7ed;
-        border-left: 5px solid #ea580c;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    h1, h2, h3 { color: #9a3412; }
-</style>
-""", unsafe_allow_html=True)
-
-# HEADER
-st.markdown('<div class="main-header"><h1>🚚 Rantai Pasok Pangan</h1><p>Manajemen Logistik, Margin, & Timing Pasar Induk</p></div>', unsafe_allow_html=True)
-
+# ==========================================
 # DATA REFERENCES
-PASAR_INDUK = {
-    "PI Kramat Jati (Jakarta)": {"peak_start": 23, "peak_end": 4, "lat": -6.27, "lon": 106.87},
-    "PI Tanah Tinggi (Tangerang)": {"peak_start": 22, "peak_end": 3, "lat": -6.17, "lon": 106.66},
-    "PI Cibitung (Bekasi)": {"peak_start": 21, "peak_end": 2, "lat": -6.24, "lon": 107.08},
-    "PI Caringin (Bandung)": {"peak_start": 20, "peak_end": 1, "lat": -6.94, "lon": 107.57}
+# ==========================================
+
+LOCATIONS = {
+    "Farm": ["Farm Banyumas", "Farm Cianjur", "Farm Bandung", "Farm Garut", "Farm Lembang"],
+    "Pasar Induk": ["PI Kramat Jati", "PI Tanah Tinggi", "PI Cibitung", "PI Caringin"],
+    "Retail": ["Superindo", "Alfamart", "Indomaret", "Pasar Tradisional", "Restoran"]
 }
 
 VEHICLES = {
-    "Pick Up (L300)": {"kapasitas": 1000, "km_per_liter": 9, "sewa": 350000},
-    "Engkel (4 Roda)": {"kapasitas": 2200, "km_per_liter": 7, "sewa": 600000},
-    "Colt Diesel (6 Roda)": {"kapasitas": 4500, "km_per_liter": 5, "sewa": 900000},
-    "Fuso (10 Roda)": {"kapasitas": 12000, "km_per_liter": 3, "sewa": 1500000},
+    "Pick Up (L300)": {"capacity_kg": 1000, "cost_per_km": 3500},
+    "Truck Engkel": {"capacity_kg": 2200, "cost_per_km": 5000},
+    "Colt Diesel": {"capacity_kg": 4500, "cost_per_km": 7500},
+    "Fuso": {"capacity_kg": 12000, "cost_per_km": 12000}
 }
 
-# TABS
-tab1, tab2, tab3, tab4 = st.tabs([
-    "🚛 Kalkulator Logistik", 
-    "💰 Analisis Margin (Tata Niaga)", 
-    "⏱️ Radar Pasar Induk",
-    "🔗 Blockchain Ledger (Simulasi)"
-])
+COMMODITIES = [
+    "Cabai Merah", "Cabai Rawit", "Tomat", "Bawang Merah", "Bawang Putih",
+    "Kentang", "Wortel", "Sawi", "Kangkung", "Bayam", "Selada"
+]
 
-# --- TAB 1: LOGISTICS CALCULATOR ---
-with tab1:
-    st.markdown("### 🚛 Estimasi Biaya Kirim & Susut Bobot")
-    st.info("Menghitung HPP Transportasi per Kg agar tidak boncos di jalan.")
-    
-    col_l1, col_l2 = st.columns(2)
-    
-    # Calculate Distance via Coordinates (Haversine)
-    def haversine(lat1, lon1, lat2, lon2):
-        import math
-        R = 6371 # Earth radius in km
-        phi1, phi2 = math.radians(lat1), math.radians(lat2)
-        dphi = math.radians(lat2 - lat1)
-        dlambda = math.radians(lon2 - lon1)
-        a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-        return R * c
-        
-    with col_l1:
-        st.subheader("1. Data Pengiriman")
-        
-        # Auto Distance Feature
-        with st.expander("📍 Hitung Jarak Otomatis (Koordinat)", expanded=False):
-            st.caption("Masukkan Lat/Lon Kebun (Copy dari Google Maps).")
-            kebun_lat = st.number_input("Latitude Kebun", -11.0, 6.0, -6.59, format="%.5f")
-            kebun_lon = st.number_input("Longitude Kebun", 95.0, 141.0, 106.79, format="%.5f")
-            
-            dest_pasar = st.selectbox("Tujuan Otomatis", list(PASAR_INDUK.keys()), key="dest_auto")
-            
-            if st.button("📏 Hitung Jarak"):
-                p_data = PASAR_INDUK[dest_pasar]
-                air_dist = haversine(kebun_lat, kebun_lon, p_data['lat'], p_data['lon'])
-                road_dist = air_dist * 1.4 # Road factor
-                st.session_state['calc_dist'] = int(road_dist)
-                st.success(f"Jarak Udara: {air_dist:.1f} km. Estimasi Jalan Raya (Faktor 1.4x): {road_dist:.1f} km.")
+# ==========================================
+# HELPER FUNCTIONS
+# ==========================================
 
-        # Main Distance Input (manual or auto-filled)
-        def_dist = st.session_state.get('calc_dist', 150)
-        jarak = st.number_input("Jarak Tempuh (km)", 10, 1000, def_dist)
-        jenis_truk = st.selectbox("Jenis Armada", list(VEHICLES.keys()))
-        muatan_kg = st.number_input(f"Total Muatan (kg) - Max {VEHICLES[jenis_truk]['kapasitas']}kg", 100, VEHICLES[jenis_truk]['kapasitas'], int(VEHICLES[jenis_truk]['kapasitas']*0.9))
-        
-        st.subheader("2. Biaya Operasional")
-        harga_bbm = st.number_input("Harga Solar/BBM (Rp/liter)", 5000, 20000, 6800)
-        biaya_sopir = st.number_input("Upah Sopir + Kernet (Rp)", 0, 2000000, 250000)
-        biaya_tol = st.number_input("Biaya Tol/Parkir/Pungli (Rp)", 0, 2000000, 150000)
-        
-    with col_l2:
-        st.subheader("3. Risiko Susut (Shrinkage)")
-        jenis_muatan = st.selectbox("Jenis Komoditas", [
-            "Sayur Daun (Bayam)", 
-            "Sayur Daun (Sawi/Caisim)", 
-            "Sayur Daun (Kangkung)", 
-            "Sayur Daun (Selada)",
-            "Sayur Buah (Cabe/Tomat)", 
-            "Umbi-umbian (Kentang/Bawang)", 
-            "Buah Keras (Semangka/Melon)",
-            "Lainnya (Input Manual)"
-        ])
-        
-        # Manual Input for Shrinkage
-        manual_factor = 0.0
-        if jenis_muatan == "Lainnya (Input Manual)":
-            manual_factor = st.number_input("Input Susut Manual (% per 100km)", 0.0, 10.0, 1.0, step=0.1)
+def create_shipment(data):
+    """Create new shipment record"""
+    shipment = {
+        "id": str(uuid.uuid4()),
+        "shipment_number": f"SHP-{datetime.now().strftime('%Y%m%d')}-{len(st.session_state.shipments)+1:03d}",
+        **data,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    st.session_state.shipments.append(shipment)
+    return shipment
 
-        
-        # Shrinkage Logic per 100km/Time
-        susut_factor = 0.0 # % per 100km roughly
-        if "Sayur Daun" in jenis_muatan: 
-            susut_factor = 2.5
-        elif "Sayur Buah" in jenis_muatan: 
-            susut_factor = 1.2
-        elif "Umbi" in jenis_muatan: 
-            susut_factor = 0.5
-        elif "Keras" in jenis_muatan: 
-            susut_factor = 0.3
-        elif jenis_muatan == "Lainnya (Input Manual)":
-            susut_factor = manual_factor
-        
-        est_susut_pct = (jarak / 100) * susut_factor
-        berat_susut = muatan_kg * (est_susut_pct / 100)
-        berat_jual = muatan_kg - berat_susut
-        
-        # Cost Calc
-        veh_data = VEHICLES[jenis_truk]
-        liter_bbm = jarak / veh_data['km_per_liter']
-        total_bbm = liter_bbm * harga_bbm
-        # Sewa is usually daily, assuming 1 trip fits in rental
-        # Note: If own car, sewa = maintenance depreciation.
-        
-        total_biaya = total_bbm + biaya_sopir + biaya_tol + veh_data['sewa']
-        hpp_per_kg_awal = total_biaya / muatan_kg
-        hpp_per_kg_akhir = total_biaya / berat_jual # Real logistic cost based on sellable weight
-        
-        st.markdown(f"""
-        <div class="metric-card">
-            <h3>💰 Biaya Total: Rp {total_biaya:,.0f}</h3>
-            <p>HPP Logistik (Awal): <b>Rp {hpp_per_kg_awal:,.0f} /kg</b></p>
-            <p>HPP Logistik (Real): <b>Rp {hpp_per_kg_akhir:,.0f} /kg</b> (Setelah Susut)</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.warning(f"⚠️ **Estimasi Susut:** {est_susut_pct:.1f}% ({berat_susut:.0f} kg hilang diperjalanan). \nBerat siap jual: {berat_jual:.0f} kg.")
+def get_active_shipments():
+    """Get shipments that are not completed"""
+    return [s for s in st.session_state.shipments if s['status'] != 'delivered']
 
-        # --- CARBON FOOTPRINT CALCULATOR ---
-        st.markdown("---")
-        st.subheader("🌍 Jejak Karbon (Carbon Footprint)")
-        # Emission factors: Diesel avg 2.68 kg CO2/liter
-        total_co2 = liter_bbm * 2.68
-        co2_per_kg = total_co2 / muatan_kg
-        
-        c_c1, c_c2 = st.columns(2)
-        c_c1.metric("Total Emisi CO2", f"{total_co2:.1f} kg")
-        c_c2.metric("Emisi per kg Produk", f"{co2_per_kg*1000:.1f} gram")
-        
-        st.caption("Fokus pada Green Logistics untuk akses pasar ekspor & premium.")
-
-        # Breakdown Chart
-        cost_data = pd.DataFrame({
-            "Komponen": ["Sewa Truk", "BBM", "Sopir", "Tol/Lainnya", "Kerugian Susut (Valuasi)"],
-            "Nilai": [veh_data['sewa'], total_bbm, biaya_sopir, biaya_tol, 0] # Susut not cash cost but opportunity cost
-        })
-        fig_pie = px.pie(cost_data.iloc[:-1], values='Nilai', names='Komponen', title="Komposisi Biaya Distribusi", hole=0.4)
-        st.plotly_chart(fig_pie, use_container_width=True)
-
-# --- TAB 2: MARGIN ANALYSIS ---
-with tab2:
-    st.markdown("### 💰 Analisis & Distribusi Margin")
-    st.info("Bandingkan struktur harga (Siapa makan untung?) antara Pasar Tradisional vs Modern.")
-    
-    col_t1, col_t2 = st.columns([1, 2])
-    
-    with col_t1:
-        st.subheader("Data Harga (Simulasi)")
-        harga_petani = st.number_input("Harga di Petani (Farm Gate)", 1000, 100000, 5000, step=500)
-        
-        st.markdown("**Jalur Tradisional:**")
-        margin_pengepul = st.slider("Margin Pengepul Desa (%)", 5, 30, 15)
-        margin_bandar = st.slider("Margin Bandar Besar (%)", 5, 30, 10)
-        margin_pedagang = st.slider("Margin Pengecer Pasar (%)", 10, 50, 25)
-        cost_logistik_trad = st.number_input("Biaya Logistik Total (Rp/kg)", 500, 5000, 1500)
-        
-        st.markdown("---")
-        st.markdown("**Jalur Modern (Supermarket):**")
-        margin_supplier = st.slider("Margin Supplier/Aggregator (%)", 10, 40, 20)
-        margin_retail = st.slider("Margin Supermarket (%)", 15, 60, 35)
-        cost_logistik_mod = st.number_input("Biaya Packing & Logistik (Rp/kg)", 1000, 10000, 2500)
-        
-    with col_t2:
-        # Waterfall Logic Traditional
-        p1 = harga_petani
-        c_p1 = p1 * (margin_pengepul/100)
-        p2 = p1 + c_p1 # Pengepul
-        c_trs = cost_logistik_trad # Logistik
-        p3 = p2 + c_trs # Landed Cost Pasar Induk
-        c_p3 = p3 * (margin_bandar/100) # Bandar Margin
-        p4 = p3 + c_p3 # Harga Jual Bandar
-        c_p4 = p4 * (margin_pedagang/100) # Pengecer Margin
-        p_final_trad = p4 + c_p4
-        
-        # Waterfall Logic Modern
-        m1 = harga_petani
-        c_ops = cost_logistik_mod # Packing + Sorting + Kirim DC
-        m2 = m1 + c_ops
-        c_m2 = m2 * (margin_supplier/100)
-        m3 = m2 + c_m2 # Harga Masuk DC (Buying Price)
-        c_m3 = m3 * (margin_retail/100)
-        p_final_mod = m3 + c_m3
-        
-        mode_view = st.radio("Pilih View:", ["Jalur Tradisional", "Jalur Modern"], horizontal=True)
-        
-        if mode_view == "Jalur Tradisional":
-            fig_wf = go.Figure(go.Waterfall(
-                name = "Struktur Harga", orientation = "v",
-                measure = ["relative", "relative", "relative", "relative", "relative", "total"],
-                x = ["Harga Petani", "Margin Pengepul", "Ongkos Kirim", "Margin Bandar", "Margin Pengecer", "Harga Konsumen"],
-                y = [p1, c_p1, c_trs, c_p3, c_p4, p_final_trad],
-                connector = {"line":{"color":"rgb(63, 63, 63)"}},
-            ))
-            final_p = p_final_trad
-            
-        else:
-             fig_wf = go.Figure(go.Waterfall(
-                name = "Struktur Harga", orientation = "v",
-                measure = ["relative", "relative", "relative", "relative", "total"],
-                x = ["Harga Petani", "Biaya Ops (Sortir/Pack/Kirim)", "Margin Supplier", "Margin Supermarket", "Harga Konsumen"],
-                y = [m1, c_ops, c_m2, c_m3, p_final_mod],
-                connector = {"line":{"color":"rgb(63, 63, 63)"}},
-            ))
-             final_p = p_final_mod
-
-        fig_wf.update_layout(title=f"Pembentukan Harga Akhir: Rp {final_p:,.0f}", waterfallgap = 0.3)
-        st.plotly_chart(fig_wf, use_container_width=True)
-        
-        share_petani = (harga_petani / final_p) * 100
-        st.info(f"💡 **Farmer's Share:** Petani hanya menikmati **{share_petani:.1f}%** dari harga yang dibayar konsumen akhir.")
-
-# --- TAB 3: MARKET TIMING ---
-with tab3:
-    # Updated Market Operational Hours (Real World Data)
-    PASAR_INDUK = {
-        "PI Kramat Jati (Jakarta)": {"ops_start": 19, "peak_start": 21, "peak_end": 23, "ops_end": 24},
-        "PI Tanah Tinggi (Tangerang)": {"ops_start": 18, "peak_start": 20, "peak_end": 22, "ops_end": 23},
-        # Others keep standard relative trend
-        "PI Cibitung (Bekasi)": {"ops_start": 18, "peak_start": 20, "peak_end": 23, "ops_end": 24},
+def calculate_logistics_cost(distance_km, vehicle_type, quantity_kg):
+    """Calculate total logistics cost"""
+    vehicle = VEHICLES[vehicle_type]
+    transport_cost = distance_km * vehicle['cost_per_km']
+    cost_per_kg = transport_cost / quantity_kg if quantity_kg > 0 else 0
+    return {
+        "transport_cost": transport_cost,
+        "cost_per_kg": cost_per_kg,
+        "total_cost": transport_cost
     }
 
-    st.markdown("### ⏱️ Radar Pasar Induk (Real-Time Price Trend)")
-    st.info("Analisis Jam Operasional (19.00 - 24.00) & Posisi Lapak.")
+# ==========================================
+# HEADER
+# ==========================================
+
+st.title("🚚 Supply Chain Visibility & Logistics Optimization")
+st.markdown("**End-to-end tracking dari Farm → Pasar Induk → Retail dengan cost optimization**")
+st.info("💡 Sistem berbasis pengalaman nyata di seluruh value chain: produksi, pasar induk, retail, dan e-commerce")
+
+# ==========================================
+# MAIN TABS
+# ==========================================
+
+tab_dashboard, tab_shipments, tab_optimizer, tab_analytics, tab_legacy = st.tabs([
+    "📊 Dashboard",
+    "🚛 Shipment Tracking",
+    "⚡ Logistics Optimizer",
+    "📈 Analytics & Reports",
+    "🔧 Legacy Tools"
+])
+
+# ========== TAB: DASHBOARD ==========
+with tab_dashboard:
+    st.header("📊 Real-Time Supply Chain Dashboard")
     
-    col_tm1, col_tm2 = st.columns(2)
+    # KPI Cards
+    active_shipments = get_active_shipments()
+    total_shipments = len(st.session_state.shipments)
     
-    with col_tm1:
-        target_pasar = st.selectbox("Pilih Pasar Induk Tujuan", list(PASAR_INDUK.keys()))
-        data_pasar = PASAR_INDUK[target_pasar]
-        
-        jam_est_tempuh = st.slider("Estimasi Lama Perjalanan (Jam)", 1, 24, 6)
-        posisi_lapak = st.selectbox("Posisi Lapak / Bongkar", ["Depan (Strategis)", "Tengah", "Belakang / Pojok"])
-        
-        # Logic: Price impact based on stall location
-        lapak_premium = 0
-        if posisi_lapak == "Depan (Strategis)": lapak_premium = 500 # Rp/kg higher
-        elif posisi_lapak == "Belakang / Pojok": lapak_premium = -300 # Discounted
-        
-        st.write("#### 📊 Profil Harga Pasar:")
-        st.write(f"- **Buka Lapak:** {data_pasar['ops_start']}:00 WIB")
-        st.write(f"- **Harga Puncak (Golden Hour):** {data_pasar['peak_start']}:00 - {data_pasar['peak_end']}:00 WIB")
-        st.write(f"- **Harga Turun (Cuci Gudang):** > {data_pasar['ops_end']}:00 WIB")
-        
-    with col_tm2:
-        st.subheader("🕑 Strategi Keberangkatan")
-        
-        # Calculate departure to arrive at start of PEAK (21:00)
-        arrival_target = data_pasar['peak_start']
-        dep_hour = arrival_target - jam_est_tempuh
-        
-        day_offset = "Hari yang Sama"
-        if dep_hour < 0:
-            dep_hour += 24
-            day_offset = "Hari Sebelumnya"
-            
-        st.markdown(f"""
-        <div style='text-align: center; border: 2px solid #ea580c; background-color: #fff7ed; padding: 15px; border-radius: 10px;'>
-            <p>Target Tiba: <b>{arrival_target}:00 WIB</b> (Awal Harga Naik)</p>
-            <h3>Truk Berangkat Pukul:</h3>
-            <h1 style='color: #ea580c; margin: 0;'>{int(dep_hour):02d}:00 WIB</h1>
-            <small>({day_offset})</small>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("---")
-        # Impact Analysis
-        st.markdown(f"**💰 Estimasi Dampak Harga:**")
-        st.markdown(f"- Timing Tepat: **Harga Optimal**")
-        if lapak_premium > 0:
-            st.success(f"- Posisi {posisi_lapak}: Potensi Harga **+Rp {lapak_premium}/kg**")
-        elif lapak_premium < 0:
-            st.error(f"- Posisi {posisi_lapak}: Potensi Harga **{lapak_premium} Rp/kg** (Susah laku)")
+    col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
+    
+    with col_kpi1:
+        st.metric("Total Shipments", total_shipments)
+    
+    with col_kpi2:
+        st.metric("Active Shipments", len(active_shipments))
+    
+    with col_kpi3:
+        completed = len([s for s in st.session_state.shipments if s['status'] == 'delivered'])
+        on_time_rate = (completed / total_shipments * 100) if total_shipments > 0 else 0
+        st.metric("On-Time Delivery", f"{on_time_rate:.0f}%")
+    
+    with col_kpi4:
+        if st.session_state.shipments:
+            avg_cost = sum([s.get('total_cost', 0) for s in st.session_state.shipments]) / total_shipments
+            st.metric("Avg Cost/Shipment", f"Rp {avg_cost:,.0f}")
         else:
-            st.info(f"- Posisi {posisi_lapak}: Harga Standar")
-
-# --- TAB 4: BLOCKCHAIN LEDGER ---
-with tab4:
-    st.markdown("### 🔗 Blockchain Supply Chain Ledger (Simulation)")
-    st.info("Catatan transaksi yang tidak dapat diubah (Immutable) untuk menjamin transparansi.")
+            st.metric("Avg Cost/Shipment", "Rp 0")
     
-    import hashlib
-    import qrcode
-    from io import BytesIO
-    
-    def generate_hash(text):
-        return hashlib.sha256(text.encode()).hexdigest()
-
-    # SECTION 1: FORM HANDOVER
-    st.subheader("📝 Form Serah Terima (Proof of Handover)")
-    with st.form("handover_form"):
-        col_h1, col_h2 = st.columns(2)
-        with col_h1:
-            farmer_id = st.text_input("ID Petani / Sertifikat", "PET-2025-001")
-            komoditas_name = st.text_input("Nama Komoditas", "Cabai Red Beauty")
-            berat_kg = st.number_input("Berat Serah Terima (kg)", 1.0, 10000.0, 200.0)
-        with col_h2:
-            grade_produk = st.selectbox("Grade", ["Grade A (Premium)", "Grade B", "Grade C", "BS"])
-            lokasi_serah = st.text_input("Lokasi Serah Terima", "Gudang Pengepul Cianjur")
-            catatan_qc = st.text_area("Catatan QC / Kebersihan", "Lulus sortir, residu minimal.")
-        
-        submit_handover = st.form_submit_button("✅ Konfirmasi Serah Terima (Simpan ke Ledger)")
-
-    # Simulated Ledger Storage in Session State
-    if 'ledger_db' not in st.session_state:
-        st.session_state['ledger_db'] = [
-            {"actor": "🚜 Petani (Pemanenan)", "timestamp": "2025-12-18 06:00", "action": "Validasi Panen: 500kg Cabai Red Beauty"},
-            {"actor": "🚛 Pengepul (Sortir)", "timestamp": "2025-12-18 10:00", "action": "Quality Control: Lulus Seleksi Grade A"}
-        ]
-
-    if submit_handover:
-        new_entry = {
-            "actor": f"🚛 Handover: {farmer_id}",
-            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "action": f"Serah Terima: {berat_kg}kg {komoditas_name} ({grade_produk}) di {lokasi_serah}"
-        }
-        st.session_state['ledger_db'].append(new_entry)
-        st.success(f"Transaksi untuk {farmer_id} berhasil dicatat ke dalam Ledger!")
-
-        # GENERATE QR PASSPORT
-        st.markdown("### 🎫 QR Passport (Digital Certificate)")
-        qr_data = f"AgriSensa Traceability\nID: {farmer_id}\nItem: {komoditas_name}\nBerat: {berat_kg}kg\nGrade: {grade_produk}\nHash: {generate_hash(str(new_entry))[:16]}"
-        
-        qr = qrcode.QRCode(version=1, box_size=10, border=4)
-        qr.add_data(qr_data)
-        qr.make(fit=True)
-        img_qr = qr.make_image(fill_color="black", back_color="white")
-        
-        buf = BytesIO()
-        img_qr.save(buf, format="PNG")
-        
-        c_qr1, c_qr2 = st.columns([1, 2])
-        with c_qr1:
-            st.image(buf.getvalue(), caption=f"QR Passport - {farmer_id}")
-        with c_qr2:
-            st.markdown(f"""
-            <div style='background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #cbd5e1;'>
-                <h4 style='margin:0;'>🎫 AgriPass Verified</h4>
-                <p style='margin:5px 0; font-size: 0.9em;'>Produk ini telah melalui verifikasi serah terima digital.</p>
-                <hr/>
-                <p style='margin:5px 0;'><b>Komoditas:</b> {komoditas_name}</p>
-                <p style='margin:5px 0;'><b>Berat:</b> {berat_kg} kg</p>
-                <p style='margin:5px 0;'><b>Grade:</b> {grade_produk}</p>
-                <p style='margin:5px 0; font-size: 0.7em; color: gray;'>Immutable Hash: {generate_hash(str(new_entry))}</p>
-            </div>
-            """, unsafe_allow_html=True)
-
     st.divider()
-    st.markdown("#### 📜 Riwayat Ledger (Blockchain Timeline)")
     
-    prev_hash = "00000000000000000000000000000000"
-    
-    for i, item in enumerate(st.session_state['ledger_db']):
-        curr_text = f"{item['actor']}{item['timestamp']}{item['action']}{prev_hash}"
-        curr_hash = generate_hash(curr_text)
+    # Active Shipments Overview
+    if active_shipments:
+        st.subheader("🚛 Active Shipments")
         
-        with st.container():
-            st.markdown(f"""
-            <div style='border-left: 5px solid #10b981; padding: 10px; background: #f0fdf4; margin-bottom: 10px;'>
-                <p style='margin:0; font-weight:bold; color:#065f46;'>{item['actor']}</p>
-                <p style='margin:0; font-size:0.8em; color:gray;'>{item['timestamp']}</p>
-                <p style='margin:5px 0;'>{item['action']}</p>
-                <code style='font-size:0.7em;'>Hash: {curr_hash[:32]}...</code>
-            </div>
-            """, unsafe_allow_html=True)
-            prev_hash = curr_hash
+        for shipment in active_shipments:
+            with st.container():
+                col_s1, col_s2, col_s3, col_s4 = st.columns([2, 2, 1, 1])
+                
+                with col_s1:
+                    st.markdown(f"**{shipment['shipment_number']}**")
+                    st.caption(f"{shipment['commodity']} - {shipment['quantity_kg']} kg")
+                
+                with col_s2:
+                    st.markdown(f"📍 {shipment['origin']} → {shipment['destination']}")
+                
+                with col_s3:
+                    status_emoji = {
+                        "packing": "📦",
+                        "in_transit": "🚛",
+                        "arrived": "✅",
+                        "delivered": "🎯"
+                    }
+                    st.markdown(f"{status_emoji.get(shipment['status'], '❓')} {shipment['status'].replace('_', ' ').title()}")
+                
+                with col_s4:
+                    if st.button("View", key=f"view_{shipment['id']}", use_container_width=True):
+                        st.session_state.selected_shipment = shipment['id']
+                
+                st.divider()
+    else:
+        st.info("Tidak ada shipment aktif. Buat shipment baru di tab 'Shipment Tracking'")
+    
+    # Status Distribution
+    if st.session_state.shipments:
+        st.subheader("📊 Shipment Status Distribution")
+        
+        status_counts = {}
+        for s in st.session_state.shipments:
+            status = s['status']
+            status_counts[status] = status_counts.get(status, 0) + 1
+        
+        fig_status = px.pie(
+            values=list(status_counts.values()),
+            names=list(status_counts.keys()),
+            title="Status Distribution",
+            hole=0.4
+        )
+        st.plotly_chart(fig_status, use_container_width=True)
 
-    # Logic for manual simulated transactions removed in favor of the form
+# ========== TAB: SHIPMENT TRACKING ==========
+with tab_shipments:
+    st.header("🚛 Shipment Management & Tracking")
+    
+    # Create New Shipment
+    with st.expander("➕ Create New Shipment", expanded=not st.session_state.shipments):
+        with st.form("create_shipment_form"):
+            col_ship1, col_ship2 = st.columns(2)
+            
+            with col_ship1:
+                st.subheader("Shipment Details")
+                commodity = st.selectbox("Commodity", COMMODITIES)
+                quantity_kg = st.number_input("Quantity (kg)", min_value=10, max_value=50000, value=500, step=10)
+                
+                origin_type = st.selectbox("Origin Type", ["Farm", "Pasar Induk"])
+                origin = st.selectbox("Origin Location", LOCATIONS[origin_type])
+                
+                dest_type = st.selectbox("Destination Type", ["Pasar Induk", "Retail"])
+                destination = st.selectbox("Destination Location", LOCATIONS[dest_type])
+            
+            with col_ship2:
+                st.subheader("Logistics Details")
+                vehicle_type = st.selectbox("Vehicle Type", list(VEHICLES.keys()))
+                driver_name = st.text_input("Driver Name", "")
+                distance_km = st.number_input("Distance (km)", min_value=1, max_value=1000, value=100, step=10)
+                
+                departure_date = st.date_input("Departure Date", datetime.now())
+                departure_time = st.time_input("Departure Time", datetime.now().time())
+                
+                estimated_hours = st.number_input("Estimated Travel Time (hours)", min_value=1, max_value=24, value=6)
+            
+            if st.form_submit_button("🚀 Create Shipment", type="primary", use_container_width=True):
+                departure_datetime = datetime.combine(departure_date, departure_time)
+                estimated_arrival = departure_datetime + timedelta(hours=estimated_hours)
+                
+                # Calculate costs
+                costs = calculate_logistics_cost(distance_km, vehicle_type, quantity_kg)
+                
+                shipment_data = {
+                    "commodity": commodity,
+                    "quantity_kg": quantity_kg,
+                    "origin": origin,
+                    "destination": destination,
+                    "vehicle_type": vehicle_type,
+                    "driver_name": driver_name,
+                    "distance_km": distance_km,
+                    "departure_time": departure_datetime.strftime("%Y-%m-%d %H:%M"),
+                    "estimated_arrival": estimated_arrival.strftime("%Y-%m-%d %H:%M"),
+                    "actual_arrival": None,
+                    "status": "packing",
+                    "checkpoints": [],
+                    "transport_cost": costs['transport_cost'],
+                    "cost_per_kg": costs['cost_per_kg'],
+                    "total_cost": costs['total_cost']
+                }
+                
+                new_shipment = create_shipment(shipment_data)
+                st.success(f"✅ Shipment {new_shipment['shipment_number']} created successfully!")
+                st.rerun()
+    
+    st.divider()
+    
+    # Shipment List
+    if st.session_state.shipments:
+        st.subheader("📋 All Shipments")
+        
+        # Filters
+        col_f1, col_f2, col_f3 = st.columns(3)
+        
+        with col_f1:
+            filter_status = st.multiselect("Filter by Status", 
+                                          ["packing", "in_transit", "arrived", "delivered"],
+                                          default=["packing", "in_transit", "arrived"])
+        
+        with col_f2:
+            filter_commodity = st.multiselect("Filter by Commodity", COMMODITIES)
+        
+        with col_f3:
+            sort_by = st.selectbox("Sort by", ["Newest First", "Oldest First", "Cost (High-Low)", "Cost (Low-High)"])
+        
+        # Apply filters
+        filtered_shipments = st.session_state.shipments
+        
+        if filter_status:
+            filtered_shipments = [s for s in filtered_shipments if s['status'] in filter_status]
+        
+        if filter_commodity:
+            filtered_shipments = [s for s in filtered_shipments if s['commodity'] in filter_commodity]
+        
+        # Apply sorting
+        if sort_by == "Newest First":
+            filtered_shipments = sorted(filtered_shipments, key=lambda x: x['created_at'], reverse=True)
+        elif sort_by == "Oldest First":
+            filtered_shipments = sorted(filtered_shipments, key=lambda x: x['created_at'])
+        elif sort_by == "Cost (High-Low)":
+            filtered_shipments = sorted(filtered_shipments, key=lambda x: x.get('total_cost', 0), reverse=True)
+        elif sort_by == "Cost (Low-High)":
+            filtered_shipments = sorted(filtered_shipments, key=lambda x: x.get('total_cost', 0))
+        
+        # Display shipments
+        for shipment in filtered_shipments:
+            with st.expander(f"🚛 {shipment['shipment_number']} - {shipment['commodity']} ({shipment['status'].replace('_', ' ').title()})"):
+                col_d1, col_d2 = st.columns(2)
+                
+                with col_d1:
+                    st.markdown("**Shipment Info:**")
+                    st.write(f"- Commodity: {shipment['commodity']}")
+                    st.write(f"- Quantity: {shipment['quantity_kg']} kg")
+                    st.write(f"- Route: {shipment['origin']} → {shipment['destination']}")
+                    st.write(f"- Distance: {shipment['distance_km']} km")
+                    st.write(f"- Vehicle: {shipment['vehicle_type']}")
+                    st.write(f"- Driver: {shipment['driver_name']}")
+                
+                with col_d2:
+                    st.markdown("**Timeline & Costs:**")
+                    st.write(f"- Departure: {shipment['departure_time']}")
+                    st.write(f"- Est. Arrival: {shipment['estimated_arrival']}")
+                    if shipment['actual_arrival']:
+                        st.write(f"- Actual Arrival: {shipment['actual_arrival']}")
+                    st.write(f"- Transport Cost: Rp {shipment['transport_cost']:,.0f}")
+                    st.write(f"- Cost per kg: Rp {shipment['cost_per_kg']:,.0f}")
+                
+                # Status Update
+                st.markdown("**Update Status:**")
+                col_btn1, col_btn2, col_btn3, col_btn4 = st.columns(4)
+                
+                with col_btn1:
+                    if shipment['status'] == 'packing' and st.button("🚛 Start Transit", key=f"transit_{shipment['id']}"):
+                        shipment['status'] = 'in_transit'
+                        st.rerun()
+                
+                with col_btn2:
+                    if shipment['status'] == 'in_transit' and st.button("✅ Mark Arrived", key=f"arrived_{shipment['id']}"):
+                        shipment['status'] = 'arrived'
+                        shipment['actual_arrival'] = datetime.now().strftime("%Y-%m-%d %H:%M")
+                        st.rerun()
+                
+                with col_btn3:
+                    if shipment['status'] == 'arrived' and st.button("🎯 Delivered", key=f"delivered_{shipment['id']}"):
+                        shipment['status'] = 'delivered'
+                        st.rerun()
+                
+                with col_btn4:
+                    if st.button("🗑️ Delete", key=f"delete_{shipment['id']}"):
+                        st.session_state.shipments.remove(shipment)
+                        st.rerun()
+    else:
+        st.info("Belum ada shipment. Buat shipment baru di atas!")
 
-# Footer
-st.markdown("---")
-st.caption("AgriSensa Logistics - Mengamankan Profit & Transparansi dari Kebun ke Kota.")
+# ========== TAB: LOGISTICS OPTIMIZER ==========
+with tab_optimizer:
+    st.header("⚡ Logistics Cost Optimizer")
+    
+    st.subheader("📊 Route Comparison Tool")
+    
+    col_opt1, col_opt2 = st.columns(2)
+    
+    with col_opt1:
+        st.markdown("**Route A**")
+        route_a_origin = st.selectbox("Origin A", LOCATIONS["Farm"], key="route_a_origin")
+        route_a_dest = st.selectbox("Destination A", LOCATIONS["Pasar Induk"], key="route_a_dest")
+        route_a_dist = st.number_input("Distance A (km)", 1, 1000, 150, key="route_a_dist")
+        route_a_vehicle = st.selectbox("Vehicle A", list(VEHICLES.keys()), key="route_a_vehicle")
+        route_a_qty = st.number_input("Quantity A (kg)", 10, 50000, 1000, key="route_a_qty")
+    
+    with col_opt2:
+        st.markdown("**Route B**")
+        route_b_origin = st.selectbox("Origin B", LOCATIONS["Farm"], key="route_b_origin")
+        route_b_dest = st.selectbox("Destination B", LOCATIONS["Pasar Induk"], key="route_b_dest")
+        route_b_dist = st.number_input("Distance B (km)", 1, 1000, 200, key="route_b_dist")
+        route_b_vehicle = st.selectbox("Vehicle B", list(VEHICLES.keys()), key="route_b_vehicle")
+        route_b_qty = st.number_input("Quantity B (kg)", 10, 50000, 1000, key="route_b_qty")
+    
+    if st.button("🔍 Compare Routes", type="primary", use_container_width=True):
+        cost_a = calculate_logistics_cost(route_a_dist, route_a_vehicle, route_a_qty)
+        cost_b = calculate_logistics_cost(route_b_dist, route_b_vehicle, route_b_qty)
+        
+        col_res1, col_res2 = st.columns(2)
+        
+        with col_res1:
+            st.markdown("### Route A Results")
+            st.metric("Total Cost", f"Rp {cost_a['total_cost']:,.0f}")
+            st.metric("Cost per kg", f"Rp {cost_a['cost_per_kg']:,.0f}")
+        
+        with col_res2:
+            st.markdown("### Route B Results")
+            st.metric("Total Cost", f"Rp {cost_b['total_cost']:,.0f}")
+            st.metric("Cost per kg", f"Rp {cost_b['cost_per_kg']:,.0f}")
+        
+        # Recommendation
+        if cost_a['cost_per_kg'] < cost_b['cost_per_kg']:
+            savings = cost_b['cost_per_kg'] - cost_a['cost_per_kg']
+            st.success(f"✅ **Recommendation: Route A** - Save Rp {savings:,.0f} per kg!")
+        elif cost_b['cost_per_kg'] < cost_a['cost_per_kg']:
+            savings = cost_a['cost_per_kg'] - cost_b['cost_per_kg']
+            st.success(f"✅ **Recommendation: Route B** - Save Rp {savings:,.0f} per kg!")
+        else:
+            st.info("Both routes have similar costs")
+        
+        # Comparison Chart
+        comparison_data = pd.DataFrame({
+            "Route": ["Route A", "Route B"],
+            "Total Cost": [cost_a['total_cost'], cost_b['total_cost']],
+            "Cost per kg": [cost_a['cost_per_kg'], cost_b['cost_per_kg']]
+        })
+        
+        fig_compare = px.bar(comparison_data, x="Route", y=["Total Cost", "Cost per kg"], 
+                            title="Cost Comparison", barmode="group")
+        st.plotly_chart(fig_compare, use_container_width=True)
+
+# ========== TAB: ANALYTICS ==========
+with tab_analytics:
+    st.header("📈 Performance Analytics & Reports")
+    
+    if st.session_state.shipments:
+        # Performance Metrics
+        col_a1, col_a2 = st.columns(2)
+        
+        with col_a1:
+            st.subheader("📊 Delivery Performance")
+            
+            total = len(st.session_state.shipments)
+            delivered = len([s for s in st.session_state.shipments if s['status'] == 'delivered'])
+            in_transit = len([s for s in st.session_state.shipments if s['status'] == 'in_transit'])
+            
+            perf_data = pd.DataFrame({
+                "Status": ["Delivered", "In Transit", "Others"],
+                "Count": [delivered, in_transit, total - delivered - in_transit]
+            })
+            
+            fig_perf = px.pie(perf_data, values="Count", names="Status", 
+                             title="Shipment Status Distribution", hole=0.4)
+            st.plotly_chart(fig_perf, use_container_width=True)
+        
+        with col_a2:
+            st.subheader("💰 Cost Analysis")
+            
+            # Cost by commodity
+            cost_by_commodity = {}
+            for s in st.session_state.shipments:
+                comm = s['commodity']
+                cost = s.get('cost_per_kg', 0)
+                if comm in cost_by_commodity:
+                    cost_by_commodity[comm].append(cost)
+                else:
+                    cost_by_commodity[comm] = [cost]
+            
+            avg_costs = {k: sum(v)/len(v) for k, v in cost_by_commodity.items()}
+            
+            cost_df = pd.DataFrame({
+                "Commodity": list(avg_costs.keys()),
+                "Avg Cost per kg": list(avg_costs.values())
+            })
+            
+            fig_cost = px.bar(cost_df, x="Commodity", y="Avg Cost per kg",
+                             title="Average Cost per kg by Commodity")
+            st.plotly_chart(fig_cost, use_container_width=True)
+        
+        # Export
+        st.subheader("📥 Export Data")
+        
+        if st.button("📥 Download Shipment Data (CSV)", use_container_width=True):
+            df_export = pd.DataFrame(st.session_state.shipments)
+            csv = df_export.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "Download CSV",
+                csv,
+                "shipments_data.csv",
+                "text/csv"
+            )
+    else:
+        st.info("Tidak ada data untuk dianalisis. Buat shipment terlebih dahulu!")
+
+# ========== TAB: LEGACY TOOLS ==========
+with tab_legacy:
+    st.header("🔧 Legacy Logistics Tools")
+    st.info("Tools lama yang masih berguna untuk perhitungan cepat")
+    
+    # Simple Cost Calculator
+    st.subheader("💰 Quick Cost Calculator")
+    
+    col_leg1, col_leg2 = st.columns(2)
+    
+    with col_leg1:
+        quick_dist = st.number_input("Distance (km)", 1, 1000, 100, key="quick_dist")
+        quick_vehicle = st.selectbox("Vehicle", list(VEHICLES.keys()), key="quick_vehicle")
+    
+    with col_leg2:
+        quick_qty = st.number_input("Quantity (kg)", 10, 50000, 500, key="quick_qty")
+        
+        if st.button("Calculate", use_container_width=True):
+            quick_cost = calculate_logistics_cost(quick_dist, quick_vehicle, quick_qty)
+            st.success(f"**Total Cost:** Rp {quick_cost['total_cost']:,.0f}")
+            st.info(f"**Cost per kg:** Rp {quick_cost['cost_per_kg']:,.0f}")
+
+# ==========================================
+# FOOTER
+# ==========================================
+
+st.divider()
+st.caption("💡 Supply Chain Visibility - Based on real-world experience across entire agricultural value chain")
