@@ -308,9 +308,11 @@ if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
                     if isinstance(val, (int, float)):
                         st.write(f"- {key}: {val}")
                 
-                st.markdown("**Constraints Applied:**")
-                for nutrient, (min_val, max_val) in requirements.items():
-                    st.write(f"- {nutrient}: {min_val:.2f} - {max_val:.2f}")
+                # Only show constraints if they were calculated
+                if 'requirements' in locals():
+                    st.markdown("**Constraints Applied:**")
+                    for nutrient, (min_val, max_val) in requirements.items():
+                        st.write(f"- {nutrient}: {min_val:.2f} - {max_val:.2f}")
                 
                 st.markdown("**Selected Ingredients:**")
                 for ing in selected_ingredients:
