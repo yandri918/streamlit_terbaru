@@ -155,7 +155,7 @@ if not st.session_state.projects or st.sidebar.button("➕ Buat Proyek Baru", us
         with col2:
             start_date = st.date_input("Tanggal Mulai", datetime.now())
             end_date = st.date_input("Tanggal Target Selesai", datetime.now() + timedelta(days=120))
-            budget_total = st.number_input("Total Budget (Rp)", min_value=0, value=10000000, step=1000000)
+            budget_total = st.number_input("Total Budget (Rp)", min_value=0, max_value=10000000000, value=100000000, step=10000000, help="Estimasi: Rp 100 juta per hektar untuk sayuran komersial")
         
         submitted = st.form_submit_button("🚀 Buat Proyek", use_container_width=True, type="primary")
         
@@ -211,8 +211,9 @@ elif active_project:
                                           value=datetime.strptime(active_project['start_date'], "%Y-%m-%d"))
                 edit_end = st.date_input("Tanggal Target Selesai",
                                         value=datetime.strptime(active_project['end_date'], "%Y-%m-%d"))
-                edit_budget = st.number_input("Total Budget (Rp)", min_value=0, 
-                                             value=int(active_project['budget_total']), step=1000000)
+                edit_budget = st.number_input("Total Budget (Rp)", min_value=0, max_value=10000000000,
+                                             value=int(active_project['budget_total']), step=10000000, 
+                                             help="Estimasi: Rp 100 juta per hektar untuk sayuran komersial")
             
             col_btn1, col_btn2 = st.columns(2)
             
