@@ -22,18 +22,29 @@ show_user_info_sidebar()
 
 
 
+# Import health monitoring service
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from services.livestock_health_service import (
+    BCS_STANDARDS, DISEASE_DATABASE, VACCINATION_SCHEDULES, DEWORMING_PROTOCOLS,
+    calculate_calving_interval, calculate_conception_rate, calculate_service_per_conception,
+    analyze_milk_production, calculate_scc_status, diagnose_by_symptoms, get_bcs_recommendation
+)
+
 # Header
 st.title("🐄 Manajemen Peternakan & Perikanan")
 st.markdown("**Solusi Presisi untuk Ruminansia, Unggas, dan Budidaya Perikanan**")
 st.info("💡 Modul ini menyediakan alat bantu hitung teknis (Ransum, FCR, Bioflok) dan asisten kesehatan hewan.")
 
-# Main tabs
-tab_ruminant, tab_poultry, tab_fish, tab_feed, tab_vet = st.tabs([
+# Main tabs - Added Health Monitoring tab
+tab_ruminant, tab_poultry, tab_fish, tab_feed, tab_health, tab_vet = st.tabs([
     "🐄 Ruminansia (Sapi/Kambing)",
     "🐓 Unggas (Ayam/Bebek)",
     "🐟 Perikanan (Bioflok/RAS)",
     "🧮 Kalkulator Ransum",
-    "🩺 Dokter Hewan AI"
+    "🩺 Health Monitoring",
+    "🤖 Dokter Hewan AI"
 ])
 
 # ===== TAB 1: RUMINANSIA =====
@@ -901,7 +912,611 @@ with tab_feed:
             *   PK = Protein Kasar (Crude Protein).
             """)
 
-# ===== TAB 5: DOKTER HEWAN AI =====
+# ===== TAB 5: HEALTH MONITORING (NEW) =====
+with tab_health:
+    st.header("🩺 Sistem Monitoring Kesehatan Ternak")
+    st.markdown("**Precision Livestock Health Management** - Scientifically Grounded Tools")
+    
+    # Sub-tabs for different health aspects
+    health_tab_bcs, health_tab_disease, health_tab_vacc, health_tab_repro, health_tab_milk = st.tabs([
+        "📊 Body Condition Score",
+        "🦠 Disease Diagnosis",
+        "💉 Vaccination & Deworming",
+        "🐄 Reproductive Performance",
+        "🥛 Milk Recording"
+    ])
+    
+    # ========== SUB-TAB 1: BCS CALCULATOR ==========
+    with health_tab_bcs:
+        st.subheader("📊 Body Condition Score (BCS) Calculator")
+        st.markdown("**Evaluasi kondisi tubuh ternak untuk optimasi produksi dan reproduksi**")
+        
+        col_bcs1, col_bcs2 = st.columns([1, 1])
+        
+        with col_bcs1:
+            st.markdown("### 🐄 Input Data")
+            
+            bcs_species = st.selectbox(
+                "Jenis Ternak",
+                ["Sapi Potong", "Sapi Perah", "Kambing/Domba"],
+                key="bcs_species"
+            )
+            
+            if bcs_species == "Sapi Perah":
+                bcs_score = st.slider("BCS Score (1-9)", 1.0, 9.0, 5.0, 0.5, key="bcs_score_dairy")
+                production_stage = st.selectbox(
+                    "Tahap Produksi",
+                    ["Laktasi Awal (0-100 hari)", "Laktasi Tengah (100-200 hari)", 
+                     "Laktasi Akhir (>200 hari)", "Kering Kandang"],
+                    key="prod_stage"
+                )
+            else:
+                bcs_score = st.slider("BCS Score (1-5)", 1.0, 5.0, 3.0, 0.5, key="bcs_score_beef")
+                production_stage = st.selectbox(
+                    "Status",
+                    ["Pertumbuhan", "Bunting", "Laktasi", "Penggemukan"],
+                    key="prod_stage_beef"
+                )
+            
+            if st.button("🔍 Analisis BCS", type="primary", use_container_width=True):
+                result = get_bcs_recommendation(bcs_species, bcs_score, production_stage)
+                
+                st.session_state['bcs_result'] = result
+        
+        with col_bcs2:
+            st.markdown("### 📋 Hasil Analisis")
+            
+            if 'bcs_result' in st.session_state:
+                result = st.session_state['bcs_result']
+                
+                # Display BCS category with color coding
+                bcs_cat = result['bcs_category']
+                if bcs_cat in [1, 2]:
+                    color = "red"
+                    icon = "🔴"
+                elif bcs_cat in [3, 4, 5] if bcs_species != "Sapi Perah" else bcs_cat in [3, 4, 5, 6]:
+                    color = "green"
+                    icon = "🟢"
+                else:
+                    color = "orange"
+                    icon = "🟡"
+                
+                st.markdown(f"""
+                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); 
+                            padding: 20px; border-radius: 15px; border-left: 6px solid {color}; margin-bottom: 20px;">
+                    <h3 style="margin:0; color: {color};">{icon} {result['description']}</h3>
+                    <p style="margin: 10px 0 0 0; font-size: 0.9em; color: #495057;">
+                        <strong>BCS:</strong> {result['bcs_score']} | <strong>Kategori:</strong> {result['bcs_category']}
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                st.info(f"**Visual Guide:** {result['visual_guide']}")
+                
+                st.success(f"**✅ Rekomendasi:** {result['recommendation']}")
+                
+                if result.get('risk_level'):
+                    st.warning(f"**⚠️ Risk Level:** {result['risk_level']}")
+            else:
+                st.info("Masukkan data BCS dan klik tombol Analisis untuk melihat hasil.")
+        
+        # BCS Reference Guide
+        st.divider()
+        st.markdown("### 📚 Panduan Referensi BCS")
+        
+        with st.expander("📖 Lihat Standar BCS Lengkap"):
+            selected_species = st.selectbox("Pilih Jenis Ternak", list(BCS_STANDARDS.keys()), key="ref_species")
+            
+            ref_data = []
+            for score, data in BCS_STANDARDS[selected_species].items():
+                ref_data.append({
+                    "Score": score,
+                    "Deskripsi": data.get("description", ""),
+                    "Rekomendasi": data.get("recommendation", "")
+                })
+            
+            ref_df = pd.DataFrame(ref_data)
+            st.dataframe(ref_df, use_container_width=True, hide_index=True)
+    
+    # ========== SUB-TAB 2: DISEASE DIAGNOSIS ==========
+    with health_tab_disease:
+        st.subheader("🦠 Disease Expert System")
+        st.markdown("**Sistem diagnosis berbasis gejala klinis**")
+        
+        col_diag1, col_diag2 = st.columns([1, 1])
+        
+        with col_diag1:
+            st.markdown("### 🔍 Input Gejala")
+            
+            diag_species = st.selectbox(
+                "Jenis Ternak",
+                ["Sapi", "Kambing", "Domba"],
+                key="diag_species"
+            )
+            
+            # Collect all possible symptoms from database
+            all_symptoms = set()
+            for disease_data in DISEASE_DATABASE.values():
+                if diag_species in disease_data.get("species", []) or "Sapi" in disease_data.get("species", []):
+                    all_symptoms.update(disease_data["symptoms"])
+            
+            selected_symptoms = st.multiselect(
+                "Pilih Gejala yang Terlihat",
+                sorted(list(all_symptoms)),
+                key="symptoms"
+            )
+            
+            if st.button("🔬 Diagnosa", type="primary", use_container_width=True):
+                if selected_symptoms:
+                    results = diagnose_by_symptoms(selected_symptoms, diag_species)
+                    st.session_state['diagnosis_results'] = results
+                else:
+                    st.warning("Pilih minimal 1 gejala untuk diagnosa")
+        
+        with col_diag2:
+            st.markdown("### 📊 Hasil Diagnosis")
+            
+            if 'diagnosis_results' in st.session_state and st.session_state['diagnosis_results']:
+                results = st.session_state['diagnosis_results']
+                
+                for i, result in enumerate(results[:3]):  # Show top 3 matches
+                    match_pct = result['match_percentage']
+                    
+                    if match_pct >= 70:
+                        color = "#dc3545"  # Red - high probability
+                    elif match_pct >= 50:
+                        color = "#ffc107"  # Yellow - medium
+                    else:
+                        color = "#6c757d"  # Gray - low
+                    
+                    st.markdown(f"""
+                    <div style="background: white; padding: 15px; border-radius: 10px; 
+                                border-left: 5px solid {color}; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="margin:0; color: {color};">#{i+1} {result['disease']} ({match_pct}% match)</h4>
+                        <p style="margin: 5px 0; font-size: 0.85em;">
+                            <strong>Kategori:</strong> {result['category']} | 
+                            <strong>Severity:</strong> {result['severity']}
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    with st.expander(f"📋 Detail {result['disease']}"):
+                        disease_data = result['data']
+                        
+                        st.markdown("**🔴 Gejala Lengkap:**")
+                        for symptom in disease_data['symptoms']:
+                            st.markdown(f"- {symptom}")
+                        
+                        st.markdown("**🧬 Penyebab:**")
+                        for cause in disease_data['causes']:
+                            st.markdown(f"- {cause}")
+                        
+                        st.markdown("**💊 Pengobatan:**")
+                        for treatment in disease_data['treatment']:
+                            st.markdown(f"- {treatment}")
+                        
+                        st.markdown("**🛡️ Pencegahan:**")
+                        for prevention in disease_data['prevention']:
+                            st.markdown(f"- {prevention}")
+                        
+                        st.error(f"**⚠️ Dampak Ekonomi:** {disease_data['economic_impact']}")
+            else:
+                st.info("Pilih gejala dan klik Diagnosa untuk melihat kemungkinan penyakit.")
+        
+        # Disease Database Reference
+        st.divider()
+        st.markdown("### 📚 Database Penyakit")
+        
+        with st.expander("📖 Lihat Semua Penyakit"):
+            disease_list = []
+            for name, data in DISEASE_DATABASE.items():
+                disease_list.append({
+                    "Penyakit": name,
+                    "Kategori": data['category'],
+                    "Spesies": ", ".join(data['species']),
+                    "Severity": data['severity']
+                })
+            
+            disease_df = pd.DataFrame(disease_list)
+            st.dataframe(disease_df, use_container_width=True, hide_index=True)
+    
+    # ========== SUB-TAB 3: VACCINATION & DEWORMING ==========
+    with health_tab_vacc:
+        st.subheader("💉 Vaccination & Deworming Tracker")
+        st.markdown("**Jadwal vaksinasi dan deworming berdasarkan standar nasional**")
+        
+        col_vacc1, col_vacc2 = st.columns([1, 1])
+        
+        with col_vacc1:
+            st.markdown("### 📅 Jadwal Vaksinasi")
+            
+            vacc_species = st.selectbox(
+                "Jenis Ternak",
+                list(VACCINATION_SCHEDULES.keys()),
+                key="vacc_species"
+            )
+            
+            animal_age_months = st.number_input(
+                "Umur Ternak (bulan)",
+                min_value=0,
+                max_value=60,
+                value=6,
+                key="animal_age"
+            )
+            
+            st.markdown("#### 🗓️ Jadwal Vaksinasi Rekomendasi")
+            
+            schedule = VACCINATION_SCHEDULES[vacc_species]
+            upcoming_vaccines = []
+            
+            for vacc in schedule:
+                age_req = vacc['age_months']
+                if isinstance(age_req, int):
+                    if age_req >= animal_age_months:
+                        upcoming_vaccines.append(vacc)
+            
+            if upcoming_vaccines:
+                for vacc in upcoming_vaccines[:5]:  # Show next 5 vaccines
+                    st.success(f"""
+                    **{vacc['vaccine']}**
+                    - Umur: {vacc['age_months']} bulan
+                    - Dosis: {vacc['dose']}
+                    - Booster: {vacc['frequency']}
+                    """)
+            else:
+                st.info("Semua vaksinasi dasar sudah seharusnya dilakukan. Lanjutkan dengan booster rutin.")
+            
+            # Full schedule table
+            with st.expander("📋 Lihat Jadwal Lengkap"):
+                vacc_data = []
+                for vacc in schedule:
+                    vacc_data.append({
+                        "Umur (bulan)": vacc['age_months'],
+                        "Vaksin": vacc['vaccine'],
+                        "Dosis": vacc['dose'],
+                        "Frekuensi": vacc['frequency']
+                    })
+                
+                vacc_df = pd.DataFrame(vacc_data)
+                st.dataframe(vacc_df, use_container_width=True, hide_index=True)
+        
+        with col_vacc2:
+            st.markdown("### 🐛 Protokol Deworming")
+            
+            deworm_species = st.selectbox(
+                "Jenis Ternak",
+                list(DEWORMING_PROTOCOLS.keys()),
+                key="deworm_species"
+            )
+            
+            protocol = DEWORMING_PROTOCOLS[deworm_species]
+            
+            st.info(f"**Frekuensi:** {protocol['frequency']}")
+            
+            st.markdown("#### 💊 Produk Rekomendasi")
+            for product in protocol['products']:
+                st.success(f"""
+                **{product['name']}**
+                - Dosis: {product['dose']}
+                - Rute: {product['route']}
+                """)
+            
+            st.markdown("#### ⏰ Waktu Kritis Deworming")
+            for time in protocol['critical_times']:
+                st.warning(f"🔔 {time}")
+    
+    # ========== SUB-TAB 4: REPRODUCTIVE PERFORMANCE ==========
+    with health_tab_repro:
+        st.subheader("🐄 Reproductive Performance Analytics")
+        st.markdown("**Monitor dan optimasi performa reproduksi ternak**")
+        
+        repro_tab_ci, repro_tab_cr, repro_tab_sc = st.tabs([
+            "📅 Calving Interval",
+            "🎯 Conception Rate",
+            "📊 Service/Conception"
+        ])
+        
+        with repro_tab_ci:
+            st.markdown("### 📅 Calving Interval Calculator")
+            st.caption("Target optimal: 12-13 bulan (365-395 hari)")
+            
+            num_calvings = st.number_input("Jumlah Data Calving", min_value=2, max_value=10, value=3, key="num_calv")
+            
+            calving_dates = []
+            for i in range(num_calvings):
+                date = st.date_input(f"Tanggal Calving #{i+1}", key=f"calv_date_{i}")
+                calving_dates.append(date.strftime("%Y-%m-%d"))
+            
+            if st.button("📊 Hitung Calving Interval", key="calc_ci"):
+                result = calculate_calving_interval(calving_dates)
+                
+                if 'error' not in result:
+                    col_ci1, col_ci2, col_ci3 = st.columns(3)
+                    
+                    with col_ci1:
+                        st.metric("Rata-rata Interval", f"{result['average_interval_days']:.0f} hari")
+                    
+                    with col_ci2:
+                        st.metric("Dalam Bulan", f"{result['average_interval_months']:.1f} bulan")
+                    
+                    with col_ci3:
+                        status_color = "🟢" if result['status'] == "Optimal" else "🔴"
+                        st.metric("Status", f"{status_color} {result['status']}")
+                    
+                    st.info(f"**💡 Rekomendasi:** {result['recommendation']}")
+                    
+                    # Visualize intervals
+                    if len(result['intervals']) > 1:
+                        fig_ci = px.line(
+                            x=list(range(1, len(result['intervals'])+1)),
+                            y=result['intervals'],
+                            markers=True,
+                            title="Trend Calving Interval",
+                            labels={"x": "Interval ke-", "y": "Hari"}
+                        )
+                        fig_ci.add_hline(y=365, line_dash="dash", line_color="green", annotation_text="Target Min (365)")
+                        fig_ci.add_hline(y=395, line_dash="dash", line_color="red", annotation_text="Target Max (395)")
+                        st.plotly_chart(fig_ci, use_container_width=True)
+                else:
+                    st.error(result['error'])
+        
+        with repro_tab_cr:
+            st.markdown("### 🎯 Conception Rate Calculator")
+            st.caption("Target: >50% untuk first service, >70% overall")
+            
+            col_cr1, col_cr2 = st.columns(2)
+            
+            with col_cr1:
+                cr_services = st.number_input("Jumlah Service/IB", min_value=1, value=20, key="cr_serv")
+            
+            with col_cr2:
+                cr_pregnancies = st.number_input("Jumlah Bunting", min_value=0, value=12, key="cr_preg")
+            
+            if st.button("📊 Hitung Conception Rate", key="calc_cr"):
+                result = calculate_conception_rate(cr_services, cr_pregnancies)
+                
+                if 'error' not in result:
+                    col_cr_r1, col_cr_r2 = st.columns(2)
+                    
+                    with col_cr_r1:
+                        cr_value = result['conception_rate']
+                        status_color = "green" if cr_value >= 50 else ("orange" if cr_value >= 40 else "red")
+                        
+                        import plotly.graph_objects as go
+                        fig_cr = go.Figure(go.Indicator(
+                            mode="gauge+number",
+                            value=cr_value,
+                            title={'text': "Conception Rate (%)"},
+                            gauge={
+                                'axis': {'range': [0, 100]},
+                                'bar': {'color': status_color},
+                                'steps': [
+                                    {'range': [0, 40], 'color': "#fee2e2"},
+                                    {'range': [40, 50], 'color': "#fef3c7"},
+                                    {'range': [50, 100], 'color': "#d1fae5"}
+                                ],
+                                'threshold': {'line': {'color': "green", 'width': 4}, 'thickness': 0.75, 'value': 50}
+                            }
+                        ))
+                        fig_cr.update_layout(height=250)
+                        st.plotly_chart(fig_cr, use_container_width=True)
+                    
+                    with col_cr_r2:
+                        st.metric("Conception Rate", f"{cr_value:.1f}%")
+                        st.metric("Status", f"{'🟢' if result['status'] == 'Baik' else '🔴'} {result['status']}")
+                        st.info(f"**💡 Rekomendasi:** {result['recommendation']}")
+                else:
+                    st.error(result['error'])
+        
+        with repro_tab_sc:
+            st.markdown("### 📊 Service per Conception (S/C)")
+            st.caption("Target: <1.8 (ideal <1.5)")
+            
+            col_sc1, col_sc2 = st.columns(2)
+            
+            with col_sc1:
+                sc_total_services = st.number_input("Total Service", min_value=1, value=30, key="sc_serv")
+            
+            with col_sc2:
+                sc_total_preg = st.number_input("Total Kebuntingan", min_value=1, value=18, key="sc_preg")
+            
+            if st.button("📊 Hitung S/C", key="calc_sc"):
+                result = calculate_service_per_conception(sc_total_services, sc_total_preg)
+                
+                if 'error' not in result:
+                    sc_value = result['service_per_conception']
+                    
+                    col_sc_r1, col_sc_r2 = st.columns(2)
+                    
+                    with col_sc_r1:
+                        st.metric("Service/Conception", f"{sc_value:.2f}")
+                        st.metric("Status", f"{'🟢' if result['status'] == 'Baik' else '🔴'} {result['status']}")
+                    
+                    with col_sc_r2:
+                        st.info(f"**💡 Rekomendasi:** {result['recommendation']}")
+                        
+                        # Efficiency indicator
+                        efficiency = (1 / sc_value) * 100
+                        st.success(f"**Efisiensi Reproduksi:** {efficiency:.1f}%")
+                else:
+                    st.error(result['error'])
+    
+    # ========== SUB-TAB 5: MILK RECORDING ==========
+    with health_tab_milk:
+        st.subheader("🥛 Milk Recording System")
+        st.markdown("**Sistem pencatatan dan analisis produksi susu**")
+        
+        milk_tab_prod, milk_tab_quality = st.tabs([
+            "📊 Production Analysis",
+            "🔬 Quality Assessment"
+        ])
+        
+        with milk_tab_prod:
+            st.markdown("### 📊 Analisis Produksi Susu")
+            
+            st.info("💡 Input data produksi harian untuk analisis trend dan performa laktasi")
+            
+            # Simple data input
+            num_days = st.number_input("Jumlah Hari Data", min_value=1, max_value=30, value=7, key="milk_days")
+            
+            milk_records = []
+            
+            with st.form("milk_input_form"):
+                st.markdown("#### 📝 Input Produksi Harian")
+                
+                for i in range(num_days):
+                    col_m1, col_m2, col_m3 = st.columns(3)
+                    
+                    with col_m1:
+                        date = st.date_input(f"Tanggal #{i+1}", key=f"milk_date_{i}")
+                    
+                    with col_m2:
+                        morning = st.number_input(f"Pagi (L)", min_value=0.0, value=10.0, step=0.5, key=f"milk_morn_{i}")
+                    
+                    with col_m3:
+                        evening = st.number_input(f"Sore (L)", min_value=0.0, value=8.0, step=0.5, key=f"milk_eve_{i}")
+                    
+                    milk_records.append({
+                        "date": date.strftime("%Y-%m-%d"),
+                        "morning": morning,
+                        "evening": evening
+                    })
+                
+                submit_milk = st.form_submit_button("📊 Analisis Produksi", type="primary", use_container_width=True)
+            
+            if submit_milk and milk_records:
+                result = analyze_milk_production(milk_records)
+                
+                if 'error' not in result:
+                    # KPI Cards
+                    col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
+                    
+                    with col_kpi1:
+                        st.metric("Rata-rata Harian", f"{result['average_daily_production']:.2f} L")
+                    
+                    with col_kpi2:
+                        st.metric("Produksi Puncak", f"{result['peak_production']:.2f} L")
+                    
+                    with col_kpi3:
+                        st.metric("Produksi Terkini", f"{result['current_production']:.2f} L")
+                    
+                    with col_kpi4:
+                        trend_icon = "📈" if result['trend'] == "Naik" else ("📉" if result['trend'] == "Turun" else "➡️")
+                        st.metric("Trend", f"{trend_icon} {result['trend']}")
+                    
+                    # Production chart
+                    df_milk = pd.DataFrame(milk_records)
+                    df_milk['total'] = df_milk['morning'] + df_milk['evening']
+                    
+                    fig_milk = px.line(
+                        df_milk,
+                        x='date',
+                        y='total',
+                        markers=True,
+                        title="Trend Produksi Susu Harian",
+                        labels={"date": "Tanggal", "total": "Produksi (L)"}
+                    )
+                    fig_milk.add_hline(
+                        y=result['average_daily_production'],
+                        line_dash="dash",
+                        line_color="green",
+                        annotation_text=f"Rata-rata: {result['average_daily_production']:.2f}L"
+                    )
+                    st.plotly_chart(fig_milk, use_container_width=True)
+                    
+                    st.success(f"**Total Produksi {result['total_days']} Hari:** {result['total_production']:.2f} L")
+                else:
+                    st.error(result['error'])
+        
+        with milk_tab_quality:
+            st.markdown("### 🔬 Milk Quality Assessment")
+            
+            col_qual1, col_qual2 = st.columns(2)
+            
+            with col_qual1:
+                st.markdown("#### 🧪 Somatic Cell Count (SCC)")
+                
+                scc_value = st.number_input(
+                    "SCC (cells/ml)",
+                    min_value=0,
+                    max_value=2000000,
+                    value=150000,
+                    step=10000,
+                    key="scc_input"
+                )
+                
+                if st.button("🔬 Evaluasi SCC", key="eval_scc"):
+                    result = calculate_scc_status(scc_value)
+                    
+                    # Color coding
+                    if result['risk_level'] == "Rendah":
+                        color = "green"
+                        icon = "🟢"
+                    elif result['risk_level'] == "Sedang":
+                        color = "orange"
+                        icon = "🟡"
+                    else:
+                        color = "red"
+                        icon = "🔴"
+                    
+                    st.markdown(f"""
+                    <div style="background: white; padding: 20px; border-radius: 15px; 
+                                border-left: 6px solid {color}; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h3 style="margin:0; color: {color};">{icon} {result['status']}</h3>
+                        <p style="margin: 10px 0 0 0;">
+                            <strong>SCC:</strong> {result['scc_value']:,} cells/ml<br>
+                            <strong>Risk Level:</strong> {result['risk_level']}<br>
+                            <strong>Kualitas:</strong> {result['quality_impact']}
+                        </p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    st.warning(f"**⚠️ Tindakan:** {result['action']}")
+            
+            with col_qual2:
+                st.markdown("#### 📊 Milk Composition")
+                
+                fat_pct = st.slider("Fat %", 0.0, 10.0, 3.5, 0.1, key="fat")
+                protein_pct = st.slider("Protein %", 0.0, 6.0, 3.2, 0.1, key="protein")
+                snf_pct = st.slider("SNF (Solid Non-Fat) %", 0.0, 12.0, 8.5, 0.1, key="snf")
+                
+                # Quality assessment
+                quality_score = 0
+                issues = []
+                
+                if 3.0 <= fat_pct <= 4.5:
+                    quality_score += 33
+                else:
+                    issues.append(f"Fat {'rendah' if fat_pct < 3.0 else 'tinggi'}")
+                
+                if 3.0 <= protein_pct <= 3.8:
+                    quality_score += 33
+                else:
+                    issues.append(f"Protein {'rendah' if protein_pct < 3.0 else 'tinggi'}")
+                
+                if 8.0 <= snf_pct <= 9.0:
+                    quality_score += 34
+                else:
+                    issues.append(f"SNF {'rendah' if snf_pct < 8.0 else 'tinggi'}")
+                
+                st.metric("Quality Score", f"{quality_score}/100")
+                
+                if quality_score >= 90:
+                    st.success("🟢 Kualitas Susu Excellent")
+                elif quality_score >= 70:
+                    st.info("🟡 Kualitas Susu Baik")
+                else:
+                    st.warning(f"🔴 Kualitas Susu Perlu Perbaikan: {', '.join(issues)}")
+                
+                # Composition chart
+                fig_comp = px.pie(
+                    names=['Fat', 'Protein', 'SNF', 'Water'],
+                    values=[fat_pct, protein_pct, snf_pct, 100 - (fat_pct + protein_pct + snf_pct)],
+                    title="Komposisi Susu"
+                )
+                st.plotly_chart(fig_comp, use_container_width=True)
+
+# ===== TAB 6: DOKTER HEWAN AI =====
 with tab_vet:
     st.header("🩺 Asisten Kesehatan Hewan AI")
     st.markdown("Diskusikan gejala penyakit pada ternak atau ikan Anda.")
