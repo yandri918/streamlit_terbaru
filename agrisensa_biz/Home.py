@@ -31,5 +31,9 @@ with c5:
     if st.button("🎯 Prediksi Hasil Panen"): st.switch_page("pages/7_🎯_Prediksi_Hasil_Panen.py")
 
 st.markdown("### 👥 Manajemen & SDM")
-if st.button("📢 Ruang Kerja PPL"): st.switch_page("pages/45_📢_Ruang_Kerja_PPL_Final.py")
-if st.button("🎓 Kurikulum Pelatihan"): st.switch_page("pages/53_🎓_Kurikulum_Pelatihan.py")
+c6, c7 = st.columns(2)
+with c6:
+    if st.button("📢 Ruang Kerja PPL"): st.switch_page("pages/45_📢_Ruang_Kerja_PPL_Final.py")
+    if st.button("📋 Manajemen Proyek (Baru)"): st.switch_page("pages/50_📋_Manajemen_Proyek_Pertanian.py")
+with c7:
+    if st.button("🎓 Kurikulum Pelatihan"): st.switch_page("pages/53_🎓_Kurikulum_Pelatihan.py")
