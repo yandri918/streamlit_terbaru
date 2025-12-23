@@ -208,6 +208,27 @@ if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
         help="Jumlah total pakan yang akan diformulasikan"
     )
     
+    # Diversity option
+    col_div1, col_div2 = st.columns(2)
+    with col_div1:
+        enforce_diversity = st.checkbox(
+            "Gunakan Lebih Banyak Bahan (Lebih Realistis)",
+            value=True,
+            help="Jika dicentang, formulasi akan menggunakan lebih banyak variasi bahan pakan (mungkin sedikit lebih mahal)"
+        )
+    
+    with col_div2:
+        if enforce_diversity:
+            min_ingredient_pct = st.slider(
+                "Minimum per Bahan (%)",
+                min_value=1,
+                max_value=10,
+                value=3,
+                help="Minimum persentase untuk setiap bahan yang digunakan"
+            )
+        else:
+            min_ingredient_pct = 0
+    
     # Auto-formulate button
     if st.button("🚀 Buat Formulasi Otomatis", type="primary", use_container_width=True, key="auto_formulate"):
         with st.spinner("🤖 AI sedang menghitung formulasi optimal..."):
@@ -267,7 +288,8 @@ if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
                 ingredients_for_lp,
                 requirements,
                 total_weight,
-                animal_category
+                animal_category,
+                min_usage_pct=min_ingredient_pct
             )
             
             st.session_state['auto_result'] = result

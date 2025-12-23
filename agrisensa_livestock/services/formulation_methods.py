@@ -68,7 +68,8 @@ def least_cost_formulation(
     ingredients: Dict[str, Dict],
     requirements: Dict[str, Tuple[float, float]],
     total_weight: float = 100.0,
-    animal_type: str = "cattle"
+    animal_type: str = "cattle",
+    min_usage_pct: float = 0.0
 ) -> Dict:
     """
     Linear Programming for least-cost feed formulation
@@ -78,6 +79,7 @@ def least_cost_formulation(
         requirements: Dictionary of nutrient requirements {nutrient: (min, max)}
         total_weight: Total weight of formulation (default 100 kg)
         animal_type: Type of animal for energy calculation
+        min_usage_pct: Minimum usage percentage per ingredient (0-10%)
     
     Returns:
         Optimal formulation with costs and nutritional analysis
@@ -138,8 +140,19 @@ def least_cost_formulation(
                     A_ub.append(nutrient_values)
                     b_ub.append(max_val)
         
-        # Bounds for each ingredient (0 to total_weight)
-        bounds = [(0, total_weight) for _ in range(n_ingredients)]
+        # Bounds for each ingredient
+        # If min_usage_pct > 0, set minimum bound for non-mineral ingredients
+        bounds = []
+        for ing_name in ingredient_names:
+            # Don't enforce minimum on pure minerals (they're usually very small amounts)
+            is_mineral = ing_name in ["Kapur (CaCO3)", "DCP (Dicalcium Phosphate)", "Garam (NaCl)", 
+                                     "DL-Methionine", "L-Lysine HCl", "L-Threonine"]
+            
+            if min_usage_pct > 0 and not is_mineral:
+                min_bound = (min_usage_pct / 100.0) * total_weight
+                bounds.append((min_bound, total_weight))
+            else:
+                bounds.append((0, total_weight))
         
         # Solve
         result = linprog(
