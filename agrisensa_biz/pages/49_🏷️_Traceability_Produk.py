@@ -544,27 +544,47 @@ with tab1:
         riwayat_log = st.text_area("📝 Catatan Budidaya", "Pupuk Organik Cair (Minggu 2), Kompos (Minggu 4).")
         
         # --- NEW: ADVANCED FEATURES ---
-        with st.expander("🌍 Climate Proof & Digital Journey (Otomatis)", expanded=True):
-            st.info("Sistem akan men-generate data iklim mikro dan milestone awal secara otomatis.")
+        # --- NEW: ADVANCED FEATURES (MANUAL INPUT) ---
+        with st.expander("🌍 Climate Proof & Digital Journey (Input Manual)", expanded=True):
+            st.info("Masukkan data iklim dan jam panen secara manual (Mode Standalone).")
             
-            # Simulated IoT Data
-            avg_temp = 24.5 if "Tinggi" not in lokasi_kebun else 19.2
-            avg_hum = 75
+            # 1. Climate Inputs
+            st.markdown("**1. Data Iklim Mikro (Rata-rata)**")
+            c_clim1, c_clim2, c_clim3 = st.columns(3)
+            with c_clim1:
+                avg_temp = st.number_input("Suhu (°C)", value=24.5, step=0.1, format="%.1f")
+            with c_clim2:
+                avg_hum = st.number_input("Kelembaban (%)", value=75, step=1)
+            with c_clim3:
+                sun_hours = st.number_input("Penyinaran (Jam)", value=11.5, step=0.5)
+
             climate_proof = {
                 "avg_temp": avg_temp, 
                 "avg_hum": avg_hum,
-                "sun_hours": 11.5,
-                "rainfall": 1200
+                "sun_hours": sun_hours,
+                "rainfall": 1200 # Static for now or add input if needed
             }
-            st.write(f"✅ **Climate Proof:** Suhu Rata-rata {avg_temp}°C, Kelembaban {avg_hum}%")
             
-            # Initial Milestone
+            st.divider()
+            
+            # 2. Key Milestones Inputs
+            st.markdown("**2. Waktu Milestone Utama**")
+            c_mil1, c_mil2, c_mil3 = st.columns(3)
+            with c_mil1:
+                t_harvest = st.time_input("Jam Panen", datetime.time(8, 30))
+            with c_mil2:
+                t_qc = st.time_input("Jam Sortir/QC", datetime.time(10, 15))
+            with c_mil3:
+                t_pack = st.time_input("Jam Packing", datetime.time(13, 00))
+            
+            # Construct Milestones from Inputs
+            date_str = tgl_panen.strftime("%Y-%m-%d")
             milestones = [
-                {"date": tgl_panen.strftime("%Y-%m-%d"), "time": "08:30", "event": "Panen (Harvesting)", "loc": lokasi_kebun, "icon": "🌾"},
-                {"date": tgl_panen.strftime("%Y-%m-%d"), "time": "10:15", "event": "Sortir & Grading (QC 1)", "loc": "Gudang Sortir", "icon": "🔍"},
-                {"date": tgl_panen.strftime("%Y-%m-%d"), "time": "13:00", "event": "Packaging & Labeling", "loc": "Processing House", "icon": "📦"}
+                {"date": date_str, "time": t_harvest.strftime("%H:%M"), "event": "Panen (Harvesting)", "loc": lokasi_kebun, "icon": "🌾"},
+                {"date": date_str, "time": t_qc.strftime("%H:%M"), "event": "Sortir & Grading (QC 1)", "loc": "Gudang Sortir", "icon": "🔍"},
+                {"date": date_str, "time": t_pack.strftime("%H:%M"), "event": "Packaging & Labeling", "loc": "Processing House", "icon": "📦"}
             ]
-            st.write("✅ **Milestone Awal:** Panen -> Sortir -> Packing")
+            st.caption("✅ Milestone akan otomatis digenerate berdasarkan jam di atas.")
 
         # Generator ID & Blockchain Fake Hash
         import hashlib
@@ -673,7 +693,10 @@ with tab2:
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
         
         # Build Vercel Product Passport URL
+        # Build Vercel Product Passport URL
         import urllib.parse
+        import json
+        
         base_url = "https://vercel-scan2.vercel.app/product"
         params = {
             'name': data['produk'],
@@ -684,8 +707,20 @@ with tab2:
             'weight': f"{data.get('berat', 1)} kg",
             'emoji': '🌾'
         }
+        
+        # Add Price
         if data.get('harga'):
             params['price'] = str(data['harga'])
+            
+        # Add Advanced Traceability Data (Serialized)
+        if data.get('climate'):
+            params['avg_temp'] = str(data['climate']['avg_temp'])
+            params['avg_hum'] = str(data['climate']['avg_hum'])
+            params['sun_hours'] = str(data['climate']['sun_hours'])
+            
+        if data.get('milestones'):
+            # Simple serialization for URL
+            params['milestones'] = json.dumps(data['milestones'])
         
         query_string = urllib.parse.urlencode(params)
         qr_url = f"{base_url}/{data['id']}?{query_string}"
