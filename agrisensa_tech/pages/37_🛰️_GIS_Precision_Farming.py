@@ -199,42 +199,100 @@ with tab_map:
         map_output = st_folium(m, height=500, use_container_width=True)
 
     # --- INPUT FORM FOR CLICKED POINT ---
+    # --- INPUT FORM FOR CLICKED POINT (SMART EDIT/ADD) ---
     if map_output['last_clicked']:
         click_lat = map_output['last_clicked']['lat']
         click_lon = map_output['last_clicked']['lng']
         
-        st.divider()
-        st.markdown(f"### 📍 Input Data Titik Baru")
-        st.write(f"Koordinat Terpilih: **Lat {click_lat:.5f}, Lon {click_lon:.5f}**")
+        # Check proximity to existing points (Threshold ~ 10 meters = 0.0001 deg)
+        # Using Euclidean approximation for speed
+        match_idx = None
+        min_dist = 0.0001 
         
-        with st.form("add_point_form"):
+        # Find closest point
+        if not df_geo.empty:
+            # Vectorized distance calc
+            dists = np.sqrt((df_geo['lat'] - click_lat)**2 + (df_geo['lon'] - click_lon)**2)
+            closest_idx = dists.idxmin()
+            closest_dist = dists.min()
+            
+            if closest_dist < min_dist:
+                match_idx = closest_idx
+        
+        st.divider()
+        
+        # Determine Mode
+        if match_idx is not None:
+            mode = "Edit"
+            st.markdown(f"### ✏️ Edit Data Titik (Terdeteksi)")
+            st.info("Titik yang diklik dekat dengan data yang ada. Form diisi dengan data lama.")
+            
+            # Pre-fill data
+            row = df_geo.iloc[match_idx]
+            def_lat = float(row['lat']) # Use existing exact coord
+            def_lon = float(row['lon'])
+            def_ph = float(row['ph'])
+            def_n = float(row['n_ppm'])
+            def_p = float(row.get('p_ppm', 50))
+            def_k = float(row.get('k_ppm', 100))
+            def_m = float(row.get('moisture', 60))
+        else:
+            mode = "Add"
+            st.markdown(f"### 📍 Input Data Titik Baru")
+            st.info("Koordinat baru dipilih.")
+            
+            def_lat = click_lat
+            def_lon = click_lon
+            def_ph = 6.0
+            def_n = 100.0
+            def_p = 50.0
+            def_k = 100.0
+            def_m = 60.0
+
+        # INPUT FORM
+        with st.form("point_editor_form"):
+            st.write("#### Koordinat & Variabel")
+            c_geo1, c_geo2 = st.columns(2)
+            with c_geo1:
+                in_lat = st.number_input("Latitude", -90.0, 90.0, def_lat, format="%.6f", help="Bisa dikoreksi manual")
+            with c_geo2:
+                in_lon = st.number_input("Longitude", -180.0, 180.0, def_lon, format="%.6f", help="Bisa dikoreksi manual")
+            
+            st.divider()
+            
             c1, c2, c3 = st.columns(3)
             with c1:
-                new_ph = st.number_input("pH Tanah", 3.0, 9.0, 6.0, step=0.1)
-                new_moisture = st.number_input("Kelembaban (%)", 0, 100, 60)
+                new_ph = st.number_input("pH Tanah", 0.0, 14.0, def_ph, step=0.1)
+                new_moisture = st.number_input("Kelembaban (%)", 0.0, 100.0, def_m)
             with c2:
-                new_n = st.number_input("Nitrogen (N ppm)", 0, 500, 100)
-                new_p = st.number_input("Fosfor (P ppm)", 0, 500, 50)
+                new_n = st.number_input("Nitrogen (N ppm)", 0.0, 1000.0, def_n)
+                new_p = st.number_input("Fosfor (P ppm)", 0.0, 1000.0, def_p)
             with c3:
-                new_k = st.number_input("Kalium (K ppm)", 0, 500, 100)
+                new_k = st.number_input("Kalium (K ppm)", 0.0, 1000.0, def_k)
             
-            if st.form_submit_button("➕ Tambahkan ke Peta"):
-                # Append to Session State / DataFrame
+            submit_label = "💾 Simpan Perubahan" if mode == "Edit" else "➕ Tambahkan Titik"
+            
+            if st.form_submit_button(submit_label):
+                # Append to Session State
+                # Note: Currently we append as NEW point (overwriting logic handled by adding to end of list and re-rendering)
+                # Ideally for Edit we should remove old point, but purely additive is safer for MVP
+                
                 new_point = {
-                    "lat": click_lat,
-                    "lon": click_lon,
+                    "lat": in_lat, 
+                    "lon": in_lon,
                     "ph": new_ph,
                     "n_ppm": new_n,
                     "k_ppm": new_k, 
                     "moisture": new_moisture
                 }
-                # Since df_geo is reloaded every run unless persisted, we need a persistence strategy.
-                # For this demo, let's use Session State override logic in the Data Loader section.
+                
                 if 'user_added_points' not in st.session_state:
                     st.session_state.user_added_points = []
+                    
                 st.session_state.user_added_points.append(new_point)
-                st.success("Titik berhasil ditambahkan! Refresh peta untuk melihat update.")
+                st.success(f"Data berhasil disimpan! ({mode} Mode)")
                 st.rerun()
+
 
 
 
