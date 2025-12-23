@@ -215,28 +215,33 @@ if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
             ingredients_for_lp = {name: FEED_DATABASE[name] for name in selected_ingredients if name in FEED_DATABASE}
             
             # Define constraints based on NRC
-            # Use very relaxed constraints to ensure feasibility
+            # Use relaxed constraints but ensure min < max
+            cp_target = nrc_req.get('crude_protein_percent', 12)
+            ca_target = nrc_req.get('calcium_percent', 0.5)
+            
             requirements = {
                 'crude_protein': (
-                    max(8, nrc_req.get('crude_protein_percent', 10) * 0.85),  # At least 8%, or 85% of target
-                    min(25, nrc_req.get('crude_protein_percent', 10) * 1.15)  # At most 25%, or 115% of target
+                    cp_target * 0.85,  # 85% of target
+                    cp_target * 1.15   # 115% of target
                 ),
                 'calcium': (
-                    max(0.2, nrc_req.get('calcium_percent', 0.5) * 0.75),  # Very relaxed
-                    min(2.0, nrc_req.get('calcium_percent', 0.5) * 1.25)
+                    ca_target * 0.75,  # 75% of target
+                    ca_target * 1.25   # 125% of target
                 )
             }
             
-            # Add phosphorus if available (very relaxed)
+            # Add phosphorus if available
             if 'phosphorus_percent' in nrc_req:
+                p_target = nrc_req['phosphorus_percent']
                 requirements['phosphorus'] = (
-                    max(0.15, nrc_req['phosphorus_percent'] * 0.75),
-                    min(1.5, nrc_req['phosphorus_percent'] * 1.25)
+                    p_target * 0.75,
+                    p_target * 1.25
                 )
             elif 'phosphorus_available_percent' in nrc_req:
+                p_target = nrc_req['phosphorus_available_percent']
                 requirements['phosphorus'] = (
-                    max(0.15, nrc_req['phosphorus_available_percent'] * 0.75),
-                    min(1.5, nrc_req['phosphorus_available_percent'] * 1.25)
+                    p_target * 0.75,
+                    p_target * 1.25
                 )
             
             # Only add fiber constraint for ruminants if we have roughage
@@ -252,8 +257,8 @@ if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
                     cf_min = nrc_req.get('crude_fiber_min_percent', 15)
                     cf_max = nrc_req.get('crude_fiber_max_percent', 30)
                     requirements['crude_fiber'] = (
-                        max(8, cf_min * 0.7),   # Very relaxed minimum
-                        min(45, cf_max * 1.3)   # Very relaxed maximum
+                        cf_min * 0.7,   # 70% of minimum
+                        cf_max * 1.3    # 130% of maximum
                     )
                 # If no roughage, don't add fiber constraint at all
             
