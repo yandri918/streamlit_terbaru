@@ -67,13 +67,91 @@ VEHICLES = {
 }
 
 # TABS
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🚛 Kalkulator Logistik", 
     "💰 Analisis Margin (Tata Niaga)", 
     "⏱️ Radar Pasar Induk",
     "🔗 Blockchain Ledger (Simulasi)",
-    "📦 Shipment Tracking (NEW)"
+    "📦 Shipment Tracking (NEW)",
+    "📊 Laporan & Analitik (NEW)"
 ])
+
+# ... [Tabs 1-5 Logic remains] ...
+
+# --- TAB 6: REPORTING & ANALYTICS ---
+with tab6:
+    st.markdown("### 📊 Laporan Kinerja Logistik")
+    st.info("Analisis performa pengiriman, biaya, dan susut bobot (Shrinkage).")
+
+    if 'shipments' not in st.session_state or not st.session_state.shipments:
+        st.warning("Belum ada data pengiriman. Silakan buat Shipment dulu di Tab 5.")
+    else:
+        df_ship = pd.DataFrame(st.session_state.shipments)
+        
+        # Filter for Completed/Delivered only for accurate stats
+        df_completed = df_ship[df_ship['status'].isin(['delivered', 'arrived'])]
+        
+        if df_completed.empty:
+            st.warning("Belum ada pengiriman yang selesai (Arrived/Delivered).")
+        else:
+            # 1. KPI CARDS
+            total_vol = df_completed['quantity_kg'].sum() / 1000 # Tons
+            total_spend = df_completed['total_cost'].sum()
+            avg_cost_kg = total_spend / df_completed['quantity_kg'].sum()
+            
+            # Avg Shrinkage Calculation
+            total_shrink_kg = df_completed['shrinkage_kg'].sum() if 'shrinkage_kg' in df_completed.columns else 0
+            avg_shrink_pct = (total_shrink_kg / (total_vol * 1000)) * 100 if total_vol > 0 else 0
+            
+            col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
+            col_kpi1.metric("Total Volume", f"{total_vol:.1f} Ton")
+            col_kpi2.metric("Total Biaya Logistik", f"Rp {total_spend:,.0f}")
+            col_kpi3.metric("Rata-rata Biaya/kg", f"Rp {avg_cost_kg:,.0f}")
+            col_kpi4.metric("Rata-rata Susut", f"{avg_shrink_pct:.2f}%", delta_color="inverse")
+            
+            st.divider()
+            
+            # 2. CHARTS
+            col_cht1, col_cht2 = st.columns(2)
+            
+            with col_cht1:
+                st.subheader("📈 Tren Pengiriman (Volume)")
+                # Group by Date
+                if 'date' in df_completed.columns:
+                    df_trend = df_completed.groupby('date')['quantity_kg'].sum().reset_index()
+                    fig_trend = px.bar(df_trend, x='date', y='quantity_kg', title="Volume Harian (kg)", color_discrete_sequence=['#ea580c'])
+                    st.plotly_chart(fig_trend, use_container_width=True)
+            
+            with col_cht2:
+                st.subheader("🚚 Komposisi Biaya")
+                # Simple composition (can be detailed if cost breakdown saved)
+                # For now, show Cost per Destination
+                if 'destination' in df_completed.columns:
+                    df_dest = df_completed.groupby('destination')['total_cost'].sum().reset_index()
+                    fig_pie = px.pie(df_dest, values='total_cost', names='destination', title="Biaya per Tujuan", hole=0.4)
+                    st.plotly_chart(fig_pie, use_container_width=True)
+
+            st.divider()
+
+            # 3. DETAILED TABLE & EXPORT
+            st.subheader("📋 Riwayat Pengiriman Lengkap")
+            
+            # Display columns selection
+            disp_cols = ['date', 'number', 'commodity', 'quantity_kg', 'destination', 'vehicle', 'total_cost', 'shrinkage_kg', 'status']
+            # Intersection to avoid errors if cols missing
+            final_cols = [c for c in disp_cols if c in df_completed.columns]
+            
+            st.dataframe(df_completed[final_cols], use_container_width=True, hide_index=True)
+            
+            # CSV Download
+            csv = df_completed.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "📥 Download Laporan (CSV)",
+                csv,
+                f"laporan_logistik_{datetime.date.today()}.csv",
+                "text/csv",
+                key='download-csv'
+            )
 
 # --- TAB 1: LOGISTICS CALCULATOR ---
 with tab1:
