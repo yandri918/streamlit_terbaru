@@ -94,10 +94,16 @@ def log_user_activity(username: str, action: str, details: str = ""):
 
 def init_auth_state():
     """Initialize authentication state."""
+    # AUTO-LOGIN as Guest (User Request: Disable mandatory login)
     if 'authenticated' not in st.session_state:
-        st.session_state.authenticated = False
+        st.session_state.authenticated = True
     if 'user' not in st.session_state:
-        st.session_state.user = None
+        st.session_state.user = {
+            'username': 'guest',
+            'name': 'Tamu (Guest)',
+            'role': 'user', 
+            'email': 'guest@agrisensa.com'
+        }
     if 'user_activity_log' not in st.session_state:
         st.session_state.user_activity_log = []
     get_users()
