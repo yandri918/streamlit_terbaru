@@ -75,7 +75,49 @@ def generate_geo_data(lat, lon, points=100, radius_m=200):
 # Lat/Lon for generic Indo farm
 CENTER_LAT = -6.5567
 CENTER_LON = 106.7303
-df_geo = generate_geo_data(CENTER_LAT, CENTER_LON)
+
+# DATA LOADER ENGINE
+with st.sidebar:
+    st.header("📂 Data Source")
+    data_source = st.radio("Pilih Sumber Data:", ["Simulasi (Random)", "Upload CSV (Data Asli)"])
+    
+    df_geo = None
+    
+    if data_source == "Upload CSV (Data Asli)":
+        uploaded_file = st.file_uploader("Upload CSV", type=["csv"], help="Format: lat, lon, ph, n_ppm, k_ppm, moisture")
+        
+        # Download Template Button
+        template_csv = "lat,lon,ph,n_ppm,k_ppm,moisture\n-6.5567,106.7303,6.5,120,80,60\n-6.5570,106.7310,5.5,90,70,45"
+        st.download_button("⬇️ Download Template CSV", template_csv, "template_gis.csv", "text/csv")
+        
+        if uploaded_file:
+            try:
+                df_geo = pd.read_csv(uploaded_file)
+                # Validation
+                req_cols = ['lat', 'lon', 'ph']
+                if not all(col in df_geo.columns for col in req_cols):
+                    st.error(f"CSV Error: Wajib memiliki kolom {req_cols}")
+                    df_geo = None
+                else:
+                    st.success(f"✅ Loaded {len(df_geo)} points!")
+                    # Update Center
+                    CENTER_LAT = df_geo['lat'].mean()
+                    CENTER_LON = df_geo['lon'].mean()
+                    
+                    # Fill missing cols with default
+                    if 'n_ppm' not in df_geo.columns: df_geo['n_ppm'] = 50
+                    if 'k_ppm' not in df_geo.columns: df_geo['k_ppm'] = 50
+                    if 'moisture' not in df_geo.columns: df_geo['moisture'] = 50
+                    
+            except Exception as e:
+                st.error(f"Error reading CSV: {e}")
+                
+    if df_geo is None:
+        # Fallback to simulation
+        if data_source == "Upload CSV (Data Asli)":
+            st.warning("Menggunakan data simulasi sementara menunggu upload.")
+        df_geo = generate_geo_data(CENTER_LAT, CENTER_LON)
+
 
 # ===== TAB 1: SATELLITE & ZONING (FOLIUM) =====
 with tab_map:
