@@ -15,25 +15,25 @@ st.markdown('<div class="hero"><h1>📈 AgriSensa Biz</h1><p>Keuangan, Rantai Pa
 st.markdown("### 💰 Analisis Keuangan")
 c1, c2, c3 = st.columns(3)
 with c1:
-    if st.button("💰 Analisis Usaha Tani"): st.switch_page("pages/28_💰_Analisis_Usaha_Tani.py")
+    st.page_link("pages/28_Analisis_Usaha_Tani.py", label="Analisis Usaha Tani", icon="💰", use_container_width=True)
 with c2:
-    if st.button("📈 Analisis Tren Harga"): st.switch_page("pages/6_📈_Analisis_Tren_Harga.py")
+    st.page_link("pages/6_📈_Analisis_Tren_Harga.py", label="Analisis Tren Harga", icon="📈", use_container_width=True)
 with c3:
-    if st.button("📊 Dasbor Terpadu"): st.switch_page("pages/8_📊_Dasbor_Terpadu.py")
+    st.page_link("pages/8_📊_Dasbor_Terpadu.py", label="Dasbor Terpadu", icon="📊", use_container_width=True)
 
 st.markdown("### 🚚 Rantai Pasok & Produk")
 c4, c5 = st.columns(2)
 with c4:
-    if st.button("🚚 Rantai Pasok Live"): st.switch_page("pages/48_🚚_Rantai_Pasok_Live.py")
-    if st.button("🏷️ Traceability Produk"): st.switch_page("pages/49_🏷️_Traceability_Produk.py")
+    st.page_link("pages/48_🚚_Rantai_Pasok_Live.py", label="Rantai Pasok Live", icon="🚚", use_container_width=True)
+    st.page_link("pages/49_🏷️_Traceability_Produk.py", label="Traceability Produk", icon="🏷️", use_container_width=True)
 with c5:
-    if st.button("🌾 Database Panen (Lengkap)"): st.switch_page("pages/1_🌾_Database_Panen.py")
-    if st.button("🎯 Prediksi Hasil Panen"): st.switch_page("pages/7_🎯_Prediksi_Hasil_Panen.py")
+    st.page_link("pages/1_🌾_Database_Panen.py", label="Database Panen (Lengkap)", icon="🌾", use_container_width=True)
+    st.page_link("pages/7_🎯_Prediksi_Hasil_Panen.py", label="Prediksi Hasil Panen", icon="🎯", use_container_width=True)
 
 st.markdown("### 👥 Manajemen & SDM")
 c6, c7 = st.columns(2)
 with c6:
-    if st.button("📢 Ruang Kerja PPL"): st.switch_page("pages/45_📢_Ruang_Kerja_PPL_Final.py")
-    if st.button("📋 Manajemen Proyek (Baru)"): st.switch_page("pages/50_📋_Manajemen_Proyek_Pertanian.py")
+    st.page_link("pages/45_📢_Ruang_Kerja_PPL_Final.py", label="Ruang Kerja PPL", icon="📢", use_container_width=True)
+    st.page_link("pages/50_📋_Manajemen_Proyek_Pertanian.py", label="Manajemen Proyek (Baru)", icon="📋", use_container_width=True)
 with c7:
-    if st.button("🎓 Kurikulum Pelatihan"): st.switch_page("pages/53_🎓_Kurikulum_Pelatihan.py")
+    st.page_link("pages/53_🎓_Kurikulum_Pelatihan.py", label="Kurikulum Pelatihan", icon="🎓", use_container_width=True)
