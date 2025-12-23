@@ -274,6 +274,10 @@ def show_user_info_sidebar():
         role_icon = '👑' if user['role'] == 'superadmin' else ('🛡️' if user['role'] == 'admin' else '👤')
         st.sidebar.success(f"{role_icon} **{user['name']}** ({user['role']})")
         
+        # LINK BUTTON BACK TO MAIN HUB
+        st.sidebar.markdown("---")
+        st.sidebar.link_button("🏠 Kembali ke Menu Utama", "https://mirai39.streamlit.app/", use_container_width=True)
+        
         if st.sidebar.button("🚪 Logout", use_container_width=True):
             logout()
             st.rerun()
