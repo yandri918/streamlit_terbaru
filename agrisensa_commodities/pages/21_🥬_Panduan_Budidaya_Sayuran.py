@@ -19,7 +19,13 @@ show_user_info_sidebar()
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Add parent directory to path for imports (required for Streamlit Cloud)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
 from services.crop_service import CropService
 
 # ========== DATABASE BUDIDAYA SAYURAN ==========

@@ -32,7 +32,7 @@ from services.ai_farm_service import get_ai_model, optimize_solution
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from services.crop_service import CropService
 from services.project_service import ProjectManager
 
