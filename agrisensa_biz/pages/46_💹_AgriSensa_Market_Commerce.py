@@ -61,11 +61,63 @@ with tab_orders:
     st.header("📦 Centralized Order Management")
     st.caption("Satu dashboard untuk mengelola pesanan dari WhatsApp, Marketplace, dan Kontrak B2B.")
 
-    # Load Data (Simulation)
+    # --- ACTION BAR (INPUT & UPLOAD) ---
+    st.sidebar.markdown("### 📥 Input Data Penjualan")
+    
+    # 1. CSV Upload
+    uploaded_sales = st.sidebar.file_uploader("Upload Laporan (CSV)", type="csv")
+    if uploaded_sales:
+        try:
+            df_new = pd.read_csv(uploaded_sales)
+            # Basic validation/mapping could go here
+            if "Order ID" in df_new.columns:
+                st.session_state.order_db = df_new
+                st.sidebar.success(f"Loaded {len(df_new)} orders!")
+        except Exception as e:
+            st.sidebar.error(f"Error: {e}")
+
+    # 2. Manual Input Form
+    with st.expander("➕ Input Pesanan Baru (Manual)", expanded=False):
+        with st.form("add_order_form"):
+            c_in1, c_in2, c_in3 = st.columns(3)
+            with c_in1:
+                new_date = st.date_input("Tanggal", datetime.date.today())
+                new_channel = st.selectbox("Channel", ["WhatsApp (Manual)", "Tokopedia", "Shopee", "TikTok Shop", "Contract B2B", "Offline Store"])
+            with c_in2:
+                new_cust = st.text_input("Nama Customer", "Walking Customer")
+                new_item = st.text_input("Komoditas", "Cabai Merah")
+            with c_in3:
+                new_qty = st.number_input("Qty (kg)", 1, 1000, 10)
+                new_price = st.number_input("Harga/kg (Rp)", 0, 100000, 15000)
+            
+            if st.form_submit_button("Simpan Pesanan"):
+                new_entry = {
+                    "Order ID": f"MAN-{datetime.datetime.now().strftime('%m%d%H%M')}",
+                    "Date": new_date, # Keep as object for internal match
+                    "Customer": new_cust,
+                    "Channel": new_channel,
+                    "Commodity": new_item,
+                    "Qty (kg)": new_qty,
+                    "Price/kg": new_price,
+                    "Total Value": new_qty * new_price,
+                    "Status": "New",
+                    "Payment": "Unpaid"
+                }
+                # Check formatting consistency
+                # Convert date strictly for display if needed but generated data uses datetime.date
+                st.session_state.order_db = pd.concat([pd.DataFrame([new_entry]), st.session_state.order_db], ignore_index=True)
+                st.success("✅ Pesanan berhasil dicatat!")
+                st.rerun()
+
+    # Load Data (Simulation OR Session)
     if 'order_db' not in st.session_state:
         st.session_state.order_db = generate_orders()
     
     df_orders = st.session_state.order_db
+    # Ensure Date format consistency
+    if not pd.api.types.is_datetime64_any_dtype(df_orders['Date']):
+         df_orders['Date'] = pd.to_datetime(df_orders['Date']).dt.date
+
 
     # METRICS
     m1, m2, m3, m4 = st.columns(4)
