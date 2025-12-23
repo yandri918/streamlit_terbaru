@@ -63,6 +63,7 @@ animal_type = st.sidebar.selectbox(
 formulation_method = st.sidebar.selectbox(
     "Formulation Method",
     [
+        "🤖 AI Auto-Formulation (Recommended)",
         "📐 Pearson Square (2 ingredients)",
         "🎯 Linear Programming (Least-Cost)",
         "🧮 Trial & Error (Manual)",
@@ -76,8 +77,317 @@ st.sidebar.divider()
 # MAIN CONTENT AREA
 # ==========================================
 
+# ========== AI AUTO-FORMULATION (NEW - RECOMMENDED) ==========
+if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
+    st.header("🤖 AI-Powered Automatic Feed Formulation")
+    st.markdown("**Formulasi otomatis berdasarkan kebutuhan ternak Anda**")
+    st.success("💡 Cukup masukkan data ternak, AI akan menghitung formulasi optimal secara otomatis!")
+    
+    # Get animal parameters from sidebar
+    st.sidebar.markdown("### 📋 Data Ternak")
+    
+    # Determine animal type and get parameters
+    if "Beef Cattle" in animal_type:
+        body_weight = st.sidebar.number_input("Bobot Badan (kg)", 200, 800, 400, 10)
+        adg = st.sidebar.number_input("Target Pertambahan BB (kg/hari)", 0.3, 2.0, 0.8, 0.1)
+        sex = st.sidebar.selectbox("Jenis Kelamin", ["steer", "heifer", "bull"])
+        
+        nrc_req = get_beef_cattle_requirements(body_weight, adg, sex)
+        animal_category = "ruminant"
+        
+    elif "Dairy Cattle" in animal_type:
+        body_weight = st.sidebar.number_input("Bobot Badan (kg)", 400, 800, 600, 10)
+        milk_prod = st.sidebar.number_input("Produksi Susu (kg/hari)", 5, 50, 20, 1)
+        milk_fat = st.sidebar.number_input("Kadar Lemak Susu (%)", 2.5, 5.0, 3.5, 0.1)
+        
+        nrc_req = get_dairy_cattle_requirements(body_weight, milk_prod, milk_fat)
+        animal_category = "ruminant"
+        
+    elif "Broiler" in animal_type:
+        age_days = st.sidebar.number_input("Umur (hari)", 1, 45, 21, 1)
+        
+        nrc_req = get_broiler_requirements(age_days)
+        animal_category = "poultry"
+        
+    elif "Layer" in animal_type:
+        age_weeks = st.sidebar.number_input("Umur (minggu)", 1, 100, 30, 1)
+        prod_rate = st.sidebar.number_input("Produksi Telur (%)", 50, 95, 85, 1)
+        
+        nrc_req = get_layer_requirements(age_weeks, prod_rate)
+        animal_category = "poultry"
+        
+    elif "Goat" in animal_type:
+        body_weight = st.sidebar.number_input("Bobot Badan (kg)", 10, 100, 30, 5)
+        adg = st.sidebar.number_input("Target Pertambahan BB (kg/hari)", 0.05, 0.3, 0.15, 0.01)
+        prod_type = st.sidebar.selectbox("Tipe Produksi", ["meat", "dairy", "maintenance"])
+        
+        nrc_req = get_goat_requirements(body_weight, adg, prod_type)
+        animal_category = "ruminant"
+        
+    else:  # Sheep
+        body_weight = st.sidebar.number_input("Bobot Badan (kg)", 10, 100, 40, 5)
+        adg = st.sidebar.number_input("Target Pertambahan BB (kg/hari)", 0.05, 0.4, 0.20, 0.01)
+        prod_type = st.sidebar.selectbox("Tipe Produksi", ["meat", "wool", "maintenance"])
+        
+        nrc_req = get_sheep_requirements(body_weight, adg, prod_type)
+        animal_category = "ruminant"
+    
+    # Display NRC requirements
+    st.subheader("📋 Kebutuhan Nutrisi (Standar NRC)")
+    
+    col_req1, col_req2, col_req3, col_req4 = st.columns(4)
+    
+    with col_req1:
+        st.metric("Konsumsi Pakan", f"{nrc_req.get('dmi_kg_day', nrc_req.get('me_kcal_kg', 0)/1000):.1f} kg/hari" if 'dmi_kg_day' in nrc_req else "N/A")
+    
+    with col_req2:
+        cp_key = 'crude_protein_percent'
+        st.metric("Protein Kasar", f"{nrc_req.get(cp_key, 0):.1f}%")
+    
+    with col_req3:
+        if 'total_ne_mcal' in nrc_req:
+            st.metric("Total Energi", f"{nrc_req['total_ne_mcal']:.1f} Mcal NE")
+        elif 'total_me_mcal' in nrc_req:
+            st.metric("Total Energi", f"{nrc_req['total_me_mcal']:.1f} Mcal ME")
+        else:
+            st.metric("Energi", f"{nrc_req.get('me_kcal_kg', 0)} kcal/kg")
+    
+    with col_req4:
+        st.metric("Kalsium", f"{nrc_req.get('calcium_percent', 0):.2f}%")
+    
+    st.divider()
+    
+    # Auto-select appropriate ingredients based on animal type
+    st.subheader("🎯 Formulasi Otomatis")
+    
+    if animal_category == "ruminant":
+        # Ruminant default ingredients
+        default_ingredients = [
+            "Jagung Kuning", "Bungkil Kedelai", "Dedak Padi", 
+            "Rumput Gajah", "Hay Alfalfa",
+            "Kapur (CaCO3)", "DCP (Dicalcium Phosphate)", "Garam (NaCl)"
+        ]
+        st.info("🐄 Bahan pakan untuk ruminansia: Jagung, Bungkil Kedelai, Dedak, Hijauan, Mineral")
+    else:
+        # Poultry default ingredients
+        default_ingredients = [
+            "Jagung Kuning", "Bungkil Kedelai", "Tepung Ikan",
+            "Dedak Padi", "Minyak Kelapa Sawit",
+            "Kapur (CaCO3)", "DCP (Dicalcium Phosphate)", "Garam (NaCl)",
+            "DL-Methionine", "L-Lysine HCl"
+        ]
+        st.info("🐓 Bahan pakan untuk unggas: Jagung, Bungkil Kedelai, Tepung Ikan, Minyak, Mineral, Asam Amino")
+    
+    # Option to customize ingredients
+    with st.expander("🔧 Sesuaikan Bahan Pakan (Opsional)"):
+        selected_ingredients = st.multiselect(
+            "Pilih bahan pakan yang tersedia",
+            list(FEED_DATABASE.keys()),
+            default=default_ingredients
+        )
+    
+    if 'selected_ingredients' not in locals() or not selected_ingredients:
+        selected_ingredients = default_ingredients
+    
+    # Formulation weight
+    total_weight = st.number_input(
+        "Total Pakan yang Diinginkan (kg)",
+        min_value=10,
+        max_value=10000,
+        value=100,
+        step=10,
+        help="Jumlah total pakan yang akan diformulasikan"
+    )
+    
+    # Auto-formulate button
+    if st.button("🚀 Buat Formulasi Otomatis", type="primary", use_container_width=True, key="auto_formulate"):
+        with st.spinner("🤖 AI sedang menghitung formulasi optimal..."):
+            # Prepare ingredients
+            ingredients_for_lp = {name: FEED_DATABASE[name] for name in selected_ingredients if name in FEED_DATABASE}
+            
+            # Define constraints based on NRC
+            requirements = {
+                'crude_protein': (
+                    nrc_req.get('crude_protein_percent', 10) * 0.95,
+                    nrc_req.get('crude_protein_percent', 10) * 1.05
+                ),
+                'calcium': (
+                    nrc_req.get('calcium_percent', 0.5) * 0.9,
+                    nrc_req.get('calcium_percent', 0.5) * 1.1
+                )
+            }
+            
+            # Add phosphorus if available
+            if 'phosphorus_percent' in nrc_req:
+                requirements['phosphorus'] = (
+                    nrc_req['phosphorus_percent'] * 0.9,
+                    nrc_req['phosphorus_percent'] * 1.1
+                )
+            elif 'phosphorus_available_percent' in nrc_req:
+                requirements['phosphorus'] = (
+                    nrc_req['phosphorus_available_percent'] * 0.9,
+                    nrc_req['phosphorus_available_percent'] * 1.1
+                )
+            
+            # Add fiber constraints for ruminants
+            if animal_category == "ruminant":
+                requirements['crude_fiber'] = (
+                    nrc_req.get('crude_fiber_min_percent', 15),
+                    nrc_req.get('crude_fiber_max_percent', 30)
+                )
+            
+            # Run optimization
+            result = least_cost_formulation(
+                ingredients_for_lp,
+                requirements,
+                total_weight,
+                animal_category
+            )
+            
+            st.session_state['auto_result'] = result
+    
+    # Display results
+    if 'auto_result' in st.session_state:
+        result = st.session_state['auto_result']
+        
+        if 'error' in result:
+            st.error(f"❌ {result['error']}")
+            st.warning("💡 **Saran:**")
+            st.markdown("""
+            - Coba tambah lebih banyak bahan pakan
+            - Periksa apakah bahan pakan yang dipilih bisa memenuhi kebutuhan
+            - Untuk ruminansia, pastikan ada hijauan (rumput/hay)
+            - Untuk unggas, pastikan ada sumber protein tinggi (tepung ikan/bungkil kedelai)
+            """)
+        else:
+            st.success("✅ **Formulasi Optimal Berhasil Dibuat!**")
+            
+            # Cost summary
+            col_cost1, col_cost2, col_cost3 = st.columns(3)
+            
+            with col_cost1:
+                st.metric("💰 Total Biaya", f"Rp {result['total_cost']:,.0f}")
+            
+            with col_cost2:
+                st.metric("📊 Biaya per kg", f"Rp {result['cost_per_kg']:,.0f}")
+            
+            with col_cost3:
+                # Calculate daily cost
+                daily_cost = result['cost_per_kg'] * nrc_req.get('dmi_kg_day', 1)
+                st.metric("💵 Biaya Harian", f"Rp {daily_cost:,.0f}")
+            
+            st.divider()
+            
+            # Formulation table
+            st.subheader("📋 Komposisi Ransum")
+            
+            form_data = []
+            for ing_name, data in result['formulation'].items():
+                form_data.append({
+                    "Bahan Pakan": ing_name,
+                    "Berat (kg)": f"{data['weight_kg']:.2f}",
+                    "Persentase": f"{data['percentage']:.1f}%",
+                    "Biaya (Rp)": f"{data['cost_idr']:,.0f}"
+                })
+            
+            df_form = pd.DataFrame(form_data)
+            st.dataframe(df_form, use_container_width=True, hide_index=True)
+            
+            # Pie chart
+            fig_pie = px.pie(
+                df_form,
+                names='Bahan Pakan',
+                values=[float(x.replace('%', '')) for x in df_form['Persentase']],
+                title="Komposisi Ransum (%)"
+            )
+            st.plotly_chart(fig_pie, use_container_width=True)
+            
+            # Nutritional analysis
+            st.divider()
+            st.subheader("🔬 Analisis Nutrisi")
+            
+            nutr = result['nutritional_analysis']
+            
+            col_n1, col_n2, col_n3, col_n4, col_n5 = st.columns(5)
+            
+            with col_n1:
+                st.metric("Protein Kasar", f"{nutr['crude_protein']:.2f}%")
+            
+            with col_n2:
+                st.metric("Serat Kasar", f"{nutr['crude_fiber']:.2f}%")
+            
+            with col_n3:
+                st.metric("TDN", f"{nutr['tdn']:.1f}%")
+            
+            with col_n4:
+                st.metric("Kalsium", f"{nutr['calcium']:.2f}%")
+            
+            with col_n5:
+                st.metric("Fosfor", f"{nutr['phosphorus']:.2f}%")
+            
+            # Energy analysis
+            if animal_category == "ruminant":
+                col_e1, col_e2, col_e3 = st.columns(3)
+                
+                with col_e1:
+                    st.metric("DE", f"{nutr['de_ruminant']:.2f} Mcal/kg")
+                
+                with col_e2:
+                    st.metric("ME", f"{nutr['me_ruminant']:.2f} Mcal/kg")
+                
+                with col_e3:
+                    # Calculate if meets requirement
+                    if 'total_me_mcal' in nrc_req:
+                        daily_me = nutr['me_ruminant'] * nrc_req.get('dmi_kg_day', 1)
+                        st.metric("ME Harian", f"{daily_me:.1f} Mcal")
+            
+            # Constraint check
+            st.divider()
+            st.subheader("✅ Pemenuhan Standar NRC")
+            
+            constraints = result['constraints_met']
+            
+            check_data = []
+            for nutrient, data in constraints.items():
+                nutrient_name = nutrient.replace('_', ' ').title()
+                check_data.append({
+                    "Nutrisi": nutrient_name,
+                    "Aktual": f"{data['actual']:.2f}",
+                    "Target": data['required'],
+                    "Status": data['status']
+                })
+            
+            df_check = pd.DataFrame(check_data)
+            st.dataframe(df_check, use_container_width=True, hide_index=True)
+            
+            # Download button
+            st.divider()
+            
+            # Prepare download data
+            download_data = {
+                "Animal Type": [animal_type],
+                "Total Weight (kg)": [total_weight],
+                "Total Cost (Rp)": [result['total_cost']],
+                "Cost per kg (Rp)": [result['cost_per_kg']]
+            }
+            
+            # Add formulation
+            for ing_name, data in result['formulation'].items():
+                download_data[f"{ing_name} (kg)"] = [data['weight_kg']]
+            
+            df_download = pd.DataFrame(download_data)
+            csv = df_download.to_csv(index=False).encode('utf-8')
+            
+            st.download_button(
+                "📥 Download Formulasi (CSV)",
+                csv,
+                f"formulasi_{animal_type.replace(' ', '_')}.csv",
+                "text/csv",
+                key='download-formulation'
+            )
+
 # ========== FEED DATABASE BROWSER ==========
-if formulation_method == "📊 Feed Database Browser":
+elif formulation_method == "📊 Feed Database Browser":
     st.header("📊 Feed Database Browser")
     st.markdown(f"**Total Ingredients:** {len(FEED_DATABASE)} bahan pakan")
     
