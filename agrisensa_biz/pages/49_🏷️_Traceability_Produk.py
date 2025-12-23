@@ -698,34 +698,32 @@ with tab2:
         import json
         
         base_url = "https://vercel-scan2.vercel.app/product"
-        params = {
+        # payload construction for Base64 (Cleaner URL & No Text-Scan Issues)
+        payload = {
+            'batch_id': data['id'],
             'name': data['produk'],
             'variety': data['varietas'],
             'farmer': data['petani'],
             'location': data['lokasi'],
             'harvest_date': str(data['tgl']),
             'weight': f"{data.get('berat', 1)} kg",
-            'emoji': '🌾'
+            'emoji': '🌾',
+            'price': str(data['harga']) if data.get('harga') else None,
+            # Advanced Data
+            'avg_temp': str(data.get('climate', {}).get('avg_temp', '')),
+            'avg_hum': str(data.get('climate', {}).get('avg_hum', '')),
+            'sun_hours': str(data.get('climate', {}).get('sun_hours', '')),
+            'milestones': data.get('milestones', []),
+            'certifications': ['Organik', 'Premium', 'Lokal']
         }
         
-        # Add Price
-        if data.get('harga'):
-            params['price'] = str(data['harga'])
-            
-        # Add Advanced Traceability Data (Serialized)
-        if data.get('climate'):
-            params['avg_temp'] = str(data['climate']['avg_temp'])
-            params['avg_hum'] = str(data['climate']['avg_hum'])
-            params['sun_hours'] = str(data['climate']['sun_hours'])
-            
-        if data.get('milestones'):
-            # Simple serialization for URL
-            params['milestones'] = json.dumps(data['milestones'])
+        # Encode to URL-Safe Base64
+        import base64
+        json_str = json.dumps(payload, separators=(',', ':'))
+        b64_str = base64.urlsafe_b64encode(json_str.encode()).decode()
         
-        # Encode Batch ID to handle spaces
-        safe_id = urllib.parse.quote(data['id'])
-        query_string = urllib.parse.urlencode(params)
-        qr_url = f"{base_url}/{safe_id}?{query_string}"
+        # Final Robust URL
+        qr_url = f"{base_url}/{b64_str}"
         
         qr.add_data(qr_url)
         qr.make(fit=True)
