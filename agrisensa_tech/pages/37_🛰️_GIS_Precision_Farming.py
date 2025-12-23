@@ -118,6 +118,24 @@ with st.sidebar:
             st.warning("Menggunakan data simulasi sementara menunggu upload.")
         df_geo = generate_geo_data(CENTER_LAT, CENTER_LON)
 
+    # MERGE USER ADDED POINTS (Session State)
+    if 'user_added_points' in st.session_state and st.session_state.user_added_points:
+        try:
+            df_user = pd.DataFrame(st.session_state.user_added_points)
+            # Ensure columns match foundation
+            for col in df_geo.columns:
+                if col not in df_user.columns:
+                    df_user[col] = 0 # Default fill
+            
+            # Align columns of user data to df_geo
+            df_user = df_user[df_geo.columns.intersection(df_user.columns)]
+            
+            df_geo = pd.concat([df_geo, df_user], ignore_index=True)
+            st.success(f"➕ {len(df_user)} titik manual ditambahkan ke peta.")
+        except Exception as e:
+            st.error(f"Error merging user data: {e}")
+
+
 
 # ===== TAB 1: SATELLITE & ZONING (FOLIUM) =====
 with tab_map:
@@ -218,15 +236,7 @@ with tab_map:
                 st.success("Titik berhasil ditambahkan! Refresh peta untuk melihat update.")
                 st.rerun()
 
-    # Merge User Points with Main DataFrame (Logic Injection)
-    if 'user_added_points' in st.session_state and st.session_state.user_added_points:
-        df_user = pd.DataFrame(st.session_state.user_added_points)
-        # Ensure columns match
-        for col in df_geo.columns:
-            if col not in df_user.columns:
-                df_user[col] = 0 # Default fill
-        
-        df_geo = pd.concat([df_geo, df_user], ignore_index=True)
+
 
 
 
