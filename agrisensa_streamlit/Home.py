@@ -755,8 +755,10 @@ def main():
             <div class="card-desc">{T['cards']['planner']['desc']}</div>
         </div>
         """, unsafe_allow_html=True)
+        # Fix: Module is in AgriSensa Tech, redirect to URL
         if st.button(T['cards']['planner']['btn'], key="btn_planner", use_container_width=True):
-            st.switch_page("pages/16_🎯_Perencana_Panen_AI.py")
+            # Use javascript to open new tab because it's external app
+             st.markdown(f'<meta http-equiv="refresh" content="0;url={url_tech}/Perencana_Panen_AI">', unsafe_allow_html=True)
 
     with col2:
         st.markdown(f"""
