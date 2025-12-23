@@ -724,6 +724,21 @@ def main():
             </a>
         </div>
         """, unsafe_allow_html=True)
+        
+    with sat6:
+        url_krisan = "https://budidayakrisan.streamlit.app/"
+        st.markdown(f"""
+        <div class="glass-card">
+            <div class="card-icon">🌸</div>
+            <div class="card-title">AgriSensa Chrysanthemum</div>
+            <div class="card-desc">Panduan Spesifik Budidaya Krisan & Tanaman Hias.</div>
+            <a href="{url_krisan}" target="_blank" style="text-decoration: none;">
+                <div style="background: #db2777; color: white; text-align: center; padding: 10px; border-radius: 8px; margin-top: 10px; font-weight: 600;">
+                    Buka Aplikasi ↗
+                </div>
+            </a>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("---")
 
