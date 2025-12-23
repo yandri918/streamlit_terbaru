@@ -30,11 +30,12 @@ st.markdown("""
 """)
 
 # Main tabs
-tab_map, tab_3d, tab_analysis, tab_assets = st.tabs([
+tab_map, tab_3d, tab_analysis, tab_assets, tab_data = st.tabs([
     "🗺️ Satellite & Zoning",
     "🧊 3D Soil Chemistry",
     "📈 Interpolation Heatmap",
-    "🚜 Digital Twin (IoT & Assets)"
+    "🚜 Digital Twin (IoT & Assets)",
+    "📊 Database & Export"
 ])
 
 # UTILS: Generate Geo-Referenced Data
@@ -436,5 +437,36 @@ with tab_assets:
     view_state_drone = pdk.ViewState(latitude=CENTER_LAT, longitude=CENTER_LON, zoom=16, pitch=45)
     
     st.pydeck_chart(pdk.Deck(layers=[layer_path], initial_view_state=view_state_drone))
+
+# ===== TAB 5: DATABASE & EXPORT =====
+with tab_data:
+    st.header("📊 Database Lahan & Export")
+    st.markdown("Berikut adalah **database lengkap** yang menggabungkan data awal (simulasi/upload) dengan data yang Anda tambahkan secara manual di peta.")
+    
+    # 1. Show Summary Metrics
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Total Data Points", len(df_geo))
+    c2.metric("Min pH", f"{df_geo['ph'].min():.2f}")
+    c3.metric("Max pH", f"{df_geo['ph'].max():.2f}")
+    c4.metric("Avg Nitrogen", f"{df_geo['n_ppm'].mean():.0f} ppm")
+    
+    st.divider()
+    
+    # 2. Show Dataframe
+    st.dataframe(df_geo, use_container_width=True, height=400)
+    
+    # 3. Download Button
+    st.subheader("💾 Simpan Database Terbaru")
+    st.caption("Unduh file CSV ini untuk menyimpan pekerjaan Anda (termasuk titik baru). File ini bisa di-upload kembali nanti.")
+    
+    csv_data = df_geo.to_csv(index=False).encode('utf-8')
+    
+    st.download_button(
+        label="⬇️ Download Full Database (CSV)",
+        data=csv_data,
+        file_name="agrisensa_soil_data_updated.csv",
+        mime="text/csv",
+        type="primary"
+    )
 
 st.sidebar.info("AgriSensa GIS v2.0 - Powered by PyDeck & Folium")
