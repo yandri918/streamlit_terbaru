@@ -206,34 +206,37 @@ if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
             ingredients_for_lp = {name: FEED_DATABASE[name] for name in selected_ingredients if name in FEED_DATABASE}
             
             # Define constraints based on NRC
+            # Relax constraints to ±10% for better feasibility
             requirements = {
                 'crude_protein': (
-                    nrc_req.get('crude_protein_percent', 10) * 0.95,
-                    nrc_req.get('crude_protein_percent', 10) * 1.05
+                    nrc_req.get('crude_protein_percent', 10) * 0.90,  # 90% of target
+                    nrc_req.get('crude_protein_percent', 10) * 1.10   # 110% of target
                 ),
                 'calcium': (
-                    nrc_req.get('calcium_percent', 0.5) * 0.9,
-                    nrc_req.get('calcium_percent', 0.5) * 1.1
+                    nrc_req.get('calcium_percent', 0.5) * 0.85,  # More relaxed
+                    nrc_req.get('calcium_percent', 0.5) * 1.15
                 )
             }
             
             # Add phosphorus if available
             if 'phosphorus_percent' in nrc_req:
                 requirements['phosphorus'] = (
-                    nrc_req['phosphorus_percent'] * 0.9,
-                    nrc_req['phosphorus_percent'] * 1.1
+                    nrc_req['phosphorus_percent'] * 0.85,
+                    nrc_req['phosphorus_percent'] * 1.15
                 )
             elif 'phosphorus_available_percent' in nrc_req:
                 requirements['phosphorus'] = (
-                    nrc_req['phosphorus_available_percent'] * 0.9,
-                    nrc_req['phosphorus_available_percent'] * 1.1
+                    nrc_req['phosphorus_available_percent'] * 0.85,
+                    nrc_req['phosphorus_available_percent'] * 1.15
                 )
             
-            # Add fiber constraints for ruminants
+            # Add fiber constraints for ruminants (more relaxed)
             if animal_category == "ruminant":
+                cf_min = nrc_req.get('crude_fiber_min_percent', 15)
+                cf_max = nrc_req.get('crude_fiber_max_percent', 30)
                 requirements['crude_fiber'] = (
-                    nrc_req.get('crude_fiber_min_percent', 15),
-                    nrc_req.get('crude_fiber_max_percent', 30)
+                    max(10, cf_min * 0.8),  # At least 10%, or 80% of target
+                    min(40, cf_max * 1.2)   # At most 40%, or 120% of target
                 )
             
             # Run optimization
@@ -252,12 +255,34 @@ if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
         
         if 'error' in result:
             st.error(f"❌ {result['error']}")
+            
+            # Show debug information
+            with st.expander("🔍 Debug Information"):
+                st.markdown("**NRC Requirements:**")
+                for key, val in nrc_req.items():
+                    if isinstance(val, (int, float)):
+                        st.write(f"- {key}: {val}")
+                
+                st.markdown("**Constraints Applied:**")
+                for nutrient, (min_val, max_val) in requirements.items():
+                    st.write(f"- {nutrient}: {min_val:.2f} - {max_val:.2f}")
+                
+                st.markdown("**Selected Ingredients:**")
+                for ing in selected_ingredients:
+                    if ing in FEED_DATABASE:
+                        data = FEED_DATABASE[ing]
+                        st.write(f"- {ing}: CP={data['crude_protein']}%, CF={data['crude_fiber']}%, Ca={data['calcium']}%, P={data['phosphorus']}%")
+                
+                if 'message' in result:
+                    st.code(result['message'])
+            
             st.warning("💡 **Saran:**")
             st.markdown("""
-            - Coba tambah lebih banyak bahan pakan
+            - Coba tambah lebih banyak bahan pakan (terutama sumber protein & mineral)
             - Periksa apakah bahan pakan yang dipilih bisa memenuhi kebutuhan
-            - Untuk ruminansia, pastikan ada hijauan (rumput/hay)
+            - Untuk ruminansia, pastikan ada hijauan (rumput/hay) untuk serat
             - Untuk unggas, pastikan ada sumber protein tinggi (tepung ikan/bungkil kedelai)
+            - Constraints sudah direlaksasi ±10-15% dari target NRC
             """)
         else:
             st.success("✅ **Formulasi Optimal Berhasil Dibuat!**")
