@@ -108,21 +108,35 @@ def least_cost_formulation(
             nutrient_values = []
             for ing in ingredient_names:
                 val = ingredients[ing].get(nutrient, 0.0)
-                # Convert percentage to absolute if needed
-                if nutrient in ['crude_protein', 'crude_fiber', 'ether_extract', 'ash', 'calcium', 'phosphorus']:
-                    val = val / 100.0  # Convert % to decimal
+                # Keep as percentage (will convert in constraint calculation)
                 nutrient_values.append(val)
             
-            # Minimum constraint: sum(nutrient_i * x_i) >= min_val
-            # Rewrite as: -sum(nutrient_i * x_i) <= -min_val
-            if min_val is not None and min_val > 0:
-                A_ub.append([-v for v in nutrient_values])
-                b_ub.append(-min_val * total_weight if nutrient in ['crude_protein', 'crude_fiber'] else -min_val)
+            # For percentage-based nutrients, we want: sum(val_i * x_i) / total_weight to be in range
+            # This means: sum(val_i * x_i) should be in range [min_val * total_weight, max_val * total_weight]
+            # But val_i is in %, so we need: sum((val_i/100) * x_i) in range [min_val/100 * total_weight, max_val/100 * total_weight]
             
-            # Maximum constraint: sum(nutrient_i * x_i) <= max_val
+            # Minimum constraint: sum((nutrient_i/100) * x_i) >= (min_val/100) * total_weight
+            # Rewrite as: -sum((nutrient_i/100) * x_i) <= -(min_val/100) * total_weight
+            if min_val is not None and min_val > 0:
+                if nutrient in ['crude_protein', 'crude_fiber', 'ether_extract', 'ash', 'calcium', 'phosphorus']:
+                    # Percentage-based: convert both sides
+                    A_ub.append([-v/100.0 for v in nutrient_values])
+                    b_ub.append(-(min_val/100.0) * total_weight)
+                else:
+                    # Absolute values (like TDN, ME)
+                    A_ub.append([-v for v in nutrient_values])
+                    b_ub.append(-min_val)
+            
+            # Maximum constraint: sum((nutrient_i/100) * x_i) <= (max_val/100) * total_weight
             if max_val is not None and max_val < float('inf'):
-                A_ub.append(nutrient_values)
-                b_ub.append(max_val * total_weight if nutrient in ['crude_protein', 'crude_fiber'] else max_val)
+                if nutrient in ['crude_protein', 'crude_fiber', 'ether_extract', 'ash', 'calcium', 'phosphorus']:
+                    # Percentage-based: convert both sides
+                    A_ub.append([v/100.0 for v in nutrient_values])
+                    b_ub.append((max_val/100.0) * total_weight)
+                else:
+                    # Absolute values
+                    A_ub.append(nutrient_values)
+                    b_ub.append(max_val)
         
         # Bounds for each ingredient (0 to total_weight)
         bounds = [(0, total_weight) for _ in range(n_ingredients)]
