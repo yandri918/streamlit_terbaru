@@ -3,12 +3,16 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import pydeck as pdk
+from streamlit_folium import st_folium
+import folium
+from scipy.interpolate import Rbf
 
 # Page config
 from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(
-    page_title="GIS & Precision Farming - AgriSensa",
+    page_title="Soil Command Center v2.0 - AgriSensa",
     page_icon="🛰️",
     layout="wide"
 )
@@ -18,293 +22,258 @@ user = require_auth()
 show_user_info_sidebar()
 # ================================
 
-
-
-
-
-
 # Header
-st.title("🛰️ AgriSensa GIS & Precision Farming")
+st.title("🛰️ Soil Command Center v2.0")
 st.markdown("""
-**Transformasi Digital Pertanian Skala Luas**
-*Hardware Integration Required | Big Data Analytics | Spatial Management*
+**Advanced Geospatial Intelligence System**
+*3D Chemical Mapping | Satellite Analysis | IoT Digital Twin*
 """)
 
 # Main tabs
-tab_intro, tab_vra, tab_ndvi, tab_iot, tab_drone = st.tabs([
-    "🗺️ Konsep GIS",
-    "🚜 VRA (Variable Rate)",
-    "📡 Remote Sensing (NDVI)",
-    "📶 IoT Sensor Dashboard",
-    "✈️ Drone Flight Plan"
+tab_map, tab_3d, tab_analysis, tab_assets = st.tabs([
+    "🗺️ Satellite & Zoning",
+    "🧊 3D Soil Chemistry",
+    "📈 Interpolation Heatmap",
+    "🚜 Digital Twin (IoT & Assets)"
 ])
 
-# ===== TAB 1: KONSEP GIS =====
-with tab_intro:
-    st.header("🗺️ Geographic Information System (GIS) dalam Pertanian")
+# UTILS: Generate Geo-Referenced Data
+@st.cache_data
+def generate_geo_data(lat, lon, points=100, radius_m=200):
+    # Generate points around a center lat/lon
+    # 1 deg lat ~ 111km
+    deg_radius = radius_m / 111000
     
-    st.markdown("""
-    ### Apa itu Precision Farming?
-    Pertanian Presisi adalah manajemen pertanian berdasarkan **informasi dan teknologi** untuk mengidentifikasi, menganalisis, dan mengelola **variabilitas spasial dan temporal** di dalam lahan untuk keuntungan optimal, keberlanjutan, dan perlindungan lingkungan.
-    
-    **Konsep "The Right 4":**
-    1.  **Right Source:** Sumber input yang tepat.
-    2.  **Right Rate:** Dosis yang tepat (sesuai kebutuhan spesifik titik tersebut).
-    3.  **Right Time:** Waktu yang tepat.
-    4.  **Right Place:** Tempat yang tepat.
-    
-    ---
-    
-    ### Komponen Utama:
-    *   **GPS/GNSS:** Sistem penentu lokasi global untuk navigasi traktor dan pemetaan.
-    *   **GIS Software:** Mengolah data spasial (peta tanah, peta hasil panen, topografi).
-    *   **Remote Sensing:** Satelit & Drone untuk pantau kesehatan tanaman (NDVI).
-    *   **Vra (Variable Rate Technology):** Mesin yang bisa mengubah dosis aplikasi secara otomatis saat berjalan.
-    *   **IoT Sensors:** Sensor tanah/cuaca real-time.
-    """)
-    
-    # Simulasi Peta (Static for now to avoid dependencies issues)
-    st.write("### 📍 Simulasi Peta Lahan (Grid Sampling)")
-    
-    # Create dummy grid data
-    cols = list("ABCDE")
-    rows = list(range(1, 6))
-    
-    data_grid = []
-    for r in rows:
-        for c in cols:
-            # Simulasi variabilitas pH tanah (4.5 - 7.5)
-            ph = np.random.uniform(4.5, 7.5)
-            # Simulasi variabilitas N (ppm)
-            n_val = np.random.uniform(10, 50)
-            data_grid.append({'Grid': f"{c}{r}", 'Row': r, 'Col': c, 'pH': ph, 'N_ppm': n_val})
-            
-    df_grid = pd.DataFrame(data_grid)
-    
-    # Pivot for heatmap
-    pivot_ph = df_grid.pivot(index='Row', columns='Col', values='pH')
-    
-    fig = px.imshow(pivot_ph, 
-                    labels=dict(x="Kolom Grid", y="Baris Grid", color="pH Tanah"),
-                    x=cols, y=rows,
-                    color_continuous_scale='RdYlGn',
-                    title="Peta Variabilitas pH Tanah (Simulasi Grid 1 Ha)")
-    
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption("Peta ini menunjukkan bahwa tanah **TIDAK SERAGAM**. Ada yang masam (merah) dan netral (hijau). Pertanian konvensional memberi kapur rata, Pertanian Presisi memberi kapur **HANYA** di zona merah.")
+    data = []
+    for i in range(points):
+        d_lat = np.random.uniform(-deg_radius, deg_radius)
+        d_lon = np.random.uniform(-deg_radius, deg_radius)
+        
+        # Simualte spatial correlation (simple logic)
+        dist = np.sqrt(d_lat**2 + d_lon**2)
+        norm_dist = dist / deg_radius
+        
+        # pH pattern (higher in center)
+        ph = 5.0 + (2.0 * (1 - norm_dist)) + np.random.normal(0, 0.2)
+        ph = np.clip(ph, 4.0, 7.5)
+        
+        # N pattern (random patches)
+        n_ppm = np.random.uniform(20, 100)
+        if d_lat > 0: n_ppm += 50 # North side richer
+        
+        data.append({
+            "lat": lat + d_lat,
+            "lon": lon + d_lon,
+            "ph": ph,
+            "n_ppm": n_ppm,
+            "k_ppm": np.random.uniform(50, 200),
+            "moisture": np.random.uniform(20, 80)
+        })
+    return pd.DataFrame(data)
 
-# ===== TAB 2: VRA (VARIABLE RATE APPLICATION) =====
-with tab_vra:
-    st.header("🚜 Variable Rate Application (VRA)")
-    st.markdown("Teknologi aplikasi input (pupuk/kapur) dengan dosis yang berbeda-beda di setiap titik lahan sesuai kebutuhan.")
+# Default Center (Kebun Percobaan IPB / or Generic Farm)
+# Lat/Lon for generic Indo farm
+CENTER_LAT = -6.5567
+CENTER_LON = 106.7303
+df_geo = generate_geo_data(CENTER_LAT, CENTER_LON)
+
+# ===== TAB 1: SATELLITE & ZONING (FOLIUM) =====
+with tab_map:
+    st.header("🗺️ Satellite Ops View")
     
-    st.subheader("Simulasi Resep Pemupukan Presisi")
+    col_ctrl, col_map = st.columns([1, 3])
     
-    col1, col2 = st.columns(2)
-    with col1:
-        target_ph = st.number_input("Target pH Tanah", 6.0, 7.5, 6.5)
-        kebutuhan_kapur_per_delta = st.number_input("Kebutuhan Kapur (ton) per kenaikan 1 pH", 1.0, 5.0, 2.0, help="Jumlah kapur (dolomit) untuk menaikkan pH sebesar 1 poin per hektar.")
-    
-    with col2:
-        luas_grid = st.number_input("Luas per Grid (m2)", 100, 10000, 400) # 20x20m default
+    with col_ctrl:
+        st.subheader("Layer Control")
+        map_style = st.selectbox("Base Map", ["Satellite (Esri)", "OpenStreetMap", "Terrain"])
+        show_points = st.checkbox("Show Sampling Points", value=True)
+        show_heatmap = st.checkbox("Show pH Heatmap Layer", value=False)
         
-    st.write("---")
-    
-    # Generate random grid data if not exists (using previous df_grid logic simulation)
-    # Re-using df_grid from Tab 1 context isn't clean in Streamlit without session state, so we regen brief logic
-    cols = list("ABCDE")
-    rows = list(range(1, 6))
-    vra_data = []
-    
-    total_area_ha = (len(cols) * len(rows) * luas_grid) / 10000
-    total_lime_needed = 0
-    total_lime_uniform = 0
-    
-    # Calculate Uniform Rate (Konvensional) - asumsikan rata-rata pH 5.5
-    avg_ph_assumed = 5.5
-    delta_uniform = max(0, target_ph - avg_ph_assumed)
-    rate_uniform = delta_uniform * kebutuhan_kapur_per_delta # ton/ha
-    total_lime_uniform = rate_uniform * total_area_ha
-    
-    st.write(f"**Analisis Grid & Resep Dosis:**")
-    
-    # Display table logic
-    for r in rows:
-        for c in cols:
-            # Random pH again for demo (consistent seed ideally)
-            np.random.seed(ord(c) + r) 
-            current_ph = np.random.uniform(4.8, 7.2)
-            
-            # Logic VRA
-            delta_ph = max(0, target_ph - current_ph)
-            dose_ton_ha = delta_ph * kebutuhan_kapur_per_delta
-            dose_kg_grid = (dose_ton_ha * 1000) * (luas_grid / 10000)
-            
-            total_lime_needed += dose_kg_grid
-            
-            vra_data.append({
-                "Grid ID": f"{c}{r}",
-                "pH Aktual": round(current_ph, 2),
-                "pH Target": target_ph,
-                "Delta": round(delta_ph, 2),
-                "Dosis (ton/ha)": round(dose_ton_ha, 2),
-                "Kebutuhan Grid (kg)": round(dose_kg_grid, 1)
-            })
-            
-    df_vra = pd.DataFrame(vra_data)
-    st.dataframe(df_vra, height=250)
-    
-    # Summary
-    st.subheader("💡 Perbandingan Ekonomi")
-    
-    col_a, col_b, col_c = st.columns(3)
-    
-    with col_a:
-        st.metric("Total Luas Lahan", f"{total_area_ha} Ha")
+        st.info("💡 **Tip:** Gunakan Polygon Tool (pojok kiri peta) untuk mengukur luas area tanam baru.")
         
-    with col_b:
-        total_ton_vra = total_lime_needed / 1000
-        st.metric("Kebutuhan Kapur (Metode VRA)", f"{total_ton_vra:.2f} Ton")
+        st.metric("Total Sampling Points", len(df_geo))
+        avg_ph = df_geo['ph'].mean()
+        st.metric("Avg Soil pH", f"{avg_ph:.1f}", delta=f"{avg_ph-6.0:.1f} vs Ideal")
+
+    with col_map:
+        # Initialize Folium Map
+        tiles = "OpenStreetMap"
+        attr = "OpenStreetMap"
         
-    with col_c:
-        st.metric("Kebutuhan Kapur (Metode Konvensional)", f"{total_lime_uniform:.2f} Ton", help="Asumsi dosis rata untuk seluruh lahan")
+        if map_style == "Satellite (Esri)":
+            tiles = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            attr = "Esri"
+        elif map_style == "Terrain":
+            tiles = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+            attr = "OpenTopoMap"
+            
+        m = folium.Map(location=[CENTER_LAT, CENTER_LON], zoom_start=17, tiles=None)
+        folium.TileLayer(tiles=tiles, attr=attr, name=map_style).add_to(m)
         
-    saving = total_lime_uniform - total_ton_vra
-    if saving > 0:
-        st.success(f"✅ **EFISIENSI:** Anda menghemat **{saving:.2f} Ton** pupuk dengan metode presisi!")
+        # Add Points
+        if show_points:
+            for idx, row in df_geo.iterrows():
+                # Color logic
+                color = "green" if row['ph'] >= 6.0 and row['ph'] <= 7.0 else "red"
+                folium.CircleMarker(
+                    location=[row['lat'], row['lon']],
+                    radius=5,
+                    color=color,
+                    fill=True,
+                    fill_opacity=0.7,
+                    popup=f"pH: {row['ph']:.1f} | N: {row['n_ppm']:.0f}"
+                ).add_to(m)
+                
+        # Heatmap Layer (Simple)
+        if show_heatmap:
+            from folium.plugins import HeatMap
+            heat_data = [[row['lat'], row['lon'], row['ph']] for index, row in df_geo.iterrows()]
+            HeatMap(heat_data, radius=15, blur=10).add_to(m)
+
+        # Draw Control
+        from folium.plugins import Draw
+        Draw(export=True).add_to(m)
+        
+        st_folium(m, height=500, use_container_width=True)
+
+
+# ===== TAB 2: 3D SOIL CHEMISTRY (PYDECK) =====
+with tab_3d:
+    st.header("🧊 3D Soil Chemical Analysis")
+    st.markdown("Visualisasi 3D untuk memetakan konsentrasi nutrisi. **Tinggi Bar = Konsentrasi Nutrisi**, **Warna = Status Kesehatan**.")
+    
+    param_view = st.selectbox("Pilih Parameter Visualisasi", ["Nitrogen (ppm)", "pH Tanah", "Kelembaban (%)"])
+    
+    # Map selection to col params
+    if param_view == "Nitrogen (ppm)":
+        target_col = "n_ppm"
+        elevation_scale = 2
+        color_exp = "n_ppm > 100 ? [0, 255, 0, 150] : [255, 0, 0, 150]"
+    elif param_view == "pH Tanah":
+        target_col = "ph"
+        elevation_scale = 50
+        color_exp = "ph >= 6.0 && ph <= 7.0 ? [0, 255, 0, 150] : [255, 0, 0, 150]"
     else:
-        st.warning("Data menunjukkan variabilitas rendah, VRA mungkin belum ekonomis.")
+        target_col = "moisture"
+        elevation_scale = 5
+        color_exp = "moisture > 40 ? [0, 0, 255, 150] : [255, 165, 0, 150]"
 
-# ===== TAB 3: REMOTE SENSING (NDVI) =====
-with tab_ndvi:
-    st.header("📡 Remote Sensing & Analisis Citra (NDVI)")
+    # PyDeck Layer
+    layer = pdk.Layer(
+        "ColumnLayer",
+        data=df_geo,
+        get_position=["lon", "lat"],
+        get_elevation=target_col,
+        elevation_scale=elevation_scale,
+        radius=10,
+        get_fill_color=color_exp,
+        pickable=True,
+        auto_highlight=True,
+    )
     
-    st.markdown("""
-    **NDVI (Normalized Difference Vegetation Index)** adalah indeks 'kehijauan' daun yang diukur dari pantulan cahaya.
-    
-    $$NDVI = \\frac{(NIR - Red)}{(NIR + Red)}$$
-    
-    *   **NIR (Near Infrared):** Dipantulkan kuat oleh sel daun sehat.
-    *   **Red:** Diserap kuat oleh klorofil untuk fotosintesis.
-    *   **Nilai:** -1 (Air) sampai +1 (Hutan Lebat). Tanaman sehat biasanya 0.3 - 0.8.
-    """)
-    
-    st.subheader("📈 Simulasi Profil Kesehatan Tanaman")
-    
-    # Time series simulation
-    weeks = list(range(1, 13)) # 12 minggu masa tanam jagung
-    
-    # Healthy curve (S-curve logic)
-    ndvi_healthy = [0.2, 0.3, 0.45, 0.6, 0.75, 0.82, 0.85, 0.83, 0.75, 0.6, 0.4, 0.3]
-    # Stressed curve (Drop in middle)
-    ndvi_stressed = [0.2, 0.28, 0.4, 0.5, 0.55, 0.5, 0.48, 0.52, 0.5, 0.4, 0.3, 0.2]
-    
-    df_ndvi = pd.DataFrame({
-        "Minggu Ke": weeks,
-        "Zona A (Sehat)": ndvi_healthy,
-        "Zona B (Stress/Hama)": ndvi_stressed
-    })
-    
-    fig_ndvi = px.line(df_ndvi, x="Minggu Ke", y=["Zona A (Sehat)", "Zona B (Stress/Hama)"],
-                       title="Monitoring Kesehatan Tanaman via Satelit",
-                       labels={"value": "Nilai NDVI", "variable": "Zona Lahan"})
-    
-    st.plotly_chart(fig_ndvi, use_container_width=True)
-    
-    st.warning("⚠️ **Deteksi Dini:** Zona B mengalami penurunan NDVI pada Minggu ke-6. Ini indikasi serangan hama atau kekurangan air sebelum terlihat mata telanjang!")
+    # Tooltip
+    tooltip = {
+        "html": "<b>Lon:</b> {lon}<br/><b>Lat:</b> {lat}<br/><b>Value:</b> {"+target_col+"}",
+        "style": {"backgroundColor": "steelblue", "color": "white"}
+    }
 
-# ===== TAB 4: IOT SENSOR DASHBOARD =====
-with tab_iot:
-    st.header("📶 Smart Farming IoT Dashboard")
-    st.caption("Simulasi Live Data dari Sensor Lapangan")
+    # Render Deck
+    view_state = pdk.ViewState(
+        latitude=CENTER_LAT,
+        longitude=CENTER_LON,
+        zoom=17,
+        pitch=60,
+    )
     
-    if st.button("🔄 Refresh Data Sensor"):
-        st.toast("Connecting to IoT Gateway...")
-        st.toast("Data updated!")
-        
-    # Generate dummy live data
-    temp = np.random.uniform(28, 34)
-    humidity = np.random.uniform(60, 90)
-    soil_moist_1 = np.random.uniform(20, 80)
-    soil_moist_2 = np.random.uniform(20, 80)
-    npk_n = np.random.randint(100, 300)
+    r = pdk.Deck(
+        layers=[layer],
+        initial_view_state=view_state,
+        tooltip=tooltip,
+        map_style="mapbox://styles/mapbox/satellite-v9"
+    )
     
-    # Dashboard Layout
-    col1, col2, col3, col4 = st.columns(4)
+    st.pydeck_chart(r)
     
-    with col1:
-        st.metric("🌡️ Suhu Udara", f"{temp:.1f} °C", f"{temp-30:.1f} °C")
-    with col2:
-        st.metric("💧 Kelembaban", f"{humidity:.1f} %", f"{humidity-75:.1f} %")
-    with col3:
-        st.metric("🌱 Soil Moisture A", f"{soil_moist_1:.1f} %", help="Sensor Kedalaman 20cm")
-    with col4:
-        st.metric("🌱 Soil Moisture B", f"{soil_moist_2:.1f} %", help="Sensor Kedalaman 40cm")
-        
-    st.write("---")
-    
-    # Gauge Charts (Visual indicators)
-    col_chart1, col_chart2 = st.columns(2)
-    
-    with col_chart1:
-        fig_soil = go.Figure(go.Indicator(
-            mode = "gauge+number",
-            value = soil_moist_1,
-            domain = {'x': [0, 1], 'y': [0, 1]},
-            title = {'text': "Kelembaban Tanah (Blok Utama)"},
-            gauge = {
-                'axis': {'range': [None, 100]},
-                'bar': {'color': "darkblue"},
-                'steps': [
-                    {'range': [0, 40], 'color': "red"},
-                    {'range': [40, 70], 'color': "lightgreen"},
-                    {'range': [70, 100], 'color': "blue"}],
-                'threshold': {
-                    'line': {'color': "red", 'width': 4},
-                    'thickness': 0.75,
-                    'value': 40}}))
-        st.plotly_chart(fig_soil, use_container_width=True)
-        
-        if soil_moist_1 < 40:
-            st.error("🚨 **ALERT:** Tanah KERING! Sistem irigasi otomatis akan aktif dalam 5 menit.")
-        else:
-            st.success("✅ Kondisi Tanah Optimal.")
+    st.caption("ℹ️ Gunakan **Shift + Drag** untuk memutar sudut pandang peta 3D.")
 
-    with col_chart2:
-        st.markdown("### 📝 Log Aktivitas Otomatis")
-        st.code("""
-        [08:00] Sensor Read: Stabil
-        [09:00] Sensor Read: Suhu naik > 32°C
-        [09:15] Action: Mist Sprayer ON (Cooling)
-        [09:30] Sensor Read: Suhu turun 30°C
-        [09:30] Action: Mist Sprayer OFF
-        """, language="bash")
 
-# ===== TAB 5: DRONE FLIGHT PLAN =====
-with tab_drone:
-    st.header("✈️ Kalkulator Misi Terbang Drone (Mapping)")
+# ===== TAB 3: INTERPOLATION HEATMAP =====
+with tab_analysis:
+    st.header("📈 Interpolated Nutrient Map")
+    st.markdown("Mengubah data titik sampling diskrit menjadi peta kontur kontinu untuk analisis zona pemupukan (VRA).")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Parameter Kamera & Misi")
-        sensor_width = st.number_input("Sensor Width (mm)", value=13.2) # DJI Phantom 4 Pro default
-        focal_length = st.number_input("Focal Length (mm)", value=8.8)
-        image_width_px = st.number_input("Image Width (pixel)", value=5472)
+    try:
+        # RBF Interpolation
+        x = df_geo['lon']
+        y = df_geo['lat']
+        z = df_geo['ph']
         
-        altitude = st.slider("Ketinggian Terbang (m)", 30, 120, 100)
-        overlap = st.slider("Front Overlap (%)", 60, 90, 75)
+        # Create grid
+        xi = np.linspace(min(x), max(x), 100)
+        yi = np.linspace(min(y), max(y), 100)
+        xi, yi = np.meshgrid(xi, yi)
         
-    with col2:
-        st.subheader("Hasil Perhitungan GSD")
-        # GSD Formula: (Sensor Width * Altitude * 100) / (Focal Length * Image Width)
-        gsd = (sensor_width * altitude * 100) / (focal_length * image_width_px)
+        # Interpolate
+        rbf = Rbf(x, y, z, function='linear')
+        zi = rbf(xi, yi)
         
-        st.metric("GSD (Ground Sampling Distance)", f"{gsd:.2f} cm/pixel")
-        st.caption("*GSD semakin kecil = Peta semakin tajam/detail.*")
+        fig_interp = go.Figure(data=[go.Surface(z=zi, x=xi, y=yi, colorscale='Viridis')])
+        fig_interp.update_layout(title='Model Elevasi Nutrisi (Interpolated)', autosize=False,
+                          width=800, height=600,
+                          scene = dict(aspectratio=dict(x=1, y=1, z=0.5)))
         
-        if gsd > 5:
-            st.warning("GSD > 5 cm. Kurang detail untuk hitung jumlah tanaman, tapi cukup untuk kontur.")
-        else:
-            st.success("GSD sangat detail! Bisa untuk survei tanaman individual.")
+        st.plotly_chart(fig_interp, use_container_width=True)
         
-        st.info(f"Pada ketinggian {altitude}m, estimasi waktu terbang untuk 10 Ha: ~15-20 menit.")
+        st.success("✅ Model interpolasi berhasil dibuat. Zona lembah menunjukan nilai rendah.")
+        
+    except Exception as e:
+        st.error(f"Error interpolation: {e}")
+
+
+# ===== TAB 4: DIGITAL TWIN =====
+with tab_assets:
+    st.header("🚜 Digital Twin & Asset Tracking")
+    
+    col_a1, col_a2 = st.columns([1, 1])
+    
+    with col_a1:
+        st.subheader("📡 Live Sensor Readings")
+        # Dummy Live Data
+        st.metric("Node A1 (Soil)", "pH 6.2", "Active")
+        st.metric("Node A2 (Weather)", "32°C / 60% RH", "Active")
+        st.metric("Node B1 (Pump)", "OFF", "Standby")
+        
+    with col_a2:
+        st.subheader("🚜 Machinery Status")
+        st.dataframe(pd.DataFrame({
+            "Asset": ["Tractor John Deere", "Drone DJI Agras", "Pump Station 1"],
+            "Status": ["Field B - Plowing", "Gudang - Charging", "Idle"],
+            "Operator": ["Pak Budi", "-", "-"]
+        }))
+    
+    st.divider()
+    st.subheader("🗺️ 3D Flight Path (Drone Mission)")
+    
+    # Simulate flight path
+    path_data = []
+    alt = 30
+    for i in range(10):
+        path_data.append([CENTER_LON + (i*0.0001), CENTER_LAT, alt])
+        path_data.append([CENTER_LON + (i*0.0001), CENTER_LAT + 0.001, alt])
+        
+    df_path = pd.DataFrame({'path': [path_data]})
+    
+    layer_path = pdk.Layer(
+        "PathLayer",
+        df_path,
+        get_path="path",
+        get_color=[255, 255, 0],
+        width_scale=20,
+        width_min_pixels=2,
+    )
+    
+    view_state_drone = pdk.ViewState(latitude=CENTER_LAT, longitude=CENTER_LON, zoom=16, pitch=45)
+    
+    st.pydeck_chart(pdk.Deck(layers=[layer_path], initial_view_state=view_state_drone))
+
+st.sidebar.info("AgriSensa GIS v2.0 - Powered by PyDeck & Folium")
