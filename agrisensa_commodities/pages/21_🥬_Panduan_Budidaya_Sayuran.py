@@ -517,10 +517,11 @@ st.title("🥬 Panduan Budidaya Lengkap Sayuran")
 st.markdown("**Step-by-step guide untuk sukses budidaya sayuran**")
 
 # Tabs
-tab1, tab2, tab3 = st.tabs([
+tab1, tab2, tab3, tab4 = st.tabs([
     "📖 Panduan Lengkap",
     "📊 Perbandingan Sayuran",
-    "💰 Analisis Usaha"
+    "💰 Analisis Usaha",
+    "🗓️ Smart Schedule & RAB"
 ])
 
 # TAB 1: FULL GUIDE
@@ -808,7 +809,121 @@ with tab3:
             with col3:
                 st.metric("Keuntungan Bersih", f"Rp {total_keuntungan_custom:,.0f}")
             
-            st.metric("ROI", f"{roi_custom:.1f}%")
+# TAB 4: SMART OPERATION (SCHEDULE & RAB)
+with tab4:
+    st.header("🗓️ Smart Schedule & Auto-RAB")
+    st.markdown("""
+    **Fitur Lanjutan:** Konversi rencana "Target Tanam" dari Modul Market Commerce menjadi **Jadwal Kerja** & **Anggaran Biaya** riil.
+    """)
+    
+    col_op1, col_op2 = st.columns([1, 2])
+    
+    with col_op1:
+        st.subheader("⚙️ Parameter Operasional")
+        
+        # Determine default from forecast key if present (future integration)
+        op_crop = st.selectbox("Komoditas Target", sorted(list(SAYURAN_DATABASE.keys())), key="op_crop")
+        op_area = st.number_input("Luas Lahan (Ha)", 0.1, 100.0, 1.0, step=0.1, key="op_area")
+        op_start_date = st.date_input("Tanggal Mulai Tanam", datetime.now())
+        
+        st.info(f"Basis Data: **{op_crop}** di lahan **{op_area} Ha**")
+        
+        # --- AUTO RAB CALCULATION ---
+        st.divider()
+        st.subheader("💰 Estimasi Anggaran (RAB)")
+        
+        if op_crop in SAYURAN_DATABASE:
+            cost_base = SAYURAN_DATABASE[op_crop]['analisis_usaha']['biaya_produksi']
+            total_cost_base = int(cost_base['TOTAL'].replace('Rp ', '').replace('.', ''))
+            
+            # Simple Scaling (Linear)
+            total_rab = total_cost_base * op_area
+            
+            st.metric("Total Kebutuhan Modal", f"Rp {total_rab:,.0f}")
+            
+            # Breakdown
+            st.markdown("**Rincian Belanja:**")
+            cost_breakdown = []
+            for k, v in cost_base.items():
+                if k != "TOTAL":
+                    val_clean = int(v.replace('Rp ', '').replace('.', ''))
+                    val_scaled = val_clean * op_area
+                    cost_breakdown.append({"Item": k, "Biaya": val_scaled})
+                    
+            df_cost = pd.DataFrame(cost_breakdown)
+            st.dataframe(df_cost.style.format({"Biaya": "Rp {:,.0f}"}), use_container_width=True, hide_index=True)
+        
+    with col_op2:
+        st.subheader("📅 Kalender Kerja Harian (SOP)")
+        st.caption("Dibuat otomatis berdasarkan Tanggal Mulai Tanam Anda.")
+        
+        schedule_data = []
+        
+        if op_crop in SAYURAN_DATABASE:
+            data = SAYURAN_DATABASE[op_crop]
+            
+            # 1. Persiapan Lahan (H-21 to H-1)
+            prep_days = 21
+            start_prep = op_start_date - timedelta(days=prep_days)
+            schedule_data.append({"Tanggal": start_prep, "Kegiatan": "Mulai Olah Lahan", "Detail": "Bersihkan lahan & buat bedengan awal", "Fase": "Persiapan"})
+            schedule_data.append({"Tanggal": op_start_date - timedelta(days=7), "Kegiatan": "Pemberian Pupuk Dasar", "Detail": "Aduk pupuk kandang + kapur di bedengan", "Fase": "Persiapan"})
+            
+            # 2. Persemaian (Concurrent with Prep often, but let's simplify)
+            if 'persemaian' in data:
+                seed_days = 21 # avg
+                start_seed = op_start_date - timedelta(days=seed_days) 
+                schedule_data.append({"Tanggal": start_seed, "Kegiatan": "Semaikan Benih", "Detail": "Rendam benih & masukkan tray semai", "Fase": "Persemaian"})
+            
+            # 3. Tanam (Day 0)
+            schedule_data.append({"Tanggal": op_start_date, "Kegiatan": "PINDAH TANAM (Transplanting)", "Detail": "Pindahkan bibit ke lahan utama sore hari", "Fase": "Tanam"})
+            
+            # 4. Pemupukan Susulan (Iterate 'jadwal' list)
+            if 'pemupukan' in data and 'jadwal' in data['pemupukan']:
+                for item in data['pemupukan']['jadwal']:
+                    day_str = item['waktu'].split(' ')[0] # Extract "14" from "14 HST"
+                    if day_str.isdigit():
+                        days_after = int(day_str)
+                        sched_date = op_start_date + timedelta(days=days_after)
+                        schedule_data.append({"Tanggal": sched_date, "Kegiatan": f"Pemupukan: {item['waktu']}", "Detail": item['pupuk'], "Fase": "Perawatan"})
+            
+            # 5. Panen (Estimate)
+            harvest_range = data['umur_panen'].split('-') # "90-120 hari"
+            first_harvest = int(harvest_range[0].split()[0])
+            harvest_date = op_start_date + timedelta(days=first_harvest)
+            schedule_data.append({"Tanggal": harvest_date, "Kegiatan": "PANEN PERDANA 🌟", "Detail": "Cek kematangan buah/sayur", "Fase": "Panen"})
+            
+            # Sort & Display
+            df_sched = pd.DataFrame(schedule_data).sort_values(by="Tanggal")
+            
+            # Highlight current/upcoming
+            today = datetime.now().date()
+            
+            # Render Timeline View
+            for idx, row in df_sched.iterrows():
+                d = row['Tanggal']
+                is_past = d < today if isinstance(d, datetime) else d < datetime.combine(today, datetime.min.time()).date() # type safety
+                
+                # Check formatting
+                date_fmt = d.strftime("%d %b %Y") if hasattr(d, 'strftime') else d
+                
+                icon = "⬜"
+                bg_color = "#f2f2f2"
+                if row['Fase'] == "Panen": icon, bg_color = "💰", "#dcfce7"
+                elif row['Fase'] == "Tanam": icon, bg_color = "🌱", "#dbeafe"
+                elif row['Fase'] == "Persiapan": icon, bg_color = "🚜", "#ffedd5"
+                
+                st.markdown(f"""
+                <div style='background-color: {bg_color}; padding: 10px; border-radius: 5px; margin-bottom: 5px; border-left: 4px solid #666;'>
+                    <strong>{icon} {date_fmt}</strong> - {row['Kegiatan']} <br>
+                    <small>{row['Detail']}</small>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            st.divider()
+            
+            # Export Button
+            csv_sched = df_sched.to_csv(index=False).encode('utf-8')
+            st.download_button("⬇️ Download Jadwal Kerja (CSV)", csv_sched, "jadwal_tani_smart.csv", "text/csv")
 
 # Footer
 st.markdown("---")
