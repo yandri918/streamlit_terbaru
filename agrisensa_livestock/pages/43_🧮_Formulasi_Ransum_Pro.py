@@ -161,22 +161,31 @@ if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
     st.subheader("🎯 Formulasi Otomatis")
     
     if animal_category == "ruminant":
-        # Ruminant default ingredients
+        # Ruminant default ingredients - expanded for better feasibility
         default_ingredients = [
-            "Jagung Kuning", "Bungkil Kedelai", "Dedak Padi", 
-            "Rumput Gajah", "Hay Alfalfa",
+            # Energy sources
+            "Jagung Kuning", "Dedak Padi", "Pollard", "Onggok (Gaplek)",
+            # Protein sources
+            "Bungkil Kedelai", "Bungkil Kelapa",
+            # Roughages (essential for fiber)
+            "Rumput Gajah", "Hay Alfalfa", "Jerami Padi",
+            # Minerals
             "Kapur (CaCO3)", "DCP (Dicalcium Phosphate)", "Garam (NaCl)"
         ]
-        st.info("🐄 Bahan pakan untuk ruminansia: Jagung, Bungkil Kedelai, Dedak, Hijauan, Mineral")
+        st.info("🐄 Bahan pakan untuk ruminansia: Energi (Jagung, Dedak), Protein (Bungkil Kedelai), Hijauan (Rumput, Hay), Mineral")
     else:
         # Poultry default ingredients
         default_ingredients = [
-            "Jagung Kuning", "Bungkil Kedelai", "Tepung Ikan",
-            "Dedak Padi", "Minyak Kelapa Sawit",
+            # Energy sources
+            "Jagung Kuning", "Dedak Padi", "Pollard", "Minyak Kelapa Sawit",
+            # Protein sources
+            "Bungkil Kedelai", "Tepung Ikan", "CGM (Corn Gluten Meal)",
+            # Minerals
             "Kapur (CaCO3)", "DCP (Dicalcium Phosphate)", "Garam (NaCl)",
+            # Amino acids
             "DL-Methionine", "L-Lysine HCl"
         ]
-        st.info("🐓 Bahan pakan untuk unggas: Jagung, Bungkil Kedelai, Tepung Ikan, Minyak, Mineral, Asam Amino")
+        st.info("🐓 Bahan pakan untuk unggas: Energi (Jagung, Minyak), Protein (Bungkil Kedelai, Tepung Ikan), Mineral, Asam Amino")
     
     # Option to customize ingredients
     with st.expander("🔧 Sesuaikan Bahan Pakan (Opsional)"):
@@ -206,38 +215,47 @@ if formulation_method == "🤖 AI Auto-Formulation (Recommended)":
             ingredients_for_lp = {name: FEED_DATABASE[name] for name in selected_ingredients if name in FEED_DATABASE}
             
             # Define constraints based on NRC
-            # Relax constraints to ±10% for better feasibility
+            # Use very relaxed constraints to ensure feasibility
             requirements = {
                 'crude_protein': (
-                    nrc_req.get('crude_protein_percent', 10) * 0.90,  # 90% of target
-                    nrc_req.get('crude_protein_percent', 10) * 1.10   # 110% of target
+                    max(8, nrc_req.get('crude_protein_percent', 10) * 0.85),  # At least 8%, or 85% of target
+                    min(25, nrc_req.get('crude_protein_percent', 10) * 1.15)  # At most 25%, or 115% of target
                 ),
                 'calcium': (
-                    nrc_req.get('calcium_percent', 0.5) * 0.85,  # More relaxed
-                    nrc_req.get('calcium_percent', 0.5) * 1.15
+                    max(0.2, nrc_req.get('calcium_percent', 0.5) * 0.75),  # Very relaxed
+                    min(2.0, nrc_req.get('calcium_percent', 0.5) * 1.25)
                 )
             }
             
-            # Add phosphorus if available
+            # Add phosphorus if available (very relaxed)
             if 'phosphorus_percent' in nrc_req:
                 requirements['phosphorus'] = (
-                    nrc_req['phosphorus_percent'] * 0.85,
-                    nrc_req['phosphorus_percent'] * 1.15
+                    max(0.15, nrc_req['phosphorus_percent'] * 0.75),
+                    min(1.5, nrc_req['phosphorus_percent'] * 1.25)
                 )
             elif 'phosphorus_available_percent' in nrc_req:
                 requirements['phosphorus'] = (
-                    nrc_req['phosphorus_available_percent'] * 0.85,
-                    nrc_req['phosphorus_available_percent'] * 1.15
+                    max(0.15, nrc_req['phosphorus_available_percent'] * 0.75),
+                    min(1.5, nrc_req['phosphorus_available_percent'] * 1.25)
                 )
             
-            # Add fiber constraints for ruminants (more relaxed)
+            # Only add fiber constraint for ruminants if we have roughage
             if animal_category == "ruminant":
-                cf_min = nrc_req.get('crude_fiber_min_percent', 15)
-                cf_max = nrc_req.get('crude_fiber_max_percent', 30)
-                requirements['crude_fiber'] = (
-                    max(10, cf_min * 0.8),  # At least 10%, or 80% of target
-                    min(40, cf_max * 1.2)   # At most 40%, or 120% of target
+                # Check if we have roughage ingredients
+                has_roughage = any(
+                    ing in selected_ingredients 
+                    for ing in ["Rumput Gajah", "Rumput Raja", "Rumput Lapang", "Hay Alfalfa", "Jerami Padi", "Jerami Jagung", "Silase Jagung"]
                 )
+                
+                if has_roughage:
+                    # Only apply fiber constraint if we have roughage
+                    cf_min = nrc_req.get('crude_fiber_min_percent', 15)
+                    cf_max = nrc_req.get('crude_fiber_max_percent', 30)
+                    requirements['crude_fiber'] = (
+                        max(8, cf_min * 0.7),   # Very relaxed minimum
+                        min(45, cf_max * 1.3)   # Very relaxed maximum
+                    )
+                # If no roughage, don't add fiber constraint at all
             
             # Run optimization
             result = least_cost_formulation(
