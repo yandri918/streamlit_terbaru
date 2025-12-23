@@ -698,23 +698,25 @@ with tab2:
         import json
         
         base_url = "https://vercel-scan2.vercel.app/product"
-        # payload construction for Base64 (Cleaner URL & No Text-Scan Issues)
+        # Payload construction for Base64 (Minified for compact QR)
         payload = {
-            'batch_id': data['id'],
-            'name': data['produk'],
-            'variety': data['varietas'],
-            'farmer': data['petani'],
-            'location': data['lokasi'],
-            'harvest_date': str(data['tgl']),
-            'weight': f"{data.get('berat', 1)} kg",
-            'emoji': '🌾',
-            'price': str(data['harga']) if data.get('harga') else None,
-            # Advanced Data
-            'avg_temp': str(data.get('climate', {}).get('avg_temp', '')),
-            'avg_hum': str(data.get('climate', {}).get('avg_hum', '')),
-            'sun_hours': str(data.get('climate', {}).get('sun_hours', '')),
-            'milestones': data.get('milestones', []),
-            'certifications': ['Organik', 'Premium', 'Lokal']
+            'id': data['id'],
+            'n': data['produk'],                 # name
+            'v': data['varietas'],               # variety
+            'f': data['petani'],                 # farmer
+            'l': data['lokasi'],                 # location
+            'd': str(data['tgl']),               # date
+            'w': f"{data.get('berat', 1)} kg",   # weight
+            'e': '🌾',                           # emoji
+            'p': str(data['harga']) if data.get('harga') else None, # price
+            # Climate: t=temp, h=hum, s=sun
+            'c': {
+                't': str(data.get('climate', {}).get('avg_temp', '')),
+                'h': str(data.get('climate', {}).get('avg_hum', '')),
+                's': str(data.get('climate', {}).get('sun_hours', ''))
+            },
+            # Milestones: m
+            'm': data.get('milestones', [])
         }
         
         # Encode to URL-Safe Base64 (Strip Padding for Cleaner URL)
@@ -725,8 +727,10 @@ with tab2:
         # Final Robust URL
         qr_url = f"{base_url}/{b64_str}"
         
-        # Generate QR Code (Auto-Version to handle long data)
-        # version=None implies "fit=True" will determine the smallest version needed
+        # DEBUG: Show URL to User
+        st.caption("🔗 **Debug Link:** " + qr_url)
+        
+        # Generate QR Code
         qr = qrcode.QRCode(
             version=None, 
             error_correction=qrcode.constants.ERROR_CORRECT_L,
