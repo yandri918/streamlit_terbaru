@@ -917,19 +917,3 @@ with tab3:
 
     else:
         st.warning("⚠️ Belum ada data batch. Silakan input data di **Tab 1** terlebih dahulu.")
-    
-
-"""
-            
-            html_content += """
-    </div>
-</div>
-</body>
-</html>
-"""
-            
-            # Use components.html for guaranteed rendering
-            st.components.v1.html(html_content, height=700, scrolling=True)
-            
-    else:
-        st.warning("⚠️ Belum ada data batch yang dibuat. Silakan input di Tab 1 dulu.")
