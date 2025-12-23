@@ -131,8 +131,9 @@ with tab_map:
         show_points = st.checkbox("Show Sampling Points", value=True)
         show_heatmap = st.checkbox("Show pH Heatmap Layer", value=False)
         
-        st.info("💡 **Tip:** Gunakan Polygon Tool (pojok kiri peta) untuk mengukur luas area tanam baru.")
+        st.info("💡 **Tip:** Klik pada peta untuk menambahkan titik data baru secara manual!")
         
+        # Metric Display
         st.metric("Total Sampling Points", len(df_geo))
         avg_ph = df_geo['ph'].mean()
         st.metric("Avg Soil pH", f"{avg_ph:.1f}", delta=f"{avg_ph-6.0:.1f} vs Ideal")
@@ -176,7 +177,57 @@ with tab_map:
         from folium.plugins import Draw
         Draw(export=True).add_to(m)
         
-        st_folium(m, height=500, use_container_width=True)
+        # Render Map & Capture Click
+        map_output = st_folium(m, height=500, use_container_width=True)
+
+    # --- INPUT FORM FOR CLICKED POINT ---
+    if map_output['last_clicked']:
+        click_lat = map_output['last_clicked']['lat']
+        click_lon = map_output['last_clicked']['lng']
+        
+        st.divider()
+        st.markdown(f"### 📍 Input Data Titik Baru")
+        st.write(f"Koordinat Terpilih: **Lat {click_lat:.5f}, Lon {click_lon:.5f}**")
+        
+        with st.form("add_point_form"):
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                new_ph = st.number_input("pH Tanah", 3.0, 9.0, 6.0, step=0.1)
+                new_moisture = st.number_input("Kelembaban (%)", 0, 100, 60)
+            with c2:
+                new_n = st.number_input("Nitrogen (N ppm)", 0, 500, 100)
+                new_p = st.number_input("Fosfor (P ppm)", 0, 500, 50)
+            with c3:
+                new_k = st.number_input("Kalium (K ppm)", 0, 500, 100)
+            
+            if st.form_submit_button("➕ Tambahkan ke Peta"):
+                # Append to Session State / DataFrame
+                new_point = {
+                    "lat": click_lat,
+                    "lon": click_lon,
+                    "ph": new_ph,
+                    "n_ppm": new_n,
+                    "k_ppm": new_k, 
+                    "moisture": new_moisture
+                }
+                # Since df_geo is reloaded every run unless persisted, we need a persistence strategy.
+                # For this demo, let's use Session State override logic in the Data Loader section.
+                if 'user_added_points' not in st.session_state:
+                    st.session_state.user_added_points = []
+                st.session_state.user_added_points.append(new_point)
+                st.success("Titik berhasil ditambahkan! Refresh peta untuk melihat update.")
+                st.rerun()
+
+    # Merge User Points with Main DataFrame (Logic Injection)
+    if 'user_added_points' in st.session_state and st.session_state.user_added_points:
+        df_user = pd.DataFrame(st.session_state.user_added_points)
+        # Ensure columns match
+        for col in df_geo.columns:
+            if col not in df_user.columns:
+                df_user[col] = 0 # Default fill
+        
+        df_geo = pd.concat([df_geo, df_user], ignore_index=True)
+
 
 
 # ===== TAB 2: 3D SOIL CHEMISTRY (PYDECK) =====
