@@ -6,6 +6,7 @@ import qrcode
 from PIL import Image, ImageDraw, ImageFont
 import io
 import base64
+import streamlit.components.v1 as components
 
 # Page Config
 from utils.auth import require_auth, show_user_info_sidebar
@@ -539,16 +540,43 @@ with tab1:
         is_halal = st.checkbox("✅ Halal Certified")
         is_premium = st.checkbox("✅ Kualitas Ekspor (Sortir Ketat)")
         
-        st.subheader("5. Riwayat Budidaya (Advanced)")
-        riwayat_log = st.text_area("📝 Catatan Budidaya (Pupuk/Pestisida)", "Pupuk Organik Cair (Minggu 2), Kompos (Minggu 4), Cabut Rumput Manual.")
+        st.subheader("5. Riwayat Budidaya & Milestones (Advanced)")
+        riwayat_log = st.text_area("📝 Catatan Budidaya", "Pupuk Organik Cair (Minggu 2), Kompos (Minggu 4).")
         
+        # --- NEW: ADVANCED FEATURES ---
+        with st.expander("🌍 Climate Proof & Digital Journey (Otomatis)", expanded=True):
+            st.info("Sistem akan men-generate data iklim mikro dan milestone awal secara otomatis.")
+            
+            # Simulated IoT Data
+            avg_temp = 24.5 if "Tinggi" not in lokasi_kebun else 19.2
+            avg_hum = 75
+            climate_proof = {
+                "avg_temp": avg_temp, 
+                "avg_hum": avg_hum,
+                "sun_hours": 11.5,
+                "rainfall": 1200
+            }
+            st.write(f"✅ **Climate Proof:** Suhu Rata-rata {avg_temp}°C, Kelembaban {avg_hum}%")
+            
+            # Initial Milestone
+            milestones = [
+                {"date": tgl_panen.strftime("%Y-%m-%d"), "time": "08:30", "event": "Panen (Harvesting)", "loc": lokasi_kebun, "icon": "🌾"},
+                {"date": tgl_panen.strftime("%Y-%m-%d"), "time": "10:15", "event": "Sortir & Grading (QC 1)", "loc": "Gudang Sortir", "icon": "🔍"},
+                {"date": tgl_panen.strftime("%Y-%m-%d"), "time": "13:00", "event": "Packaging & Labeling", "loc": "Processing House", "icon": "📦"}
+            ]
+            st.write("✅ **Milestone Awal:** Panen -> Sortir -> Packing")
+
         # Generator ID & Blockchain Fake Hash
         import hashlib
+        import json
         batch_id = f"AGRI-{tgl_panen.strftime('%Y%m%d')}-{hash(jenis_produk)%1000:03d}"
-        blockchain_hash = hashlib.sha256(f"{batch_id}{riwayat_log}{nama_petani}".encode()).hexdigest()
+        
+        # Hash includes advanced data now
+        data_string = f"{batch_id}{json.dumps(climate_proof)}{json.dumps(milestones)}{nama_petani}"
+        blockchain_hash = hashlib.sha256(data_string.encode()).hexdigest()
         
         st.markdown("---")
-        if st.button("💾 Simpan & Generate QR Code", type="primary", use_container_width=True):
+        if st.button("💾 Simpan & Generate Passport 2.0", type="primary", use_container_width=True):
             st.session_state['batch_data'] = {
                 "id": batch_id,
                 "hash": blockchain_hash,
@@ -561,10 +589,12 @@ with tab1:
                 "harga": harga_produk if harga_produk > 0 else None,
                 "kontak": kontak_petani if kontak_petani else None,
                 "riwayat": riwayat_log,
+                "climate": climate_proof,
+                "milestones": milestones,
                 "klaim": [k for k, v in [("Organik", is_organik), ("Halal", is_halal), ("Premium", is_premium)] if v]
             }
-            st.success(f"✅ Batch {batch_id} berhasil dibuat!")
-            st.info("📌 Silakan ke tab **'🖨️ Cetak Label'** untuk mencetak label produk Anda!")
+            st.success(f"✅ Batch {batch_id} berhasil dibuat dengan Advanced Traceability!")
+            st.info("📌 Silakan ke tab **'📱 Simulasi Scan Konsumen'** untuk melihat Journey Timeline!")
 
 # --- TAB 2: PRINT LABEL ---
 with tab2:
@@ -795,9 +825,56 @@ with tab3:
         <p style='margin: 8px 0;'><b>📦 Batch ID:</b> <br>{data['id']}</p>
         <p style='margin: 8px 0;'><b>🗓️ Tanggal Panen:</b> <br>{str(data['tgl'])}</p>
         <p style='margin: 8px 0;'><b>📍 Lokasi:</b> <br>{data['lokasi']}</p>
+        if data.get('climate'):
+            clim = data['climate']
+            html_content += f"""
+    <div style='background:#fcfcea; padding:15px; border-radius:10px; margin: 15px 0; border: 1px solid #fde047;'>
+        <h4 style='margin-top:0; color:#b45309;'>🌍 Climate Proof (Bukti Iklim)</h4>
+        <div style='display:flex; justify-content:space-around;'>
+            <div style='text-align:center;'>
+                <span style='font-size:1.5em;'>🌡️</span><br>
+                <b>{clim['avg_temp']}°C</b><br><small>Avg Temp</small>
+            </div>
+            <div style='text-align:center;'>
+                <span style='font-size:1.5em;'>💧</span><br>
+                <b>{clim['avg_hum']}%</b><br><small>Humidity</small>
+            </div>
+            <div style='text-align:center;'>
+                <span style='font-size:1.5em;'>☀️</span><br>
+                <b>{clim['sun_hours']}h</b><br><small>Sun/Day</small>
+            </div>
+        </div>
+    </div>
+"""
+
+        # TIMELINE VISUALIZATION
+        if data.get('milestones'):
+            timeline_html = "<h4 style='color:#1f2937;'>🚚 Perjalanan Produk (Journey)</h4><div style='margin-left: 10px; border-left: 2px solid #e5e7eb; padding-left: 20px;'>"
+            for m in data['milestones']:
+                timeline_html += f"""
+                <div style='margin-bottom: 20px; position: relative;'>
+                    <div style='position: absolute; left: -29px; top: 0; background: #10b981; color: white; width: 20px; height: 20px; border-radius: 50%; text-align: center; font-size: 12px; line-height: 20px;'>✓</div>
+                    <div style='font-weight: bold; color: #374151;'>{m['event']} {m['icon']}</div>
+                    <div style='font-size: 0.8em; color: #6b7280;'>{m['date']} • {m['time']}</div>
+                    <div style='font-size: 0.8em; color: #6b7280;'>📍 {m['loc']}</div>
+                </div>
+"""
+            timeline_html += "</div>"
+            html_content += timeline_html
+
+        # Disclaimer
+        html_content += """
+    <hr style='border: 1px solid #e5e7eb; margin: 15px 0;'>
+    <p style='text-align:center; color:grey; font-size:0.8em;'>
+        Verifikasi Real-time oleh AgriSensa System<br>
+        Scan untuk melihat update terbaru.
+    </p>
+</div>
+</body>
+</html>
 """
             
-            # Add price if available
+        components.html(html_content, height=800, scrolling=True)
             if data.get('harga'):
                 html_content += f"        <p style='margin: 8px 0;'><b>💰 Harga:</b> <br>Rp {data['harga']:,}/kg</p>\n"
             
