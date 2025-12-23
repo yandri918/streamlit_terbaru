@@ -786,151 +786,139 @@ with tab3:
         c_mob1, c_mob2, c_mob3 = st.columns([1.5, 2, 1.5])
         
         with c_mob2:
-            # Build HTML content using components.html for guaranteed rendering
-            html_content = """
+            # Build HTML content
+            html_content = f"""
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <style>
-        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        body {{ margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8fafc; }}
     </style>
 </head>
 <body>
-<div style='border: 8px solid #333; border-radius: 20px; padding: 20px; background-color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.2);'>
-    <div style='text-align:center;'>
-        <h3 style='color:#0f766e; margin: 10px 0;'>✅ TERVERIFIKASI</h3>
-        <p style='color:grey; margin: 5px 0;'>AgriSensa Blockchain Network</p>
-        <div style='background:#f0fdf4; border: 1px solid #bbf7d0; border-radius: 5px; padding: 5px; font-size: 0.6em; word-break: break-all;'>
-            Hash: {data.get('hash', 'N/A')[:32]}...
-        </div>
-        <hr style='border: 1px solid #e5e7eb; margin: 15px 0;'>
-        <h1 style='font-size: 3em; margin: 10px 0;'>🌾</h1>
-        <h2 style='color:#1f2937; margin: 10px 0;'>Produk Asli & Aman</h2>
+<div style='max-width: 400px; margin: 0 auto; background-color: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); overflow: hidden;'>
+    
+    <!-- HEADER -->
+    <div style='background-color: #0f766e; color: white; padding: 20px 20px 40px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; text-align: center;'>
+        <div style='font-size: 0.8em; opacity: 0.9;'>✅ TERVERIFIKASI BLOCKCHAIN</div>
+        <h1 style='margin: 10px 0 5px 0; font-size: 1.8em;'>{data['produk']}</h1>
+        <div style='font-size: 1.1em; opacity: 0.9;'>{data['varietas']}</div>
     </div>
+    
+    <div style='padding: 20px; margin-top: -30px;'>
 """
             
-            # Add photo if available
+            # PHOTO
             if data.get('foto'):
                 foto_base64 = base64.b64encode(data['foto'].getvalue()).decode()
                 html_content += f"""
-    <div style='text-align:center; margin:15px 0;'>
-        <img src='data:image/png;base64,{foto_base64}' style='max-width:100%; border-radius:10px;'>
-    </div>
+        <div style='background: white; padding: 5px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;'>
+            <img src='data:image/png;base64,{foto_base64}' style='width:100%; border-radius:10px; display: block;'>
+        </div>
 """
             
-            # Product info card
+            # MAIN INFO CARD
             html_content += f"""
-    <div style='background:#f0fdfa; padding:15px; border-radius:10px; margin: 15px 0;'>
-        <p style='margin: 8px 0;'><b>📦 Batch ID:</b> <br>{data['id']}</p>
-        <p style='margin: 8px 0;'><b>🗓️ Tanggal Panen:</b> <br>{str(data['tgl'])}</p>
-        <p style='margin: 8px 0;'><b>📍 Lokasi:</b> <br>{data['lokasi']}</p>
-        if data.get('climate'):
-            clim = data['climate']
-            html_content += f"""
-    <div style='background:#fcfcea; padding:15px; border-radius:10px; margin: 15px 0; border: 1px solid #fde047;'>
-        <h4 style='margin-top:0; color:#b45309;'>🌍 Climate Proof (Bukti Iklim)</h4>
-        <div style='display:flex; justify-content:space-around;'>
-            <div style='text-align:center;'>
-                <span style='font-size:1.5em;'>🌡️</span><br>
-                <b>{clim['avg_temp']}°C</b><br><small>Avg Temp</small>
+        <div style='background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #e2e8f0;'>
+            <h3 style='margin: 0 0 15px 0; color: #0f766e; border-bottom: 2px solid #f0fdf4; padding-bottom: 10px;'>📦 Informasi Produk</h3>
+            
+            <div style='margin-bottom: 12px;'>
+                <div style='font-size: 0.8em; color: #64748b;'>🗓️ Tanggal Panen</div>
+                <div style='font-weight: 600; color: #334155;'>{str(data['tgl'])}</div>
             </div>
-            <div style='text-align:center;'>
-                <span style='font-size:1.5em;'>💧</span><br>
-                <b>{clim['avg_hum']}%</b><br><small>Humidity</small>
+            
+            <div style='margin-bottom: 12px;'>
+                <div style='font-size: 0.8em; color: #64748b;'>📍 Lokasi Kebun</div>
+                <div style='font-weight: 600; color: #334155;'>{data['lokasi']}</div>
             </div>
-            <div style='text-align:center;'>
-                <span style='font-size:1.5em;'>☀️</span><br>
-                <b>{clim['sun_hours']}h</b><br><small>Sun/Day</small>
+            
+            <div style='margin-bottom: 12px;'>
+                <div style='font-size: 0.8em; color: #64748b;'>👨‍🌾 Petani</div>
+                <div style='font-weight: 600; color: #334155;'>{data['petani']}</div>
+            </div>
+"""
+            if data.get('harga'):
+                html_content += f"""
+            <div style='margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1;'>
+                <div style='font-size: 0.8em; color: #64748b;'>💰 Harga Referensi</div>
+                <div style='font-weight: bold; color: #059669; font-size: 1.2em;'>Rp {data['harga']:,} <span style='font-size:0.7em; color:#64748b;'>/kg</span></div>
+            </div>
+"""
+            html_content += "</div>" # Close Info Card
+
+            # CLIMATE PROOF
+            if data.get('climate'):
+                clim = data['climate']
+                html_content += f"""
+        <div style='background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius: 15px; padding: 20px; margin-bottom: 15px; border: 1px solid #fcd34d;'>
+            <h3 style='margin: 0 0 15px 0; color: #92400e; font-size: 1.1em;'>🌍 Climate Proof (Bukti Iklim)</h3>
+            <div style='display:flex; justify-content:space-between; text-align: center;'>
+                <div style='background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; width: 30%;'>
+                    <div style='font-size: 1.5em;'>🌡️</div>
+                    <div style='font-weight: bold; color: #92400e;'>{clim['avg_temp']}°C</div>
+                    <div style='font-size: 0.7em; color: #b45309;'>Avg Temp</div>
+                </div>
+                <div style='background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; width: 30%;'>
+                    <div style='font-size: 1.5em;'>💧</div>
+                    <div style='font-weight: bold; color: #92400e;'>{clim['avg_hum']}%</div>
+                    <div style='font-size: 0.7em; color: #b45309;'>Humidity</div>
+                </div>
+                <div style='background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; width: 30%;'>
+                    <div style='font-size: 1.5em;'>☀️</div>
+                    <div style='font-weight: bold; color: #92400e;'>{clim['sun_hours']}h</div>
+                    <div style='font-size: 0.7em; color: #b45309;'>Sun/Day</div>
+                </div>
             </div>
         </div>
-    </div>
 """
 
-        # TIMELINE VISUALIZATION
-        if data.get('milestones'):
-            timeline_html = "<h4 style='color:#1f2937;'>🚚 Perjalanan Produk (Journey)</h4><div style='margin-left: 10px; border-left: 2px solid #e5e7eb; padding-left: 20px;'>"
-            for m in data['milestones']:
-                timeline_html += f"""
-                <div style='margin-bottom: 20px; position: relative;'>
-                    <div style='position: absolute; left: -29px; top: 0; background: #10b981; color: white; width: 20px; height: 20px; border-radius: 50%; text-align: center; font-size: 12px; line-height: 20px;'>✓</div>
-                    <div style='font-weight: bold; color: #374151;'>{m['event']} {m['icon']}</div>
-                    <div style='font-size: 0.8em; color: #6b7280;'>{m['date']} • {m['time']}</div>
-                    <div style='font-size: 0.8em; color: #6b7280;'>📍 {m['loc']}</div>
+            # JOURNEY TIMELINE
+            if data.get('milestones'):
+                html_content += f"""
+        <div style='background: white; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: 1px solid #e2e8f0;'>
+            <h3 style='margin: 0 0 20px 0; color: #0f766e;'>🚚 Perjalanan Produk</h3>
+            <div style='position: relative; padding-left: 20px; border-left: 2px solid #e2e8f0; margin-left: 10px;'>
+"""
+                for m in data['milestones']:
+                    html_content += f"""
+                <div style='margin-bottom: 25px; position: relative;'>
+                    <div style='position: absolute; left: -27px; top: 0; background: #10b981; color: white; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px #10b981;'></div>
+                    <div style='font-weight: bold; color: #334155; font-size: 0.95em;'>{m['event']} {m['icon']}</div>
+                    <div style='font-size: 0.8em; color: #64748b; margin-top: 2px;'>{m['date']} • {m['time']}</div>
+                    <div style='font-size: 0.8em; color: #64748b;'>📍 {m['loc']}</div>
                 </div>
 """
-            timeline_html += "</div>"
-            html_content += timeline_html
+                html_content += """
+            </div>
+        </div>
+"""
 
-        # Disclaimer
-        html_content += """
-    <hr style='border: 1px solid #e5e7eb; margin: 15px 0;'>
-    <p style='text-align:center; color:grey; font-size:0.8em;'>
-        Verifikasi Real-time oleh AgriSensa System<br>
-        Scan untuk melihat update terbaru.
-    </p>
-</div>
+            # STORY & HISTORY
+            html_content += f"""
+        <div style='background: #f8fafc; border-radius: 15px; padding: 15px; border: 1px dashed #cbd5e1; margin-bottom: 20px;'>
+            <div style='font-weight: bold; color: #475569; margin-bottom: 5px;'>📝 Catatan Budidaya:</div>
+            <div style='font-style: italic; color: #64748b; font-size: 0.9em;'>"{data.get('riwayat', '-')}"</div>
+        </div>
+        
+        <div style='text-align: center; margin-top: 30px; margin-bottom: 20px;'>
+            <div style='font-size: 0.7em; color: #94a3b8; margin-bottom: 5px;'>ID BATCH: {data['id']}</div>
+            <div style='font-size: 0.7em; color: #94a3b8;'>Hash: {data.get('hash', '')[:16]}...</div>
+            <div style='margin-top: 10px; font-weight: bold; color: #cbd5e1;'>POWERED BY AGRISENSA</div>
+        </div>
+
+    </div> <!-- End Padding -->
+</div> <!-- End Container -->
 </body>
 </html>
 """
             
-        components.html(html_content, height=800, scrolling=True)
-            if data.get('harga'):
-                html_content += f"        <p style='margin: 8px 0;'><b>💰 Harga:</b> <br>Rp {data['harga']:,}/kg</p>\n"
-            
-            # Add contact if available
-            if data.get('kontak'):
-                html_content += f"        <p style='margin: 8px 0;'><b>📞 Kontak Petani:</b> <br>{data['kontak']}</p>\n"
-            
-            html_content += f"""
-    </div>
+            components.html(html_content, height=800, scrolling=True)
+
+    else:
+        st.warning("⚠️ Belum ada data batch. Silakan input data di **Tab 1** terlebih dahulu.")
     
-    <div style='background:#fefce8; padding:15px; border-radius:10px; margin: 15px 0; border: 1px solid #fef08a;'>
-        <p style='margin: 0; font-weight:bold; color:#854d0e;'>📝 Riwayat Budidaya:</p>
-        <p style='margin: 5px 0; font-size: 0.85em; color: #713f12;'>{data.get('riwayat', 'Tidak ada catatan.')}</p>
-    </div>
-    
-    <p style='margin: 15px 0 5px 0;'><b>Cerita Petani:</b></p>
-    <p style='font-style:italic; font-size:0.9rem; color:#4b5563; margin: 5px 0 15px 0;'>
-"""
-            
-            html_content += f'        "Produk ini dirawat dengan sepenuh hati oleh {data["petani"]}. Kami menggunakan metode berkelanjutan untuk menjaga alam tetap lestari."\n'
-            
-            html_content += """
-    </p>
-    
-    <div style='text-align:center; margin-top:20px;'>
-"""
-            
-            # Button text
-            button_text = f"Beli Lagi - Rp {data['harga']:,}" if data.get('harga') else "Beli Lagi (Order)"
-            html_content += f"""
-        <button style='background:#0f766e; color:white; border:none; padding:12px 24px; border-radius:50px; width:100%; font-size:1em; cursor:pointer; font-weight:bold;'>{button_text}</button>
-"""
-            
-            html_content += """
-    </div>
-    <div style='text-align:center; margin-top:10px;'>
-"""
-            
-            # WhatsApp link
-            if data.get('kontak'):
-                wa_number = data['kontak'].replace('-', '').replace(' ', '').replace('+', '')
-                html_content += f"""
-        <a href='https://wa.me/{wa_number}' target='_blank' style='color:#0f766e; text-decoration:none; font-weight:bold;'>💬 Hubungi Petani</a>
-"""
-            html_content += """
-        <a href='#' style='color:#0f766e; text-decoration:none; font-weight:bold;'>💬 Hubungi Petani</a>
-"""
-            
-            # Feedback Section Simulation
-            html_content += """
-        <hr style='border: 1px solid #e5e7eb; margin: 15px 0;'>
-        <div style='text-align:left;'>
-            <p style='margin:0; font-weight:bold;'>⭐ Berikan Rating:</p>
-            <div style='color:#fbbf24; font-size:1.5em;'>★★★★★</div>
-            <p style='margin:5px 0; font-size:0.8em; color:gray;'>Puas dengan produk ini? Beritahu petani!</p>
-        </div>
+
 """
             
             html_content += """
@@ -945,7 +933,3 @@ with tab3:
             
     else:
         st.warning("⚠️ Belum ada data batch yang dibuat. Silakan input di Tab 1 dulu.")
-
-# Footer
-st.markdown("---")
-st.caption("AgriSensa Traceability - Membangun Kepercayaan dari Kebun ke Meja Makan.")
