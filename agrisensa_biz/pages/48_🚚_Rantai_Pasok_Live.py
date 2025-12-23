@@ -595,29 +595,79 @@ with tab5:
                     st.write(f"- Biaya per kg: Rp {ship['cost_per_kg']:,.0f}")
                     st.write(f"- Status: **{ship['status'].replace('_', ' ').title()}**")
                 
-                # Status Update Buttons
-                st.markdown("**Update Status:**")
-                col_btn1, col_btn2, col_btn3, col_btn4 = st.columns(4)
+                # --- ACTION BUTTONS & FORMS ---
+                st.markdown("---")
                 
-                with col_btn1:
-                    if ship['status'] == 'packing' and st.button("🚛 Mulai Kirim", key=f"start_{ship['id']}"):
-                        ship['status'] = 'in_transit'
-                        st.rerun()
+                # 1. Edit Info (For Packing/Transit)
+                if ship['status'] in ['packing', 'in_transit']:
+                    with st.expander("✏️ Edit Info Pengiriman"):
+                        with st.form(f"edit_{ship['id']}"):
+                            ed_driver = st.text_input("Update Nama Sopir", ship.get('driver', ''))
+                            ed_note = st.text_area("Catatan Tambahan", ship.get('notes', ''))
+                            if st.form_submit_button("Simpan Perubahan"):
+                                ship['driver'] = ed_driver
+                                ship['notes'] = ed_note
+                                st.success("Info updated!")
+                                st.rerun()
+
+                # 2. Status Actions
+                col_act1, col_act2 = st.columns(2)
                 
-                with col_btn2:
-                    if ship['status'] == 'in_transit' and st.button("✅ Tiba", key=f"arrive_{ship['id']}"):
-                        ship['status'] = 'arrived'
-                        st.rerun()
-                
-                with col_btn3:
-                    if ship['status'] == 'arrived' and st.button("🎯 Selesai", key=f"done_{ship['id']}"):
-                        ship['status'] = 'delivered'
-                        st.rerun()
-                
-                with col_btn4:
-                    if st.button("🗑️ Hapus", key=f"del_{ship['id']}"):
-                        st.session_state.shipments.remove(ship)
-                        st.rerun()
+                with col_act1:
+                    # START TRIP
+                    if ship['status'] == 'packing':
+                        if st.button("🚛 Mulai Jalan (Depart)", key=f"start_{ship['id']}", use_container_width=True):
+                            ship['status'] = 'in_transit'
+                            st.rerun()
+                            
+                    # ARRIVAL FORM (The "Check-in" Process)
+                    elif ship['status'] == 'in_transit':
+                        st.markdown("#### 🏁 Verifikasi Kedatangan")
+                        with st.form(f"arrival_{ship['id']}"):
+                            act_weight = st.number_input("Berat Aktual Tiba (kg)", 0.0, float(ship['quantity_kg']), float(ship['quantity_kg']), step=0.1)
+                            act_condition = st.selectbox("Kondisi Barang", ["Bagus (Fresh)", "Layu Sedikit", "Rusak/Busuk", "Pecah/Rusak Fisik"])
+                            act_note = st.text_area("Catatan Penerimaan", "")
+                            
+                            if st.form_submit_button("✅ Konfirmasi Tiba"):
+                                # Calc Shrinkage
+                                shrinkage_kg = ship['quantity_kg'] - act_weight
+                                shrinkage_pct = (shrinkage_kg / ship['quantity_kg']) * 100
+                                
+                                ship['actual_arrival'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+                                ship['actual_weight'] = act_weight
+                                ship['shrinkage_kg'] = shrinkage_kg
+                                ship['shrinkage_pct'] = shrinkage_pct
+                                ship['arrival_condition'] = act_condition
+                                ship['arrival_notes'] = act_note
+                                ship['status'] = 'arrived'
+                                st.success(f"Tiba! Susut: {shrinkage_kg:.1f} kg ({shrinkage_pct:.1f}%)")
+                                st.rerun()
+
+                with col_act2:
+                    # FINALIZE (Settlement)
+                    if ship['status'] == 'arrived':
+                        st.info(f"🏁 Tiba: {ship.get('actual_arrival','-')}")
+                        st.write(f"📉 Susut: **{ship.get('shrinkage_kg',0):.1f} kg**")
+                        st.write(f"📝 Kondisi: {ship.get('arrival_condition','-')}")
+                        
+                        if st.button("💰 Selesaikan & Bayar (Complete)", key=f"done_{ship['id']}", use_container_width=True):
+                            ship['status'] = 'delivered'
+                            
+                            # Update Commerce (Complete)
+                            if 'linked_orders' in ship and 'order_db' in st.session_state:
+                                st.session_state.order_db.loc[
+                                    st.session_state.order_db['Order ID'].isin(ship['linked_orders']), 
+                                    'Status'
+                                ] = 'Completed'
+                                
+                            st.rerun()
+                    
+                    # DELETE (Only if not delivered)
+                    if ship['status'] != 'delivered':
+                         if st.button("🗑️ Batalkan/Hapus", key=f"del_{ship['id']}"):
+                            st.session_state.shipments.remove(ship)
+                            st.rerun()
+
     else:
         st.info("Belum ada shipment. Buat shipment baru di atas!")
 
