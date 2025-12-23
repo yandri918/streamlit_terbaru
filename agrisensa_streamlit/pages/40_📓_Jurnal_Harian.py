@@ -100,9 +100,23 @@ def init_all_data():
     for f in [JOURNAL_FILE, GROWTH_FILE, COST_FILE]:
         if not os.path.exists(f): pd.DataFrame().to_csv(f, index=False)
 
-def load_journal(): return pd.read_csv(JOURNAL_FILE) if os.path.exists(JOURNAL_FILE) else pd.DataFrame()
-def load_growth(): return pd.read_csv(GROWTH_FILE) if os.path.exists(GROWTH_FILE) else pd.DataFrame()
-def load_costs(): return pd.read_csv(COST_FILE) if os.path.exists(COST_FILE) else pd.DataFrame()
+def load_journal():
+    try:
+        return pd.read_csv(JOURNAL_FILE) if os.path.exists(JOURNAL_FILE) else pd.DataFrame()
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
+
+def load_growth():
+    try:
+        return pd.read_csv(GROWTH_FILE) if os.path.exists(GROWTH_FILE) else pd.DataFrame()
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
+
+def load_costs():
+    try:
+        return pd.read_csv(COST_FILE) if os.path.exists(COST_FILE) else pd.DataFrame()
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
 
 def save_activity(data):
     df = load_journal()
