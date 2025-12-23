@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import datetime
+import uuid
 
 # Page Config
 from utils.auth import require_auth, show_user_info_sidebar
@@ -463,17 +464,56 @@ with tab5:
     
     # Create Shipment
     with st.expander("➕ Buat Shipment Baru", expanded=not st.session_state.shipments):
+        
+        # --- INTEGRATION: LOAD PENDING ORDERS ---
+        pending_orders = []
+        if 'order_db' in st.session_state:
+            df_orders = st.session_state.order_db
+            # Filter for New/Packed orders not yet shipped
+            pending_orders = df_orders[df_orders['Status'].isin(['New', 'Packed'])].to_dict('records')
+        
+        selected_order_ids = []
+        fulfillment_mode = st.checkbox("🔗 Ambil dari Daftar Pesanan (Fulfillment Mode)")
+        
+        # Auto-fill variables
+        af_commodity = "Cabai Merah"
+        af_qty = 500
+        af_dest = "PI Kramat Jati"
+        
+        if fulfillment_mode and pending_orders:
+            st.info(f"Ditemukan {len(pending_orders)} pesanan menunggu pengiriman.")
+            
+            # Multi-select for orders
+            order_options = {f"{o['Order ID']} - {o['Customer']} ({o['Qty (kg)']}kg)": o for o in pending_orders}
+            selected_labels = st.multiselect("Pilih Pesanan untuk Diangkut:", list(order_options.keys()))
+            
+            if selected_labels:
+                selected_orders = [order_options[l] for l in selected_labels]
+                selected_order_ids = [o['Order ID'] for o in selected_orders]
+                
+                # Auto-calculate totals
+                total_q = sum([o['Qty (kg)'] for o in selected_orders])
+                commodities = list(set([o['Commodity'] for o in selected_orders]))
+                destinations = list(set([o['Channel'] for o in selected_orders])) # Proxy destination
+                
+                af_commodity = ", ".join(commodities)
+                af_qty = total_q
+                af_dest = f"Multi-Drop: {', '.join(destinations)}"
+                
+                st.success(f"📦 Total Muatan: {af_qty} kg | Tujuan: {af_dest}")
+        elif fulfillment_mode and not pending_orders:
+            st.warning("Tidak ada pesanan status 'New' atau 'Packed' di Modul Commerce.")
+        
+        # --- END INTEGRATION ---
+
         with st.form("new_shipment_form"):
             col_ns1, col_ns2 = st.columns(2)
             
             with col_ns1:
-                ship_commodity = st.selectbox("Komoditas", [
-                    "Cabai Merah", "Cabai Rawit", "Tomat", "Bawang Merah", "Kentang",
-                    "Wortel", "Sawi", "Kangkung", "Bayam", "Selada"
-                ])
-                ship_qty = st.number_input("Quantity (kg)", 10, 50000, 500, step=10)
+                ship_commodity = st.text_input("Komoditas", af_commodity, disabled=fulfillment_mode)
+                ship_qty = st.number_input("Quantity (kg)", 10, 50000, int(af_qty), step=10, disabled=fulfillment_mode)
                 ship_origin = st.text_input("Origin (Farm/Gudang)", "Farm Banyumas")
-                ship_dest = st.text_input("Destination", "PI Kramat Jati")
+                ship_dest = st.text_input("Destination", af_dest)
             
             with col_ns2:
                 ship_vehicle = st.selectbox("Kendaraan", list(VEHICLES.keys()))
@@ -500,13 +540,25 @@ with tab5:
                     "driver": ship_driver,
                     "distance_km": ship_dist,
                     "date": ship_date.strftime("%Y-%m-%d"),
-                    "status": "packing",
+                    "status": "in_transit" if fulfillment_mode else "packing", # Auto-move if fulfilling
                     "total_cost": total_cost,
                     "cost_per_kg": cost_per_kg,
+                    "linked_orders": selected_order_ids, # Linked IDs
                     "created_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
                 }
                 
                 st.session_state.shipments.append(new_ship)
+                
+                # --- SYNC STATUS BACK TO COMMERCE ---
+                if selected_order_ids and 'order_db' in st.session_state:
+                    # Update status in dataframe
+                    st.session_state.order_db.loc[
+                        st.session_state.order_db['Order ID'].isin(selected_order_ids), 
+                        'Status'
+                    ] = 'Shipped'
+                    st.toast(f"✅ Status {len(selected_order_ids)} pesanan diupdate jadi 'Shipped'!")
+                # ------------------------------------
+                
                 st.success(f"✅ Shipment {new_ship['number']} berhasil dibuat!")
                 st.rerun()
     
