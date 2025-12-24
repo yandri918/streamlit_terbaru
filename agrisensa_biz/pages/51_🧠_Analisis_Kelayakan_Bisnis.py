@@ -268,6 +268,9 @@ with tab6:
     # 5. Legal
     scores['Legal'] = min(len(legal_docs) * 20 + 20, 100)
     
+    # --- RESULT ---
+    df_score = pd.DataFrame(list(scores.items()), columns=['Kriteria', 'Nilai'])
+    
     # Final Calc
     weights = {'Geografis': 0.15, 'Agronomi & Lahan': 0.25, 'Pasar': 0.20, 'Finansial': 0.30, 'Legal': 0.10}
     final_score = sum(scores[k] * weights[k] for k in scores)
