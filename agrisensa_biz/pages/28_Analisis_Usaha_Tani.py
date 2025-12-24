@@ -43,7 +43,7 @@ from services.project_service import ProjectManager
 # 1. Initialize with Legacy/Non-standard Crops
 CROP_TEMPLATES = {
     "Jagung Hibrida": {
-        "params": {"populasi_ha": 66000, "estimasi_panen_kg": 9000, "harga_jual": 5000, "lama_tanam_bulan": 4},
+        "params": {"populasi_ha": 66000, "total_panen_kg": 9000, "harga_jual": 5000, "lama_tanam_bulan": 4},
         "items": [
             {"kategori": "Biaya Tetap", "item": "Sewa Lahan", "satuan": "Musim", "volume": 1, "harga": 3000000, "wajib": True},
             {"kategori": "Benih", "item": "Benih Hibrida (Exp: NK/Bisi)", "satuan": "Kg", "volume": 20, "harga": 110000, "wajib": True},
@@ -57,7 +57,7 @@ CROP_TEMPLATES = {
         ]
     },
      "Kentang (Dieng/Granola)": {
-         "params": {"populasi_ha": 25000, "estimasi_panen_kg": 20000, "harga_jual": 12000, "lama_tanam_bulan": 4},
+         "params": {"populasi_ha": 25000, "total_panen_kg": 20000, "harga_jual": 12000, "lama_tanam_bulan": 4},
          "items": [
              {"kategori": "Biaya Tetap", "item": "Sewa Lahan Bukit", "satuan": "Musim", "volume": 1, "harga": 8000000, "wajib": True},
              {"kategori": "Benih", "item": "Bibit Knol (G1/G2)", "satuan": "Kg", "volume": 1200, "harga": 25000, "wajib": True},
@@ -68,7 +68,7 @@ CROP_TEMPLATES = {
          ]
     },
     "Kubis / Kol": {
-        "params": {"populasi_ha": 30000, "estimasi_panen_kg": 50000, "harga_jual": 2000, "lama_tanam_bulan": 3},
+        "params": {"populasi_ha": 30000, "total_panen_kg": 50000, "harga_jual": 2000, "lama_tanam_bulan": 3},
         "items": [
             {"kategori": "Benih", "item": "Benih Hibrida", "satuan": "Sachet", "volume": 15, "harga": 80000, "wajib": True},
             {"kategori": "Pupuk", "item": "Pupuk Kandang & Urea", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
@@ -77,7 +77,7 @@ CROP_TEMPLATES = {
         ]
     },
     "Wortel": {
-         "params": {"populasi_ha": 250000, "estimasi_panen_kg": 25000, "harga_jual": 3000, "lama_tanam_bulan": 3.5},
+         "params": {"populasi_ha": 250000, "total_panen_kg": 25000, "harga_jual": 3000, "lama_tanam_bulan": 3.5},
          "items": [
              {"kategori": "Benih", "item": "Benih Unggul", "satuan": "Kaleng", "volume": 8, "harga": 300000, "wajib": True},
              {"kategori": "Tenaga Kerja", "item": "Olah Tanah (Gembur)", "satuan": "HOK", "volume": 50, "harga": 100000, "wajib": True, "catatan": "Tanah harus sangat gembur"},
@@ -85,7 +85,7 @@ CROP_TEMPLATES = {
          ]
     },
     "Semangka (Non-Biji)": {
-         "params": {"populasi_ha": 4000, "estimasi_panen_kg": 25000, "harga_jual": 4500, "lama_tanam_bulan": 3},
+         "params": {"populasi_ha": 4000, "total_panen_kg": 25000, "harga_jual": 4500, "lama_tanam_bulan": 3},
          "items": [
             {"kategori": "Benih", "item": "Benih Non-Biji + Serbuk Sari", "satuan": "Paket", "volume": 1, "harga": 3000000, "wajib": True},
             {"kategori": "Penunjang", "item": "Mulsa", "satuan": "Roll", "volume": 5, "harga": 650000, "wajib": True},
@@ -94,7 +94,7 @@ CROP_TEMPLATES = {
          ]
     },
      "Buah Naga (Investasi Tahun 1)": {
-        "params": {"populasi_ha": 2000, "estimasi_panen_kg": 0, "harga_jual": 12000, "lama_tanam_bulan": 12}, 
+        "params": {"populasi_ha": 2000, "total_panen_kg": 0, "harga_jual": 12000, "lama_tanam_bulan": 12}, 
         # Note: Yield Year 1 is usually 0 or low. We set 0 for konservatif, or allow small harvest.
         "items": [
             {"kategori": "Investasi Awal", "item": "Tiang Panjat (Beton/Kayu)", "satuan": "Batang", "volume": 500, "harga": 150000, "wajib": True, "catatan": "Jarak 2.5 x 2.5m (populasi 4 tan/tiang)"},
@@ -105,7 +105,7 @@ CROP_TEMPLATES = {
         ]
     },
     "Cabai Merah (Greenhouse Hydroponic)": {
-        "params": {"populasi_ha": 30000, "estimasi_panen_kg": 25000, "harga_jual": 30000, "lama_tanam_bulan": 6},
+        "params": {"populasi_ha": 30000, "total_panen_kg": 25000, "harga_jual": 30000, "lama_tanam_bulan": 6},
         "items": [
             {"kategori": "Biaya Tetap", "item": "Amortisasi Green house (Sewa/Penyusutan)", "satuan": "Musim", "volume": 1, "harga": 75000000, "wajib": True, "catatan": "Asumsi GH 1 Ha @1.5M, umur 10 thn"},
             {"kategori": "Biaya Tetap", "item": "Listrik & Air (Pompa)", "satuan": "Bulan", "volume": 6, "harga": 500000, "wajib": True},
@@ -118,7 +118,7 @@ CROP_TEMPLATES = {
         ]
     },
     "Melon (Greenhouse Premium)": {
-        "params": {"populasi_ha": 22000, "estimasi_panen_kg": 35000, "harga_jual": 25000, "lama_tanam_bulan": 3},
+        "params": {"populasi_ha": 22000, "total_panen_kg": 35000, "harga_jual": 25000, "lama_tanam_bulan": 3},
         "items": [
              {"kategori": "Biaya Tetap", "item": "Amortisasi Green house", "satuan": "Musim", "volume": 1, "harga": 75000000, "wajib": True},
              {"kategori": "Biaya Tetap", "item": "Talianjir & Klip Gantung", "satuan": "Paket", "volume": 1, "harga": 5000000, "wajib": True},
@@ -130,7 +130,7 @@ CROP_TEMPLATES = {
         ]
     },
     "Krisan / Bunga Potong (Greenhouse)": {
-        "params": {"populasi_ha": 400000, "estimasi_panen_kg": 350000, "harga_jual": 2500, "lama_tanam_bulan": 3.5, "unit": "Batang"},
+        "params": {"populasi_ha": 400000, "total_panen_kg": 350000, "harga_jual": 2500, "lama_tanam_bulan": 3.5, "unit": "Batang"},
         "items": [
              {"kategori": "Biaya Tetap", "item": "Amortisasi Green house (Standard)", "satuan": "Musim", "volume": 1, "harga": 50000000, "wajib": True, "catatan": "Bambu/Besi Sederhana, umur 5 th"},
              {"kategori": "Biaya Tetap", "item": "Listrik Night Break (Lampu)", "satuan": "Bulan", "volume": 2, "harga": 1500000, "wajib": True, "catatan": "Fase Vegetatif (4-5 Jam/malam)"},
@@ -587,7 +587,7 @@ with st.sidebar:
         def_target_panen = float(ai_suggestion['predicted_yield'])
         st.caption("✨ Target hasil otomatis diisi oleh AI")
     else:
-        def_target_panen = float(crop_data['estimasi_panen_kg'])
+        def_target_panen = float(crop_data['total_panen_kg'])
         
     target_harga = st.number_input(f"Harga Jual (Rp/{unit_hasil})", 0, 200000, crop_data['harga_jual'], step=100)
     target_panen = st.number_input(f"Target Hasil ({unit_hasil}/ha)", 0, 1000000, int(def_target_panen), step=500)
@@ -853,6 +853,380 @@ if roi_percent < 0:
 elif roi_percent > 100:
     st.success("🚀 Potensi ROI Sangat Tinggi (High Risk High Return)")
 
+# ==========================================
+# 📊 BREAK-EVEN & ECONOMIC ANALYSIS
+# ==========================================
+st.divider()
+st.header("📊 Analisis Ekonomi & Break-Even")
+
+# Calculate fixed and variable costs
+biaya_tetap = sum([row['Total (Rp)'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap'])
+biaya_variabel = total_biaya - biaya_tetap
+total_panen_kg = target_panen * luas_lahan_ha  # Total yield in kg
+biaya_variabel_per_unit = biaya_variabel / total_panen_kg if total_panen_kg > 0 else 0
+
+# Create tabs for different analyses
+tab_bep, tab_sensitivity, tab_profit = st.tabs([
+    "📈 Break-Even Analysis",
+    "🔍 Sensitivity Analysis", 
+    "💹 Profit Scenarios"
+])
+
+# ===== TAB 1: BREAK-EVEN ANALYSIS =====
+with tab_bep:
+    st.subheader("📈 Break-Even Point (BEP)")
+    
+    st.markdown("""
+    ### Apa itu Break-Even Point?
+    
+    **BEP** adalah titik dimana **Total Revenue = Total Cost** (tidak untung, tidak rugi).
+    
+    **Formula:**
+    
+    $$BEP_{unit} = \\frac{Biaya\\ Tetap}{Harga\\ Jual - Biaya\\ Variabel\\ per\\ Unit}$$
+    """)
+    
+    # Calculate BEP
+    if harga_jual > biaya_variabel_per_unit:
+        contribution_margin = harga_jual - biaya_variabel_per_unit
+        bep_units = biaya_tetap / contribution_margin
+        bep_rupiah = bep_units * harga_jual
+        
+        # Margin of Safety
+        actual_sales_rupiah = total_panen_kg * harga_jual
+        mos_rupiah = actual_sales_rupiah - bep_rupiah
+        mos_percentage = (mos_rupiah / actual_sales_rupiah) * 100 if actual_sales_rupiah > 0 else 0
+        
+        # Display Results
+        col_bep1, col_bep2, col_bep3 = st.columns(3)
+        
+        with col_bep1:
+            st.metric("BEP (kg/unit)", f"{bep_units:,.0f} {unit_hasil}")
+            st.caption("Minimal penjualan untuk BEP")
+        
+        with col_bep2:
+            st.metric("BEP (Rupiah)", f"Rp {bep_rupiah:,.0f}")
+            st.caption("Revenue minimal untuk BEP")
+        
+        with col_bep3:
+            st.metric("Contribution Margin", f"Rp {contribution_margin:,.0f}")
+            st.caption("Per unit contribution")
+        
+        # Margin of Safety
+        st.markdown("### 🛡️ Margin of Safety (MOS)")
+        
+        col_mos1, col_mos2, col_mos3 = st.columns(3)
+        
+        with col_mos1:
+            st.metric("MOS (Rupiah)", f"Rp {mos_rupiah:,.0f}")
+        
+        with col_mos2:
+            st.metric("MOS (%)", f"{mos_percentage:.1f}%")
+        
+        with col_mos3:
+            st.metric("Actual Profit", f"Rp {estimasi_laba:,.0f}")
+        
+        # Interpretation
+        if mos_percentage > 30:
+            st.success(f"""
+            **✅ Margin of Safety Sangat Baik ({mos_percentage:.1f}%)**
+            
+            - Bisnis memiliki cushion yang besar
+            - Dapat menahan penurunan penjualan hingga {mos_percentage:.1f}% sebelum rugi
+            - Risiko rendah
+            """)
+        elif mos_percentage > 15:
+            st.info(f"""
+            **⚠️ Margin of Safety Cukup ({mos_percentage:.1f}%)**
+            
+            - Bisnis cukup aman tapi perlu monitoring
+            - Fokus pada efisiensi biaya
+            """)
+        else:
+            st.warning(f"""
+            **⚠️ Margin of Safety Rendah ({mos_percentage:.1f}%)**
+            
+            - Risiko tinggi - dekat dengan BEP
+            - Perlu strategi untuk meningkatkan penjualan atau menurunkan biaya
+            """)
+        
+        # Visualization
+        st.markdown("### 📈 Break-Even Chart")
+        
+        # Generate data for chart
+        units_range = np.linspace(0, bep_units * 2, 100)
+        total_cost_line = biaya_tetap + (biaya_variabel_per_unit * units_range)
+        total_revenue_line = harga_jual * units_range
+        
+        fig_bep = go.Figure()
+        
+        # Total Cost line
+        fig_bep.add_trace(go.Scatter(
+            x=units_range,
+            y=total_cost_line,
+            mode='lines',
+            name='Total Cost',
+            line=dict(color='red', width=2)
+        ))
+        
+        # Total Revenue line
+        fig_bep.add_trace(go.Scatter(
+            x=units_range,
+            y=total_revenue_line,
+            mode='lines',
+            name='Total Revenue',
+            line=dict(color='green', width=2)
+        ))
+        
+        # BEP point
+        fig_bep.add_trace(go.Scatter(
+            x=[bep_units],
+            y=[bep_rupiah],
+            mode='markers',
+            name='Break-Even Point',
+            marker=dict(size=15, color='blue', symbol='star')
+        ))
+        
+        # Actual sales point
+        fig_bep.add_trace(go.Scatter(
+            x=[total_panen_kg],
+            y=[actual_sales_rupiah],
+            mode='markers',
+            name='Target Sales',
+            marker=dict(size=12, color='orange', symbol='diamond')
+        ))
+        
+        fig_bep.update_layout(
+            title=f'Break-Even Analysis - {selected_crop}',
+            xaxis_title=f'Quantity ({unit_hasil})',
+            yaxis_title='Rupiah',
+            height=500,
+            hovermode='x unified'
+        )
+        
+        st.plotly_chart(fig_bep, use_container_width=True)
+        
+        # Cost Breakdown
+        st.markdown("### 💰 Cost Structure")
+        
+        col_cost1, col_cost2 = st.columns(2)
+        
+        with col_cost1:
+            # Pie chart
+            fig_pie = go.Figure(data=[go.Pie(
+                labels=['Biaya Tetap', 'Biaya Variabel'],
+                values=[biaya_tetap, biaya_variabel],
+                hole=.3
+            )])
+            fig_pie.update_layout(title='Cost Distribution', height=300)
+            st.plotly_chart(fig_pie, use_container_width=True)
+        
+        with col_cost2:
+            st.markdown("**Cost Breakdown:**")
+            cost_breakdown = pd.DataFrame({
+                'Type': ['Biaya Tetap', 'Biaya Variabel', 'Total'],
+                'Amount': [
+                    f"Rp {biaya_tetap:,.0f}",
+                    f"Rp {biaya_variabel:,.0f}",
+                    f"Rp {total_biaya:,.0f}"
+                ],
+                'Share (%)': [
+                    f"{(biaya_tetap/total_biaya*100):.1f}%",
+                    f"{(biaya_variabel/total_biaya*100):.1f}%",
+                    "100.0%"
+                ]
+            })
+            st.dataframe(cost_breakdown, use_container_width=True)
+    
+    else:
+        st.error(f"""
+        ⚠️ **Tidak Bisa Hitung BEP!**
+        
+        Harga jual (Rp {harga_jual:,.0f}) harus lebih besar dari biaya variabel per unit (Rp {biaya_variabel_per_unit:,.0f})
+        
+        **Solusi:**
+        - Naikkan harga jual, atau
+        - Turunkan biaya variabel
+        """)
+
+# ===== TAB 2: SENSITIVITY ANALYSIS =====
+with tab_sensitivity:
+    st.subheader("🔍 Sensitivity Analysis")
+    
+    st.markdown("""
+    ### Analisis Sensitivitas
+    
+    Bagaimana profit berubah jika ada perubahan pada:
+    - Harga jual
+    - Biaya produksi
+    - Volume penjualan
+    """)
+    
+    # Price Sensitivity
+    st.markdown("#### 📊 Price Sensitivity")
+    
+    price_changes = np.array([-20, -10, 0, 10, 20])
+    new_prices = harga_jual * (1 + price_changes/100)
+    
+    price_sens_data = []
+    for i, change in enumerate(price_changes):
+        new_price = new_prices[i]
+        new_revenue = total_panen_kg * new_price
+        new_profit = new_revenue - total_biaya
+        new_roi = (new_profit / total_biaya * 100) if total_biaya > 0 else 0
+        
+        price_sens_data.append({
+            'Price Change (%)': f"{change:+.0f}%",
+            'New Price': f"Rp {new_price:,.0f}",
+            'Revenue': f"Rp {new_revenue:,.0f}",
+            'Profit': f"Rp {new_profit:,.0f}",
+            'ROI (%)': f"{new_roi:.1f}%"
+        })
+    
+    price_sens_df = pd.DataFrame(price_sens_data)
+    st.dataframe(price_sens_df, use_container_width=True)
+    
+    # Yield Sensitivity
+    st.markdown("#### 🌾 Yield Sensitivity")
+    
+    yield_changes = np.array([-20, -10, 0, 10, 20])
+    new_yields = total_panen_kg * (1 + yield_changes/100)
+    
+    yield_sens_data = []
+    for i, change in enumerate(yield_changes):
+        new_yield = new_yields[i]
+        new_revenue = new_yield * harga_jual
+        new_profit = new_revenue - total_biaya
+        new_roi = (new_profit / total_biaya * 100) if total_biaya > 0 else 0
+        
+        yield_sens_data.append({
+            'Yield Change (%)': f"{change:+.0f}%",
+            'New Yield': f"{new_yield:,.0f} {unit_hasil}",
+            'Revenue': f"Rp {new_revenue:,.0f}",
+            'Profit': f"Rp {new_profit:,.0f}",
+            'ROI (%)': f"{new_roi:.1f}%"
+        })
+    
+    yield_sens_df = pd.DataFrame(yield_sens_data)
+    st.dataframe(yield_sens_df, use_container_width=True)
+    
+    # Visualization
+    st.markdown("#### 📈 Sensitivity Chart")
+    
+    fig_sens = go.Figure()
+    
+    # Price sensitivity line
+    price_profits = [float(row['Profit'].replace('Rp ', '').replace(',', '')) for row in price_sens_data]
+    fig_sens.add_trace(go.Scatter(
+        x=price_changes,
+        y=price_profits,
+        mode='lines+markers',
+        name='Price Sensitivity',
+        line=dict(color='blue', width=2)
+    ))
+    
+    # Yield sensitivity line
+    yield_profits = [float(row['Profit'].replace('Rp ', '').replace(',', '')) for row in yield_sens_data]
+    fig_sens.add_trace(go.Scatter(
+        x=yield_changes,
+        y=yield_profits,
+        mode='lines+markers',
+        name='Yield Sensitivity',
+        line=dict(color='green', width=2)
+    ))
+    
+    fig_sens.update_layout(
+        title='Profit Sensitivity to Price & Yield Changes',
+        xaxis_title='Change (%)',
+        yaxis_title='Profit (Rp)',
+        height=400
+    )
+    
+    st.plotly_chart(fig_sens, use_container_width=True)
+
+# ===== TAB 3: PROFIT SCENARIOS =====
+with tab_profit:
+    st.subheader("💹 Profit Scenarios")
+    
+    st.markdown("""
+    ### Skenario Optimis vs Pesimis
+    
+    Bandingkan profit dalam berbagai kondisi pasar.
+    """)
+    
+    # Define scenarios
+    scenarios = {
+        'Pesimis': {'price_mult': 0.8, 'yield_mult': 0.8, 'cost_mult': 1.2},
+        'Realistis': {'price_mult': 1.0, 'yield_mult': 1.0, 'cost_mult': 1.0},
+        'Optimis': {'price_mult': 1.2, 'yield_mult': 1.2, 'cost_mult': 0.9}
+    }
+    
+    scenario_results = []
+    
+    for scenario_name, multipliers in scenarios.items():
+        scenario_price = harga_jual * multipliers['price_mult']
+        scenario_yield = total_panen_kg * multipliers['yield_mult']
+        scenario_cost = total_biaya * multipliers['cost_mult']
+        scenario_revenue = scenario_price * scenario_yield
+        scenario_profit = scenario_revenue - scenario_cost
+        scenario_roi = (scenario_profit / scenario_cost * 100) if scenario_cost > 0 else 0
+        
+        scenario_results.append({
+            'Scenario': scenario_name,
+            'Price': f"Rp {scenario_price:,.0f}",
+            'Yield': f"{scenario_yield:,.0f} {unit_hasil}",
+            'Cost': f"Rp {scenario_cost:,.0f}",
+            'Revenue': f"Rp {scenario_revenue:,.0f}",
+            'Profit': f"Rp {scenario_profit:,.0f}",
+            'ROI (%)': f"{scenario_roi:.1f}%"
+        })
+    
+    scenario_df = pd.DataFrame(scenario_results)
+    st.dataframe(scenario_df, use_container_width=True)
+    
+    # Visualization
+    st.markdown("#### 📊 Scenario Comparison")
+    
+    scenario_names = [s['Scenario'] for s in scenario_results]
+    scenario_profits = [float(s['Profit'].replace('Rp ', '').replace(',', '')) for s in scenario_results]
+    
+    fig_scenario = go.Figure(data=[
+        go.Bar(
+            x=scenario_names,
+            y=scenario_profits,
+            text=[f"Rp {p:,.0f}" for p in scenario_profits],
+            textposition='auto',
+            marker_color=['red', 'yellow', 'green']
+        )
+    ])
+    
+    fig_scenario.update_layout(
+        title='Profit by Scenario',
+        xaxis_title='Scenario',
+        yaxis_title='Profit (Rp)',
+        height=400
+    )
+    
+    st.plotly_chart(fig_scenario, use_container_width=True)
+    
+    # Recommendations
+    st.markdown("### 💡 Recommendations")
+    
+    st.info(f"""
+    **Based on Analysis:**
+    
+    1. **Break-Even Point:** {bep_units:,.0f} {unit_hasil} @ Rp {bep_rupiah:,.0f}
+    2. **Current Target:** {total_panen_kg:,.0f} {unit_hasil} ({(total_panen_kg/bep_units*100):.0f}% of BEP)
+    3. **Margin of Safety:** {mos_percentage:.1f}%
+    
+    **Action Items:**
+    - Monitor harga pasar secara berkala
+    - Fokus pada efisiensi untuk turunkan biaya variabel
+    - Diversifikasi untuk mitigasi risiko
+    - Target minimal: {bep_units:,.0f} {unit_hasil} untuk avoid loss
+    """)
+
+
 # 7. EXPORT & ACTIONS
 st.subheader("📤 Export & Simpan")
 c_ex1, c_ex2 = st.columns(2)
@@ -925,7 +1299,7 @@ if st.button("📊 Analyze in Economics Module", type="primary", use_container_w
         'crop': selected_crop,
         'land_area_ha': luas_lahan_ha,
         'population': populasi_tanaman,
-        'estimated_yield_kg': estimasi_panen_kg,
+        'estimated_yield_kg': total_panen_kg,
         'selling_price': harga_jual,
         'total_cost': total_biaya,
         'total_revenue': estimasi_omzet,
@@ -936,7 +1310,7 @@ if st.button("📊 Analyze in Economics Module", type="primary", use_container_w
         # Break-even data
         'fixed_cost': sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap']),
         'variable_cost': total_biaya - sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap']),
-        'variable_cost_per_unit': (total_biaya - sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap'])) / estimasi_panen_kg if estimasi_panen_kg > 0 else 0,
+        'variable_cost_per_unit': (total_biaya - sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap'])) / total_panen_kg if total_panen_kg > 0 else 0,
         
         # Cost breakdown
         'cost_by_category': edited_df.groupby('Kategori')['Total'].sum().to_dict(),
