@@ -47,7 +47,9 @@ if 'order_db' not in st.session_state:
     st.session_state.order_db = load_data(ORDERS_FILE, {c:[] for c in cols}) # Empty default with cols
 
 # TABS
-tab_pos, tab_inventory, tab_orders, tab_forecast, tab_pricing = st.tabs([
+# TABS
+tab_dashboard, tab_pos, tab_inventory, tab_orders, tab_forecast, tab_pricing = st.tabs([
+    "📊 Dashboard Utama",
     "🛒 Kasir (POS)",
     "📦 Gudang & Stok",
     "🚚 Riwayat Pesanan",
@@ -55,7 +57,67 @@ tab_pos, tab_inventory, tab_orders, tab_forecast, tab_pricing = st.tabs([
     "🏷️ Cek Harga & Margin"
 ])
 
-# ===== TAB 1: KASIR (POS) =====
+# ===== TAB 1: DASHBOARD UTAMA =====
+with tab_dashboard:
+    st.header("📊 Executive Dashboard")
+    
+    df_dash = st.session_state.order_db
+    
+    # Ensure date format
+    if not df_dash.empty and not pd.api.types.is_datetime64_any_dtype(df_dash['Date']):
+        df_dash['Date'] = pd.to_datetime(df_dash['Date'])
+
+    # --- TOP METRICS ---
+    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+    
+    if not df_dash.empty:
+        today_val = df_dash[df_dash['Date'].dt.date == datetime.date.today()]['Total Value'].sum()
+        month_val = df_dash[df_dash['Date'].dt.month == datetime.date.today().month]['Total Value'].sum()
+        total_trx = len(df_dash)
+        avg_basket = df_dash['Total Value'].mean()
+    else:
+        today_val = 0; month_val = 0; total_trx = 0; avg_basket = 0
+        
+    m_col1.metric("Omzet Hari Ini", f"Rp {today_val:,.0f}")
+    m_col2.metric("Omzet Bulan Ini", f"Rp {month_val:,.0f}")
+    m_col3.metric("Total Transaksi", f"{total_trx} Trx")
+    m_col4.metric("Rata-rata Keranjang", f"Rp {avg_basket:,.0f}")
+    
+    st.divider()
+
+    # --- CHARTS ROW 1 ---
+    d_row1_1, d_row1_2 = st.columns([2, 1])
+    
+    if not df_dash.empty:
+        with d_row1_1:
+            st.subheader("📈 Tren Penjualan Harian")
+            daily_trend = df_dash.groupby(df_dash['Date'].dt.date)['Total Value'].sum().reset_index()
+            fig_trend = px.line(daily_trend, x='Date', y='Total Value', markers=True, title='Omzet per Hari')
+            st.plotly_chart(fig_trend, use_container_width=True)
+            
+        with d_row1_2:
+            st.subheader("🛒 Kanal Penjualan")
+            fig_chan = px.pie(df_dash, names='Channel', values='Total Value', title='Porsi Omzet per Channel', hole=0.4)
+            st.plotly_chart(fig_chan, use_container_width=True)
+            
+        # --- CHARTS ROW 2 ---
+        d_row2_1, d_row2_2 = st.columns([1, 1])
+        
+        with d_row2_1:
+            st.subheader("🏆 Produk Terlaris (Top 5)")
+            top_prod = df_dash.groupby('Commodity')['Qty (kg)'].sum().sort_values(ascending=False).head(5).reset_index()
+            fig_bar = px.bar(top_prod, x='Qty (kg)', y='Commodity', orientation='h', title='Volume Terjual (Qty)', color='Qty (kg)')
+            st.plotly_chart(fig_bar, use_container_width=True)
+            
+        with d_row2_2:
+            st.subheader("💳 Metode Pembayaran")
+            fig_pay = px.pie(df_dash, names='Payment', title='Preferensi Pembayaran')
+            st.plotly_chart(fig_pay, use_container_width=True)
+            
+    else:
+        st.info("⚠️ Belum ada data transaksi. Silakan input penjualan di tab 'Kasir' untuk melihat grafik.")
+
+# ===== TAB 2: KASIR (POS) =====
 with tab_pos:
     st.header("🛒 Point of Sales (Kasir Toko)")
     
