@@ -12,14 +12,39 @@ st.set_page_config(
     layout="wide"
 )
 
-# HELPER: Initialize Inventory DB
+import os
+
+# CONSTANTS - PERSISTENCE
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+os.makedirs(DATA_DIR, exist_ok=True)
+INVENTORY_FILE = os.path.join(DATA_DIR, "inventory.csv")
+ORDERS_FILE = os.path.join(DATA_DIR, "orders.csv")
+
+def load_data(filepath, default_data):
+    if os.path.exists(filepath):
+        try:
+            return pd.read_csv(filepath)
+        except:
+            return pd.DataFrame(default_data)
+    return pd.DataFrame(default_data)
+
+def save_data(df, filepath):
+    df.to_csv(filepath, index=False)
+
+# HELPER: Initialize Inventory DB (Load from CSV if exists)
 if 'inventory_db' not in st.session_state:
-    st.session_state.inventory_db = pd.DataFrame([
+    default_inv = [
         {"ID": "P001", "Nama": "NPK Mutiara 16-16-16", "Kategori": "Pupuk", "Stok": 50, "Satuan": "Zak (50kg)", "Modal": 850000, "Jual": 950000},
         {"ID": "B001", "Nama": "Benih Cabai Merah (Pilar)", "Kategori": "Benih", "Stok": 200, "Satuan": "Sachet", "Modal": 125000, "Jual": 150000},
         {"ID": "A001", "Nama": "Sprayer Elektrik 16L", "Kategori": "Alat", "Stok": 10, "Satuan": "Unit", "Modal": 450000, "Jual": 650000},
         {"ID": "O001", "Nama": "Fungisida Amistartop", "Kategori": "Pestisida", "Stok": 100, "Satuan": "Botol 100ml", "Modal": 85000, "Jual": 110000},
-    ])
+    ]
+    st.session_state.inventory_db = load_data(INVENTORY_FILE, default_inv)
+
+# HELPER: Initialize Orders DB
+if 'order_db' not in st.session_state:
+    cols = ['Order ID', 'Date', 'Customer', 'Channel', 'Commodity', 'Qty (kg)', 'Price/kg', 'Total Value', 'Status', 'Payment']
+    st.session_state.order_db = load_data(ORDERS_FILE, {c:[] for c in cols}) # Empty default with cols
 
 # TABS
 tab_pos, tab_inventory, tab_orders, tab_forecast, tab_pricing = st.tabs([
@@ -88,6 +113,11 @@ with tab_pos:
                     }
                     
                     st.session_state.order_db = pd.concat([pd.DataFrame([new_trx]), st.session_state.order_db], ignore_index=True)
+                    
+                    # PERSIST TO CSV
+                    save_data(df_inv, INVENTORY_FILE)
+                    save_data(st.session_state.order_db, ORDERS_FILE)
+
                     st.success(f"✅ Transaksi Berhasil! Sisa stok: {current_stock - qty_buy}")
                     
                     # SAVE RECEIPT TO SESSION STATE
@@ -186,6 +216,7 @@ with tab_inventory:
     # Sync Logic: If editor changes, update DB and RERUN to refresh POS prices immediately
     if not edited_df.equals(st.session_state.inventory_db):
         st.session_state.inventory_db = edited_df
+        save_data(edited_df, INVENTORY_FILE) # Persist changes
         st.rerun()
 
 # ===== TAB 3: RIWAYAT PESANAN (Previously Tab 1) =====
@@ -240,12 +271,6 @@ with tab_orders:
                 st.session_state.order_db = pd.concat([pd.DataFrame([new_entry]), st.session_state.order_db], ignore_index=True)
                 st.success("✅ Pesanan berhasil dicatat!")
                 st.rerun()
-
-    # Load Data (Simulation OR Session)
-    if 'order_db' not in st.session_state:
-        # Initialize empty but with correct structure
-        cols = ['Order ID', 'Date', 'Customer', 'Channel', 'Commodity', 'Qty (kg)', 'Price/kg', 'Total Value', 'Status', 'Payment']
-        st.session_state.order_db = pd.DataFrame(columns=cols)
     
     df_orders = st.session_state.order_db
     # Ensure Date format consistency
