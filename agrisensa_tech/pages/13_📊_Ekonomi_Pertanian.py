@@ -178,28 +178,28 @@ with tab_prod:
                 df_clean = df_clean[mask]
                 
                 if len(df_clean) < 10:
-                st.error("⚠️ Insufficient data after cleaning. Need at least 10 observations with positive values.")
-            else:
-                # Log transformation
-                df_log = np.log(df_clean)
-                df_log.columns = ['ln_' + c for c in df_log.columns]
-                
-                # OLS Regression
-                X = df_log[[f'ln_{v}' for v in input_vars]].values
-                y = df_log[f'ln_{output_var}'].values
-                
-                model = LinearRegression()
-                model.fit(X, y)
-                
-                # Results
-                beta_0 = model.intercept_
-                betas = model.coef_
-                r2 = model.score(X, y)
-                
-                # Calculate A (TFP)
-                A_estimated = np.exp(beta_0)
-                
-                # Returns to Scale
+                    st.error("⚠️ Insufficient data after cleaning. Need at least 10 observations with positive values.")
+                else:
+                    # Log transformation
+                    df_log = np.log(df_clean)
+                    df_log.columns = ['ln_' + c for c in df_log.columns]
+                    
+                    # OLS Regression
+                    X = df_log[[f'ln_{v}' for v in input_vars]].values
+                    y = df_log[f'ln_{output_var}'].values
+                    
+                    model = LinearRegression()
+                    model.fit(X, y)
+                    
+                    # Results
+                    beta_0 = model.intercept_
+                    betas = model.coef_
+                    r2 = model.score(X, y)
+                    
+                    # Calculate A (TFP)
+                    A_estimated = np.exp(beta_0)
+                    
+                    # Returns to Scale
                 RTS = sum(betas)
                 
                 # Display Results
