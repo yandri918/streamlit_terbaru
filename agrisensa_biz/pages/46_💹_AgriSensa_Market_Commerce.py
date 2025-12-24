@@ -91,7 +91,7 @@ with tab_dashboard:
     
     # Ensure date format
     if not df_dash.empty and not pd.api.types.is_datetime64_any_dtype(df_dash['Date']):
-        df_dash['Date'] = pd.to_datetime(df_dash['Date'])
+        df_dash['Date'] = pd.to_datetime(df_dash['Date'], errors='coerce')
 
     # --- TOP METRICS ---
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
