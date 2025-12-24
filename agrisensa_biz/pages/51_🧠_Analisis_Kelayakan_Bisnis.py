@@ -62,7 +62,7 @@ with st.sidebar:
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🌍 Lokasi & Geo",
     "🌱 Agronomi & Lahan",
-    "👥 Pasar & Kompetisi",
+    "👥 Pasar & Operasional",
     "💰 Finansial (5C)",
     "⚖️ Legal & Risiko",
     "📊 Laporan Final"
@@ -71,7 +71,6 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 # --- TAB 1: GEO-SPASIAL ---
 with tab1:
     st.subheader("📍 Analisis Lokasi & Geografis")
-    # ... (Code for Tab 1 remains mostly same, just standardizing header if needed)
     
     col_geo1, col_geo2 = st.columns([1.5, 1])
     
@@ -234,7 +233,7 @@ with tab3:
 # --- TAB 4: FINANSIAL (5C) ---
 with tab4:
     st.subheader("💰 Analisis Kelayakan Kredit (Metode 5C)")
-    # ... (Keep existing 5C logic)
+    
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("#### 1. Character & Capacity")
@@ -256,139 +255,182 @@ with tab5:
     legal_docs = st.multiselect("Dokumen Legal", ["NIB", "NPWP", "Izin Lokasi", "AMDAL", "Sertifikat Halal", "Akta PT/CV"])
     social_accept = st.select_slider("Penerimaan Warga", options=["Menolak", "Netral", "Mendukung", "Sangat Mendukung"], value="Mendukung")
 
-# --- TAB 6: REPORT ---
+# --- TAB 6: REPORT & INTELLIGENCE ---
 with tab6:
-    st.subheader("📊 Laporan Analisis Kelayakan")
+    st.subheader("📊 Laporan Analisis & Simulasi Cerdas")
     
-    scores = {}
+    # --- 1. SCORING ENGINE FUNCTION ---
+    def calculate_raw_metrics(params):
+        # Helper to calc score for any biz type
+        s = {}
+        
+        # A. GEO
+        geo = 0
+        if params['road'] in ["Jalan Raya Provinsi", "Dekat Tol"]: geo += 40
+        elif params['road'] == "Jalan Aspal Kecil": geo += 30
+        else: geo += 15
+        if params['disaster'] in ["Sangat Rendah", "Rendah"]: geo += 30
+        else: geo -= 10
+        # Agrowisata specific
+        if params['type'] == "Agrowisata":
+            if params['elev'] > 800: geo += 30
+        
+        s['Geografis'] = min(geo + 20, 100)
+        
+        # B. AGRONOMY
+        agro = 0
+        if params['land'] == "S1 - Sangat Sesuai": agro += 40
+        elif params['land'] == "S2 - Cukup Sesuai": agro += 30
+        
+        # Greenhouse tech bonus
+        if params['type'] == "Greenhouse Komersial": agro += 20
+        
+        # Pest Penalty
+        if params['pest'] == "Tinggi (Endemik)": 
+            agro -= 15 if params['type'] != "Greenhouse Komersial" else 5
+        elif params['pest'] == "Sangat Tinggi (Wabah)": 
+            agro -= 30 if params['type'] != "Greenhouse Komersial" else 10
+            
+        s['Agronomi'] = max(0, min(agro + 20, 100))
+        
+        # C. PASAR & OPS
+        ops = 0
+        mkt_base = (params['farmers']/100) + (params['area']/10)
+        ops += min(mkt_base, 30)
+        ops += max(20 - (params['competitor']*5), 0)
+        
+        # Labor
+        if params['labor_av'] in ["Cukup", "Melimpah"]: ops += 10
+        elif params['labor_av'] == "Sangat Langka": ops -= 15
+        
+        # Logistics
+        if params['dist_mkt'] < 20: ops += 10
+        if params['supplier'] == "Sangat Mudah (Ada di Desa)": ops += 10
+        
+        # Tech
+        if params['inet'] in ["4G/LTE Kuat", "Fiber Optic Ready"]: ops += 10
+        
+        s['PasarOps'] = min(ops + 10, 100)
+        
+        # D. FINANCIAL
+        fin = 0
+        if params['credit'] == "Sangat Baik": fin += 30
+        if params['der'] < 2.0: fin += 25
+        if params['cov'] >= 110: fin += 25
+        s['Finansial'] = min(fin, 100)
+        
+        # E. LEGAL & RISK
+        leg = 50
+        if params['zone'] == "Hijau (Pertanian)": leg += 30
+        elif params['zone'] == "Merah (Kawasan Lindung/Rawan)": leg -= 80
+        
+        if params['social'] == "Sering Konflik Lahan": leg -= 40
+        
+        s['Legal'] = max(0, min(leg, 100))
+        
+        return s
+
+    # Gather Current Params
+    current_params = {
+        'type': biz_type,
+        'road': road_access, 'disaster': disaster_risk, 'elev': elevation if 'elevation' in locals() else 500,
+        'land': land_class, 'pest': pest_risk_level,
+        'farmers': farmer_count, 'area': land_area, 'competitor': competitor_count,
+        'dist_mkt': dist_to_market if 'dist_to_market' in locals() else 10, 
+        'supplier': supplier_access if 'supplier_access' in locals() else "Sedang",
+        'labor_av': labor_avail if 'labor_avail' in locals() else "Cukup", 
+        'inet': internet_signal if 'internet_signal' in locals() else "4G/LTE Kuat",
+        'credit': credit_history, 'der': der, 'cov': coverage_ratio,
+        'zone': rtrw_zone if 'rtrw_zone' in locals() else "Hijau (Pertanian)", 
+        'social': social_risk if 'social_risk' in locals() else "Aman Kondusif"
+    }
     
-    # 1. Geo Score
-    geo_score = 0
-    if road_access in ["Jalan Raya Provinsi", "Dekat Tol"]: geo_score += 40
-    elif road_access == "Jalan Aspal Kecil": geo_score += 30
-    else: geo_score += 15
-    if disaster_risk in ["Sangat Rendah", "Rendah"]: geo_score += 30
-    else: geo_score -= 10
-    scores['Geografis'] = min(geo_score + 30, 100)
+    # Calculate Scores
+    scores_current = calculate_raw_metrics(current_params)
     
-    # 2. Agronomy Score (NEW)
-    agro_score = 0
-    # Land Class
-    if land_class == "S1 - Sangat Sesuai": agro_score += 40
-    elif land_class == "S2 - Cukup Sesuai": agro_score += 30
-    elif land_class == "N - Tidak Sesuai": agro_score -= 20
-    # Sentra Bonus
-    if sentra_type != "Bukan Sentra (Pioneer)": agro_score += 10
-    # Irrigation
-    if irrigation_type in ["Irigasi Teknis (Bendungan)", "Mata Air Gravitasi"]: agro_score += 30
-    elif irrigation_type == "Sumur Bor / Pompa": agro_score += 20
-    # pH ideal (6-7)
-    if 6.0 <= ph_level <= 7.0: agro_score += 20
+    # Weighting
+    weights = {'Geografis': 0.15, 'Agronomi': 0.20, 'PasarOps': 0.25, 'Finansial': 0.30, 'Legal': 0.10}
+    final_score = sum(scores_current[k] * weights[k] for k in scores_current)
     
-    # Pest Penalty (NEW)
-    if pest_risk_level == "Tinggi (Endemik)": agro_score -= 15
-    elif pest_risk_level == "Sangat Tinggi (Wabah)": agro_score -= 30
-    
-    scores['Agronomi & Lahan'] = max(0, min(agro_score, 100))
-    
-    # 3. Market Score
-    mkt_score = 0
-    market_point = (farmer_count / 100) + (land_area / 10)
-    mkt_score += min(market_point, 40)
-    mkt_score += max(30 - (competitor_count * 5), 0)
-    if len(unique_selling) >= 3: mkt_score += 20
-    scores['Pasar'] = min(mkt_score + 10, 100)
-    
-    # 4. Financial
-    fin_score = 0
-    if credit_history == "Sangat Baik": fin_score += 30
-    if der < 2.0: fin_score += 25
-    if coverage_ratio >= 110: fin_score += 25
-    if exp_years > 3: fin_score += 20
-    scores['Finansial'] = min(fin_score, 100)
-    
-    # 5. Legal
-    scores['Legal'] = min(len(legal_docs) * 20 + 20, 100)
-    
-    # --- RESULT ---
-    df_score = pd.DataFrame(list(scores.items()), columns=['Kriteria', 'Nilai'])
-    
-    # Final Calc
-    weights = {'Geografis': 0.15, 'Agronomi & Lahan': 0.25, 'Pasar': 0.20, 'Finansial': 0.30, 'Legal': 0.10}
-    final_score = sum(scores[k] * weights[k] for k in scores)
-    
-    # Layout
+    # --- LAYOUT UPPER ---
     r1, r2 = st.columns([1, 1.5])
     
     with r1:
         st.markdown(f"""
         <div class="score-card">
-            <div class="metric-label">SKOR KELAYAKAN BISNIS</div>
+            <div class="metric-label">SKOR KELAYAKAN ({biz_type})</div>
             <div class="metric-big" style="color: {'#10b981' if final_score >= 75 else '#f59e0b' if final_score >= 50 else '#ef4444'}">
-                {final_score:.1f} / 100
+                {final_score:.1f}
             </div>
             <div style="margin-top: 10px; font-weight: bold;">
-                {'✅ SANGAT LAYAK (RECOMMENDED)' if final_score >= 75 else '⚠️ LAYAK DENGAN CATATAN' if final_score >= 50 else '❌ BERISIKO TINGGI (NOT RECOMMENDED)'}
+                {'✅ RECOMMENDED' if final_score >= 75 else '⚠️ WARNING' if final_score >= 50 else '❌ HIGH RISK'}
             </div>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("### Kesimpulan AI")
         if final_score >= 75:
-            st.success("Bisnis ini memiliki prospek sangat cerah. Fondasi lokasi, pasar, dan finansial sangat kuat. Direkomendasikan untuk segera eksekusi.")
+            st.success("Lokasi dan kondisi sangat mendukung. Risiko terukur.")
         elif final_score >= 50:
-            st.warning("Bisnis ini potensial namun memiliki risiko yang perlu dimitigasi, terutama pada aspek dengan skor terendah. Perbaiki parameter sebelum mengajukan kredit besar.")
+            st.warning("Perlu mitigasi risiko di sektor dengan skor rendah.")
         else:
-            st.error("Rencana bisnis ini belum matang atau lokasi kurang strategis. Sebaiknya evaluasi ulang model bisnis atau cari lokasi alternatif.")
-
-        if loan_amount > 0:
-            credit_grade = "A (Prime)" if final_score >= 80 else "B (Good)" if final_score >= 70 else "C (Fair)" if final_score >= 60 else "D (Subprime)"
-            st.info(f"🏷️ **Prediksi Rating Kredit:** {credit_grade}")
-            
-        # --- SMART RECOMMENDATION ENGINE ---
-        st.markdown("### 💡 Rekomendasi AI Jenis Usaha")
-        
-        recommendations = []
-        
-        # 1. Check Greenhouse Potential
-        if total_capital > 500_000_000 and pest_risk_level in ["Tinggi (Endemik)", "Sangat Tinggi (Wabah)"]:
-            recommendations.append(("Greenhouse Modern", "Area ini endemik hama tinggi. Greenhouse adalah solusi terbaik untuk memproteksi modal tanaman Anda."))
-        
-        # 2. Check Farm Shop Potential
-        if road_access in ["Jalan Raya Provinsi", "Dekat Tol"] and farmer_count > 1000 and competitor_count < 5:
-            recommendations.append(("Toko Pertanian (Farm Shop)", "Lokasi sangat strategis untuk retail. Basis petani besar namun kompetisi masih rendah."))
-            
-        # 3. Check Agrowisata Potential
-        if elevation > 800 and disaster_risk in ["Sangat Rendah", "Rendah"] and road_access != "Jalan Tanah":
-            recommendations.append(("Agrowisata & Petik Buah", "Ketinggian >800mdpl (Sejuk) + Akses bagus + Risiko rendah = Sempurna untuk wisata."))
-            
-        # 4. Check Trading/Distributor
-        if sentra_type != "Bukan Sentra (Pioneer)" and road_access not in ["Jalan Tanah", "Jalan Makadam"]:
-            recommendations.append(("Distributor/Offtaker", "Manfaatkan status 'Sentra Budidaya' untuk menjadi pengepul/distributor skala besar."))
-
-        if recommendations:
-            st.info(f"Mengingat kondisi (Hama: {pest_risk_level}, Lokasi, Modal), kami menyarankan pivot ke:")
-            for rec, reason in recommendations:
-                st.markdown(f"- **{rec}**: {reason}")
-        else:
-            st.caption("Model bisnis yang Anda pilih ("+biz_type+") sudah cukup moderat untuk kondisi ini.")
+            st.error("Risiko terlalu tinggi (legal/sosial/agronomi).")
 
     with r2:
-        # Radar Chart
-        fig = go.Figure()
-        fig.add_trace(go.Scatterpolar(
-            r=df_score['Nilai'],
-            theta=df_score['Kriteria'],
-            fill='toself',
-            name='Skor Bisnis Anda',
-            line_color='#0284c7'
+        # --- COMPARATIVE ANALYSIS ---
+        st.markdown("#### 🆚 Perbandingan Peluang Usaha")
+        other_types = ["Toko Pertanian (Farm Shop)", "Greenhouse Komersial", "Distributor Pupuk", "Pengolahan Hasil Panen", "Agrowisata"]
+        comp_res = []
+        
+        for ot in other_types:
+            p = current_params.copy()
+            p['type'] = ot
+            s = calculate_raw_metrics(p)
+            f = sum(s[k] * weights[k] for k in s)
+            comp_res.append({'Jenis': ot, 'Skor': f})
+            
+        df_comp = pd.DataFrame(comp_res).sort_values('Skor', ascending=True)
+        colors = ['#0284c7' if x == biz_type else '#cbd5e1' for x in df_comp['Jenis']]
+        # Green for winner
+        max_s = df_comp['Skor'].max()
+        colors = ['#10b981' if s == max_s else c for s, c in zip(df_comp['Skor'], colors)]
+        
+        fig = go.Figure(go.Bar(
+            x=df_comp['Skor'], y=df_comp['Jenis'], orientation='h',
+            marker_color=colors, text=df_comp['Skor'].apply(lambda x: f"{x:.1f}")
         ))
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(visible=True, range=[0, 100])
-            ),
-            showlegend=False,
-            title="Peta Kekuatan Bisnis (Radar Chart)"
-        )
+        fig.update_layout(height=250, margin=dict(l=0, r=0, t=0, b=0))
         st.plotly_chart(fig, use_container_width=True)
 
+    st.divider()
+    
+    # --- MONTE CARLO SIMULATION ---
+    st.subheader("🎲 Simulasi Risiko (Monte Carlo Analysis)")
+    st.info("Mensimulasikan 1000 kemungkinan skor jika kondisi pasar/agronomi berfluktuasi.")
+    
+    if st.button("Jalankan Simulasi Risiko", type="primary"):
+        with st.spinner("Running 1000 iterations..."):
+            sim_scores = []
+            risk_volatility = 5 if disaster_risk == "Rendah" else 15
+            if pest_risk_level == "Tinggi (Endemik)": risk_volatility += 10
+            
+            for _ in range(1000):
+                # Randomize key factors
+                noise = np.random.normal(0, risk_volatility)
+                sim_score = min(100, max(0, final_score + noise))
+                sim_scores.append(sim_score)
+            
+            # Analytics
+            success_prob = sum(1 for x in sim_scores if x >= 70) / 10
+            
+            mc1, mc2 = st.columns([2, 1])
+            with mc1:
+                fig_mc = go.Figure(data=[go.Histogram(x=sim_scores, nbinsx=30, marker_color='#3b82f6')])
+                fig_mc.add_vline(x=70, line_dash="dash", line_color="green", annotation_text="Target Layak")
+                fig_mc.update_layout(title="Distribusi Kemungkinan Skor Akhir", height=300)
+                st.plotly_chart(fig_mc, use_container_width=True)
+            
+            with mc2:
+                st.metric("Probabilitas Sukses (>70)", f"{success_prob:.1f}%")
+                st.metric("Skenario Terburuk (10%)", f"{np.percentile(sim_scores, 10):.1f}")
+                st.metric("Skenario Terbaik (90%)", f"{np.percentile(sim_scores, 90):.1f}")
