@@ -59,14 +59,50 @@ with st.sidebar:
     st.metric("Total Modal", f"Rp {total_capital:,.0f}")
 
 # ==================== 2. INPUT PARAMETER (TABS) ====================
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab7, tab6 = st.tabs([
     "🌍 Lokasi & Geo",
     "🌱 Agronomi & Lahan",
     "👥 Pasar & Operasional",
     "💰 Finansial (5C)",
     "⚖️ Legal & Risiko",
+    "📈 Ekon. Makro & Kebijakan",
     "📊 Laporan Final"
 ])
+
+# ... (Tab 1 to Tab 5 content remains same)
+
+# --- TAB 5: LEGAL ---
+with tab5:
+    st.subheader("⚖️ Legalitas & Risiko")
+    legal_docs = st.multiselect("Dokumen Legal", ["NIB", "NPWP", "Izin Lokasi", "AMDAL", "Sertifikat Halal", "Akta PT/CV"])
+    social_accept = st.select_slider("Penerimaan Warga", options=["Menolak", "Netral", "Mendukung", "Sangat Mendukung"], value="Mendukung")
+
+# --- TAB 7: EKONOMI MAKRO & KEBIJAKAN (NEW) ---
+with tab7:
+    st.subheader("📈 Analisis Ekonomi Makro & Kebijakan")
+    st.info("Parameter profesional untuk analisis dampak lingkungan ekonomi eksternal dan kebijakan pemerintah.")
+    
+    ec1, ec2 = st.columns(2)
+    
+    with ec1:
+        st.markdown("#### 🌏 Indikator Makroekonomi")
+        inflation_rate = st.number_input("Tingkat Inflasi Tahunan (%)", 0.0, 20.0, 3.5, 0.1, help="Inflasi tinggi menggerus daya beli dan meningkatkan biaya input.")
+        gdp_growth = st.number_input("Pertumbuhan Ekonomi Regional (%)", -5.0, 15.0, 5.0, 0.1, help="Korelasi positif dengan demand produk sekunder/tersier.")
+        bi_rate = st.number_input("Suku Bunga Acuan (BI Rate) %", 2.0, 15.0, 6.0, 0.25, help="Basis perhitungan Cost of Fund untuk kredit.")
+        exchange_rate_volatility = st.selectbox("Volatilitas Kurs (IDR/USD)", ["Stabil", "Fluktuatif Sedang", "Sangat Gejolak"], help="Penting jika Anda menggunakan pupuk impor atau orientasi ekspor.")
+        
+    with ec2:
+        st.markdown("#### 🏛️ Kebijakan Pemerintah")
+        gov_support = st.multiselect("Dukungan Pemerintah Sektor Ini", ["Subsidi Pupuk/Pakan", "Bantuan Alsintan", "KUR (Bunga Rendah)", "Proteksi Impor", "Tax Allowance/Holiday"])
+        import_policy = st.selectbox("Kebijakan Perdagangan", ["Bebas Impor (Kompetisi Tinggi)", "Pembatasan Impor (Proteksi)", "Netral"])
+        
+        st.divider()
+        st.markdown("#### 🔬 Struktur Pasar (Mikro)")
+        market_structure = st.selectbox("Struktur Persaingan Industri", 
+            ["Persaingan Sempurna (Banyak Penjual/Pembeli)", "Oligopoli (Dikuasai Pemain Besar)", "Monopoli (Dikuasai 1 Pihak)", "Niche Market (Spesifik)"],
+            help="Menentukan Pricing Power Anda."
+        )
+        price_elasticity = st.selectbox("Elastisitas Harga Produk", ["Inelastis (Bebutuhan Pokok)", "Elastis (Barang Mewah/Sekunder)"], help="Inelastis: Harga naik, orang tetap beli (Padi/Jagung). Elastis: Harga naik, orang kurangi beli (Bunga/Buah Mahal).")
 
 # --- TAB 1: GEO-SPASIAL ---
 with tab1:
@@ -323,10 +359,28 @@ with tab6:
         leg = 50
         if params['zone'] == "Hijau (Pertanian)": leg += 30
         elif params['zone'] == "Merah (Kawasan Lindung/Rawan)": leg -= 80
-        
         if params['social'] == "Sering Konflik Lahan": leg -= 40
-        
         s['Legal'] = max(0, min(leg, 100))
+        
+        # F. EKONOMI & KEBIJAKAN (NEW)
+        eco = 50 # Base neutral
+        
+        # Macro
+        if params['gdp'] > 5.0: eco += 10
+        if params['inflasi'] > 5.0: eco -= 10 # High inflation penalty
+        elif params['inflasi'] < 2.0: eco -= 5 # Deflation risk (low demand)
+        
+        # Policy
+        eco += len(params['gov']) * 10
+        if params['import'] == "Pembatasan Impor (Proteksi)": eco += 15
+        elif params['import'] == "Bebas Impor (Kompetisi Tinggi)": eco -= 10
+        
+        # Micro
+        if params['struk'] == "Niche Market (Spesifik)": eco += 20 # High pricing power
+        elif params['struk'] == "Persaingan Sempurna (Banyak Penjual/Pembeli)": eco += 0 # Neutral, price taker
+        elif params['struk'] == "Oligopoli (Dikuasai Pemain Besar)": eco -= 10 # Hard to enter
+        
+        s['Ekonomi'] = max(0, min(eco, 100))
         
         return s
 
@@ -342,14 +396,20 @@ with tab6:
         'inet': internet_signal if 'internet_signal' in locals() else "4G/LTE Kuat",
         'credit': credit_history, 'der': der, 'cov': coverage_ratio,
         'zone': rtrw_zone if 'rtrw_zone' in locals() else "Hijau (Pertanian)", 
-        'social': social_risk if 'social_risk' in locals() else "Aman Kondusif"
+        'social': social_risk if 'social_risk' in locals() else "Aman Kondusif",
+        # New Economic Params
+        'inflasi': inflation_rate, 'gdp': gdp_growth, 'gov': gov_support,
+        'import': import_policy, 'struk': market_structure
     }
     
     # Calculate Scores
     scores_current = calculate_raw_metrics(current_params)
     
-    # Weighting
-    weights = {'Geografis': 0.15, 'Agronomi': 0.20, 'PasarOps': 0.25, 'Finansial': 0.30, 'Legal': 0.10}
+    # Weighting (Updated)
+    weights = {
+        'Geografis': 0.15, 'Agronomi': 0.20, 'PasarOps': 0.20, 
+        'Finansial': 0.20, 'Legal': 0.10, 'Ekonomi': 0.15
+    }
     final_score = sum(scores_current[k] * weights[k] for k in scores_current)
     
     # --- LAYOUT UPPER ---
