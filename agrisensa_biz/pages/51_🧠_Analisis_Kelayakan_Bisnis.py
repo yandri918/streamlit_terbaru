@@ -193,23 +193,43 @@ with tab2:
             ["Layu Fusarium/Bakteri", "Lalat Buah", "Thrips/Tungau", "Tikus", "Wereng", "Akar Gada", "Virus (Gemini/Kuning)", "Tidak Ada"]
         )
 
-# --- TAB 3: PASAR ---
+# --- TAB 3: PASAR & OPERASIONAL ---
 with tab3:
-    st.subheader("👥 Potensi Pasar & Kompetisi")
+    st.subheader("👥 Analisis Pasar & Operasional")
     
     col_mkt1, col_mkt2 = st.columns(2)
     
     with col_mkt1:
-        st.markdown("#### 🎯 Target Pasar")
+        st.markdown("#### 🎯 Potensi Pasar")
         catchment_radius = st.slider("Radius Layanan (km)", 1, 50, 5)
         farmer_count = st.number_input("Estimasi Jumlah Petani di Area (KK)", 100, 50000, 1500)
         land_area = st.number_input("Estimasi Luas Lahan Potensial (Ha)", 10, 10000, 500)
+        
+        st.divider()
+        st.markdown("#### 🚚 Logistik & Rantai Pasok")
+        dist_to_market = st.number_input("Jarak ke Pasar Induk / Terminal (km)", 1, 200, 10)
+        supplier_access = st.selectbox("Akses Supplier (Pupuk/Benih)", ["Sangat Mudah (Ada di Desa)", "Sedang (Kecamatan)", "Sulit (Harus ke Kota)"])
+        backup_suppliers = st.number_input("Jml Alternatif Supplier", 0, 10, 2, help="Jumlah supplier cadangan jika supplier utama kolaps")
+        
+        st.divider()
+        st.markdown("#### 📡 Kesiapan Teknologi")
+        internet_signal = st.selectbox("Sinyal Internet", ["4G/LTE Kuat", "Fiber Optic Ready", "3G/Tidak Stabil", "Blank Spot"])
         
     with col_mkt2:
         st.markdown("#### ⚔️ Kompetisi")
         competitor_count = st.number_input("Jumlah Kompetitor Direct", 0, 50, 3)
         market_growth = st.slider("Pertumbuhan Pasar Tahunan (%)", -10, 50, 10)
         unique_selling = st.multiselect("Keunggulan Kompetitif (USP)", ["Harga Murah", "Layanan Antar", "Konsultasi", "Teknologi", "Kredit", "Stok Lengkap"])
+        
+        st.divider()
+        st.markdown("#### 👷 Ketenagakerjaan")
+        labor_avail = st.select_slider("Ketersediaan Tenaga Kerja Tani", ["Sangat Langka", "Langka", "Cukup", "Melimpah"], value="Cukup")
+        labor_cost = st.number_input("Upah Harian Rata-rata (Rp)", 50_000, 250_000, 80_000, 5_000)
+        
+        st.divider()
+        st.markdown("#### 🛡️ Risiko Non-Teknis (Advance)")
+        rtrw_zone = st.selectbox("Zona Tata Ruang (RTRW)", ["Hijau (Pertanian)", "Kuning (Pemukiman)", "Merah (Kawasan Lindung/Rawan)"])
+        social_risk = st.selectbox("Risiko Sosial/Keamanan", ["Aman Kondusif", "Rawan Pencurian", "Sering Konflik Lahan"])
 
 # --- TAB 4: FINANSIAL (5C) ---
 with tab4:
