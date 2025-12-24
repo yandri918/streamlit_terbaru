@@ -871,6 +871,9 @@ lama_tanam_bulan = template_params.get('lama_tanam_bulan', 4)  # months
 biaya_tetap = sum([row['Total (Rp)'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap'])
 biaya_variabel = total_biaya - biaya_tetap
 total_panen_kg = target_panen * luas_lahan_ha  # Total yield in kg
+
+# Calculate cost per unit (Total RAB / Total Yield)
+biaya_per_unit = total_biaya / total_panen_kg if total_panen_kg > 0 else 0
 biaya_variabel_per_unit = biaya_variabel / total_panen_kg if total_panen_kg > 0 else 0
 
 # Create tabs for different analyses
@@ -1054,19 +1057,31 @@ with tab_bep:
         with col_cost2:
             st.markdown("**Cost Breakdown:**")
             cost_breakdown = pd.DataFrame({
-                'Type': ['Biaya Tetap', 'Biaya Variabel', 'Total'],
+                'Type': ['Biaya Tetap', 'Biaya Variabel', 'Total', 'Cost per Unit'],
                 'Amount': [
                     f"Rp {biaya_tetap:,.0f}",
                     f"Rp {biaya_variabel:,.0f}",
-                    f"Rp {total_biaya:,.0f}"
+                    f"Rp {total_biaya:,.0f}",
+                    f"Rp {biaya_per_unit:,.0f}/{unit_hasil}"
                 ],
                 'Share (%)': [
-                    f"{(biaya_tetap/total_biaya*100):.1f}%",
-                    f"{(biaya_variabel/total_biaya*100):.1f}%",
-                    "100.0%"
+                    f"{(biaya_tetap/total_biaya*100):.1f}%" if total_biaya > 0 else "0%",
+                    f"{(biaya_variabel/total_biaya*100):.1f}%" if total_biaya > 0 else "0%",
+                    "100.0%",
+                    "-"
                 ]
             })
             st.dataframe(cost_breakdown, use_container_width=True)
+            
+            # Add explanation
+            st.caption(f"""
+            💡 **Cost per Unit** = Total RAB / Total Yield
+            
+            = Rp {total_biaya:,.0f} / {total_panen_kg:,.0f} {unit_hasil}
+            = Rp {biaya_per_unit:,.0f} per {unit_hasil}
+            
+            Ini adalah biaya produksi per unit hasil panen.
+            """)
     
     else:
         st.error(f"""
