@@ -692,40 +692,40 @@ with tab2:
         # Generate QR Code - NOW USES VERCEL URL!
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
         
-        # Build Vercel Product Passport URL
-        # Build Vercel Product Passport URL
+        # Build Vercel Product Passport URL with Query Parameters
         import urllib.parse
-        import json
         
         base_url = "https://vercel-scan2.vercel.app/product"
-        # Payload construction for Base64 (Minified for compact QR)
-        payload = {
-            'id': data['id'],
-            'n': data['produk'],                 # name
-            'v': data['varietas'],               # variety
-            'f': data['petani'],                 # farmer
-            'l': data['lokasi'],                 # location
-            'd': str(data['tgl']),               # date
-            'w': f"{data.get('berat', 1)} kg",   # weight
-            'e': '🌾',                           # emoji
-            'p': str(data['harga']) if data.get('harga') else None, # price
-            # Climate: t=temp, h=hum, s=sun
-            'c': {
-                't': str(data.get('climate', {}).get('avg_temp', '')),
-                'h': str(data.get('climate', {}).get('avg_hum', '')),
-                's': str(data.get('climate', {}).get('sun_hours', ''))
-            },
-            # Milestones: m
-            'm': data.get('milestones', [])
+        
+        # Build query parameters
+        params = {
+            'name': data['produk'],
+            'variety': data['varietas'],
+            'farmer': data['petani'],
+            'location': data['lokasi'],
+            'harvest_date': str(data['tgl']),
+            'weight': f"{data.get('berat', 1)} kg",
+            'batch_id': data['id']
         }
         
-        # Encode to URL-Safe Base64 (Strip Padding for Cleaner URL)
-        import base64
-        json_str = json.dumps(payload, separators=(',', ':'))
-        b64_str = base64.urlsafe_b64encode(json_str.encode()).decode().rstrip("=")
+        # Add optional fields
+        if data.get('harga'):
+            params['price'] = str(data['harga'])
         
-        # Final Robust URL
-        qr_url = f"{base_url}/{b64_str}"
+        # Add climate data if available
+        if data.get('climate'):
+            params['avg_temp'] = str(data['climate']['avg_temp'])
+            params['avg_hum'] = str(data['climate']['avg_hum'])
+            params['sun_hours'] = str(data['climate']['sun_hours'])
+        
+        # Add milestones as JSON string
+        if data.get('milestones'):
+            import json
+            params['milestones'] = json.dumps(data['milestones'])
+        
+        # Construct final URL
+        query_string = urllib.parse.urlencode(params)
+        qr_url = f"{base_url}/QR?{query_string}"
         
         # DEBUG: Show URL to User
         st.caption("🔗 **Debug Link:** " + qr_url)
