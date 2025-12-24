@@ -166,12 +166,18 @@ with tab_prod:
             # Prepare data
             df_clean = df_prod[[output_var] + input_vars].dropna()
             
-            # Select only numeric columns and remove non-positive values
-            numeric_cols = df_clean.select_dtypes(include=[np.number]).columns
-            df_clean = df_clean[numeric_cols]
-            df_clean = df_clean[(df_clean > 0).all(axis=1)]
-            
-            if len(df_clean) < 10:
+            # Check if all selected columns are numeric
+            non_numeric = [col for col in [output_var] + input_vars if not pd.api.types.is_numeric_dtype(df_clean[col])]
+            if non_numeric:
+                st.error(f"⚠️ The following columns must be numeric: {', '.join(non_numeric)}")
+            else:
+                # Remove non-positive values
+                mask = (df_clean[output_var] > 0)
+                for var in input_vars:
+                    mask &= (df_clean[var] > 0)
+                df_clean = df_clean[mask]
+                
+                if len(df_clean) < 10:
                 st.error("⚠️ Insufficient data after cleaning. Need at least 10 observations with positive values.")
             else:
                 # Log transformation
@@ -492,26 +498,28 @@ with tab_elast:
                     p_var = st.selectbox("Price Variable:", [c for c in df_elast.columns if c != q_var])
             
             if st.button("Calculate Elasticity"):
-                # Log transformation
+                # Prepare data
                 df_clean = df_elast[[q_var, p_var]].dropna()
                 
-                # Select only numeric columns and remove non-positive values
-                numeric_cols = df_clean.select_dtypes(include=[np.number]).columns
-                df_clean = df_clean[numeric_cols]
-                df_clean = df_clean[(df_clean > 0).all(axis=1)]
-                
-                if len(df_clean) < 10:
-                    st.error("⚠️ Insufficient data. Need at least 10 observations with positive values.")
+                # Check if columns are numeric
+                if not pd.api.types.is_numeric_dtype(df_clean[q_var]) or not pd.api.types.is_numeric_dtype(df_clean[p_var]):
+                    st.error(f"⚠️ Both {q_var} and {p_var} must be numeric columns!")
                 else:
-                    ln_q = np.log(df_clean[q_var])
-                    ln_p = np.log(df_clean[p_var])
+                    # Remove non-positive values
+                    df_clean = df_clean[(df_clean[q_var] > 0) & (df_clean[p_var] > 0)]
                     
-                    # OLS
-                    model = LinearRegression()
-                    model.fit(ln_p.values.reshape(-1, 1), ln_q.values)
-                    
-                    elasticity = model.coef_[0]
-                    r2 = model.score(ln_p.values.reshape(-1, 1), ln_q.values)
+                    if len(df_clean) < 10:
+                        st.error("⚠️ Insufficient data. Need at least 10 observations with positive values.")
+                    else:
+                        ln_q = np.log(df_clean[q_var])
+                        ln_p = np.log(df_clean[p_var])
+                        
+                        # OLS
+                        model = LinearRegression()
+                        model.fit(ln_p.values.reshape(-1, 1), ln_q.values)
+                        
+                        elasticity = model.coef_[0]
+                        r2 = model.score(ln_p.values.reshape(-1, 1), ln_q.values)
                     
                     # Display result
                     st.success(f"### Estimated Elasticity: **{elasticity:.4f}**")
