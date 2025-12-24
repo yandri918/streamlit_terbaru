@@ -123,144 +123,160 @@ with tab_pos:
     
     pos_col1, pos_col2 = st.columns([2, 1])
     
+    # Initialize Cart
+    if 'pos_cart' not in st.session_state:
+        st.session_state.pos_cart = []
+
     with pos_col1:
-        st.subheader("Input Transaksi")
+        st.subheader("1. Pilih Barang")
         
         df_inv = st.session_state.inventory_db
         product_list = df_inv['Nama'].tolist()
         
-        with st.form("pos_form"):
-            col_in_1, col_in_2 = st.columns(2)
-            
-            with col_in_1:
-                selected_product_name = st.selectbox("Pilih Produk", product_list)
-                qty_buy = st.number_input("Jumlah Beli", 1, 1000, 1)
-            
-            with col_in_2:
-                # Find product details
+        # --- ADD TO CART FORM ---
+        with st.form("add_cart_form", clear_on_submit=True):
+            c_add1, c_add2 = st.columns(2)
+            with c_add1:
+                selected_product_name = st.selectbox("Produk", product_list)
+                qty_buy = st.number_input("Qty", 1, 1000, 1)
+            with c_add2:
+                # Find price logic
                 selected_row = df_inv[df_inv['Nama'] == selected_product_name].iloc[0]
                 price_unit = selected_row['Jual']
-                st.metric("Harga Satuan", f"Rp {price_unit:,.0f}")
-                st.metric("Subtotal", f"Rp {price_unit * qty_buy:,.0f}")
+                st.write(f"@{price_unit:,.0f}")
+                st.write(f"**Sub: Rp {price_unit*qty_buy:,.0f}**")
+                
+            add_btn = st.form_submit_button("➕ Tambah ke Keranjang")
             
-            customer_name = st.text_input("Nama Pelanggan (Opsional)", "Umum")
+            if add_btn:
+                # Check Stock
+                current_stock = df_inv.loc[df_inv['Nama'] == selected_product_name, 'Stok'].values[0]
+                # Check if already in cart to validate total stock
+                in_cart_qty = sum([item['Qty'] for item in st.session_state.pos_cart if item['Nama'] == selected_product_name])
+                
+                if current_stock >= (qty_buy + in_cart_qty):
+                    st.session_state.pos_cart.append({
+                        "Nama": selected_product_name,
+                        "Qty": qty_buy,
+                        "Harga": price_unit,
+                        "Total": price_unit * qty_buy
+                    })
+                    st.success(f"{selected_product_name} masuk keranjang.")
+                else:
+                    st.error(f"Stok kurang! Sisa: {current_stock}, di keranjang: {in_cart_qty}")
+
+        # --- CART DISPLAY ---
+        st.subheader("2. Keranjang Belanja")
+        
+        if st.session_state.pos_cart:
+            cart_df = pd.DataFrame(st.session_state.pos_cart)
+            st.dataframe(cart_df, use_container_width=True, hide_index=True)
+            
+            total_cart = cart_df['Total'].sum()
+            st.metric("Total Tagihan", f"Rp {total_cart:,.0f}")
+            
+            if st.button("❌ Kosongkan Keranjang"):
+                st.session_state.pos_cart = []
+                st.rerun()
+        else:
+            st.info("Keranjang masih kosong.")
+
+    with pos_col2:
+        st.subheader("3. Pembayaran")
+        
+        with st.form("checkout_form"):
+            customer_name = st.text_input("Pelanggan", "Umum")
             payment_method = st.selectbox("Metode Bayar", ["Tunai", "QRIS", "Transfer", "Bon/Hutang"])
             
-            submitted = st.form_submit_button("💰 PROSES PEMBAYARAN", type="primary")
+            # Disable button if cart empty
+            checkout_btn = st.form_submit_button("💰 BAYAR SEKARANG", type="primary", disabled=len(st.session_state.pos_cart)==0)
+        
+        if checkout_btn and st.session_state.pos_cart:
+            # PROCESS CHECKOUT
+            trx_id = f"TRX-{datetime.datetime.now().strftime('%d%H%M%S')}"
+            processed_items = []
+            total_trx_val = 0
             
-            if submitted:
-                # 1. Update Inventory
-                current_stock = df_inv.loc[df_inv['Nama'] == selected_product_name, 'Stok'].values[0]
+            for item in st.session_state.pos_cart:
+                p_name = item['Nama']
+                p_qty = item['Qty']
+                p_price = item['Harga']
+                p_total = item['Total']
                 
-                if current_stock >= qty_buy:
-                    # Deduct Stock
-                    df_inv.loc[df_inv['Nama'] == selected_product_name, 'Stok'] -= qty_buy
-                    st.session_state.inventory_db = df_inv # Save back
-                    
-                    # 2. Add to Transaction Log
-                    # Initialize orders if not exists (migrating from old dummy logic)
-                    if 'order_db' not in st.session_state: st.session_state.order_db = pd.DataFrame()
-                    
-                    new_trx = {
-                        "Order ID": f"TRX-{datetime.datetime.now().strftime('%d%H%M%S')}",
-                        "Date": datetime.date.today(),
-                        "Customer": customer_name,
-                        "Channel": "Offline Store (POS)",
-                        "Commodity": selected_product_name,
-                        "Qty (kg)": qty_buy, # Using general column name
-                        "Price/kg": price_unit,
-                        "Total Value": price_unit * qty_buy,
-                        "Status": "Completed",
-                        "Payment": payment_method
-                    }
-                    
-                    st.session_state.order_db = pd.concat([pd.DataFrame([new_trx]), st.session_state.order_db], ignore_index=True)
-                    
-                    # PERSIST TO CSV
-                    save_data(df_inv, INVENTORY_FILE)
-                    save_data(st.session_state.order_db, ORDERS_FILE)
-
-                    st.success(f"✅ Transaksi Berhasil! Sisa stok: {current_stock - qty_buy}")
-                    
-                    # SAVE RECEIPT TO SESSION STATE
-                    st.session_state.last_receipt = new_trx
-                    
-                else:
-                    st.error(f"❌ Stok tidak cukup! Sisa hanya {current_stock}.")
-    
-    with pos_col2:
-        # --- RECEIPT AREA ---
+                # Deduct Stock
+                df_inv.loc[df_inv['Nama'] == p_name, 'Stok'] -= p_qty
+                
+                # Add to DB
+                new_trx = {
+                    "Order ID": trx_id,
+                    "Date": datetime.date.today(),
+                    "Customer": customer_name,
+                    "Channel": "Offline Store (POS)",
+                    "Commodity": p_name,
+                    "Qty (kg)": p_qty,
+                    "Price/kg": p_price,
+                    "Total Value": p_total,
+                    "Status": "Completed",
+                    "Payment": payment_method
+                }
+                st.session_state.order_db = pd.concat([pd.DataFrame([new_trx]), st.session_state.order_db], ignore_index=True)
+                
+                processed_items.append(item)
+                total_trx_val += p_total
+                
+            # COMMIT CHANGES
+            st.session_state.inventory_db = df_inv
+            save_data(df_inv, INVENTORY_FILE)
+            save_data(st.session_state.order_db, ORDERS_FILE)
+            
+            # GENERATE CONSOLIDATED RECEIPT
+            st.session_state.last_receipt = {
+                "id": trx_id,
+                "date": datetime.date.today(),
+                "customer": customer_name,
+                "items": processed_items,
+                "total": total_trx_val,
+                "payment": payment_method
+            }
+            
+            # Clear Cart
+            st.session_state.pos_cart = []
+            st.success("✅ Transaksi Sukses!")
+            st.rerun()
+            
+        # --- RECEIPT AREA (UPDATED) ---
         if 'last_receipt' in st.session_state:
-            receipt = st.session_state.last_receipt
+            # Check if it's the new format (dict with 'items') or old format
+            receipt_data = st.session_state.last_receipt
+            
+            st.divider()
             st.subheader("🧾 Struk Terakhir")
             
-            # Format Receipt Text
-            receipt_text = f"""
+            if 'items' in receipt_data: 
+                # Multi-item receipt
+                item_lines = ""
+                for it in receipt_data['items']:
+                    item_lines += f"{it['Nama'][:15]:<15} {it['Qty']:>3} x {it['Harga']/1000:>3}k = {it['Total']:,.0f}\n"
+                    
+                receipt_text = f"""
 *TOKO TANI AGRISENSA*
 --------------------------------
-Tgl   : {receipt['Date']}
-Jam   : {datetime.datetime.now().strftime('%H:%M')}
-No    : {receipt['Order ID']}
-Plg   : {receipt['Customer']}
+No    : {receipt_data['id']}
+Tgl   : {receipt_data['date']} {datetime.datetime.now().strftime('%H:%M')}
+Plg   : {receipt_data['customer']}
 --------------------------------
-Item  : {receipt['Commodity']}
-Qty   : {receipt['Qty (kg)']} x Rp {receipt['Price/kg']:,.0f}
-Total : Rp {receipt['Total Value']:,.0f}
-Bayar : {receipt['Payment']}
+{item_lines}--------------------------------
+TOTAL : Rp {receipt_data['total']:,.0f}
+Bayar : {receipt_data['payment']}
 --------------------------------
-*Terima Kasih & Panen Sukses!*
-            """
-            st.code(receipt_text, language="text")
-            
-            # 1. WHATSAPP BUTTON
-            import urllib.parse
-            encoded_text = urllib.parse.quote(receipt_text)
-            wa_link = f"https://wa.me/?text={encoded_text}"
-            st.link_button("📱 Kirim Nota WhatsApp", wa_link, use_container_width=True)
-            
-            # 2. PRINT BUTTON (Thermal Friendly)
-            # Embedding simple JS to trigger print. User selects Thermal Printer from dialog.
-            print_html = f"""
-            <script>
-            function printReceipt() {{
-                const printContent = `{receipt_text.replace(chr(10), '<br>')}`;
-                const newWindow = window.open('', '', 'width=300,height=600');
-                newWindow.document.write('<html><head><title>Print Struk</title>');
-                newWindow.document.write('<style>body{{font-family: monospace; font-size: 12px; margin: 0; padding: 10px;}}</style>');
-                newWindow.document.write('</head><body>');
-                newWindow.document.write('<pre>{receipt_text}</pre>');
-                newWindow.document.write('</body></html>');
-                newWindow.document.close();
-                newWindow.focus();
-                newWindow.print();
-                newWindow.close();
-            }}
-            </script>
-            <button onclick="parent.window.print()" style="
-                background-color: #4CAF50; border: none; color: white; 
-                padding: 10px 20px; text-align: center; text-decoration: none; 
-                display: inline-block; font-size: 16px; margin: 4px 2px; 
-                cursor: pointer; width: 100%; border-radius: 5px;">
-                🖨️ Cetak Struk (Thermal)
-            </button>
-            """
-            import streamlit.components.v1 as components
-            # Note: direct window.print() prints the whole page, which is often easier for mobile thermal apps 
-            # that can "crop" to content. For specific raw printing, browser limitations apply.
-            # Using simple window.print() for now as it's the valid web standard.
-            components.html(print_html, height=60)
-            
-        else:
-            st.info("👈 Input transaksi untuk melihat struk.")
+*Terima Kasih!*
+                """
+            else:
+                # Fallback for old single-item receipt (temporary)
+                receipt_text = "Format struk lama. Lakukan transaksi baru."
 
-        st.divider()
-        st.subheader("Stok Menipis ⚠️")
-        low_stock = df_inv[df_inv['Stok'] < 20]
-        if not low_stock.empty:
-            for idx, row in low_stock.iterrows():
-                st.warning(f"**{row['Nama']}**: Tinggal {row['Stok']} {row['Satuan']}")
-        else:
-            st.success("Semua stok aman.")
+            st.code(receipt_text, language="text")
+    
 
 # ===== TAB 2: INVENTORY MANAGER =====
 with tab_inventory:
