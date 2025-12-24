@@ -406,31 +406,89 @@ with tab6:
     
     # --- MONTE CARLO SIMULATION ---
     st.subheader("🎲 Simulasi Risiko (Monte Carlo Analysis)")
-    st.info("Mensimulasikan 1000 kemungkinan skor jika kondisi pasar/agronomi berfluktuasi.")
+    
+    st.markdown("""
+    **Apa itu Monte Carlo?**  
+    Teknik ini memprediksi **masa depan bisnis Anda dalam 1.000 skenario berbeda**.  
+    Di dunia nyata, harga bisa jatuh, hama bisa menyerang, dan cuaca bisa ekstrem. Simulasi ini mengacak semua faktor risiko tersebut untuk melihat:
+    1.  **Seberapa besar peluang Anda BANGKRUT?**
+    2.  **Seberapa besar peluang Anda SUKSES BESAR?**
+    """)
     
     if st.button("Jalankan Simulasi Risiko", type="primary"):
-        with st.spinner("Running 1000 iterations..."):
+        with st.spinner("Mengacak 1.000 kemungkinan kejadian (Hama, Cuaca, Harga)..."):
             sim_scores = []
-            risk_volatility = 5 if disaster_risk == "Rendah" else 15
-            if pest_risk_level == "Tinggi (Endemik)": risk_volatility += 10
+            
+            # Risk Volatility Logic
+            # Base volatility
+            risk_volatility = 10 
+            
+            # Penalties increase volatility (uncertainty)
+            if disaster_risk != "Rendah": risk_volatility += 10
+            if pest_risk_level in ["Tinggi (Endemik)", "Sangat Tinggi (Wabah)"]: risk_volatility += 15
+            if economic_cond == "Resesi": risk_volatility += 10
             
             for _ in range(1000):
-                # Randomize key factors
+                # Randomize key factors (Normal Distribution)
                 noise = np.random.normal(0, risk_volatility)
                 sim_score = min(100, max(0, final_score + noise))
                 sim_scores.append(sim_score)
             
             # Analytics
             success_prob = sum(1 for x in sim_scores if x >= 70) / 10
+            worst_case = np.percentile(sim_scores, 5) # 5th percentile
+            best_case = np.percentile(sim_scores, 95) # 95th percentile
             
-            mc1, mc2 = st.columns([2, 1])
+            st.divider()
+            
+            mc1, mc2 = st.columns([2, 1.2])
             with mc1:
-                fig_mc = go.Figure(data=[go.Histogram(x=sim_scores, nbinsx=30, marker_color='#3b82f6')])
-                fig_mc.add_vline(x=70, line_dash="dash", line_color="green", annotation_text="Target Layak")
-                fig_mc.update_layout(title="Distribusi Kemungkinan Skor Akhir", height=300)
+                fig_mc = go.Figure(data=[go.Histogram(
+                    x=sim_scores, 
+                    nbinsx=40, 
+                    marker_color='#3b82f6',
+                    opacity=0.75,
+                    name='Distribusi Skor'
+                )])
+                fig_mc.add_vline(x=70, line_dash="dash", line_color="#10b981", annotation_text="Target Aman (70)", annotation_position="top right")
+                fig_mc.add_vline(x=50, line_dash="dot", line_color="#ef4444", annotation_text="Batas Bahaya (50)", annotation_position="top left")
+                
+                fig_mc.update_layout(
+                    title="Peta Probabilitas Nasib Bisnis Anda",
+                    xaxis_title="Kemungkinan Skor Akhir",
+                    yaxis_title="Frekuensi Kejadian",
+                    height=350,
+                    margin=dict(t=50, b=20, l=20, r=20)
+                )
                 st.plotly_chart(fig_mc, use_container_width=True)
             
             with mc2:
-                st.metric("Probabilitas Sukses (>70)", f"{success_prob:.1f}%")
-                st.metric("Skenario Terburuk (10%)", f"{np.percentile(sim_scores, 10):.1f}")
-                st.metric("Skenario Terbaik (90%)", f"{np.percentile(sim_scores, 90):.1f}")
+                st.markdown("#### 📊 Ringkasan Risiko")
+                
+                st.metric(
+                    "Peluang Sukses (>70)", 
+                    f"{success_prob:.1f}%",
+                    help="Persentase kemungkinan skor Anda tetap di atas 70 meski kondisi buruk terjadi."
+                )
+                
+                st.metric(
+                    "Skenario Terburuk (Bad Day)", 
+                    f"{worst_case:.1f}",
+                    delta=f"{worst_case - final_score:.1f}",
+                    help="Skor Anda jika hama menyerang & harga anjlok (probabilitas 5% terburuk)."
+                )
+                
+                st.metric(
+                    "Skenario Terbaik (Lucky Day)", 
+                    f"{best_case:.1f}",
+                    delta=f"{best_case - final_score:.1f}",
+                    help="Skor Anda jika panen raya & harga tinggi (probabilitas 5% terbaik)."
+                )
+                
+                if success_prob >= 80:
+                    st.success("✅ **Investasi Sangat Aman**\nMeskipun badai datang, bisnis ini kemungkinan besar tetap untung.")
+                elif success_prob >= 50:
+                    st.warning("⚠️ **Perlu Cadangan Modal**\nAda risiko 50:50 bisnis ini performanya drop di bawah standar saat kondisi sulit.")
+                else:
+                    st.error("❌ **Spekulasi Tinggi**\nTerlalu berbahaya. Kemungkinan besar gagal jika ada sedikit saja gangguan.")
+
