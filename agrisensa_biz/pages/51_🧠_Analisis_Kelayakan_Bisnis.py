@@ -620,6 +620,61 @@ with tab6:
 
     st.divider()
     
+    # --- INTEGRATED REVENUE VISUALIZATION (NEW) ---
+    if current_params['type'] == "Integrated Nursery & Farm Shop (Toko & Pembibitan)":
+        st.subheader("📊 Proyeksi Komposisi Pendapatan (Tahunan)")
+        
+        # 1. Estimate Shop Revenue (Conservative Turnover 1.2x Capital)
+        shop_revenue_annual = total_capital * 1.2
+        
+        # 2. Estimate Nursery Revenue (3 Cycles per year)
+        # Recalculate potential here since it was local variable above
+        potensi_bibit_season = (current_params['target_lahan'] * current_params['populasi_ha']) * (current_params['capture_rate']/100) * current_params['margin_bibit']
+        nursery_revenue_annual = potensi_bibit_season * 3
+        
+        # 3. Create Chart
+        rev_col1, rev_col2 = st.columns([2, 1])
+        
+        with rev_col1:
+            fig_rev = go.Figure()
+            fig_rev.add_trace(go.Bar(
+                y=['Sumber Pendapatan'], 
+                x=[shop_revenue_annual], 
+                name='Toko Tani (Retail)', 
+                orientation='h',
+                marker_color='#3b82f6'
+            ))
+            fig_rev.add_trace(go.Bar(
+                y=['Sumber Pendapatan'], 
+                x=[nursery_revenue_annual], 
+                name='Nursery (Pembibitan)', 
+                orientation='h',
+                marker_color='#10b981'
+            ))
+            
+            fig_rev.update_layout(
+                barmode='stack', 
+                title="Kontribusi Pendapatan: Toko vs Bibit",
+                xaxis_title="Proyeksi Omzet (Rp)",
+                height=250,
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            )
+            st.plotly_chart(fig_rev, use_container_width=True)
+            
+        with rev_col2:
+            total_rev = shop_revenue_annual + nursery_revenue_annual
+            contribution_pct = (nursery_revenue_annual / total_rev) * 100
+            
+            st.metric("Total Proyeksi Omzet", f"Rp {total_rev/1_000_000_000:.2f} Milyar")
+            st.metric("Kontribusi Nursery", f"{contribution_pct:.1f}%", help="Seberapa besar bibit menyumbang ke total bisnis.")
+            
+            if contribution_pct > 30:
+                st.success("🔥 **Significant Impact!** Nursery bukan sekadar sampingan, tapi pilar bisnis utama.")
+            else:
+                st.info("ℹ️ **Good Supplement.** Nursery menjadi tambahan income yang sehat.")
+
+    st.divider()
+
     # --- ADVANCED VISUALIZATION (BI) ---
     with st.expander("📈 Visualisasi Lanjutan (Advanced BI)", expanded=True):
         st.subheader("Analisis Sensitivitas & Break-Even")
