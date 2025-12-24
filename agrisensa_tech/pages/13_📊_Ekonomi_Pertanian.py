@@ -671,22 +671,63 @@ with tab_cost:
         
         st.divider()
         
+        # Check if data from Module 28 exists
+        if 'economics_data' in st.session_state:
+            econ_data = st.session_state['economics_data']
+            st.success(f"""
+            ✅ **Data Imported from {econ_data.get('source', 'External Source')}**
+            
+            - Crop: {econ_data.get('crop', 'N/A')}
+            - Land Area: {econ_data.get('land_area_ha', 0):.2f} Ha
+            - Estimated Yield: {econ_data.get('estimated_yield_kg', 0):,.0f} kg
+            - Total Cost: Rp {econ_data.get('total_cost', 0):,.0f}
+            """)
+            
+            if st.button("🔄 Use Imported Data", type="primary"):
+                # Auto-populate fields
+                fixed_cost_default = econ_data.get('fixed_cost', 10000000.0)
+                var_cost_default = econ_data.get('variable_cost_per_unit', 5000.0)
+                price_default = econ_data.get('selling_price', 12000.0)
+                actual_sales_default = econ_data.get('estimated_yield_kg', 2000.0)
+                
+                st.session_state['use_imported'] = True
+                st.session_state['imported_fc'] = fixed_cost_default
+                st.session_state['imported_vc'] = var_cost_default
+                st.session_state['imported_price'] = price_default
+                st.session_state['imported_sales'] = actual_sales_default
+                st.rerun()
+            
+            if st.button("🗑️ Clear Imported Data"):
+                del st.session_state['economics_data']
+                if 'use_imported' in st.session_state:
+                    del st.session_state['use_imported']
+                st.rerun()
+            
+            st.divider()
+        
+        # Get default values
+        use_imported = st.session_state.get('use_imported', False)
+        fc_default = st.session_state.get('imported_fc', 10000000.0) if use_imported else 10000000.0
+        vc_default = st.session_state.get('imported_vc', 5000.0) if use_imported else 5000.0
+        price_default = st.session_state.get('imported_price', 12000.0) if use_imported else 12000.0
+        sales_default = st.session_state.get('imported_sales', 2000.0) if use_imported else 2000.0
+        
         col_bep1, col_bep2 = st.columns(2)
         
         with col_bep1:
             st.markdown("**📥 Input Data:**")
-            fixed_cost = st.number_input("Fixed Cost (Biaya Tetap) - Rp:", value=10000000.0, step=100000.0, format="%.0f")
+            fixed_cost = st.number_input("Fixed Cost (Biaya Tetap) - Rp:", value=fc_default, step=100000.0, format="%.0f")
             st.caption("Contoh: Sewa lahan, penyusutan alat, gaji tetap")
             
-            var_cost_per_unit = st.number_input("Variable Cost per Unit - Rp:", value=5000.0, step=100.0, format="%.0f")
+            var_cost_per_unit = st.number_input("Variable Cost per Unit - Rp:", value=vc_default, step=100.0, format="%.0f")
             st.caption("Contoh: Bibit, pupuk, pestisida per kg")
             
-            selling_price = st.number_input("Selling Price per Unit - Rp:", value=12000.0, step=100.0, format="%.0f")
+            selling_price = st.number_input("Selling Price per Unit - Rp:", value=price_default, step=100.0, format="%.0f")
             st.caption("Harga jual per kg/unit")
         
         with col_bep2:
             st.markdown("**📊 Optional - Actual Sales:**")
-            actual_sales_units = st.number_input("Actual Sales (units):", value=2000.0, step=10.0, format="%.0f")
+            actual_sales_units = st.number_input("Actual Sales (units):", value=sales_default, step=10.0, format="%.0f")
             st.caption("Untuk menghitung Margin of Safety")
         
         if st.button("🔍 Calculate Break-Even", type="primary"):

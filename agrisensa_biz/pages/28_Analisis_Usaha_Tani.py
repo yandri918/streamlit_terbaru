@@ -904,3 +904,64 @@ with c_ex2:
         "text/csv",
         key='download-csv'
     )
+
+# 8. ADVANCED ECONOMIC ANALYSIS
+st.divider()
+st.subheader("📊 Analisis Ekonomi Lanjutan")
+
+st.info("""
+**💡 Tip:** Gunakan data RAB ini untuk analisis ekonomi mendalam di Module Ekonomi Pertanian!
+
+Analisis yang tersedia:
+- **Break-Even Analysis** - Hitung titik impas dan margin of safety
+- **Profit Maximization** - Optimasi keuntungan
+- **Optimal Input Allocation** - Alokasi input yang paling efisien
+""")
+
+if st.button("📊 Analyze in Economics Module", type="primary", use_container_width=True):
+    # Prepare data for economics module
+    st.session_state['economics_data'] = {
+        'source': 'Analisis Usaha Tani',
+        'crop': selected_crop,
+        'land_area_ha': luas_lahan_ha,
+        'population': populasi_tanaman,
+        'estimated_yield_kg': estimasi_panen_kg,
+        'selling_price': harga_jual,
+        'total_cost': total_biaya,
+        'total_revenue': estimasi_omzet,
+        'profit': estimasi_laba,
+        'roi_percent': roi_percent,
+        'production_period_months': lama_tanam_bulan,
+        
+        # Break-even data
+        'fixed_cost': sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap']),
+        'variable_cost': total_biaya - sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap']),
+        'variable_cost_per_unit': (total_biaya - sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap'])) / estimasi_panen_kg if estimasi_panen_kg > 0 else 0,
+        
+        # Cost breakdown
+        'cost_by_category': edited_df.groupby('Kategori')['Total'].sum().to_dict(),
+        'detailed_costs': edited_df.to_dict('records'),
+        
+        # Timestamp
+        'exported_at': datetime.datetime.now().isoformat()
+    }
+    
+    st.success("✅ Data berhasil disiapkan untuk analisis ekonomi!")
+    st.info("""
+    **Next Steps:**
+    1. Buka **Module 13: 📊 Ekonomi Pertanian** dari sidebar
+    2. Pilih tab yang sesuai:
+       - Tab 3: Cost & Profit Analysis → Break-Even
+       - Tab 4: Optimal Input Calculator
+    3. Data akan otomatis ter-load!
+    
+    Atau klik tombol di bawah untuk langsung ke module:
+    """)
+    
+    # Note: st.switch_page only works in same app, so we provide instructions
+    st.markdown("""
+    **📍 Lokasi Module:**
+    - **AgriSensa Tech** → **13_📊_Ekonomi_Pertanian**
+    
+    Data sudah tersimpan di session dan siap digunakan!
+    """)
