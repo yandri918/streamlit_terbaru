@@ -43,8 +43,20 @@ import os
 # CONSTANTS - PERSISTENCE
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 os.makedirs(DATA_DIR, exist_ok=True)
-INVENTORY_FILE = os.path.join(DATA_DIR, "inventory.csv")
-ORDERS_FILE = os.path.join(DATA_DIR, "orders.csv")
+
+# Determine Active User for Data Isolation
+user_id = "default"
+try:
+    if 'current_user' in locals() and current_user:
+        user_id = current_user.get('username', 'default')
+    elif 'auth' in sys.modules:
+        u = auth.get_current_user()
+        if u: user_id = u.get('username', 'default')
+except:
+    pass
+
+INVENTORY_FILE = os.path.join(DATA_DIR, f"inventory_{user_id}.csv")
+ORDERS_FILE = os.path.join(DATA_DIR, f"orders_{user_id}.csv")
 
 def load_data(filepath, default_data):
     if os.path.exists(filepath):
