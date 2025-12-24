@@ -167,7 +167,7 @@ with tab_orders:
 
     # Load Data (Simulation OR Session)
     if 'order_db' not in st.session_state:
-        st.session_state.order_db = generate_orders()
+        st.session_state.order_db = pd.DataFrame() # Initialize empty for new system
     
     df_orders = st.session_state.order_db
     # Ensure Date format consistency
