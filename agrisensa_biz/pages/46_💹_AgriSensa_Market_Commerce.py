@@ -12,51 +12,107 @@ st.set_page_config(
     layout="wide"
 )
 
-# HELPER: Generate Dummy Orders
-def generate_orders():
-    # Simulate "Omnichannel" data
-    channels = ["WhatsApp (Manual)", "Tokopedia", "Shopee", "Pasar Induk Contract", "TikTok Shop"]
-    statuses = ["New", "Packed", "Shipped", "Completed", "Cancelled"]
-    commodities = ["Cabai Merah Keriting", "Tomat Beef", "Letus Romaine", "Pakcoy", "Bawang Merah"]
-    
-    data = []
-    for i in range(50):
-        date_offset = np.random.randint(0, 30)
-        order_date = datetime.date.today() - datetime.timedelta(days=date_offset)
-        
-        qty = np.random.randint(5, 100)
-        price_base = 15000 if "Cabai" in commodities[i%5] else 5000
-        price = price_base + np.random.randint(-1000, 2000)
-        
-        data.append({
-            "Order ID": f"ORD-{2024}-{i:03d}",
-            "Date": order_date,
-            "Customer": f"Cust_{i}",
-            "Channel": np.random.choice(channels),
-            "Commodity": np.random.choice(commodities),
-            "Qty (kg)": qty,
-            "Price/kg": price,
-            "Total Value": qty * price,
-            "Status": np.random.choice(statuses, p=[0.1, 0.2, 0.2, 0.45, 0.05]),
-            "Payment": np.random.choice(["Paid", "Unpaid"], p=[0.8, 0.2])
-        })
-    return pd.DataFrame(data)
-
-# MAIN LAYOUT
-st.title("💹 Smart Commerce Center")
-st.markdown("""
-**Pusat Komando Penjualan & Market Intelligence**
-*Omnichannel Order Management | AI Demand Forecasting | Dynamic Pricing Strategy*
-""")
+# HELPER: Initialize Inventory DB
+if 'inventory_db' not in st.session_state:
+    st.session_state.inventory_db = pd.DataFrame([
+        {"ID": "P001", "Nama": "NPK Mutiara 16-16-16", "Kategori": "Pupuk", "Stok": 50, "Satuan": "Zak (50kg)", "Modal": 850000, "Jual": 950000},
+        {"ID": "B001", "Nama": "Benih Cabai Merah (Pilar)", "Kategori": "Benih", "Stok": 200, "Satuan": "Sachet", "Modal": 125000, "Jual": 150000},
+        {"ID": "A001", "Nama": "Sprayer Elektrik 16L", "Kategori": "Alat", "Stok": 10, "Satuan": "Unit", "Modal": 450000, "Jual": 650000},
+        {"ID": "O001", "Nama": "Fungisida Amistartop", "Kategori": "Pestisida", "Stok": 100, "Satuan": "Botol 100ml", "Modal": 85000, "Jual": 110000},
+    ])
 
 # TABS
-tab_orders, tab_forecast, tab_pricing = st.tabs([
-    "📦 Omnichannel Orders",
-    "📈 Demand Forecasting (AI)",
-    "🏷️ Dynamic Pricing Engine"
+tab_pos, tab_inventory, tab_orders, tab_forecast, tab_pricing = st.tabs([
+    "🛒 Kasir (POS)",
+    "📦 Gudang & Stok",
+    "🚚 Riwayat Pesanan",
+    "📈 Demand Forecasting",
+    "🏷️ Cek Harga & Margin"
 ])
 
-# ===== TAB 1: OMNICHANNEL ORDERS =====
+# ===== TAB 1: KASIR (POS) =====
+with tab_pos:
+    st.header("🛒 Point of Sales (Kasir Toko)")
+    
+    pos_col1, pos_col2 = st.columns([2, 1])
+    
+    with pos_col1:
+        st.subheader("Input Transaksi")
+        
+        df_inv = st.session_state.inventory_db
+        product_list = df_inv['Nama'].tolist()
+        
+        with st.form("pos_form"):
+            col_in_1, col_in_2 = st.columns(2)
+            
+            with col_in_1:
+                selected_product_name = st.selectbox("Pilih Produk", product_list)
+                qty_buy = st.number_input("Jumlah Beli", 1, 1000, 1)
+            
+            with col_in_2:
+                # Find product details
+                selected_row = df_inv[df_inv['Nama'] == selected_product_name].iloc[0]
+                price_unit = selected_row['Jual']
+                st.metric("Harga Satuan", f"Rp {price_unit:,.0f}")
+                st.metric("Subtotal", f"Rp {price_unit * qty_buy:,.0f}")
+            
+            customer_name = st.text_input("Nama Pelanggan (Opsional)", "Umum")
+            payment_method = st.selectbox("Metode Bayar", ["Tunai", "QRIS", "Transfer", "Bon/Hutang"])
+            
+            submitted = st.form_submit_button("💰 PROSES PEMBAYARAN", type="primary")
+            
+            if submitted:
+                # 1. Update Inventory
+                current_stock = df_inv.loc[df_inv['Nama'] == selected_product_name, 'Stok'].values[0]
+                
+                if current_stock >= qty_buy:
+                    # Deduct Stock
+                    df_inv.loc[df_inv['Nama'] == selected_product_name, 'Stok'] -= qty_buy
+                    st.session_state.inventory_db = df_inv # Save back
+                    
+                    # 2. Add to Transaction Log
+                    # Initialize orders if not exists (migrating from old dummy logic)
+                    if 'order_db' not in st.session_state: st.session_state.order_db = pd.DataFrame()
+                    
+                    new_trx = {
+                        "Order ID": f"TRX-{datetime.datetime.now().strftime('%d%H%M%S')}",
+                        "Date": datetime.date.today(),
+                        "Customer": customer_name,
+                        "Channel": "Offline Store (POS)",
+                        "Commodity": selected_product_name,
+                        "Qty (kg)": qty_buy, # Using general column name
+                        "Price/kg": price_unit,
+                        "Total Value": price_unit * qty_buy,
+                        "Status": "Completed",
+                        "Payment": payment_method
+                    }
+                    
+                    st.session_state.order_db = pd.concat([pd.DataFrame([new_trx]), st.session_state.order_db], ignore_index=True)
+                    st.success(f"✅ Transaksi Berhasil! Sisa stok: {current_stock - qty_buy}")
+                    
+                else:
+                    st.error(f"❌ Stok tidak cukup! Sisa hanya {current_stock}.")
+    
+    with pos_col2:
+        st.subheader("Stok Menipis ⚠️")
+        low_stock = df_inv[df_inv['Stok'] < 20]
+        if not low_stock.empty:
+            for idx, row in low_stock.iterrows():
+                st.warning(f"**{row['Nama']}**: Tinggal {row['Stok']} {row['Satuan']}")
+        else:
+            st.success("Semua stok aman.")
+
+# ===== TAB 2: INVENTORY MANAGER =====
+with tab_inventory:
+    st.header("📦 Manajemen Gudang")
+    
+    # Editable Table
+    edited_df = st.data_editor(st.session_state.inventory_db, num_rows="dynamic", use_container_width=True)
+    
+    # Save mechanism (Streamlit data editor auto updates details but saving entire DF to session state)
+    st.session_state.inventory_db = edited_df
+
+# ===== TAB 3: RIWAYAT PESANAN (Previously Tab 1) =====
 with tab_orders:
     st.header("📦 Centralized Order Management")
     st.caption("Satu dashboard untuk mengelola pesanan dari WhatsApp, Marketplace, dan Kontrak B2B.")
