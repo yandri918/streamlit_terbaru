@@ -446,7 +446,12 @@ with tab6:
         'social': social_risk if 'social_risk' in locals() else "Aman Kondusif",
         # New Economic Params
         'inflasi': inflation_rate, 'gdp': gdp_growth, 'gov': gov_support,
-        'import': import_policy, 'struk': market_structure
+        'import': import_policy, 'struk': market_structure,
+        # Integrated Params (Safeguarded with .get or default)
+        'target_lahan': target_lahan_ha if 'target_lahan_ha' in locals() else 0,
+        'capture_rate': capture_rate if 'capture_rate' in locals() else 0,
+        'margin_bibit': margin_bibit if 'margin_bibit' in locals() else 0,
+        'populasi_ha': populasi_per_ha if 'populasi_per_ha' in locals() else 0
     }
     
     # Calculate Scores
@@ -475,13 +480,27 @@ with tab6:
         </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("### Kesimpulan AI")
+        st.markdown("### Kesimpulan & Saran AI")
+        
+        # Generic Logic
         if final_score >= 75:
-            st.success("Lokasi dan kondisi sangat mendukung. Risiko terukur.")
+            base_msg = "✅ **GO PROJECT!** Lokasi dan kondisi makro sangat mendukung."
         elif final_score >= 50:
-            st.warning("Perlu mitigasi risiko di sektor dengan skor rendah.")
+            base_msg = "⚠️ **PROCEED WITH CAUTION.** Perlu strategi mitigasi di aspek skor rendah."
         else:
-            st.error("Risiko terlalu tinggi (legal/sosial/agronomi).")
+            base_msg = "❌ **NO GO.** Risiko terlalu tinggi, cari lokasi atau model bisnis lain."
+            
+        st.write(base_msg)
+        
+        # Integrated Specific Insight
+        if current_params['type'] == "Integrated Nursery & Farm Shop (Toko & Pembibitan)":
+            potensi_bibit = (current_params['target_lahan'] * current_params['populasi_ha']) * (current_params['capture_rate']/100) * current_params['margin_bibit']
+            st.info(f"""
+            💡 **Insight Skenario Terintegrasi:**
+            AI mendeteksi potensi **Additional Income Rp {int(potensi_bibit/1000_000):,} Juta** per musim dari penjualan bibit ke pelanggan toko.
+            
+            **Saran:** Fokuskan marketing pada bundling "Beli Pupuk Gratis Konsultasi Bibit" untuk mencapai capture rate {current_params['capture_rate']}%.
+            """)
 
     with r2:
         # --- COMPARATIVE ANALYSIS ---
