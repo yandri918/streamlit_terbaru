@@ -200,7 +200,11 @@ with tab_orders:
     with c_filter:
         st.subheader("🔍 Filter")
         f_channel = st.multiselect("Sales Channel", df_orders['Channel'].unique(), default=df_orders['Channel'].unique())
-        f_status = st.multiselect("Status Pesanan", df_orders['Status'].unique(), default=["New", "Packed", "Shipped"])
+        # Validate default values based on available data
+        available_status = df_orders['Status'].unique().tolist()
+        default_status = [s for s in ["New", "Packed", "Shipped"] if s in available_status]
+        
+        f_status = st.multiselect("Status Pesanan", available_status, default=default_status)
         
     with c_table:
         # Apply filters
