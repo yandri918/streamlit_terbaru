@@ -129,6 +129,10 @@ with tab1:
         with m1: st.metric("Ketinggian", f"{real_elev:.0f} mdpl")
         with m2: st.metric("Suhu", f"{real_temp:.1f}°C")
         
+        # Define vars for downstream logic
+        elevation = real_elev
+        avg_temp = real_temp
+        
         st.divider()
         road_access = st.selectbox("Aksesibilitas Jalan", ["Jalan Tanah", "Jalan Makadam", "Jalan Aspal Kecil", "Jalan Raya Provinsi", "Dekat Tol"])
         disaster_risk = st.select_slider("Risiko Bencana", options=["Sangat Rendah", "Rendah", "Sedang", "Tinggi", "Sangat Tinggi"], value="Rendah")
