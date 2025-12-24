@@ -548,3 +548,83 @@ with tab6:
                 else:
                     st.error("❌ **Spekulasi Tinggi**\nTerlalu berbahaya. Kemungkinan besar gagal jika ada sedikit saja gangguan.")
 
+    st.divider()
+    
+    # --- ADVANCED VISUALIZATION (BI) ---
+    with st.expander("📈 Visualisasi Lanjutan (Advanced BI)", expanded=True):
+        st.subheader("Analisis Sensitivitas & Break-Even")
+        
+        bi1, bi2 = st.columns(2)
+        
+        with bi1:
+            st.markdown("#### 🔥 Heatmap Sensitivitas Profit")
+            st.caption("Apa yang terjadi jika **Biaya Operasional Naik** vs **Harga Jual Turun**?")
+            
+            # Data for Heatmap
+            x_price = [0.8, 0.9, 1.0, 1.1, 1.2] # Price variation
+            y_cost = [0.8, 0.9, 1.0, 1.1, 1.2] # Cost variation
+            z_profit = []
+            
+            base_profit = total_capital * 0.2 # Dummy profit calc
+            
+            for c in y_cost:
+                row = []
+                for p in x_price:
+                    # Simulated profit impact
+                    # Higher Price (p>1) = Higher Profit
+                    # Higher Cost (c>1) = Lower Profit
+                    factor = (p * 1.5) - (c * 0.5) 
+                    val = base_profit * factor
+                    row.append(val)
+                z_profit.append(row)
+                
+            fig_heat = go.Figure(data=go.Heatmap(
+                z=z_profit,
+                x=["-20%", "-10%", "Normal", "+10%", "+20%"],
+                y=["-20%", "-10%", "Normal", "+10%", "+20%"],
+                colorscale='RdBu', 
+                colorbar=dict(title='Margin Keuntungan')
+            ))
+            
+            fig_heat.update_layout(
+                title="Zona Aman Bisnis (Safety Zone)",
+                xaxis_title="Perubahan Harga Jual",
+                yaxis_title="Perubahan Biaya Operasional",
+                height=350
+            )
+            st.plotly_chart(fig_heat, use_container_width=True)
+            st.caption("ℹ️ **Cara Baca:** Area **Biru** adalah zona aman (Untung). Area **Merah** adalah zona bahaya (Rugi).")
+            
+        with bi2:
+            st.markdown("#### 📉 Break-Even Point (BEP) Simulator")
+            st.caption("Titik di mana Modal Balik (Revenue = Cost)")
+            
+            # Simple BEP Simulation
+            units = np.linspace(0, 10000, 100)
+            fixed_cost = total_capital * 0.1 # Assumed 10% capex as fixed op cost equivalent
+            var_cost_per_unit = 15000
+            price_per_unit = 25000
+            
+            total_revenue = units * price_per_unit
+            total_cost = fixed_cost + (units * var_cost_per_unit)
+            
+            fig_bep = go.Figure()
+            fig_bep.add_trace(go.Scatter(x=units, y=total_revenue, name="Pendapatan (Revenue)", line=dict(color='green')))
+            fig_bep.add_trace(go.Scatter(x=units, y=total_cost, name="Total Biaya (Cost)", line=dict(color='red', dash='dash')))
+            
+            # Find intersection
+            bep_unit = fixed_cost / (price_per_unit - var_cost_per_unit)
+            
+            fig_bep.add_vline(x=bep_unit, line_dash="dot", annotation_text=f"BEP: {int(bep_unit):,} Unit")
+            
+            fig_bep.update_layout(
+                title="Titik Impas (BEP)",
+                xaxis_title="Volume Penjualan (Unit)",
+                yaxis_title="Nilai (Rp)",
+                height=350,
+                showlegend=True
+            )
+            st.plotly_chart(fig_bep, use_container_width=True)
+            st.info(f"💡 Anda harus menjual minimal **{int(bep_unit):,} unit** produk agar balik modal operasional.")
+
+
