@@ -90,10 +90,78 @@ with tab_pos:
                     st.session_state.order_db = pd.concat([pd.DataFrame([new_trx]), st.session_state.order_db], ignore_index=True)
                     st.success(f"✅ Transaksi Berhasil! Sisa stok: {current_stock - qty_buy}")
                     
+                    # SAVE RECEIPT TO SESSION STATE
+                    st.session_state.last_receipt = new_trx
+                    
                 else:
                     st.error(f"❌ Stok tidak cukup! Sisa hanya {current_stock}.")
     
     with pos_col2:
+        # --- RECEIPT AREA ---
+        if 'last_receipt' in st.session_state:
+            receipt = st.session_state.last_receipt
+            st.subheader("🧾 Struk Terakhir")
+            
+            # Format Receipt Text
+            receipt_text = f"""
+*TOKO TANI AGRISENSA*
+--------------------------------
+Tgl   : {receipt['Date']}
+Jam   : {datetime.datetime.now().strftime('%H:%M')}
+No    : {receipt['Order ID']}
+Plg   : {receipt['Customer']}
+--------------------------------
+Item  : {receipt['Commodity']}
+Qty   : {receipt['Qty (kg)']} x Rp {receipt['Price/kg']:,.0f}
+Total : Rp {receipt['Total Value']:,.0f}
+Bayar : {receipt['Payment']}
+--------------------------------
+*Terima Kasih & Panen Sukses!*
+            """
+            st.code(receipt_text, language="text")
+            
+            # 1. WHATSAPP BUTTON
+            import urllib.parse
+            encoded_text = urllib.parse.quote(receipt_text)
+            wa_link = f"https://wa.me/?text={encoded_text}"
+            st.link_button("📱 Kirim Nota WhatsApp", wa_link, use_container_width=True)
+            
+            # 2. PRINT BUTTON (Thermal Friendly)
+            # Embedding simple JS to trigger print. User selects Thermal Printer from dialog.
+            print_html = f"""
+            <script>
+            function printReceipt() {{
+                const printContent = `{receipt_text.replace(chr(10), '<br>')}`;
+                const newWindow = window.open('', '', 'width=300,height=600');
+                newWindow.document.write('<html><head><title>Print Struk</title>');
+                newWindow.document.write('<style>body{{font-family: monospace; font-size: 12px; margin: 0; padding: 10px;}}</style>');
+                newWindow.document.write('</head><body>');
+                newWindow.document.write('<pre>{receipt_text}</pre>');
+                newWindow.document.write('</body></html>');
+                newWindow.document.close();
+                newWindow.focus();
+                newWindow.print();
+                newWindow.close();
+            }}
+            </script>
+            <button onclick="parent.window.print()" style="
+                background-color: #4CAF50; border: none; color: white; 
+                padding: 10px 20px; text-align: center; text-decoration: none; 
+                display: inline-block; font-size: 16px; margin: 4px 2px; 
+                cursor: pointer; width: 100%; border-radius: 5px;">
+                🖨️ Cetak Struk (Thermal)
+            </button>
+            """
+            import streamlit.components.v1 as components
+            # Note: direct window.print() prints the whole page, which is often easier for mobile thermal apps 
+            # that can "crop" to content. For specific raw printing, browser limitations apply.
+            # Using simple window.print() for now as it's the valid web standard.
+            components.html(print_html, height=60)
+            
+        else:
+            st.info("👈 Input transaksi untuk melihat struk.")
+
+        st.divider()
         st.subheader("Stok Menipis ⚠️")
         low_stock = df_inv[df_inv['Stok'] < 20]
         if not low_stock.empty:
