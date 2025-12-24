@@ -175,6 +175,19 @@ with tab2:
             ["Tadah Hujan (Non-Teknis)", "Sumur Bor / Pompa", "Irigasi Teknis (Bendungan)", "Mata Air Gravitasi"],
             index=2
         )
+        
+        st.divider()
+        st.markdown("#### 🐛 Riwayat Hama & Penyakit (Endemik)")
+        pest_risk_level = st.select_slider(
+            "Tingkat Risiko Serangan Hama di Area Ini",
+            options=["Nihil", "Rendah", "Sedang", "Tinggi (Endemik)", "Sangat Tinggi (Wabah)"],
+            value="Rendah"
+        )
+        
+        historical_pests = st.multiselect(
+            "Jenis Hama/Penyakit yang Sering Muncul",
+            ["Layu Fusarium/Bakteri", "Lalat Buah", "Thrips/Tungau", "Tikus", "Wereng", "Akar Gada", "Virus (Gemini/Kuning)", "Tidak Ada"]
+        )
 
 # --- TAB 3: PASAR ---
 with tab3:
@@ -247,7 +260,12 @@ with tab6:
     elif irrigation_type == "Sumur Bor / Pompa": agro_score += 20
     # pH ideal (6-7)
     if 6.0 <= ph_level <= 7.0: agro_score += 20
-    scores['Agronomi & Lahan'] = min(agro_score, 100)
+    
+    # Pest Penalty (NEW)
+    if pest_risk_level == "Tinggi (Endemik)": agro_score -= 15
+    elif pest_risk_level == "Sangat Tinggi (Wabah)": agro_score -= 30
+    
+    scores['Agronomi & Lahan'] = max(0, min(agro_score, 100))
     
     # 3. Market Score
     mkt_score = 0
@@ -302,6 +320,34 @@ with tab6:
         if loan_amount > 0:
             credit_grade = "A (Prime)" if final_score >= 80 else "B (Good)" if final_score >= 70 else "C (Fair)" if final_score >= 60 else "D (Subprime)"
             st.info(f"🏷️ **Prediksi Rating Kredit:** {credit_grade}")
+            
+        # --- SMART RECOMMENDATION ENGINE ---
+        st.markdown("### 💡 Rekomendasi AI Jenis Usaha")
+        
+        recommendations = []
+        
+        # 1. Check Greenhouse Potential
+        if total_capital > 500_000_000 and pest_risk_level in ["Tinggi (Endemik)", "Sangat Tinggi (Wabah)"]:
+            recommendations.append(("Greenhouse Modern", "Area ini endemik hama tinggi. Greenhouse adalah solusi terbaik untuk memproteksi modal tanaman Anda."))
+        
+        # 2. Check Farm Shop Potential
+        if road_access in ["Jalan Raya Provinsi", "Dekat Tol"] and farmer_count > 1000 and competitor_count < 5:
+            recommendations.append(("Toko Pertanian (Farm Shop)", "Lokasi sangat strategis untuk retail. Basis petani besar namun kompetisi masih rendah."))
+            
+        # 3. Check Agrowisata Potential
+        if elevation > 800 and disaster_risk in ["Sangat Rendah", "Rendah"] and road_access != "Jalan Tanah":
+            recommendations.append(("Agrowisata & Petik Buah", "Ketinggian >800mdpl (Sejuk) + Akses bagus + Risiko rendah = Sempurna untuk wisata."))
+            
+        # 4. Check Trading/Distributor
+        if sentra_type != "Bukan Sentra (Pioneer)" and road_access not in ["Jalan Tanah", "Jalan Makadam"]:
+            recommendations.append(("Distributor/Offtaker", "Manfaatkan status 'Sentra Budidaya' untuk menjadi pengepul/distributor skala besar."))
+
+        if recommendations:
+            st.info(f"Mengingat kondisi (Hama: {pest_risk_level}, Lokasi, Modal), kami menyarankan pivot ke:")
+            for rec, reason in recommendations:
+                st.markdown(f"- **{rec}**: {reason}")
+        else:
+            st.caption("Model bisnis yang Anda pilih ("+biz_type+") sudah cukup moderat untuk kondisi ini.")
 
     with r2:
         # Radar Chart
