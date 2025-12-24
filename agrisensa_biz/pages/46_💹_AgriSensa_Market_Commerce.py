@@ -97,7 +97,18 @@ tab_dashboard, tab_pos, tab_inventory, tab_orders, tab_forecast, tab_pricing = s
 
 # ===== TAB 1: DASHBOARD UTAMA =====
 with tab_dashboard:
-    st.header("📊 Executive Dashboard")
+    # Header with Logout for easy access
+    dash_h1, dash_h2 = st.columns([4, 1])
+    with dash_h1:
+        st.header("📊 Executive Dashboard")
+    with dash_h2:
+        if st.button("🚪 Logout / Ganti Akun", type="secondary", use_container_width=True):
+            if 'auth' in sys.modules:
+                auth.logout()
+            else:
+                st.session_state.authenticated = False
+                st.session_state.user = None
+            st.rerun()
     
     df_dash = st.session_state.order_db
     
