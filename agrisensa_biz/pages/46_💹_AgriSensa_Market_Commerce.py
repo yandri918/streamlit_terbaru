@@ -12,6 +12,32 @@ st.set_page_config(
     layout="wide"
 )
 
+# --- AUTHENTICATION CHECK ---
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))) # Add repo root to path
+
+try:
+    from agrisensa_tech.utils import auth
+    
+    # Initialize Auth
+    auth.init_auth_state()
+    
+    # Enforce Login (Block 'guest')
+    current_user = auth.get_current_user()
+    if current_user and current_user.get('username') == 'guest':
+        st.info("👋 Halo! Untuk menggunakan Sistem Kasir & Toko, Anda harus login terlebih dahulu.")
+        auth.show_login_required()
+        st.stop()
+        
+    # Show User Info if logged in
+    if auth.is_authenticated():
+        auth.show_user_info_sidebar()
+        
+except ImportError:
+    st.warning("⚠️ Modul Auth tidak ditemukan. Menjalankan dalam mode bypass.")
+
+
 import os
 
 # CONSTANTS - PERSISTENCE
