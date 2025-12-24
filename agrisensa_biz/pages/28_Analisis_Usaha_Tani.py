@@ -1316,12 +1316,12 @@ if st.button("📊 Analyze in Economics Module", type="primary", use_container_w
         'production_period_months': lama_tanam_bulan,
         
         # Break-even data
-        'fixed_cost': sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap']),
-        'variable_cost': total_biaya - sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap']),
-        'variable_cost_per_unit': (total_biaya - sum([row['Total'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap'])) / total_panen_kg if total_panen_kg > 0 else 0,
+        'fixed_cost': sum([row['Total (Rp)'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap']),
+        'variable_cost': total_biaya - sum([row['Total (Rp)'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap']),
+        'variable_cost_per_unit': (total_biaya - sum([row['Total (Rp)'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap'])) / total_panen_kg if total_panen_kg > 0 else 0,
         
         # Cost breakdown
-        'cost_by_category': edited_df.groupby('Kategori')['Total'].sum().to_dict(),
+        'cost_by_category': edited_df.groupby('Kategori')['Total (Rp)'].sum().to_dict(),
         'detailed_costs': edited_df.to_dict('records'),
         
         # Timestamp
