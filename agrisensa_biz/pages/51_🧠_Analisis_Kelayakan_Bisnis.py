@@ -72,15 +72,39 @@ with tab1:
     col_geo1, col_geo2 = st.columns([1.5, 1])
     
     with col_geo1:
-        st.info("Pilih titik lokasi usaha pada peta untuk analisis otomatis.")
-        # Dummy Map (Malang)
-        m = folium.Map(location=[-7.85, 112.5], zoom_start=11)
+        st.info("Klik di peta untuk menentukan lokasi persis usaha Anda.")
+        
+        # Initialize default coords in session
+        if 'biz_lat' not in st.session_state: st.session_state.biz_lat = -7.85
+        if 'biz_lon' not in st.session_state: st.session_state.biz_lon = 112.5
+        
+        # Base Map
+        m = folium.Map(location=[st.session_state.biz_lat, st.session_state.biz_lon], zoom_start=13)
+        
+        # Add click capability
+        m.add_child(folium.LatLngPopup())
+        
+        # Marker from session
         folium.Marker(
-            [-7.85, 112.5], 
-            popup="Lokasi Usaha", 
-            icon=folium.Icon(color="green", icon="leaf")
+            [st.session_state.biz_lat, st.session_state.biz_lon],
+            popup="Lokasi Terpilih",
+            icon=folium.Icon(color="red", icon="info-sign")
         ).add_to(m)
-        st_data = st_folium(m, height=400, width="100%")
+        
+        # Render Map & Capture Events
+        st_data = st_folium(m, height=450, width="100%", key="folium_map")
+        
+        # Update session if clicked (Logic: If last_clicked exists and is different from current)
+        if st_data and st_data.get("last_clicked"):
+            lat_click = st_data["last_clicked"]["lat"]
+            lng_click = st_data["last_clicked"]["lng"]
+            
+            if (lat_click != st.session_state.biz_lat) or (lng_click != st.session_state.biz_lon):
+                st.session_state.biz_lat = lat_click
+                st.session_state.biz_lon = lng_click
+                st.rerun()
+
+        st.caption(f"Koordinat Terpilih: {st.session_state.biz_lat:.5f}, {st.session_state.biz_lon:.5f}")
     
     with col_geo2:
         st.markdown("#### 🌦️ Parameter Lingkungan")
