@@ -46,8 +46,12 @@ with st.sidebar:
     
     biz_type = st.selectbox(
         "Jenis Usaha",
-        ["Toko Pertanian (Farm Shop)", "Greenhouse Komersial", "Distributor Pupuk", "Pengolahan Hasil Panen", "Agrowisata"]
+        ["Toko Pertanian (Farm Shop)", "Greenhouse Komersial", "Distributor Pupuk", "Pengolahan Hasil Panen", "Agrowisata", "Commercial Nursery (Pembibitan)"]
     )
+    
+    # VISUAL INDICATOR
+    if biz_type == "Commercial Nursery (Pembibitan)":
+        st.success("🧬 **Mode Nursery Aktif**: Parameter disesuaikan untuk sensitivitas bibit (Suhu Sejuk & Jalan Halus diutamakan).")
     
     location_name = st.text_input("Nama Lokasi / Area", "Kec. Pujon, Malang")
     
@@ -160,6 +164,13 @@ with tab2:
         )
         
         topography = st.selectbox("⛰️ Topografi / Kemiringan", ["Datar (0-3%)", "Landai (3-8%)", "Berombak (8-15%)", "Berbukit (>15%)"])
+
+        # NURSERY SPECIFIC INPUTS
+        if biz_type == "Commercial Nursery (Pembibitan)":
+            st.markdown("---")
+            st.markdown("🧬 **Kapasitas Produksi**")
+            nursery_capacity = st.number_input("Target Produksi (Tray/Bulan)", 100, 100000, 1000)
+            germination_rate = st.slider("Target Daya Berkecambah (%)", 70, 99, 90)
 
     with agro2:
         st.markdown("#### 🧪 Parameter Tanah & Air")
@@ -302,6 +313,11 @@ with tab6:
         # Agrowisata specific
         if params['type'] == "Agrowisata":
             if params['elev'] > 800: geo += 30
+        if params['type'] == "Commercial Nursery (Pembibitan)":
+             # Nursery needs cool climate or adaptable
+            if params['elev'] > 500: geo += 15
+            # Nursery needs good road for transporting fragile seedlings
+            if params['road'] == "Jalan Tanah": geo -= 20
         
         s['Geografis'] = min(geo + 20, 100)
         
@@ -312,6 +328,8 @@ with tab6:
         
         # Greenhouse tech bonus
         if params['type'] == "Greenhouse Komersial": agro += 20
+        # Nursery tech bonus (needs clean environment)
+        if params['type'] == "Commercial Nursery (Pembibitan)": agro += 10
         
         # Pest Penalty
         if params['pest'] == "Tinggi (Endemik)": 
@@ -431,7 +449,7 @@ with tab6:
     with r2:
         # --- COMPARATIVE ANALYSIS ---
         st.markdown("#### 🆚 Perbandingan Peluang Usaha")
-        other_types = ["Toko Pertanian (Farm Shop)", "Greenhouse Komersial", "Distributor Pupuk", "Pengolahan Hasil Panen", "Agrowisata"]
+        other_types = ["Toko Pertanian (Farm Shop)", "Greenhouse Komersial", "Distributor Pupuk", "Pengolahan Hasil Panen", "Agrowisata", "Commercial Nursery (Pembibitan)"]
         comp_res = []
         
         for ot in other_types:

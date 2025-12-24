@@ -29,15 +29,57 @@ st.markdown("**Panduan Lengkap Modernisasi dan Efisiensi Alat Mesin Pertanian (A
 st.info("💡 Modul ini membantu Anda memilih teknologi yang tepat, mulai dari metode tradisional hingga presisi tinggi untuk skala industri.")
 
 # Main tabs
-tab_land, tab_plant, tab_maintenance, tab_harvest, tab_greenhouse, tab_recommendation, tab_safety = st.tabs([
+# ... (Tab list update)
+tab_land, tab_plant, tab_nursery_mech, tab_maintenance, tab_harvest, tab_greenhouse, tab_recommendation, tab_safety = st.tabs([
     "🌱 Pengolahan Lahan",
     "🚜 Penanaman",
+    "🧩 Mekanisasi Nursery",
     "🛡️ Pemeliharaan",
     "🌾 Pemanenan",
     "🏠 Greenhouse & Hidroponik",
     "💡 Rekomendasi Pintar",
     "⚙️ Perawatan & K3"
 ])
+# ... (Content for Tab 1 and 2 remains same)
+
+# ===== TAB: NURSERY MECHANIZATION (NEW) =====
+with tab_nursery_mech:
+    st.header("🧩 Mekanisasi Pembibitan (Modern Nursery)")
+    st.markdown("Automasi dalam produksi bibit memastikan keseragaman, efisiensi waktu, dan kualitas vigor tanaman yang tinggi.")
+    
+    n1, n2 = st.columns(2)
+    
+    with n1:
+        st.subheader("1. Persiapan Media (Soil Preparation)")
+        st.markdown("""
+        *   **Soil Mixer:** Mesin pengaduk media tanam (tanah + cocopeat + pupuk) agar homogen. Kapasitas: 500-1000 kg/jam.
+        *   **Tray Filler:** Mesin pengisi tray semai otomatis. Memastikan kepadatan media seragam di setiap lubang tray.
+        """)
+        
+        st.image("https://sc04.alicdn.com/kf/H75475155f97341079366037060370600q.jpg", caption="Ilustrasi: Automatic Tray Filler Line", use_column_width=True)
+
+    with n2:
+        st.subheader("2. Penaburan Benih (Seeding)")
+        st.markdown("""
+        *   **Vacuum Seeder:** Menggunakan jarum hisap udara untuk mengambil 1 biji per lubang secara presisi. Kecepatan: 200 tray/jam.
+        *   **Drum Seeder:** Untuk biji bulat (pelleted seeds). Lebih cepat dari vacuum, sistem putar.
+        """)
+        st.info("💡 **Efisiensi:** 1 Mesin Seeder setara dengan kecepatan kerja 20 orang tenaga kerja manual.")
+    
+    st.divider()
+    
+    st.subheader("3. Teknologi Penyiraman & Grafting")
+    
+    ng1, ng2 = st.columns(2)
+    
+    with ng1:
+        st.markdown("#### 🌧️ Boom Irrigation")
+        st.write("Lengan penyiram otomatis yang bergerak di atas rel (rail) sepanjang rumah semai. Menghasilkan butiran air sangat halus (mist) yang tidak merusak bibit muda.")
+    
+    with ng2:
+        st.markdown("#### ✂️ Grafting Robot")
+        st.write("Robot penyambung batang otomatis. Menggunakan kamera untuk mendeteksi diameter batang scion dan rootstock, lalu memotong dan menjepitnya dengan klip khusus. Tingkat keberhasilan >95%.")
+
 
 # ===== TAB 1: PENGOLAHAN LAHAN =====
 with tab_land:
