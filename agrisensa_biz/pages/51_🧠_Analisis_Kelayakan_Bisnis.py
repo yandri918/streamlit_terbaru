@@ -285,11 +285,7 @@ with tab4:
         st.progress(min(coverage_ratio/200, 1.0), text=f"Coverage: {coverage_ratio:.1f}%")
         economic_cond = st.selectbox("Kondisi Ekonomi", ["Resesi", "Stabil", "Bertumbuh"], index=2)
 
-# --- TAB 5: LEGAL ---
-with tab5:
-    st.subheader("⚖️ Legalitas & Risiko")
-    legal_docs = st.multiselect("Dokumen Legal", ["NIB", "NPWP", "Izin Lokasi", "AMDAL", "Sertifikat Halal", "Akta PT/CV"])
-    social_accept = st.select_slider("Penerimaan Warga", options=["Menolak", "Netral", "Mendukung", "Sangat Mendukung"], value="Mendukung")
+# (Duplicate Tab 5 removed)
 
 # --- TAB 6: REPORT & INTELLIGENCE ---
 with tab6:
