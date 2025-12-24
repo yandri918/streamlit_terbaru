@@ -182,7 +182,10 @@ with tab_orders:
     daily_sales = df_orders[df_orders['Date'] == datetime.date.today()]['Total Value'].sum()
     total_revenue = df_orders['Total Value'].sum()
     pending_orders = len(df_orders[df_orders['Status'] == 'New'])
-    top_channel = df_orders.groupby('Channel')['Total Value'].sum().idxmax()
+    if not df_orders.empty:
+        top_channel = df_orders.groupby('Channel')['Total Value'].sum().idxmax()
+    else:
+        top_channel = "-"
     
     m1.metric("Omset Hari Ini", f"Rp {daily_sales:,.0f}")
     m2.metric("Total Revenue (30 Hari)", f"Rp {total_revenue:,.0f}")
