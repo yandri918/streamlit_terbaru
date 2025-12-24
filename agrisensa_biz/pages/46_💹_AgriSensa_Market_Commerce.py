@@ -107,10 +107,18 @@ with tab_inventory:
     st.header("📦 Manajemen Gudang")
     
     # Editable Table
-    edited_df = st.data_editor(st.session_state.inventory_db, num_rows="dynamic", use_container_width=True)
+    # Editable Table with Key for State Management
+    edited_df = st.data_editor(
+        st.session_state.inventory_db, 
+        num_rows="dynamic", 
+        use_container_width=True,
+        key="inventory_editor"
+    )
     
-    # Save mechanism (Streamlit data editor auto updates details but saving entire DF to session state)
-    st.session_state.inventory_db = edited_df
+    # Sync Logic: If editor changes, update DB and RERUN to refresh POS prices immediately
+    if not edited_df.equals(st.session_state.inventory_db):
+        st.session_state.inventory_db = edited_df
+        st.rerun()
 
 # ===== TAB 3: RIWAYAT PESANAN (Previously Tab 1) =====
 with tab_orders:
