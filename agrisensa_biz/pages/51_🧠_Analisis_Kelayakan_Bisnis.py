@@ -69,41 +69,6 @@ tab1, tab2, tab3, tab4, tab5, tab7, tab6 = st.tabs([
     "📊 Laporan Final"
 ])
 
-# ... (Tab 1 to Tab 5 content remains same)
-
-# --- TAB 5: LEGAL ---
-with tab5:
-    st.subheader("⚖️ Legalitas & Risiko")
-    legal_docs = st.multiselect("Dokumen Legal", ["NIB", "NPWP", "Izin Lokasi", "AMDAL", "Sertifikat Halal", "Akta PT/CV"])
-    social_accept = st.select_slider("Penerimaan Warga", options=["Menolak", "Netral", "Mendukung", "Sangat Mendukung"], value="Mendukung")
-
-# --- TAB 7: EKONOMI MAKRO & KEBIJAKAN (NEW) ---
-with tab7:
-    st.subheader("📈 Analisis Ekonomi Makro & Kebijakan")
-    st.info("Parameter profesional untuk analisis dampak lingkungan ekonomi eksternal dan kebijakan pemerintah.")
-    
-    ec1, ec2 = st.columns(2)
-    
-    with ec1:
-        st.markdown("#### 🌏 Indikator Makroekonomi")
-        inflation_rate = st.number_input("Tingkat Inflasi Tahunan (%)", 0.0, 20.0, 3.5, 0.1, help="Inflasi tinggi menggerus daya beli dan meningkatkan biaya input.")
-        gdp_growth = st.number_input("Pertumbuhan Ekonomi Regional (%)", -5.0, 15.0, 5.0, 0.1, help="Korelasi positif dengan demand produk sekunder/tersier.")
-        bi_rate = st.number_input("Suku Bunga Acuan (BI Rate) %", 2.0, 15.0, 6.0, 0.25, help="Basis perhitungan Cost of Fund untuk kredit.")
-        exchange_rate_volatility = st.selectbox("Volatilitas Kurs (IDR/USD)", ["Stabil", "Fluktuatif Sedang", "Sangat Gejolak"], help="Penting jika Anda menggunakan pupuk impor atau orientasi ekspor.")
-        
-    with ec2:
-        st.markdown("#### 🏛️ Kebijakan Pemerintah")
-        gov_support = st.multiselect("Dukungan Pemerintah Sektor Ini", ["Subsidi Pupuk/Pakan", "Bantuan Alsintan", "KUR (Bunga Rendah)", "Proteksi Impor", "Tax Allowance/Holiday"])
-        import_policy = st.selectbox("Kebijakan Perdagangan", ["Bebas Impor (Kompetisi Tinggi)", "Pembatasan Impor (Proteksi)", "Netral"])
-        
-        st.divider()
-        st.markdown("#### 🔬 Struktur Pasar (Mikro)")
-        market_structure = st.selectbox("Struktur Persaingan Industri", 
-            ["Persaingan Sempurna (Banyak Penjual/Pembeli)", "Oligopoli (Dikuasai Pemain Besar)", "Monopoli (Dikuasai 1 Pihak)", "Niche Market (Spesifik)"],
-            help="Menentukan Pricing Power Anda."
-        )
-        price_elasticity = st.selectbox("Elastisitas Harga Produk", ["Inelastis (Bebutuhan Pokok)", "Elastis (Barang Mewah/Sekunder)"], help="Inelastis: Harga naik, orang tetap beli (Padi/Jagung). Elastis: Harga naik, orang kurangi beli (Bunga/Buah Mahal).")
-
 # --- TAB 1: GEO-SPASIAL ---
 with tab1:
     st.subheader("📍 Analisis Lokasi & Geografis")
@@ -285,7 +250,38 @@ with tab4:
         st.progress(min(coverage_ratio/200, 1.0), text=f"Coverage: {coverage_ratio:.1f}%")
         economic_cond = st.selectbox("Kondisi Ekonomi", ["Resesi", "Stabil", "Bertumbuh"], index=2)
 
-# (Duplicate Tab 5 removed)
+# --- TAB 5: LEGAL (Duplicate Removed, already in Tabs List but logic below) ---
+with tab5:
+    st.subheader("⚖️ Legalitas & Risiko")
+    legal_docs = st.multiselect("Dokumen Legal", ["NIB", "NPWP", "Izin Lokasi", "AMDAL", "Sertifikat Halal", "Akta PT/CV"])
+    social_accept = st.select_slider("Penerimaan Warga", options=["Menolak", "Netral", "Mendukung", "Sangat Mendukung"], value="Mendukung")
+
+# --- TAB 7: EKONOMI MAKRO & KEBIJAKAN (NEW) ---
+with tab7:
+    st.subheader("📈 Analisis Ekonomi Makro & Kebijakan")
+    st.info("Parameter profesional untuk analisis dampak lingkungan ekonomi eksternal dan kebijakan pemerintah.")
+    
+    ec1, ec2 = st.columns(2)
+    
+    with ec1:
+        st.markdown("#### 🌏 Indikator Makroekonomi")
+        inflation_rate = st.number_input("Tingkat Inflasi Tahunan (%)", 0.0, 20.0, 3.5, 0.1, help="Inflasi tinggi menggerus daya beli dan meningkatkan biaya input.")
+        gdp_growth = st.number_input("Pertumbuhan Ekonomi Regional (%)", -5.0, 15.0, 5.0, 0.1, help="Korelasi positif dengan demand produk sekunder/tersier.")
+        bi_rate = st.number_input("Suku Bunga Acuan (BI Rate) %", 2.0, 15.0, 6.0, 0.25, help="Basis perhitungan Cost of Fund untuk kredit.")
+        exchange_rate_volatility = st.selectbox("Volatilitas Kurs (IDR/USD)", ["Stabil", "Fluktuatif Sedang", "Sangat Gejolak"], help="Penting jika Anda menggunakan pupuk impor atau orientasi ekspor.")
+        
+    with ec2:
+        st.markdown("#### 🏛️ Kebijakan Pemerintah")
+        gov_support = st.multiselect("Dukungan Pemerintah Sektor Ini", ["Subsidi Pupuk/Pakan", "Bantuan Alsintan", "KUR (Bunga Rendah)", "Proteksi Impor", "Tax Allowance/Holiday"])
+        import_policy = st.selectbox("Kebijakan Perdagangan", ["Bebas Impor (Kompetisi Tinggi)", "Pembatasan Impor (Proteksi)", "Netral"])
+        
+        st.divider()
+        st.markdown("#### 🔬 Struktur Pasar (Mikro)")
+        market_structure = st.selectbox("Struktur Persaingan Industri", 
+            ["Persaingan Sempurna (Banyak Penjual/Pembeli)", "Oligopoli (Dikuasai Pemain Besar)", "Monopoli (Dikuasai 1 Pihak)", "Niche Market (Spesifik)"],
+            help="Menentukan Pricing Power Anda."
+        )
+        price_elasticity = st.selectbox("Elastisitas Harga Produk", ["Inelastis (Bebutuhan Pokok)", "Elastis (Barang Mewah/Sekunder)"], help="Inelastis: Harga naik, orang tetap beli (Padi/Jagung). Elastis: Harga naik, orang kurangi beli (Bunga/Buah Mahal).")
 
 # --- TAB 6: REPORT & INTELLIGENCE ---
 with tab6:
@@ -627,4 +623,75 @@ with tab6:
             st.plotly_chart(fig_bep, use_container_width=True)
             st.info(f"💡 Anda harus menjual minimal **{int(bep_unit):,} unit** produk agar balik modal operasional.")
 
+    st.divider()
 
+    # --- INVENTORY MIX STRATEGY ---
+    with st.expander("📦 Strategi Inventori & Diversifikasi Produk (Cashflow Optimizer)", expanded=True):
+        st.subheader("Rekomendasi Proporsi Barang & Cross-Selling")
+        st.info("Berdasarkan kondisi ekonomi makro (Inflasi/Daya Beli) dan profil risiko lokasi, berikut adalah komposisi stok yang disarankan untuk memaksimalkan profit sekaligus menjaga arus kas harian.")
+        
+        inv1, inv2 = st.columns([1.5, 1])
+        
+        with inv2:
+            st.markdown("#### 🛒 Analisis Proporsi")
+            
+            # Logic for Inventory Mix
+            # Base Mix
+            pct_main = 50 # Core (Pupuk/Benih)
+            pct_secondary = 30 # Tools/Pesticide
+            pct_diversify = 20 # Sembako/Consumer
+            
+            # Adjust based on Macro
+            if inflation_rate > 5.0:
+                # High inflation: People buy only essentials
+                pct_main += 15
+                pct_secondary -= 10
+                pct_diversify -= 5
+                inv_note = "Inflasi tinggi! Fokus ke barang Inelastis (Pupuk/Benih Utama)."
+            elif gdp_growth > 6.0:
+                # High Growth: People buy hobbies/premium
+                pct_main -= 10
+                pct_secondary += 20
+                pct_diversify -= 10
+                inv_note = "Ekonomi tumbuh! Perbanyak stok Alat Modern & Hobi."
+            else:
+                inv_note = "Kondisi stabil. Pertahankan bauran produk seimbang."
+            
+            # Adjust based on Location Risk (If risk high, need fast cash from Sembako)
+            if final_score < 60:
+                pct_diversify += 15
+                pct_main -= 10
+                pct_secondary -= 5
+                inv_note += " Risiko bisnis agak tinggi, perbesar porsi Sembako untuk Cashflow harian aman."
+                
+            # Normalize
+            total_pct = pct_main + pct_secondary + pct_diversify
+            pct_main = (pct_main / total_pct) * 100
+            pct_secondary = (pct_secondary / total_pct) * 100
+            pct_diversify = (pct_diversify / total_pct) * 100
+            
+            st.write(f"**Strategi:** {inv_note}")
+            
+            # Specific Items
+            st.markdown("**Top 3 Barang Tambahan (Sembako/Lainnya):**")
+            if 'farmer_count' in locals() and farmer_count > 2000:
+                st.markdown("1. 🍚 **Beras & Minyak Goreng**: Traffic generator utama bagi keluarga petani.")
+            else:
+                st.markdown("1. ☕ **Kopi Sachet & Minuman Dingin**: Wajib ada jika lokasi dekat lahan kerja.")
+                
+            if internet_signal == "Blank Spot":
+                st.markdown("2. 🎟️ **Pulsa & Token Listrik**: Sangat dicari di area minim sinyal/akses.")
+            else:
+                st.markdown("2. 💊 **Obat Pertanian Ringan (P3K)**: Margin tinggi.")
+                
+            st.markdown("3. ⛽ **BBM Eceran (Pertamini)**: Jika jauh dari SPBU (>5km), ini adalah 'Emas Hitam'.")
+
+        with inv1:
+            # Pie Chart
+            labels = ['Produk Utama (Pupuk/Benih)', 'Pendukung (Alat/Obat)', 'Diversifikasi (Sembako/FMCG)']
+            values = [pct_main, pct_secondary, pct_diversify]
+            colors = ['#10b981', '#3b82f6', '#f59e0b']
+            
+            fig_inv = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.4, marker_colors=colors)])
+            fig_inv.update_layout(title="Rekomendasi Bauran Stok (Inventory Mix)", height=300, margin=dict(t=30, b=0))
+            st.plotly_chart(fig_inv, use_container_width=True)
