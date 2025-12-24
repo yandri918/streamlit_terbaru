@@ -897,8 +897,30 @@ with tab_bep:
     # Calculate BEP
     if harga_jual > biaya_variabel_per_unit:
         contribution_margin = harga_jual - biaya_variabel_per_unit
-        bep_units = biaya_tetap / contribution_margin
-        bep_rupiah = bep_units * harga_jual
+        
+        # Check if there are fixed costs
+        if biaya_tetap > 0:
+            bep_units = biaya_tetap / contribution_margin
+            bep_rupiah = bep_units * harga_jual
+        else:
+            # No fixed costs - special case
+            bep_units = 0
+            bep_rupiah = 0
+            
+            st.warning("""
+            ⚠️ **Tidak Ada Biaya Tetap Terdeteksi**
+            
+            Template komoditas ini tidak memiliki item dengan kategori "Biaya Tetap".
+            
+            **Implikasi:**
+            - BEP = 0 (setiap penjualan langsung profit)
+            - Contribution Margin per unit: Rp {:,.0f}
+            - Profit = Quantity × Contribution Margin
+            
+            **Rekomendasi:**
+            - Jika ada biaya tetap (sewa lahan, penyusutan, dll), tambahkan manual di tabel RAB
+            - Atau gunakan analisis Profit Scenarios di tab berikutnya
+            """.format(contribution_margin))
         
         # Margin of Safety
         actual_sales_rupiah = total_panen_kg * harga_jual
