@@ -46,12 +46,15 @@ with st.sidebar:
     
     biz_type = st.selectbox(
         "Jenis Usaha",
-        ["Toko Pertanian (Farm Shop)", "Greenhouse Komersial", "Distributor Pupuk", "Pengolahan Hasil Panen", "Agrowisata", "Commercial Nursery (Pembibitan)"]
+        ["Toko Pertanian (Farm Shop)", "Greenhouse Komersial", "Distributor Pupuk", "Pengolahan Hasil Panen", "Agrowisata", "Commercial Nursery (Pembibitan)", "Integrated Nursery & Farm Shop (Toko & Pembibitan)"],
+        key="biz_type_main"
     )
     
     # VISUAL INDICATOR
     if biz_type == "Commercial Nursery (Pembibitan)":
         st.success("🧬 **Mode Nursery Aktif**: Parameter disesuaikan untuk sensitivitas bibit (Suhu Sejuk & Jalan Halus diutamakan).")
+    elif biz_type == "Integrated Nursery & Farm Shop (Toko & Pembibitan)":
+        st.info("🏪➕🌱 **Mode Terintegrasi**: Analisis gabungan Toko Pertanian (Omzet Harian) + Pembibitan (Seasonal). Skenario Cross-selling aktif.")
     
     location_name = st.text_input("Nama Lokasi / Area", "Kec. Pujon, Malang")
     
@@ -232,6 +235,33 @@ with tab3:
         market_growth = st.slider("Pertumbuhan Pasar Tahunan (%)", -10, 50, 10)
         unique_selling = st.multiselect("Keunggulan Kompetitif (USP)", ["Harga Murah", "Layanan Antar", "Konsultasi", "Teknologi", "Kredit", "Stok Lengkap"])
         
+        # INTEGRATED SCENARIO LOGIC
+        if biz_type == "Integrated Nursery & Farm Shop (Toko & Pembibitan)":
+            st.markdown("---")
+            st.markdown("#### 🔄 Simulasi Terintegrasi (Toko + Bibit)")
+            st.caption("Hitung potensi 'Cross-Selling': Menjual bibit sendiri ke pelanggan toko.")
+            
+            w_col1, w_col2 = st.columns(2)
+            with w_col1:
+                target_lahan_ha = st.number_input("Target Luas Lahan Pelanggan (Ha)", 1, 1000, 50, help="Total luas lahan milik pelanggan tetap toko Anda.")
+                populasi_per_ha = st.number_input("Rata-rata Populasi/Ha", 10000, 50000, 20000, help="Misal Cabai/Tomat ~20rb populasi.")
+            
+            with w_col2:
+                capture_rate = st.slider("Target Market Share Bibit (%)", 5, 100, 20, help="Berapa % pelanggan toko yg akan beli bibit dari Anda?")
+                margin_bibit = st.number_input("Margin Profit per Bibit (Rp)", 50, 2000, 200, help="Keuntungan bersih per tanaman.")
+            
+            # Calculation
+            total_market_bibit = target_lahan_ha * populasi_per_ha
+            captured_bibit = total_market_bibit * (capture_rate / 100)
+            potential_profit_nursery = captured_bibit * margin_bibit
+            
+            st.info(f"""
+            **Analisis Potensi Sinergi:**
+            - Total Kebutuhan Pasar: **{int(total_market_bibit):,} bibit/musim**
+            - Target Penjualan Anda: **{int(captured_bibit):,} bibit**
+            - 💰 **Potensi Profit Tambahan Nursery: Rp {int(potential_profit_nursery):,}/musim**
+            """)
+        
         st.divider()
         st.markdown("#### 👷 Ketenagakerjaan")
         labor_avail = st.select_slider("Ketersediaan Tenaga Kerja Tani", ["Sangat Langka", "Langka", "Cukup", "Melimpah"], value="Cukup")
@@ -319,6 +349,12 @@ with tab6:
             # Nursery needs good road for transporting fragile seedlings
             if params['road'] == "Jalan Tanah": geo -= 20
         
+        # Integrated specific
+        if params['type'] == "Integrated Nursery & Farm Shop (Toko & Pembibitan)":
+            # Very strong model if road is good (customers come) + climate good
+            if params['road'] in ["Jalan Raya Provinsi", "Dekat Tol"]: geo += 10
+            if params['elev'] > 400: geo += 10 
+        
         s['Geografis'] = min(geo + 20, 100)
         
         # B. AGRONOMY
@@ -330,6 +366,7 @@ with tab6:
         if params['type'] == "Greenhouse Komersial": agro += 20
         # Nursery tech bonus (needs clean environment)
         if params['type'] == "Commercial Nursery (Pembibitan)": agro += 10
+        if params['type'] == "Integrated Nursery & Farm Shop (Toko & Pembibitan)": agro += 15 # Synergy efficiency
         
         # Pest Penalty
         if params['pest'] == "Tinggi (Endemik)": 
