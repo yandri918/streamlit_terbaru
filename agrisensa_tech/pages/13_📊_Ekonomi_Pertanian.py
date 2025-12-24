@@ -165,7 +165,11 @@ with tab_prod:
         if len(input_vars) >= 1 and st.button("🚀 Estimate Production Function", type="primary"):
             # Prepare data
             df_clean = df_prod[[output_var] + input_vars].dropna()
-            df_clean = df_clean[(df_clean > 0).all(axis=1)]  # Remove non-positive values
+            
+            # Select only numeric columns and remove non-positive values
+            numeric_cols = df_clean.select_dtypes(include=[np.number]).columns
+            df_clean = df_clean[numeric_cols]
+            df_clean = df_clean[(df_clean > 0).all(axis=1)]
             
             if len(df_clean) < 10:
                 st.error("⚠️ Insufficient data after cleaning. Need at least 10 observations with positive values.")
@@ -490,7 +494,11 @@ with tab_elast:
             if st.button("Calculate Elasticity"):
                 # Log transformation
                 df_clean = df_elast[[q_var, p_var]].dropna()
-                df_clean = df_clean[(df_clean > 0).all(axis=1)]  # Remove non-positive values
+                
+                # Select only numeric columns and remove non-positive values
+                numeric_cols = df_clean.select_dtypes(include=[np.number]).columns
+                df_clean = df_clean[numeric_cols]
+                df_clean = df_clean[(df_clean > 0).all(axis=1)]
                 
                 if len(df_clean) < 10:
                     st.error("⚠️ Insufficient data. Need at least 10 observations with positive values.")
