@@ -102,13 +102,15 @@ with tab_dashboard:
     with dash_h1:
         st.header("📊 Executive Dashboard")
     with dash_h2:
-        if st.button("🚪 Logout / Ganti Akun", type="secondary", use_container_width=True):
+    with dash_h2:
+        def perform_logout():
             if 'auth' in sys.modules:
                 auth.logout()
             else:
                 st.session_state.authenticated = False
                 st.session_state.user = None
-            st.rerun()
+
+        st.button("🚪 Logout / Ganti Akun", type="secondary", use_container_width=True, on_click=perform_logout)
     
     df_dash = st.session_state.order_db
     
