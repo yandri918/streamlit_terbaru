@@ -167,7 +167,9 @@ with tab_orders:
 
     # Load Data (Simulation OR Session)
     if 'order_db' not in st.session_state:
-        st.session_state.order_db = pd.DataFrame() # Initialize empty for new system
+        # Initialize empty but with correct structure
+        cols = ['Order ID', 'Date', 'Customer', 'Channel', 'Commodity', 'Qty (kg)', 'Price/kg', 'Total Value', 'Status', 'Payment']
+        st.session_state.order_db = pd.DataFrame(columns=cols)
     
     df_orders = st.session_state.order_db
     # Ensure Date format consistency
