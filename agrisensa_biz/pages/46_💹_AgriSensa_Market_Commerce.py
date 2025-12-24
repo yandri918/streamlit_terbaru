@@ -102,7 +102,6 @@ with tab_dashboard:
     with dash_h1:
         st.header("📊 Executive Dashboard")
     with dash_h2:
-    with dash_h2:
         def perform_logout():
             if 'auth' in sys.modules:
                 auth.logout()
