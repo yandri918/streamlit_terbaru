@@ -248,23 +248,39 @@ def require_auth():
 
 
 def show_login_required():
-    """Show login required message."""
-    st.warning("🔐 **Login Diperlukan** - Silakan login untuk mengakses fitur ini")
+    """Show login required message with Register option."""
+    st.warning("🔐 **Akses Terbatas** - Silakan Login atau Buat Akun")
     
-    with st.form("quick_login"):
-        st.markdown("### 🔑 Quick Login")
-        username = st.text_input("Username", placeholder="admin / demo / petani")
-        password = st.text_input("Password", type="password")
-        
-        if st.form_submit_button("Login", use_container_width=True, type="primary"):
-            success, message = login(username, password)
-            if success:
-                st.success(message)
-                st.rerun()
-            else:
-                st.error(message)
+    tab_login, tab_register = st.tabs(["🔑 Login", "📝 Daftar Baru"])
     
-    st.caption("Demo: admin/admin123, demo/demo123, petani/petani123")
+    with tab_login:
+        with st.form("quick_login"):
+            username = st.text_input("Username", placeholder="admin / demo / petani")
+            password = st.text_input("Password", type="password")
+            
+            if st.form_submit_button("Masuk (Login)", use_container_width=True, type="primary"):
+                success, message = login(username, password)
+                if success:
+                    st.success(message)
+                    st.rerun()
+                else:
+                    st.error(message)
+    
+    with tab_register:
+        with st.form("quick_register"):
+            r_user = st.text_input("Username Baru", placeholder="Min 3 karakter (contoh: budi_tani)")
+            r_pass = st.text_input("Password", type="password", placeholder="Min 6 karakter")
+            r_name = st.text_input("Nama Lengkap", placeholder="Budi Santoso")
+            r_email = st.text_input("Email (Opsional)")
+            
+            if st.form_submit_button("Buat Akun", use_container_width=True):
+                success, message = register(r_user, r_pass, r_name, r_email)
+                if success:
+                    st.success(f"✅ {message} Silakan Login.")
+                else:
+                    st.error(message)
+
+    st.caption("Default: admin/admin123, petani/petani123")
 
 
 def show_user_info_sidebar():
