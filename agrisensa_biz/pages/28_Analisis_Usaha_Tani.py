@@ -587,9 +587,9 @@ with st.sidebar:
         def_target_panen = float(ai_suggestion['predicted_yield'])
         st.caption("✨ Target hasil otomatis diisi oleh AI")
     else:
-        def_target_panen = float(crop_data['total_panen_kg'])
+        def_target_panen = float(crop_data.get('estimasi_panen_kg', 10000))
         
-    target_harga = st.number_input(f"Harga Jual (Rp/{unit_hasil})", 0, 200000, crop_data['harga_jual'], step=100)
+    target_harga = st.number_input(f"Harga Jual (Rp/{unit_hasil})", 0, 200000, crop_data.get('harga_jual', 10000), step=100)
     target_panen = st.number_input(f"Target Hasil ({unit_hasil}/ha)", 0, 1000000, int(def_target_panen), step=500)
 
 # 2. GENERATE DATA FRAME (DYNAMICALLY)
