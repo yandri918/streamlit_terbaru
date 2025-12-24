@@ -859,6 +859,13 @@ elif roi_percent > 100:
 st.divider()
 st.header("📊 Analisis Ekonomi & Break-Even")
 
+# Get parameters from template or session state
+template_params = CROP_TEMPLATES[selected_crop]['params']
+target_panen = template_params.get('estimasi_panen_kg', 10000)  # kg/ha
+target_harga = template_params.get('harga_jual', 10000)  # Rp/kg
+unit_hasil = template_params.get('unit', 'kg')
+harga_jual = target_harga  # Alias for consistency
+
 # Calculate fixed and variable costs
 biaya_tetap = sum([row['Total (Rp)'] for row in edited_df.to_dict('records') if row['Kategori'] == 'Biaya Tetap'])
 biaya_variabel = total_biaya - biaya_tetap
