@@ -573,16 +573,34 @@ with st.sidebar:
     st.header("📚 Referensi Lengkap")
     st.write("Untuk informasi lebih lengkap buka file ini:")
     
-    try:
-        with open("assets/pdfs/M-48_Pestisida_Nabati.pdf", "rb") as pdf_file:
-            st.download_button(
-                label="📥 Download PDF M-48",
-                data=pdf_file,
-                file_name="M-48_Pestisida_Nabati.pdf",
-                mime="application/pdf"
-            )
-    except FileNotFoundError:
-        st.error("File PDF belum tersedia.")
+    import os
+    
+    # Try multiple possible paths for PDF
+    pdf_paths = [
+        "assets/pdfs/M-48_Pestisida_Nabati.pdf",
+        os.path.join(os.path.dirname(__file__), "..", "..", "assets", "pdfs", "M-48_Pestisida_Nabati.pdf"),
+        "agrisensa_streamlit/assets/pdfs/M-48_Pestisida_Nabati.pdf"
+    ]
+    
+    pdf_found = False
+    for pdf_path in pdf_paths:
+        if os.path.exists(pdf_path):
+            try:
+                with open(pdf_path, "rb") as pdf_file:
+                    st.download_button(
+                        label="📥 Download PDF M-48",
+                        data=pdf_file,
+                        file_name="M-48_Pestisida_Nabati.pdf",
+                        mime="application/pdf"
+                    )
+                    pdf_found = True
+                    break
+            except Exception as e:
+                continue
+    
+    if not pdf_found:
+        st.warning("📄 File PDF tersedia di repository")
+        st.markdown("[📥 Download dari GitHub](https://github.com/yandri918/streamlit_terbaru/raw/main/agrisensa_streamlit/assets/pdfs/M-48_Pestisida_Nabati.pdf)")
 
 # ========== HELPER FUNCTIONS ==========
 def calculate_dosage(luas_lahan, volume_per_ha, konsentrasi):
