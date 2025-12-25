@@ -2224,11 +2224,15 @@ with tab_tools:
     # Sample variety database
     variety_db = {
         'Padi': {
-            'IR64': {'Umur': 120, 'Hasil': 5.5, 'Blast': 'T', 'BLB': 'R', 'Kualitas': 60, 'Harga': 'Sedang'},
-            'Ciherang': {'Umur': 120, 'Hasil': 6.5, 'Blast': 'T', 'BLB': 'T', 'Kualitas': 65, 'Harga': 'Sedang'},
-            'Inpari 32': {'Umur': 118, 'Hasil': 7.5, 'Blast': 'T', 'BLB': 'T', 'Kualitas': 70, 'Harga': 'Tinggi'},
-            'Situ Bagendit': {'Umur': 130, 'Hasil': 6.5, 'Blast': 'T', 'BLB': 'T', 'Kualitas': 65, 'Harga': 'Sedang'},
-            'Pandan Wangi': {'Umur': 145, 'Hasil': 4.5, 'Blast': 'R', 'BLB': 'R', 'Kualitas': 90, 'Harga': 'Premium'},
+            'IR64': {'Umur': 115, 'Hasil': 6.0, 'Blast': 'T', 'Tekstur': 'Pulen', 'Harga': 'Sedang'},
+            'Ciherang': {'Umur': 116, 'Hasil': 6.5, 'Blast': 'T', 'Tekstur': 'Pulen', 'Harga': 'Sedang'},
+            'Inpari 32': {'Umur': 118, 'Hasil': 7.5, 'Blast': 'T', 'Tekstur': 'Pulen', 'Harga': 'Tinggi'},
+            'Situ Bagendit': {'Umur': 130, 'Hasil': 6.5, 'Blast': 'T', 'Tekstur': 'Pulen', 'Harga': 'Sedang'},
+            'IPB 3S': {'Umur': 112, 'Hasil': 8.0, 'Blast': 'R', 'Tekstur': 'Pulen', 'Harga': 'Tinggi'},
+            'Pandan Wangi': {'Umur': 145, 'Hasil': 4.5, 'Blast': 'R', 'Tekstur': 'Pulen Wangi', 'Harga': 'Premium'},
+            'Rojolele': {'Umur': 150, 'Hasil': 4.0, 'Blast': 'AT', 'Tekstur': 'Pulen Wangi', 'Harga': 'Premium'},
+            'Menthik Wangi': {'Umur': 120, 'Hasil': 5.0, 'Blast': 'T', 'Tekstur': 'Pulen Wangi', 'Harga': 'Premium'},
+            'IR 42': {'Umur': 135, 'Hasil': 5.0, 'Blast': 'R', 'Tekstur': 'Pera', 'Harga': 'Sedang (Khusus)'},
         },
         'Jagung': {
             'Bisi 18': {'Umur': 98, 'Hasil': 11, 'DM': 'T', 'Borer': 'T', 'Tipe': 'Hybrid', 'Harga': 'Mahal'},
