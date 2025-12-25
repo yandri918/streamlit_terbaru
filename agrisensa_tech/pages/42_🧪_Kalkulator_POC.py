@@ -41,6 +41,19 @@ MATERIALS = {
         "Bonggol Pisang": {"N": 0.4, "P": 0.15, "K": 5.0, "C": 38, "unit": "kg", "price": 1000},
         "Daun Kelor": {"N": 2.5, "P": 0.4, "K": 1.5, "C": 42, "unit": "kg", "price": 3000},
     },
+    "Pupuk Kimia (Fermentasi)": {
+        "Urea (46-0-0)": {"N": 46, "P": 0, "K": 0, "C": 0, "unit": "kg", "price": 2500, "note": "Sumber N tinggi"},
+        "ZA/Amonium Sulfat (21-0-0)": {"N": 21, "P": 0, "K": 0, "C": 0, "unit": "kg", "price": 1800, "note": "N + Sulfur"},
+        "SP-36 (0-36-0)": {"N": 0, "P": 36, "K": 0, "C": 0, "unit": "kg", "price": 2300, "note": "Sumber P tinggi"},
+        "TSP (0-46-0)": {"N": 0, "P": 46, "K": 0, "C": 0, "unit": "kg", "price": 2800, "note": "Triple Super Phosphate"},
+        "KCl (0-0-60)": {"N": 0, "P": 0, "K": 60, "C": 0, "unit": "kg", "price": 3500, "note": "Sumber K tinggi"},
+        "NPK Phonska (15-15-15)": {"N": 15, "P": 15, "K": 15, "C": 0, "unit": "kg", "price": 2400, "note": "NPK seimbang"},
+        "NPK Mutiara (16-16-16)": {"N": 16, "P": 16, "K": 16, "C": 0, "unit": "kg", "price": 2600, "note": "NPK seimbang plus"},
+        "NPK Pelangi (15-9-20)": {"N": 15, "P": 9, "K": 20, "C": 0, "unit": "kg", "price": 2500, "note": "Tinggi K untuk generatif"},
+        "NPK Grower (27-7-7)": {"N": 27, "P": 7, "K": 7, "C": 0, "unit": "kg", "price": 2700, "note": "Tinggi N untuk vegetatif"},
+        "KNO3/Kalium Nitrat (13-0-46)": {"N": 13, "P": 0, "K": 46, "C": 0, "unit": "kg", "price": 18000, "note": "Premium - larut sempurna"},
+        "MKP/Mono Kalium Fosfat (0-52-34)": {"N": 0, "P": 52, "K": 34, "C": 0, "unit": "kg", "price": 25000, "note": "Premium - P+K tinggi"},
+    },
     "Tambahan": {
         "Molase (Tetes Tebu)": {"N": 0.1, "P": 0.05, "K": 3.0, "C": 55, "unit": "liter", "price": 15000},
         "Dekomposer (EM4/MOL)": {"N": 0, "P": 0, "K": 0, "C": 0, "unit": "liter", "price": 25000},
@@ -70,6 +83,24 @@ TEMPLATES = {
         "Daun Kelor": 3,
         "Molase (Tetes Tebu)": 1.5,
         "Dekomposer (EM4/MOL)": 0.75
+    },
+    "POC Kimia - Vegetatif (High N)": {
+        "Urea (46-0-0)": 0.5,
+        "NPK Phonska (15-15-15)": 1.0,
+        "Molase (Tetes Tebu)": 2,
+        "Dekomposer (EM4/MOL)": 0.5
+    },
+    "POC Kimia - Generatif (High K)": {
+        "KCl (0-0-60)": 0.5,
+        "NPK Pelangi (15-9-20)": 1.0,
+        "Molase (Tetes Tebu)": 2,
+        "Dekomposer (EM4/MOL)": 0.5
+    },
+    "POC Kimia - Premium": {
+        "KNO3/Kalium Nitrat (13-0-46)": 0.3,
+        "MKP/Mono Kalium Fosfat (0-52-34)": 0.2,
+        "Molase (Tetes Tebu)": 1.5,
+        "Dekomposer (EM4/MOL)": 0.5
     }
 }
 
