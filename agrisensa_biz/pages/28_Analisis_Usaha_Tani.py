@@ -835,6 +835,19 @@ m1.metric("Total Biaya (RAB)", f"Rp {total_biaya:,.0f}", help="Total CAPEX + OPE
 m2.metric("Est. Omzet Panen", f"Rp {estimasi_omzet:,.0f}", f"{target_panen:,.0f} {unit_hasil} x Rp {target_harga}")
 m3.metric("Potensi Laba", f"Rp {estimasi_laba:,.0f}", f"ROI: {roi_percent:.1f}%")
 
+# Unit Economics Row
+st.markdown("##### 📊 Unit Economics")
+u1, u2, u3, u4 = st.columns(4)
+
+# Calculate cost per plant
+biaya_per_batang = total_biaya / populasi_tanaman if populasi_tanaman > 0 else 0
+biaya_per_kg = total_biaya / (target_panen * luas_lahan_ha) if (target_panen * luas_lahan_ha) > 0 else 0
+
+u1.metric("Biaya per Batang", f"Rp {biaya_per_batang:,.0f}", help=f"Total Biaya / {populasi_tanaman:,.0f} tanaman")
+u2.metric(f"Biaya per {unit_hasil}", f"Rp {biaya_per_kg:,.0f}", help="Total Biaya / Total Hasil Panen")
+u3.metric("Populasi Tanaman", f"{populasi_tanaman:,.0f} btg", help="Jumlah total tanaman")
+u4.metric("Target Panen", f"{target_panen * luas_lahan_ha:,.0f} {unit_hasil}", help=f"{target_panen:,.0f} {unit_hasil}/ha x {luas_lahan_ha} ha")
+
 # ==========================================
 # 🔄 GLOBAL SYNC (For Strategic Report)
 # ==========================================
