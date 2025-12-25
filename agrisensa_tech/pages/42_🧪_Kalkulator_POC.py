@@ -231,8 +231,18 @@ with st.sidebar:
     inputs = {}
     custom_prices = {}
     
+    # Check if AI formula was recommended
+    if st.session_state.get('ai_formula'):
+        formula_data = st.session_state['ai_formula']
+        formula_name = st.session_state.get('ai_formula_name', 'AI Recommendation')
+        st.success(f"🤖 Formula AI: **{formula_name}**")
+        inputs = formula_data.copy()
+        # Clear AI formula flag
+        del st.session_state['ai_formula']
+        if 'ai_formula_name' in st.session_state:
+            del st.session_state['ai_formula_name']
     # Check if recipe was loaded
-    if st.session_state.get('loaded_recipe'):
+    elif st.session_state.get('loaded_recipe'):
         loaded_data = st.session_state['loaded_recipe']
         st.success(f"📂 Resep dimuat: {loaded_data.get('name', 'Unknown')}")
         inputs = loaded_data.get('materials', {})
@@ -1337,7 +1347,59 @@ with tab2:
             st.session_state['ai_drums'] = drums_rec
             st.session_state['ai_cycles'] = cycles_rec
             st.session_state['ai_util'] = min(util_rec, 100)
-            st.success(f"✅ Setup produksi diatur: {drums_rec} drum, {cycles_rec} siklus, {min(util_rec, 100):.0f}% utilisasi")
+            
+            # Also recommend POC formula based on preferred product
+            if preferred_product == "Vegetatif (High N)":
+                # High N formula
+                st.session_state['ai_formula'] = {
+                    'Urine Kelinci': 15,
+                    'Daun Kelor': 5,
+                    'Molase': 2,
+                    'Dekomposer (EM4/MOL)': 0.5,
+                    'Urea': 0.5 if production_scale == "🏭 Industri/Komersial" else 0
+                }
+                st.session_state['ai_formula_name'] = "POC Vegetatif (High N)"
+            elif preferred_product == "Generatif (High K)":
+                # High K formula
+                st.session_state['ai_formula'] = {
+                    'Bonggol Pisang': 10,
+                    'Kulit Pisang': 5,
+                    'KCl': 0.3,
+                    'Molase': 2,
+                    'Dekomposer (EM4/MOL)': 0.5
+                }
+                st.session_state['ai_formula_name'] = "POC Generatif (High K)"
+            elif preferred_product == "Balanced":
+                # Balanced formula
+                st.session_state['ai_formula'] = {
+                    'Urine Sapi': 10,
+                    'Sabut Kelapa': 3,
+                    'NPK Phonska (15-15-15)': 0.5,
+                    'Molase': 2,
+                    'Dekomposer (EM4/MOL)': 0.5
+                }
+                st.session_state['ai_formula_name'] = "POC Balanced"
+            else:  # Mix
+                # Mixed formula
+                st.session_state['ai_formula'] = {
+                    'Urine Kambing': 8,
+                    'Bonggol Pisang': 5,
+                    'Daun Kelor': 3,
+                    'Molase': 2,
+                    'Dekomposer (EM4/MOL)': 0.5
+                }
+                st.session_state['ai_formula_name'] = "POC Mix (All Purpose)"
+            
+            st.success(f"""
+            ✅ **Rekomendasi AI Diterapkan!**
+            
+            **Setup Produksi:**
+            - {drums_rec} drum, {cycles_rec} siklus, {min(util_rec, 100):.0f}% utilisasi
+            
+            **Formula POC:**
+            - {st.session_state['ai_formula_name']}
+            - Buka tab "🧪 Kalkulator POC" untuk melihat detail formula
+            """)
             st.rerun()
     
     # Production Setup
