@@ -281,7 +281,14 @@ with st.sidebar:
         formula_data = st.session_state['ai_formula']
         formula_name = st.session_state.get('ai_formula_name', 'AI Recommendation')
         st.success(f"🤖 Formula AI: **{formula_name}**")
-        inputs = formula_data.copy()
+        
+        # Scale formula based on target volume (formula is for 100L base)
+        scale_factor = target_volume / 100
+        inputs = {material: qty * scale_factor for material, qty in formula_data.items()}
+        
+        if scale_factor != 1:
+            st.info(f"📐 Formula di-scale {scale_factor}x untuk volume {target_volume}L")
+        
         # Clear AI formula flag
         del st.session_state['ai_formula']
         if 'ai_formula_name' in st.session_state:
