@@ -34,7 +34,7 @@ CROP_DB = {
             "IR64": {"potential": 7000, "days": 115, "resilience": 0.7}
         },
         "optimal": {"ph": 6.5, "n": 120, "p": 60, "k": 90, "water": 1500, "temp": 28},
-        "price": 6500
+        "price": 7200
     },
     "Jagung": {
         "varieties": {
@@ -42,7 +42,7 @@ CROP_DB = {
             "Pioneer P27": {"potential": 11000, "days": 110, "resilience": 0.9}
         },
         "optimal": {"ph": 6.8, "n": 180, "p": 80, "k": 100, "water": 1200, "temp": 30},
-        "price": 5200
+        "price": 5800
     },
     "Cabai Merah": {
          "varieties": {
@@ -50,7 +50,63 @@ CROP_DB = {
             "Pilar": {"potential": 20000, "days": 95, "resilience": 0.8}
         },
         "optimal": {"ph": 6.5, "n": 200, "p": 150, "k": 200, "water": 1800, "temp": 26},
-        "price": 35000
+        "price": 45000
+    },
+    "Kedelai": {
+        "varieties": {
+            "Anjasmoro": {"potential": 2500, "days": 85, "resilience": 0.8},
+            "Grobogan": {"potential": 3000, "days": 76, "resilience": 0.85}
+        },
+        "optimal": {"ph": 6.0, "n": 50, "p": 70, "k": 80, "water": 400, "temp": 28},
+        "price": 10500
+    },
+    "Bawang Merah": {
+        "varieties": {
+            "Bima Brebes": {"potential": 10000, "days": 60, "resilience": 0.75},
+            "Bauji": {"potential": 12000, "days": 58, "resilience": 0.8}
+        },
+        "optimal": {"ph": 6.5, "n": 150, "p": 100, "k": 120, "water": 600, "temp": 27},
+        "price": 28000
+    },
+    "Tomat": {
+        "varieties": {
+            "Servo F1": {"potential": 60000, "days": 75, "resilience": 0.85},
+            "Tymoti F1": {"potential": 55000, "days": 80, "resilience": 0.8}
+        },
+        "optimal": {"ph": 6.2, "n": 180, "p": 120, "k": 180, "water": 800, "temp": 24},
+        "price": 8000
+    },
+    "Kentang": {
+        "varieties": {
+            "Granola": {"potential": 25000, "days": 100, "resilience": 0.75},
+            "Atlantik": {"potential": 30000, "days": 110, "resilience": 0.8}
+        },
+        "optimal": {"ph": 5.5, "n": 200, "p": 150, "k": 200, "water": 600, "temp": 18},
+        "price": 14000
+    },
+    "Ubi Kayu": {
+        "varieties": {
+            "Manggu": {"potential": 35000, "days": 300, "resilience": 0.9},
+            "Casesa": {"potential": 40000, "days": 280, "resilience": 0.95}
+        },
+        "optimal": {"ph": 6.0, "n": 100, "p": 50, "k": 100, "water": 800, "temp": 30},
+        "price": 3500
+    },
+    "Kopi": {
+        "varieties": {
+            "Arabica Gayo 1": {"potential": 1500, "days": 365, "resilience": 0.8},
+            "Robusta BP 308": {"potential": 2500, "days": 365, "resilience": 0.9}
+        },
+        "optimal": {"ph": 5.5, "n": 120, "p": 80, "k": 120, "water": 2000, "temp": 22},
+        "price": 45000
+    },
+    "Kakao": {
+        "varieties": {
+            "MCC 02": {"potential": 2500, "days": 365, "resilience": 0.85},
+            "Sulawesi 1": {"potential": 2000, "days": 365, "resilience": 0.8}
+        },
+        "optimal": {"ph": 6.5, "n": 100, "p": 60, "k": 100, "water": 1800, "temp": 28},
+        "price": 38000
     }
 }
 
