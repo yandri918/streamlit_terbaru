@@ -84,6 +84,10 @@ with st.sidebar:
     st.subheader("📊 Target Volume")
     target_volume = st.number_input("Volume POC (Liter)", value=100, min_value=10, max_value=1000, step=10)
     
+    # Water price input
+    water_price = st.number_input("Harga Air Bersih (Rp/Liter)", value=0, min_value=0, step=10, 
+                                   help="Opsional: Input biaya air bersih jika ada")
+    
     st.divider()
     st.subheader("🧪 Komposisi Bahan")
     
@@ -118,7 +122,7 @@ with st.sidebar:
                 
                 with col_price:
                     price = st.number_input(
-                        f"Harga/{ props['unit']}",
+                        f"Harga/{props['unit']}",
                         value=props['price'],
                         min_value=0,
                         step=100,
@@ -195,13 +199,15 @@ if inputs:
     # Calculate C/N ratio
     cn_ratio = (total_C / total_N) if total_N > 0 else 0
     
-    # Water needed
+    # Water needed and cost
     water_needed = target_volume - total_liquid
+    water_cost = water_needed * water_price
+    total_cost_with_water = total_cost + water_cost
     
     # Display Results
     st.markdown("## 📊 Hasil Analisis POC")
     
-    # Summary Metrics
+    # Summary Metrics - Row 1: NPK + C-Organic
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -215,6 +221,27 @@ if inputs:
     
     with col4:
         st.metric("C-Organik", f"{c_pct:.1f}%", help="Kandungan Karbon Organik")
+    
+    # Summary Metrics - Row 2: Water + Cost
+    st.markdown("---")
+    col5, col6, col7, col8 = st.columns(4)
+    
+    with col5:
+        st.metric("Air Bersih Dibutuhkan", f"{water_needed:.1f} L", 
+                 help=f"Air untuk mencapai volume {target_volume} L")
+    
+    with col6:
+        st.metric("Biaya Air", f"Rp {water_cost:,.0f}", 
+                 help=f"{water_needed:.1f} L x Rp {water_price:,.0f}/L")
+    
+    with col7:
+        st.metric("Biaya Bahan", f"Rp {total_cost:,.0f}", 
+                 help="Total biaya semua bahan organik")
+    
+    with col8:
+        st.metric("Total Biaya POC", f"Rp {total_cost_with_water:,.0f}", 
+                 delta=f"Rp {total_cost_with_water/target_volume:.0f}/L",
+                 help="Biaya bahan + air per liter POC")
     
     # NPK Ratio & C/N Ratio
     st.markdown("---")
