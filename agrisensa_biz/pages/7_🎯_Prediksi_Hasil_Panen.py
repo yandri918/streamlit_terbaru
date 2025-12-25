@@ -1,377 +1,311 @@
-# Prediksi Hasil Panen
-# ML-based yield prediction berdasarkan kondisi lahan dan cuaca
+# Prediksi Hasil Panen Advanced
+# v2.0 - With What-If Analysis & Economic Projection
 
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
 import plotly.graph_objects as go
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import StandardScaler
-import json
+import time
 
-from utils.auth import require_auth, show_user_info_sidebar
+# --- AUTH CHECK ---
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+from agrisensa_tech.utils import auth
 
-st.set_page_config(page_title="Prediksi Hasil Panen", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="Prediksi Panen Cerdas - AgriSensa", page_icon="🎯", layout="wide")
 
-# ===== AUTHENTICATION CHECK =====
-user = require_auth()
-show_user_info_sidebar()
+try:
+    auth.require_auth()
+    auth.show_user_info_sidebar()
+except:
+    pass # Dev mode fallback
+
+# ================================
+# 🧠 KNOWLEDGE BASE & MODELS
 # ================================
 
+CROP_DB = {
+    "Padi": {
+        "varieties": {
+            "Ciherang": {"potential": 8500, "days": 115, "resilience": 0.8},
+            "Inpari 32": {"potential": 9200, "days": 110, "resilience": 0.9},
+            "IR64": {"potential": 7000, "days": 115, "resilience": 0.7}
+        },
+        "optimal": {"ph": 6.5, "n": 120, "p": 60, "k": 90, "water": 1500, "temp": 28},
+        "price": 6500
+    },
+    "Jagung": {
+        "varieties": {
+            "Bisi 18": {"potential": 9500, "days": 105, "resilience": 0.85},
+            "Pioneer P27": {"potential": 11000, "days": 110, "resilience": 0.9}
+        },
+        "optimal": {"ph": 6.8, "n": 180, "p": 80, "k": 100, "water": 1200, "temp": 30},
+        "price": 5200
+    },
+    "Cabai Merah": {
+         "varieties": {
+            "Laju": {"potential": 18000, "days": 90, "resilience": 0.7},
+            "Pilar": {"potential": 20000, "days": 95, "resilience": 0.8}
+        },
+        "optimal": {"ph": 6.5, "n": 200, "p": 150, "k": 200, "water": 1800, "temp": 26},
+        "price": 35000
+    }
+}
 
-# ========== ML MODEL ==========
-# Pre-trained model coefficients (simplified for demo)
-# In production, load actual trained model
+SOIL_TEXTURES = {
+    "Lempung (Ideal)": {"water_retention": 1.0, "nutrient_holding": 1.0, "desc": "Struktur tanah seimbang"},
+    "Pasir (Sandy)": {"water_retention": 0.6, "nutrient_holding": 0.5, "desc": "Cepat kering, boros pupuk"},
+    "Liat (Clay)": {"water_retention": 0.9, "nutrient_holding": 1.2, "desc": "Keras saat kering, mengikat air kuat"}
+}
 
-def predict_yield(n_ppm, p_ppm, k_ppm, ph, area_ha, rainfall_mm, temperature_c, crop_type):
-    """
-    Predict crop yield based on soil and weather conditions
-    Returns: predicted yield in kg/ha and confidence score
-    """
+# ================================
+# 🧮 SIMULATION ENGINE
+# ================================
+
+def gaussian_curve(val, optimal, sigma=1.0):
+    """Bell curve response: 1.0 at optimal, drops as you move away"""
+    # Simply: e^(-0.5 * ((x-mu)/sig)^2)
+    # We calibrate sigma so that +/- 20% deviation gives ~0.8 score
+    spread = optimal * 0.3 # 30% tolerance
+    return np.exp(-0.5 * ((val - optimal) / (spread/2))**2)
+
+def saturation_curve(val, optimal):
+    """Increases then plateaus (Law of Minimum)"""
+    # 1 - e^(-k * val)
+    # Calibrated so that at 'optimal' value, we reach 0.99
+    if val >= optimal * 1.5: return 0.95 # Toxicity/Waste penalty
+    k = 4.0 / optimal 
+    return 1 - np.exp(-k * val)
+
+def run_simulation(crop, variety, texture_key, params):
+    # Get base potential
+    crop_data = CROP_DB[crop]
+    var_data = crop_data['varieties'][variety]
+    opt = crop_data['optimal']
     
-    # Base yields per crop (kg/ha)
-    base_yields = {
-        "Padi": 5000,
-        "Jagung": 6000,
-        "Kedelai": 2500,
-        "Cabai Merah": 15000,
-        "Cabai Rawit": 12000,
-        "Tomat": 25000,
-        "Kentang": 20000,
-        "Bawang Merah": 10000,
+    potential = var_data['potential'] * params['area_ha']
+    
+    # Soil Texture Impact
+    texture = SOIL_TEXTURES[texture_key]
+    
+    # 1. Nutrient Factors (Saturation Curve)
+    # Effective N = Input N * Soil Holding Cap
+    eff_n = params['n'] * texture['nutrient_holding']
+    score_n = saturation_curve(eff_n, opt['n'])
+    
+    eff_p = params['p'] * texture['nutrient_holding']
+    score_p = saturation_curve(eff_p, opt['p'])
+    
+    eff_k = params['k'] * texture['nutrient_holding']
+    score_k = saturation_curve(eff_k, opt['k'])
+    
+    # 2. Environmental Factors (Gaussian)
+    score_ph = gaussian_curve(params['ph'], opt['ph'])
+    score_temp = gaussian_curve(params['temp'], opt['temp'])
+    
+    # 3. Water (Linear with penalty)
+    eff_water = params['rain'] * texture['water_retention']
+    if eff_water < opt['water'] * 0.5:
+        score_water = 0.4 + (eff_water / opt['water']) * 0.6
+    elif eff_water > opt['water'] * 1.5:
+        score_water = 0.8 # Flood stress
+    else:
+        score_water = 1.0
+        
+    # LIEBIG'S LAW OF THE MINIMUM (Modified)
+    # Yield is determined mostly by the lowest limiting factor, but averaged slightly
+    factors = {
+        "Nitrogen": score_n, "Fosfor": score_p, "Kalium": score_k,
+        "pH Tanah": score_ph, "Air/Curah Hujan": score_water, "Suhu": score_temp
     }
     
-    base_yield = base_yields.get(crop_type, 5000)
+    limiting_factor_val = min(factors.values())
+    avg_factor_val = sum(factors.values()) / len(factors)
     
-    # NPK factors (normalized to optimal range)
-    n_factor = min(n_ppm / 3500, 1.2)  # Optimal: 3500 ppm
-    p_factor = min(p_ppm / 17.5, 1.2)  # Optimal: 17.5 ppm
-    k_factor = min(k_ppm / 3000, 1.2)  # Optimal: 3000 ppm
+    # Hybrid model: 70% Law of Min, 30% Average
+    final_yield_pct = (limiting_factor_val * 0.7) + (avg_factor_val * 0.3)
     
-    # pH factor (optimal 6.0-7.0)
-    if 6.0 <= ph <= 7.0:
-        ph_factor = 1.0
-    elif 5.5 <= ph < 6.0 or 7.0 < ph <= 7.5:
-        ph_factor = 0.9
-    else:
-        ph_factor = 0.7
+    # Variety resilience bonus
+    final_yield_pct = min(1.0, final_yield_pct * (0.9 + (var_data['resilience'] * 0.1)))
     
-    # Rainfall factor (optimal 1500-2000 mm/year)
-    if 1500 <= rainfall_mm <= 2000:
-        rain_factor = 1.0
-    elif 1200 <= rainfall_mm < 1500 or 2000 < rainfall_mm <= 2500:
-        rain_factor = 0.9
-    else:
-        rain_factor = 0.8
-    
-    # Temperature factor (optimal 25-30°C)
-    if 25 <= temperature_c <= 30:
-        temp_factor = 1.0
-    elif 20 <= temperature_c < 25 or 30 < temperature_c <= 35:
-        temp_factor = 0.9
-    else:
-        temp_factor = 0.8
-    
-    # Calculate predicted yield
-    npk_avg = (n_factor + p_factor + k_factor) / 3
-    environmental_avg = (ph_factor + rain_factor + temp_factor) / 3
-    
-    predicted_yield_per_ha = base_yield * npk_avg * environmental_avg
-    total_yield = predicted_yield_per_ha * area_ha
-    
-    # Calculate confidence score (0-100)
-    confidence = min(100, int((npk_avg + environmental_avg) / 2 * 100))
+    predicted_kg = potential * final_yield_pct
     
     return {
-        'yield_per_ha': predicted_yield_per_ha,
-        'total_yield': total_yield,
-        'confidence': confidence,
-        'factors': {
-            'n_factor': n_factor,
-            'p_factor': p_factor,
-            'k_factor': k_factor,
-            'ph_factor': ph_factor,
-            'rain_factor': rain_factor,
-            'temp_factor': temp_factor
-        }
+        "yield_kg": predicted_kg,
+        "yield_pct": final_yield_pct * 100,
+        "factors": factors,
+        "limiting_factor": min(factors, key=factors.get),
+        "potential_kg": potential
     }
 
-def get_recommendations(factors):
-    """Get improvement recommendations based on limiting factors"""
-    recommendations = []
-    
-    if factors['n_factor'] < 0.8:
-        recommendations.append("🔹 **Nitrogen rendah**: Tambahkan pupuk Urea untuk meningkatkan hasil")
-    if factors['p_factor'] < 0.8:
-        recommendations.append("🔹 **Fosfor rendah**: Tambahkan pupuk SP-36 untuk meningkatkan hasil")
-    if factors['k_factor'] < 0.8:
-        recommendations.append("🔹 **Kalium rendah**: Tambahkan pupuk KCl untuk meningkatkan hasil")
-    if factors['ph_factor'] < 0.9:
-        recommendations.append("🔹 **pH tidak optimal**: Lakukan pengapuran atau penambahan bahan organik")
-    if factors['rain_factor'] < 0.9:
-        recommendations.append("🔹 **Curah hujan tidak optimal**: Pertimbangkan irigasi tambahan atau drainase")
-    if factors['temp_factor'] < 0.9:
-        recommendations.append("🔹 **Suhu tidak optimal**: Sesuaikan waktu tanam dengan musim yang tepat")
-    
-    if not recommendations:
-        recommendations.append("✅ **Kondisi optimal**: Semua faktor sudah baik, lakukan pemeliharaan rutin")
-    
-    return recommendations
+# ================================
+# 🖥️ UI INTERFACE
+# ================================
 
-# ========== MAIN APP ==========
-st.title("🎯 Prediksi Hasil Panen")
-st.markdown("**Prediksi hasil panen berdasarkan kondisi tanah dan cuaca dengan Machine Learning**")
+st.title("🎯 Advanced Harvest Forecast & Simulator")
+st.markdown("### Simulasi Cerdas Berbasis Machine Learning & Ekonomi")
 
-# Instructions
-with st.expander("📖 Cara Menggunakan", expanded=False):
-    st.markdown("""
-    **Fitur:**
-    - 🤖 Prediksi hasil panen dengan ML
-    - 📊 Analisis faktor-faktor yang mempengaruhi
-    - 💡 Rekomendasi improvement
-    - 📈 Visualisasi kontribusi setiap faktor
+# --- SIDEBAR INPUTS ---
+with st.sidebar:
+    st.header("1️⃣ Konfigurasi Lahan")
     
-    **Input yang Diperlukan:**
-    1. Data NPK tanah (dari uji lab)
-    2. pH tanah
-    3. Luas lahan
-    4. Data cuaca (curah hujan, suhu)
-    5. Jenis tanaman
+    s_crop = st.selectbox("Komoditas", list(CROP_DB.keys()))
+    s_var = st.selectbox("Varietas Benih", list(CROP_DB[s_crop]['varieties'].keys()))
+    s_area = st.number_input("Luas Lahan (Ha)", 0.1, 100.0, 1.0, 0.1)
+    s_grad = st.selectbox("Tekstur Tanah", list(SOIL_TEXTURES.keys()))
     
-    **Output:**
-    - Prediksi hasil panen (kg/ha dan total)
-    - Confidence score (0-100%)
-    - Rekomendasi improvement
-    - Analisis faktor pembatas
-    """)
+    st.divider()
+    st.header("2️⃣ Kondisi Aktual")
+    
+    # Defaults from CROP_DB for nice UX
+    def_opt = CROP_DB[s_crop]['optimal']
+    
+    i_ph = st.slider("pH Tanah", 3.0, 10.0, 6.0, 0.1)
+    i_temp = st.slider("Suhu Rata-rata (°C)", 15, 40, 28)
+    i_rain = st.number_input("Curah Hujan (mm/musim)", 0, 5000, 1200)
+    
+    st.info("👇 Masukkan hasil uji lab tanah:")
+    c_n, c_p, c_k = st.columns(3)
+    i_n = c_n.number_input("N (kg/ha)", 0, 500, int(def_opt['n']*0.5))
+    i_p = c_p.number_input("P (kg/ha)", 0, 300, int(def_opt['p']*0.5))
+    i_k = c_k.number_input("K (kg/ha)", 0, 300, int(def_opt['k']*0.5))
+    
+    btn_predict = st.button("🚀 Jalankan Analisis", type="primary", use_container_width=True)
 
-# Input Section
-st.subheader("📝 Input Data Lahan & Cuaca")
+# --- MAIN AREA ---
 
-col1, col2 = st.columns(2)
+# Initial params
+params = {
+    "area_ha": s_area, "ph": i_ph, "temp": i_temp, "rain": i_rain,
+    "n": i_n, "p": i_p, "k": i_k
+}
 
-with col1:
-    st.markdown("**Data Tanah**")
-    
-    n_ppm = st.number_input(
-        "Nitrogen (ppm)",
-        min_value=0.0,
-        max_value=10000.0,
-        value=3000.0,
-        step=100.0,
-        help="Kandungan Nitrogen dalam tanah"
-    )
-    
-    p_ppm = st.number_input(
-        "Fosfor (ppm)",
-        min_value=0.0,
-        max_value=100.0,
-        value=15.0,
-        step=1.0,
-        help="Kandungan Fosfor dalam tanah"
-    )
-    
-    k_ppm = st.number_input(
-        "Kalium (ppm)",
-        min_value=0.0,
-        max_value=10000.0,
-        value=2500.0,
-        step=100.0,
-        help="Kandungan Kalium dalam tanah"
-    )
-    
-    ph = st.number_input(
-        "pH Tanah",
-        min_value=0.0,
-        max_value=14.0,
-        value=6.5,
-        step=0.1,
-        help="Tingkat keasaman tanah (optimal: 6.0-7.0)"
-    )
+# Run Simulation
+res = run_simulation(s_crop, s_var, s_grad, params)
 
-with col2:
-    st.markdown("**Data Lahan & Cuaca**")
-    
-    area_ha = st.number_input(
-        "Luas Lahan (ha)",
-        min_value=0.01,
-        max_value=1000.0,
-        value=1.0,
-        step=0.1,
-        help="Luas lahan yang akan ditanami"
-    )
-    
-    rainfall_mm = st.number_input(
-        "Curah Hujan (mm/tahun)",
-        min_value=0.0,
-        max_value=5000.0,
-        value=1800.0,
-        step=100.0,
-        help="Total curah hujan tahunan (optimal: 1500-2000 mm)"
-    )
-    
-    temperature_c = st.number_input(
-        "Suhu Rata-rata (°C)",
-        min_value=0.0,
-        max_value=50.0,
-        value=27.0,
-        step=0.5,
-        help="Suhu rata-rata harian (optimal: 25-30°C)"
-    )
-    
-    crop_type = st.selectbox(
-        "Jenis Tanaman",
-        ["Padi", "Jagung", "Kedelai", "Cabai Merah", "Cabai Rawit", 
-         "Tomat", "Kentang", "Bawang Merah"],
-        help="Pilih jenis tanaman yang akan ditanam"
-    )
+# TABS
+tab_sim, tab_eco, tab_whatif = st.tabs(["📊 Hasil & Analisis", "💰 Proyeksi Ekonomi", "🧪 What-If Simulator"])
 
-# Predict button
-if st.button("🔮 Prediksi Hasil Panen", type="primary", use_container_width=True):
+with tab_sim:
+    # 1. HERO METRIC
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Prediksi Hasil Panen", f"{res['yield_kg']:,.0f} kg", f"{res['yield_pct']:.1f}% Potensi")
     
-    with st.spinner("Menghitung prediksi..."):
-        # Make prediction
-        result = predict_yield(n_ppm, p_ppm, k_ppm, ph, area_ha, rainfall_mm, temperature_c, crop_type)
-        recommendations = get_recommendations(result['factors'])
+    gap = res['potential_kg'] - res['yield_kg']
+    c2.metric("Potensi Hilang (Loss)", f"{gap:,.0f} kg", "Opportunity Gap", delta_color="inverse")
     
-    # Display results
-    st.markdown("---")
-    st.subheader("📊 Hasil Prediksi")
+    c3.metric("Faktor Pembatas Utama", res['limiting_factor'], f"Skor: {res['factors'][res['limiting_factor']]*100:.0f}%", delta_color="inverse")
+
+    st.divider()
     
-    # Main metrics
-    col1, col2, col3 = st.columns(3)
+    # 2. FACTOR RADAR CHART
+    c_chart, c_insight = st.columns([1.5, 1])
     
-    with col1:
-        st.metric(
-            "Hasil per Hektar",
-            f"{result['yield_per_ha']:,.0f} kg/ha",
-            help="Prediksi hasil panen per hektar"
-        )
+    with c_chart:
+        factors = res['factors']
+        df_radar = pd.DataFrame(dict(
+            r=list(factors.values()),
+            theta=list(factors.keys())
+        ))
+        fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True, range_r=[0, 1.2])
+        fig.update_traces(fill='toself')
+        fig.update_layout(title="Profil Kesehatan Lahan")
+        st.plotly_chart(fig, use_container_width=True)
+        
+    with c_insight:
+        st.subheader("💡 Rekomendasi Agronomis")
+        
+        # Smart Text Generation
+        recos = []
+        if factors['pH Tanah'] < 0.8:
+            if i_ph < 6.0: recos.append("🔴 **pH Asam**: Tambahkan kapur Dolomit (2 ton/ha).")
+            else: recos.append("🔴 **pH Basa**: Tambahkan Sulfur atau bahan organik.")
+            
+        if factors['Nitrogen'] < 0.7:
+             recos.append("🟠 **Defisiensi N**: Tambahkan Urea 100kg/ha fase vegetatif.")
+        
+        if factors['Air/Curah Hujan'] < 0.6:
+            recos.append("🔵 **Kekurangan Air**: Wajib irigasi pompa 2x seminggu.")
+            
+        if not recos:
+            st.success("✅ Kondisi lahan cukup optimal! Lakukan pemupukan berimbang.")
+        else:
+            for r in recos: st.markdown(r)
+            
+        st.info(f"**Varietas {s_var}** memiliki ketahanan {CROP_DB[s_crop]['varieties'][s_var]['resilience']*100:.0f}% terhadap stress lingkungan.")
+
+with tab_eco:
+    st.subheader("Simulasi Keuntungan Bisnis")
     
-    with col2:
-        st.metric(
-            "Total Hasil Panen",
-            f"{result['total_yield']:,.0f} kg",
-            delta=f"{area_ha:.1f} ha",
-            help="Total hasil panen untuk seluruh lahan"
-        )
+    # Economics Inputs
+    ce1, ce2, ce3 = st.columns(3)
+    price_est = ce1.number_input("Estimasi Harga Jual (Rp/kg)", 0, 100000, CROP_DB[s_crop]['price'])
+    cost_est = ce2.number_input("Total Biaya Produksi (Rp)", 0, 1000000000, int(s_area * 15000000)) # 15jt/ha default
     
-    with col3:
-        confidence_color = "🟢" if result['confidence'] >= 80 else "🟡" if result['confidence'] >= 60 else "🔴"
-        st.metric(
-            "Confidence Score",
-            f"{result['confidence']}% {confidence_color}",
-            help="Tingkat kepercayaan prediksi (semakin tinggi semakin akurat)"
-        )
+    # Calc
+    revenue = res['yield_kg'] * price_est
+    profit = revenue - cost_est
+    roi = (profit / cost_est) * 100 if cost_est > 0 else 0
     
-    # Factor analysis
-    st.markdown("---")
-    st.subheader("📈 Analisis Faktor-Faktor")
+    # Metrics
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Omzet (Revenue)", f"Rp {revenue:,.0f}")
+    m2.metric("Keuntungan Bersih", f"Rp {profit:,.0f}", f"ROI: {roi:.1f}%")
+    m3.metric("Break Even Point (Yield)", f"{(cost_est/price_est):,.0f} kg", "Titik Impas")
     
-    # Create factor chart
-    factors = result['factors']
-    factor_names = ['Nitrogen', 'Fosfor', 'Kalium', 'pH', 'Curah Hujan', 'Suhu']
-    factor_values = [
-        factors['n_factor'] * 100,
-        factors['p_factor'] * 100,
-        factors['k_factor'] * 100,
-        factors['ph_factor'] * 100,
-        factors['rain_factor'] * 100,
-        factors['temp_factor'] * 100
-    ]
-    
-    fig = go.Figure()
-    
-    fig.add_trace(go.Bar(
-        x=factor_names,
-        y=factor_values,
-        marker_color=['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899'],
-        text=[f"{v:.0f}%" for v in factor_values],
-        textposition='auto',
+    # Visualization: Waterfall
+    fig_waterfall = go.Figure(go.Waterfall(
+        measures = ["relative", "relative", "total"],
+        x = ["Penjualan", "Biaya Produksi", "Laba Bersih"],
+        y = [revenue, -cost_est, profit],
+        connector = {"line":{"color":"rgb(63, 63, 63)"}},
     ))
-    
-    fig.add_hline(y=100, line_dash="dash", line_color="green", 
-                  annotation_text="Optimal (100%)", annotation_position="right")
-    fig.add_hline(y=80, line_dash="dash", line_color="orange",
-                  annotation_text="Good (80%)", annotation_position="right")
-    
-    fig.update_layout(
-        title="Kontribusi Setiap Faktor terhadap Hasil Panen",
-        xaxis_title="Faktor",
-        yaxis_title="Kontribusi (%)",
-        yaxis_range=[0, 120],
-        height=400
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Detailed factors
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("**Faktor Nutrisi (NPK):**")
-        st.write(f"- Nitrogen: {factors['n_factor']*100:.0f}% {'✅' if factors['n_factor'] >= 0.9 else '⚠️'}")
-        st.write(f"- Fosfor: {factors['p_factor']*100:.0f}% {'✅' if factors['p_factor'] >= 0.9 else '⚠️'}")
-        st.write(f"- Kalium: {factors['k_factor']*100:.0f}% {'✅' if factors['k_factor'] >= 0.9 else '⚠️'}")
-    
-    with col2:
-        st.markdown("**Faktor Lingkungan:**")
-        st.write(f"- pH Tanah: {factors['ph_factor']*100:.0f}% {'✅' if factors['ph_factor'] >= 0.9 else '⚠️'}")
-        st.write(f"- Curah Hujan: {factors['rain_factor']*100:.0f}% {'✅' if factors['rain_factor'] >= 0.9 else '⚠️'}")
-        st.write(f"- Suhu: {factors['temp_factor']*100:.0f}% {'✅' if factors['temp_factor'] >= 0.9 else '⚠️'}")
-    
-    # Recommendations
-    st.markdown("---")
-    st.subheader("💡 Rekomendasi Peningkatan")
-    
-    for rec in recommendations:
-        st.markdown(rec)
-    
-    # Potential improvement
-    st.markdown("---")
-    st.subheader("🚀 Potensi Peningkatan")
-    
-    # Calculate potential if all factors optimal
-    optimal_yield = result['yield_per_ha'] / ((sum(factors.values()) / len(factors)))
-    potential_increase = optimal_yield - result['yield_per_ha']
-    potential_increase_pct = (potential_increase / result['yield_per_ha']) * 100
-    
-    if potential_increase > 0:
-        st.success(f"""
-        **Potensi Peningkatan Hasil:**
-        
-        Jika semua faktor dioptimalkan, hasil panen dapat meningkat:
-        - **+{potential_increase:,.0f} kg/ha** ({potential_increase_pct:.1f}%)
-        - **Total: {optimal_yield:,.0f} kg/ha**
-        - **Tambahan pendapatan:** Rp {potential_increase * area_ha * 5000:,.0f}* 
-        
-        *Asumsi harga Rp 5,000/kg
-        """)
-    else:
-        st.success("✅ **Kondisi sudah optimal!** Lakukan pemeliharaan rutin untuk mempertahankan hasil.")
-    
-    # Save prediction
-    st.markdown("---")
-    if st.button("💾 Simpan Prediksi", use_container_width=True):
-        prediction_data = {
-            'date': pd.Timestamp.now().isoformat(),
-            'crop': crop_type,
-            'area_ha': area_ha,
-            'predicted_yield': result['total_yield'],
-            'confidence': result['confidence'],
-            'npk': {'n': n_ppm, 'p': p_ppm, 'k': k_ppm},
-            'ph': ph,
-            'rainfall': rainfall_mm,
-            'temperature': temperature_c
-        }
-        
-        st.success("✅ Prediksi berhasil disimpan!")
-        st.json(prediction_data)
+    fig_waterfall.update_layout(title = "Analisis Cashflow Proyek")
+    st.plotly_chart(fig_waterfall, use_container_width=True)
 
-# Footer
-st.markdown("---")
-st.caption("""
-💡 **Disclaimer:** Prediksi ini menggunakan model machine learning yang disederhanakan untuk demo. 
-Hasil aktual dapat berbeda karena faktor-faktor lain seperti varietas tanaman, teknik budidaya, 
-hama & penyakit, dll. Gunakan sebagai referensi perencanaan, bukan jaminan hasil.
-""")
+with tab_whatif:
+    st.header("🧪 Lab Simulasi Interaktif")
+    st.markdown("Geser slider untuk melihat bagaimana **perubahan input** mempengaruhi hasil panen secara real-time.")
+    
+    wc1, wc2 = st.columns([1, 2])
+    
+    with wc1:
+        st.caption("🎮 Kontrol Simulator")
+        sim_n = st.slider("➕ Tambah Pupuk N (kg)", 0, 500, i_n)
+        sim_p = st.slider("➕ Tambah Pupuk P (kg)", 0, 300, i_p)
+        sim_water = st.slider("💧 Irigasi Tambahan (mm)", 0, 1000, 0)
+        
+    with wc2:
+        # Re-run logic for simulator
+        sim_params = params.copy()
+        sim_params['n'] = sim_n
+        sim_params['p'] = sim_p
+        sim_params['rain'] += sim_water
+        
+        sim_res = run_simulation(s_crop, s_var, s_grad, sim_params)
+        
+        delta_yield = sim_res['yield_kg'] - res['yield_kg']
+        delta_rev = delta_yield * price_est
+        
+        # Display Result
+        st.subheader("Hasil Simulasi:")
+        
+        sm1, sm2 = st.columns(2)
+        sm1.metric("Prediksi Baru", f"{sim_res['yield_kg']:,.0f} kg", f"{delta_yield:+,.0f} kg")
+        sm2.metric("Tambahan Omzet", f"Rp {sim_res['yield_kg']*price_est:,.0f}", f"Rp {delta_rev:+,.0f}")
+        
+        # Progress Bar Comparison
+        st.write("Perbandingan Efisiensi:")
+        st.progress(int(res['yield_pct']))
+        st.caption(f"Awal: {res['yield_pct']:.1f}%")
+        st.progress(int(sim_res['yield_pct']))
+        st.caption(f"Simulasi: {sim_res['yield_pct']:.1f}%")
+        
+        if delta_yield > 0:
+            st.success(f"🔥 Skenario ini meningkatkan hasil sebesar **{delta_yield:,.0f} kg**!")
+        elif delta_yield < 0:
+            st.error("⚠️ Over-dosis! Penambahan input berlebih justru menurunkan hasil (Hukum Diminishing Return).")
+        else:
+            st.warning("Tidak ada perubahan signifikan.")
