@@ -1741,6 +1741,108 @@ with tab2:
     # Weighted average cost
     avg_cost_per_liter = (veg_cost_per_liter * veg_mix + gen_cost_per_liter * gen_mix + bal_cost_per_liter * bal_mix) / 100
     
+    # POC Analysis & Material Breakdown
+    st.markdown("---")
+    st.subheader("🧪 Analisis POC & Rincian Unsur Hara")
+    
+    # Show analysis for each variant
+    analysis_tab1, analysis_tab2, analysis_tab3 = st.tabs(["🌱 Vegetatif", "🌸 Generatif", "⚖️ Balanced"])
+    
+    with analysis_tab1:
+        st.markdown("### POC Vegetatif (High N) - Analisis Lengkap")
+        
+        col_a1, col_a2, col_a3, col_a4 = st.columns(4)
+        with col_a1:
+            st.metric("Nitrogen (N)", f"{veg_data['N']:.2f}%", help="Target: 0.4%")
+        with col_a2:
+            st.metric("Fosfor (P)", f"{veg_data['P']:.2f}%", help="Target: 0.15%")
+        with col_a3:
+            st.metric("Kalium (K)", f"{veg_data['K']:.2f}%", help="Target: 0.2%")
+        with col_a4:
+            st.metric("C-Organik", f"{veg_data['C']:.2f}%")
+        
+        st.markdown("**📋 Rincian Bahan (per 100L):**")
+        veg_materials = pd.DataFrame([
+            {"Bahan": "Urine Kelinci", "Jumlah": "15 L", "Kontribusi N": "0.075 kg", "Kontribusi P": "0.045 kg", "Kontribusi K": "0.300 kg"},
+            {"Bahan": "Daun Kelor", "Jumlah": "5 kg", "Kontribusi N": "0.125 kg", "Kontribusi P": "0.010 kg", "Kontribusi K": "0.050 kg"},
+            {"Bahan": "Molase", "Jumlah": "2 L", "Kontribusi N": "0.020 kg", "Kontribusi P": "0.004 kg", "Kontribusi K": "0.100 kg"},
+            {"Bahan": "Dekomposer", "Jumlah": "0.5 L", "Kontribusi N": "0.005 kg", "Kontribusi P": "0.001 kg", "Kontribusi K": "0.005 kg"}
+        ])
+        st.dataframe(veg_materials, use_container_width=True, hide_index=True)
+        
+        st.info(f"""
+        **💰 Biaya Produksi:**
+        - Per 100L: Rp {veg_data['total_cost']:,.0f}
+        - Per Liter: Rp {veg_cost_per_liter:,.0f}
+        - Per Drum (1000L): Rp {veg_data['total_cost'] * 10:,.0f}
+        
+        **🎯 Cocok untuk:** Sayuran daun, fase vegetatif, tanaman hijau
+        """)
+    
+    with analysis_tab2:
+        st.markdown("### POC Generatif (High K) - Analisis Lengkap")
+        
+        col_b1, col_b2, col_b3, col_b4 = st.columns(4)
+        with col_b1:
+            st.metric("Nitrogen (N)", f"{gen_data['N']:.2f}%", help="Target: 0.25%")
+        with col_b2:
+            st.metric("Fosfor (P)", f"{gen_data['P']:.2f}%", help="Target: 0.2%")
+        with col_b3:
+            st.metric("Kalium (K)", f"{gen_data['K']:.2f}%", help="Target: 0.45%")
+        with col_b4:
+            st.metric("C-Organik", f"{gen_data['C']:.2f}%")
+        
+        st.markdown("**📋 Rincian Bahan (per 100L):**")
+        gen_materials = pd.DataFrame([
+            {"Bahan": "Bonggol Pisang", "Jumlah": "10 kg", "Kontribusi N": "0.020 kg", "Kontribusi P": "0.030 kg", "Kontribusi K": "0.700 kg"},
+            {"Bahan": "Kulit Pisang", "Jumlah": "5 kg", "Kontribusi N": "0.045 kg", "Kontribusi P": "0.025 kg", "Kontribusi K": "0.200 kg"},
+            {"Bahan": "KCl", "Jumlah": "0.3 kg", "Kontribusi N": "0 kg", "Kontribusi P": "0 kg", "Kontribusi K": "0.180 kg"},
+            {"Bahan": "Molase", "Jumlah": "2 L", "Kontribusi N": "0.020 kg", "Kontribusi P": "0.004 kg", "Kontribusi K": "0.100 kg"},
+            {"Bahan": "Dekomposer", "Jumlah": "0.5 L", "Kontribusi N": "0.005 kg", "Kontribusi P": "0.001 kg", "Kontribusi K": "0.005 kg"}
+        ])
+        st.dataframe(gen_materials, use_container_width=True, hide_index=True)
+        
+        st.info(f"""
+        **💰 Biaya Produksi:**
+        - Per 100L: Rp {gen_data['total_cost']:,.0f}
+        - Per Liter: Rp {gen_cost_per_liter:,.0f}
+        - Per Drum (1000L): Rp {gen_data['total_cost'] * 10:,.0f}
+        
+        **🎯 Cocok untuk:** Buah, umbi, fase generatif, pembungaan
+        """)
+    
+    with analysis_tab3:
+        st.markdown("### POC Balanced - Analisis Lengkap")
+        
+        col_c1, col_c2, col_c3, col_c4 = st.columns(4)
+        with col_c1:
+            st.metric("Nitrogen (N)", f"{bal_data['N']:.2f}%", help="Target: 0.3%")
+        with col_c2:
+            st.metric("Fosfor (P)", f"{bal_data['P']:.2f}%", help="Target: 0.2%")
+        with col_c3:
+            st.metric("Kalium (K)", f"{bal_data['K']:.2f}%", help="Target: 0.3%")
+        with col_c4:
+            st.metric("C-Organik", f"{bal_data['C']:.2f}%")
+        
+        st.markdown("**📋 Rincian Bahan (per 100L):**")
+        bal_materials = pd.DataFrame([
+            {"Bahan": "Urine Sapi", "Jumlah": "10 L", "Kontribusi N": "0.050 kg", "Kontribusi P": "0.010 kg", "Kontribusi K": "0.040 kg"},
+            {"Bahan": "Sabut Kelapa", "Jumlah": "3 kg", "Kontribusi N": "0.060 kg", "Kontribusi P": "0.006 kg", "Kontribusi K": "0.075 kg"},
+            {"Bahan": "NPK Phonska", "Jumlah": "0.5 kg", "Kontribusi N": "0.075 kg", "Kontribusi P": "0.075 kg", "Kontribusi K": "0.075 kg"},
+            {"Bahan": "Molase", "Jumlah": "2 L", "Kontribusi N": "0.020 kg", "Kontribusi P": "0.004 kg", "Kontribusi K": "0.100 kg"},
+            {"Bahan": "Dekomposer", "Jumlah": "0.5 L", "Kontribusi N": "0.005 kg", "Kontribusi P": "0.001 kg", "Kontribusi K": "0.005 kg"}
+        ])
+        st.dataframe(bal_materials, use_container_width=True, hide_index=True)
+        
+        st.info(f"""
+        **💰 Biaya Produksi:**
+        - Per 100L: Rp {bal_data['total_cost']:,.0f}
+        - Per Liter: Rp {bal_cost_per_liter:,.0f}
+        - Per Drum (1000L): Rp {bal_data['total_cost'] * 10:,.0f}
+        
+        **🎯 Cocok untuk:** General purpose, semua fase pertumbuhan
+        """)
+    
     # Cost Structure
     st.markdown("---")
     st.subheader("💰 Struktur Biaya")
