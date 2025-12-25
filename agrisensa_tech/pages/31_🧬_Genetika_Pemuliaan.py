@@ -2241,10 +2241,18 @@ with tab_tools:
             'Grobogan': {'Umur': 76, 'Hasil': 3.4, 'Karat': 'AT', 'Ukuran': 'Sangat Besar', 'Tipe': 'OP'},
             'Dena 1': {'Umur': 78, 'Hasil': 2.9, 'Karat': 'T', 'Ukuran': 'Sedang', 'Tipe': 'OP (Tahan Naungan)'}
         },
-        'Cabai Merah': {
+        'Cabai Merah Keriting': {
             'Lado F1': {'Umur': 115, 'Hasil': 18, 'Layu': 'T', 'Pedas': 'Sedang', 'Tipe': 'Hybrid'},
             'PM 99': {'Umur': 105, 'Hasil': 25, 'Layu': 'T', 'Pedas': 'Pedas', 'Tipe': 'Hybrid'},
-            'Laba': {'Umur': 95, 'Hasil': 16, 'Layu': 'AT', 'Pedas': 'Sangat Pedas', 'Tipe': 'OP'}
+            'Laba': {'Umur': 95, 'Hasil': 16, 'Layu': 'AT', 'Pedas': 'Sangat Pedas', 'Tipe': 'OP'},
+            'Kastilo F1': {'Umur': 100, 'Hasil': 20, 'Layu': 'T', 'Pedas': 'Sangat Pedas', 'Tipe': 'Hybrid'},
+            'TM 999': {'Umur': 90, 'Hasil': 14, 'Virus': 'T', 'Pedas': 'Pedas', 'Tipe': 'Hybrid'}
+        },
+        'Cabai Merah Besar': {
+            'Gada F1': {'Umur': 85, 'Hasil': 18, 'Layu': 'T', 'Ukuran': 'Besar', 'Tipe': 'Hybrid'},
+            'Imperial 10': {'Umur': 80, 'Hasil': 25, 'Virus': 'T', 'Ukuran': 'Sangat Besar', 'Tipe': 'Hybrid'},
+            'Hot Beauty': {'Umur': 90, 'Hasil': 20, 'Layu': 'AT', 'Ukuran': 'Besar', 'Tipe': 'Hybrid'},
+            'Arimbi': {'Umur': 85, 'Hasil': 17, 'Layu': 'T', 'Ukuran': 'Sedang', 'Tipe': 'OP'}
         },
         'Bawang Merah': {
             'Bima Brebes': {'Umur': 60, 'Hasil': 10, 'Hujan': 'R', 'Warna': 'Merah Tua', 'Tipe': 'Lokal'},
@@ -2299,7 +2307,7 @@ with tab_tools:
             # For Padi/Jagung (100 days vs 6 tons), scaling by 10 makes sense visually
             # For Chili (100 days vs 20 tons), scaling by 5 is better
             scale = 10
-            if crop_type in ['Cabai Merah', 'Bawang Merah']: scale = 5
+            if crop_type in ['Cabai Merah Keriting', 'Cabai Merah Besar', 'Bawang Merah']: scale = 5
             
             fig.add_trace(go.Bar(
                 name=f'Umur (hari/{scale})',
