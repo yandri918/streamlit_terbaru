@@ -1762,12 +1762,26 @@ with tab2:
             st.metric("C-Organik", f"{veg_data['C']:.2f}%")
         
         st.markdown("**📋 Rincian Bahan (per 100L):**")
-        veg_materials = pd.DataFrame([
-            {"Bahan": "Urine Kelinci", "Jumlah": "15 L", "Kontribusi N": "0.075 kg", "Kontribusi P": "0.045 kg", "Kontribusi K": "0.300 kg"},
-            {"Bahan": "Daun Kelor", "Jumlah": "5 kg", "Kontribusi N": "0.125 kg", "Kontribusi P": "0.010 kg", "Kontribusi K": "0.050 kg"},
-            {"Bahan": "Molase", "Jumlah": "2 L", "Kontribusi N": "0.020 kg", "Kontribusi P": "0.004 kg", "Kontribusi K": "0.100 kg"},
-            {"Bahan": "Dekomposer", "Jumlah": "0.5 L", "Kontribusi N": "0.005 kg", "Kontribusi P": "0.001 kg", "Kontribusi K": "0.005 kg"}
-        ])
+        # Dynamically build material breakdown
+        veg_material_list = []
+        for material, qty in veg_formula.items():
+            # Find material in database
+            for cat_name, cat_materials in MATERIALS.items():
+                if material in cat_materials:
+                    props = cat_materials[material]
+                    n_contrib = (qty * props['N']) / 100
+                    p_contrib = (qty * props['P']) / 100
+                    k_contrib = (qty * props['K']) / 100
+                    unit = props['unit']
+                    veg_material_list.append({
+                        "Bahan": material,
+                        "Jumlah": f"{qty} {unit}",
+                        "Kontribusi N": f"{n_contrib:.3f} kg",
+                        "Kontribusi P": f"{p_contrib:.3f} kg",
+                        "Kontribusi K": f"{k_contrib:.3f} kg"
+                    })
+                    break
+        veg_materials = pd.DataFrame(veg_material_list)
         st.dataframe(veg_materials, use_container_width=True, hide_index=True)
         
         st.info(f"""
@@ -1793,13 +1807,26 @@ with tab2:
             st.metric("C-Organik", f"{gen_data['C']:.2f}%")
         
         st.markdown("**📋 Rincian Bahan (per 100L):**")
-        gen_materials = pd.DataFrame([
-            {"Bahan": "Bonggol Pisang", "Jumlah": "10 kg", "Kontribusi N": "0.020 kg", "Kontribusi P": "0.030 kg", "Kontribusi K": "0.700 kg"},
-            {"Bahan": "Kulit Pisang", "Jumlah": "5 kg", "Kontribusi N": "0.045 kg", "Kontribusi P": "0.025 kg", "Kontribusi K": "0.200 kg"},
-            {"Bahan": "KCl", "Jumlah": "0.3 kg", "Kontribusi N": "0 kg", "Kontribusi P": "0 kg", "Kontribusi K": "0.180 kg"},
-            {"Bahan": "Molase", "Jumlah": "2 L", "Kontribusi N": "0.020 kg", "Kontribusi P": "0.004 kg", "Kontribusi K": "0.100 kg"},
-            {"Bahan": "Dekomposer", "Jumlah": "0.5 L", "Kontribusi N": "0.005 kg", "Kontribusi P": "0.001 kg", "Kontribusi K": "0.005 kg"}
-        ])
+        # Dynamically build material breakdown
+        gen_material_list = []
+        for material, qty in gen_formula.items():
+            # Find material in database
+            for cat_name, cat_materials in MATERIALS.items():
+                if material in cat_materials:
+                    props = cat_materials[material]
+                    n_contrib = (qty * props['N']) / 100
+                    p_contrib = (qty * props['P']) / 100
+                    k_contrib = (qty * props['K']) / 100
+                    unit = props['unit']
+                    gen_material_list.append({
+                        "Bahan": material,
+                        "Jumlah": f"{qty} {unit}",
+                        "Kontribusi N": f"{n_contrib:.3f} kg",
+                        "Kontribusi P": f"{p_contrib:.3f} kg",
+                        "Kontribusi K": f"{k_contrib:.3f} kg"
+                    })
+                    break
+        gen_materials = pd.DataFrame(gen_material_list)
         st.dataframe(gen_materials, use_container_width=True, hide_index=True)
         
         st.info(f"""
@@ -1825,13 +1852,26 @@ with tab2:
             st.metric("C-Organik", f"{bal_data['C']:.2f}%")
         
         st.markdown("**📋 Rincian Bahan (per 100L):**")
-        bal_materials = pd.DataFrame([
-            {"Bahan": "Urine Sapi", "Jumlah": "10 L", "Kontribusi N": "0.050 kg", "Kontribusi P": "0.010 kg", "Kontribusi K": "0.040 kg"},
-            {"Bahan": "Sabut Kelapa", "Jumlah": "3 kg", "Kontribusi N": "0.060 kg", "Kontribusi P": "0.006 kg", "Kontribusi K": "0.075 kg"},
-            {"Bahan": "NPK Phonska", "Jumlah": "0.5 kg", "Kontribusi N": "0.075 kg", "Kontribusi P": "0.075 kg", "Kontribusi K": "0.075 kg"},
-            {"Bahan": "Molase", "Jumlah": "2 L", "Kontribusi N": "0.020 kg", "Kontribusi P": "0.004 kg", "Kontribusi K": "0.100 kg"},
-            {"Bahan": "Dekomposer", "Jumlah": "0.5 L", "Kontribusi N": "0.005 kg", "Kontribusi P": "0.001 kg", "Kontribusi K": "0.005 kg"}
-        ])
+        # Dynamically build material breakdown
+        bal_material_list = []
+        for material, qty in bal_formula.items():
+            # Find material in database
+            for cat_name, cat_materials in MATERIALS.items():
+                if material in cat_materials:
+                    props = cat_materials[material]
+                    n_contrib = (qty * props['N']) / 100
+                    p_contrib = (qty * props['P']) / 100
+                    k_contrib = (qty * props['K']) / 100
+                    unit = props['unit']
+                    bal_material_list.append({
+                        "Bahan": material,
+                        "Jumlah": f"{qty} {unit}",
+                        "Kontribusi N": f"{n_contrib:.3f} kg",
+                        "Kontribusi P": f"{p_contrib:.3f} kg",
+                        "Kontribusi K": f"{k_contrib:.3f} kg"
+                    })
+                    break
+        bal_materials = pd.DataFrame(bal_material_list)
         st.dataframe(bal_materials, use_container_width=True, hide_index=True)
         
         st.info(f"""
