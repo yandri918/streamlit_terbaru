@@ -1210,17 +1210,21 @@ with tab2:
     col_price1, col_price2, col_price3 = st.columns(3)
     
     with col_price1:
-        st.markdown("**📊 Margin & Harga**")
-        margin_pct = st.slider("Target Margin (%)", 30, 150, 100, 10, key="biz_margin")
+        st.markdown("**📊 Harga Jual (Manual)**")
         
-        # Calculate selling price
-        price_1l = avg_cost_per_liter * (1 + margin_pct/100)
-        price_5l_per_liter = price_1l * 0.9  # 10% discount for 5L
-        price_5l = price_5l_per_liter * 5
+        # Manual price input
+        price_1l = st.number_input("Harga Jual 1L (Rp)", value=30000, min_value=1000, step=1000, key="biz_price_1l",
+                                    help="Tentukan harga jual per botol 1L")
+        price_5l = st.number_input("Harga Jual 5L (Rp)", value=135000, min_value=5000, step=5000, key="biz_price_5l",
+                                    help="Tentukan harga jual per jerigen 5L")
         
-        st.metric("Harga 1L", f"Rp {price_1l:,.0f}")
-        st.metric("Harga 5L", f"Rp {price_5l:,.0f}")
-        st.caption(f"(Rp {price_5l_per_liter:,.0f}/L)")
+        # Calculate actual margin
+        price_5l_per_liter = price_5l / 5
+        actual_margin_1l = ((price_1l - avg_cost_per_liter) / avg_cost_per_liter * 100) if avg_cost_per_liter > 0 else 0
+        actual_margin_5l = ((price_5l_per_liter - avg_cost_per_liter) / avg_cost_per_liter * 100) if avg_cost_per_liter > 0 else 0
+        
+        st.caption(f"Margin 1L: {actual_margin_1l:.0f}%")
+        st.caption(f"Margin 5L: {actual_margin_5l:.0f}% (Rp {price_5l_per_liter:,.0f}/L)")
     
     with col_price2:
         st.markdown("**📦 Packaging Mix**")
