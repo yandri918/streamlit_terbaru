@@ -1150,7 +1150,19 @@ if inputs:
             st.info("💡 Simpan batch pertama untuk mulai tracking tren nutrisi")
 
 else:
-    st.info("👈 Silakan pilih template atau input bahan di sidebar untuk mulai menghitung POC")
+    st.info("""
+    👈 **Cara Mendapatkan Analisis POC:**
+    
+    **Opsi 1: Gunakan AI Optimizer (Recommended)**
+    1. Buka tab **"💼 Business Model"**
+    2. Input skala produksi, target, dan produk
+    3. Klik **"🚀 GENERATE REKOMENDASI LENGKAP"**
+    4. Formula otomatis ter-load di sini dengan analisis lengkap!
+    
+    **Opsi 2: Manual**
+    - Pilih template resep di sidebar, atau
+    - Input bahan manual di sidebar
+    """)
 
 # Business Model Tab
 with tab2:
