@@ -341,16 +341,20 @@ def optimize_budget(budget, params, crop, var, texture_key, fert_prices):
         "Nitrogen": {"key": "n", "amount": 2, "cost": (2/0.46) * fert_prices["Urea"], "product": "Urea", "p_unit": "kg"},
         "Fosfor": {"key": "p", "amount": 2, "cost": (2/0.36) * fert_prices["SP-36"], "product": "SP-36", "p_unit": "kg"},
         "Kalium": {"key": "k", "amount": 2, "cost": (2/0.60) * fert_prices["KCl"], "product": "KCl", "p_unit": "kg"},
-        "pH Tanah": {"key": "ph", "amount": 0.1, "cost": (200 * fert_prices["Dolomit"]), "product": "Dolomit/Kapur", "p_unit": "kg (est 200kg)"}, # Assumes 200kg to raise pH 0.1 (crude)
-        "Nutrisi Mikro": {"key": "micro_pct", "amount": 5, "cost": 0.1 * fert_prices["Mikro Majemuk"], "product": "Mikro Majemuk", "p_unit": "kg"},
-        "Mikro (Avg)": {"key": "micro_pct", "amount": 5, "cost": 0.1 * fert_prices["Mikro Majemuk"], "product": "Mikro Majemuk", "p_unit": "kg"},
+        "pH Tanah": {"key": "ph", "amount": 0.1, "cost": (200 * fert_prices["Dolomit"]), "product": "Dolomit/Kapur", "p_unit": "kg (est 200kg)"}, 
+        
         # Secondary
         "Kalsium (Ca)": {"key": "ca_ppm", "amount": 10, "cost": (20 * fert_prices["Dolomit"]), "product": "Dolomit", "p_unit": "kg"},
         "Magnesium (Mg)": {"key": "mg_ppm", "amount": 5, "cost": (5 * fert_prices["Kieserite"]), "product": "Kieserite", "p_unit": "kg"},
         "Sulfur (S)": {"key": "s_ppm", "amount": 5, "cost": (5 * fert_prices["ZA"]), "product": "ZA/Sulfur", "p_unit": "kg"},
-        # Logic: If nothing else is strict limiting, dump into Organics/Boosters
+        
+        # General Boost fallback
         "General_Boost": {"key": "booster_kg", "amount": 1, "cost": 1 * fert_prices["Kalium Booster"], "product": "Kalium Booster", "p_unit": "kg"}
     }
+    
+    # Micro mapping (Compound Fertilizer bumps all micros)
+    micro_keys = ["Besi (Fe)", "Mangan (Mn)", "Seng (Zn)", "Boron (B)", "Tembaga (Cu)", "Molibdenum (Mo)", "Mikro (Avg)"]
+    micro_action = {"key": ["fe_ppm", "mn_ppm", "zn_ppm", "b_ppm", "cu_ppm", "mo_ppm"], "amount": 0.5, "cost": 0.5 * fert_prices["Mikro Majemuk"], "product": "Mikro Majemuk", "p_unit": "kg"}
     
     steps_log = []
     
@@ -363,15 +367,18 @@ def optimize_budget(budget, params, crop, var, texture_key, fert_prices):
         limit = res['limiting_factor']
         
         # 2. Determine Action
-        action = actions.get(limit)
+        if limit in micro_keys:
+            action = micro_action
+        else:
+            action = actions.get(limit)
         
         # If limiting factor is Air/Temp (Unfixable by budget) -> Switch to Booster or Organic
         if not action or limit in ['Air', 'Suhu']:
              # Try Organic first if low, else Booster
              if current_params['org_solid'] < 5000:
                  action = {"key": "org_solid", "amount": 500, "cost": 500 * fert_prices["Kompos"], "product": "Kompos", "p_unit": "kg"}
-             elif current_params['zpt_ppm'] < 50:
-                  action = {"key": "auxin_ppm", "amount": 5, "cost": 5000, "product": "ZPT Mix", "p_unit": "ppm"} # Simplified ZPT cost
+             elif current_params.get('auxin_ppm', 0) < 20: # Adjusted check
+                  action = {"key": "auxin_ppm", "amount": 5, "cost": 5000, "product": "ZPT Auksin", "p_unit": "ppm"} 
              else:
                  action = actions["General_Boost"]
         
@@ -380,12 +387,19 @@ def optimize_budget(budget, params, crop, var, texture_key, fert_prices):
             # execute buy
             remaining_budget -= action['cost']
             
-            # Update Param
-            current_params[action['key']] = current_params.get(action['key'], 0) + action['amount']
+            # Update Param (Handle list or single key)
+            keys = action['key'] if isinstance(action['key'], list) else [action['key']]
+            for k in keys:
+                current_params[k] = current_params.get(k, 0) + action['amount']
             
             # Log purchase
             item_name = action['product']
-            purchased_items[item_name] = purchased_items.get(item_name, 0) + (action['cost'] / fert_prices.get(item_name.split("/")[0], 1000)) # Approx qty back calc if complex, or just track cost
+            # Approx qty (cost / unit_price)
+            # Safe division for logging
+            u_price = fert_prices.get(item_name.split("/")[0], 1000)
+            if u_price == 0: u_price = 1000
+            
+            purchased_items[item_name] = purchased_items.get(item_name, 0) + (action['cost'] / u_price) 
             
         else:
             break # Can't afford the fix for the bottleneck
