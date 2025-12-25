@@ -23,6 +23,9 @@ try:
     # Initialize Auth
     auth.init_auth_state()
     
+    # DEBUG: Track source file
+    st.write(f"DEBUG: auth module loaded from: {auth.__file__}")
+    
     # Enforce Login (Block 'guest')
     current_user = auth.get_current_user()
     if current_user and current_user.get('username') == 'guest':
@@ -564,4 +567,3 @@ with tab_pricing:
     
     # Highlight recommended row logic (simplified for viz)
     st.dataframe(df_sens.style.applymap(lambda v: 'color: red;' if v == 'RUGI' else 'color: green;', subset=['Status']), use_container_width=True)
-
