@@ -198,66 +198,8 @@ TEMPLATES = {
 with st.sidebar:
     st.header("⚙️ Konfigurasi Resep")
     
-    # AI Optimizer Toggle
-    use_ai_optimizer = st.checkbox("🤖 Gunakan AI Optimizer", value=False, 
-                                     help="AI akan merekomendasikan formula optimal berdasarkan target NPK dan budget")
-    
-    if use_ai_optimizer:
-        st.divider()
-        st.subheader("🎯 Target AI Optimizer")
-        
-        # Get preferences from Business Model if available
-        biz_product = st.session_state.get('biz_preferred_product', None)
-        biz_scale = st.session_state.get('biz_production_scale', None)
-        biz_drums = st.session_state.get('ai_drums', 0)
-        
-        # Map Business Model product to Calculator product type
-        default_target = "Balanced"
-        if biz_product:
-            if "Vegetatif" in biz_product:
-                default_target = "Vegetatif (Daun)"
-            elif "Generatif" in biz_product:
-                default_target = "Generatif (Bunga/Buah)"
-            elif "Balanced" in biz_product:
-                default_target = "Balanced"
-        
-        target_options = ["Vegetatif (Daun)", "Generatif (Bunga/Buah)", "Balanced"]
-        default_index = target_options.index(default_target) if default_target in target_options else 2
-        
-        target_type = st.selectbox("Tipe Tanaman", 
-                                    target_options,
-                                    index=default_index,
-                                    help="AI akan optimize NPK sesuai fase tanaman")
-        
-        # Adjust budget based on drum capacity (scale with production volume)
-        default_budget = 50000
-        if biz_drums > 0:
-            # Budget scales with capacity: base 50k for 100L, multiply by volume ratio
-            volume_ratio = (biz_drums * 1000) / 100
-            default_budget = int(50000 * volume_ratio)
-            st.info(f"💡 Budget disesuaikan untuk {biz_drums * 1000}L kapasitas")
-        elif biz_scale == "🏭 Industri/Komersial":
-            default_budget = 500000  # Higher budget for industrial
-        
-        budget_limit = st.number_input("Budget Maksimal (Rp)", value=default_budget, min_value=0, step=5000,
-                                        help="Budget otomatis disesuaikan dengan kapasitas produksi")
-        
-        # Adjust organic preference based on scale
-        default_organic = 50
-        if biz_scale == "🏠 Pemakaian Pribadi":
-            default_organic = 80  # Personal use prefers more organic
-        elif biz_scale == "🏭 Industri/Komersial":
-            default_organic = 30  # Industrial may use more chemical for cost efficiency
-        
-        prefer_organic = st.slider("Preferensi Organik (%)", 0, 100, default_organic,
-                                     help="0% = Full Kimia, 100% = Full Organik")
-        
-        if st.button("🚀 Generate Formula AI", type="primary", use_container_width=True):
-            st.session_state['ai_generated'] = True
-            st.session_state['target_type'] = target_type
-            st.session_state['budget_limit'] = budget_limit
-            st.session_state['prefer_organic'] = prefer_organic
-            st.rerun()
+    # Note about AI Optimizer location
+    st.info("💡 **AI Optimizer** ada di tab **Business Model** untuk rekomendasi lengkap")
     
     st.divider()
     st.subheader("💾 Resep Tersimpan")
