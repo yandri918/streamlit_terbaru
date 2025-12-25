@@ -913,9 +913,7 @@ if inputs:
                  st.session_state['sci_dose_input'] = data_dose
                  st.session_state['sci_vol_input'] = data_vol
                  st.session_state['prev_sci_crop'] = sci_crop
-                 # Rerun to reflect changes immediately in widgets if needed, 
-                 # but usually updating session state before widget render works.
-                 st.rerun()
+
         else:
              if crop_changed:
                  st.session_state['prev_sci_crop'] = sci_crop
