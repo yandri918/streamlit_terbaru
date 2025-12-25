@@ -986,6 +986,23 @@ with tab_whatif:
             if opt_params['ph'] > base_params_for_opt['ph']:
                 shopping_list.append({"Item": "Dolomit/Kapur", "Qty": "Sesuai dosis", "Alasan": "Netralisasi pH Masam"})
             
+            # Check for Micro nutrients (if Fe increased, assume Micro pack was bought)
+            if opt_params['fe_ppm'] > base_params_for_opt['fe_ppm']:
+                 # Amount added was 0.5kg per step? No, amount was nutrient based?
+                 # Action was: "amount": 0.5, "product": "Mikro Majemuk"
+                 # We can just count steps or approximate. 
+                 # Let's say: if changed, list it.
+                 shopping_list.append({"Item": "Mikro Majemuk", "Qty": "Sesuai dosis", "Alasan": "Fix Defisiensi Mikro (Fe, Zn, dll)"})
+
+            # Check Organic
+            if opt_params['org_solid'] > base_params_for_opt['org_solid']:
+                added = opt_params['org_solid']
+                shopping_list.append({"Item": "Kompos/Organik", "Qty": f"+{added:,.0f} kg", "Alasan": "Perbaiki Struktur Tanah (Faktor Air/Suhu)"})
+
+            # Check ZPT
+            if opt_params.get('auxin_ppm', 0) > base_params_for_opt.get('auxin_ppm', 0):
+                 shopping_list.append({"Item": "ZPT (Auksin/Hormon)", "Qty": "Sesuai dosis", "Alasan": "Booster Perakaran (Limitasi Lingkungan)"})
+
             if opt_params['booster_kg'] > base_params_for_opt['booster_kg']:
                  shopping_list.append({"Item": "Kalium Booster", "Qty": f"+{opt_params['booster_kg']:.1f} kg", "Alasan": "Maksimalkan fase generatif"})
                  
