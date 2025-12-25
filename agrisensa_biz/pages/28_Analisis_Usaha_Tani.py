@@ -958,6 +958,83 @@ with tab_bep:
             st.metric("Contribution Margin", f"Rp {contribution_margin:,.0f}")
             st.caption("Per unit contribution")
         
+        # NEW: Total Cost Recovery (User Request)
+        st.markdown("---")
+        st.markdown("#### 💰 Total Cost Recovery (Analisis Realistis)")
+        
+        st.info("""
+        **📌 Catatan Penting:**
+        
+        BEP tradisional di atas hanya menghitung **biaya tetap** karena biaya variabel sudah "ter-cover" 
+        di setiap unit yang terjual. Namun untuk analisis usaha tani yang lebih realistis, 
+        kita perlu tahu **berapa kg harus dijual untuk cover SEMUA biaya**.
+        """)
+        
+        # Calculate Total Cost Recovery
+        total_cost_recovery_kg = total_biaya / harga_jual if harga_jual > 0 else 0
+        total_cost_recovery_rupiah = total_biaya
+        
+        col_tcr1, col_tcr2, col_tcr3 = st.columns(3)
+        
+        with col_tcr1:
+            st.metric(
+                "Total Cost Recovery (kg)", 
+                f"{total_cost_recovery_kg:,.0f} {unit_hasil}",
+                help="Jumlah penjualan untuk cover SEMUA biaya (tetap + variabel)"
+            )
+            st.caption("Minimal jual untuk balik modal")
+        
+        with col_tcr2:
+            st.metric(
+                "Total Cost Recovery (Rp)", 
+                f"Rp {total_cost_recovery_rupiah:,.0f}",
+                help="Revenue minimal untuk cover total biaya"
+            )
+            st.caption("Target revenue minimum")
+        
+        with col_tcr3:
+            # Calculate percentage of target harvest needed
+            pct_of_target = (total_cost_recovery_kg / total_panen_kg * 100) if total_panen_kg > 0 else 0
+            st.metric(
+                "% dari Target Panen",
+                f"{pct_of_target:.1f}%",
+                help="Berapa persen dari target panen yang harus terjual untuk balik modal"
+            )
+            st.caption("Threshold keberhasilan")
+        
+        # Comparison Table
+        st.markdown("##### 📊 Perbandingan BEP vs Total Cost Recovery")
+        
+        comparison_df = pd.DataFrame({
+            'Metrik': ['BEP Tradisional', 'Total Cost Recovery'],
+            'Basis Perhitungan': ['Biaya Tetap saja', 'Biaya Tetap + Variabel'],
+            'Minimal Jual (kg)': [f"{bep_units:,.0f}", f"{total_cost_recovery_kg:,.0f}"],
+            'Minimal Revenue (Rp)': [f"Rp {bep_rupiah:,.0f}", f"Rp {total_cost_recovery_rupiah:,.0f}"],
+            'Interpretasi': [
+                'Titik impas biaya tetap',
+                'Titik balik modal total'
+            ]
+        })
+        
+        st.dataframe(comparison_df, use_container_width=True, hide_index=True)
+        
+        # Explanation
+        st.markdown(f"""
+        **💡 Penjelasan:**
+        
+        - **BEP Tradisional ({bep_units:,.0f} kg):** Hanya cover biaya tetap karena biaya variabel 
+          sudah "keluar" setiap kali produksi. Setelah titik ini, setiap kg yang terjual = profit.
+        
+        - **Total Cost Recovery ({total_cost_recovery_kg:,.0f} kg):** Jumlah REAL yang harus terjual 
+          untuk **balik modal total**. Ini lebih realistis untuk petani karena memperhitungkan 
+          semua pengeluaran.
+        
+        **Rekomendasi:**
+        - Target minimal: **{total_cost_recovery_kg:,.0f} kg** ({pct_of_target:.1f}% dari target)
+        - Target ideal: **{total_panen_kg:,.0f} kg** (100% target panen)
+        - Safety margin: Jual lebih dari {total_cost_recovery_kg:,.0f} kg untuk profit
+        """)
+        
         # Margin of Safety
         st.markdown("### 🛡️ Margin of Safety (MOS)")
         
