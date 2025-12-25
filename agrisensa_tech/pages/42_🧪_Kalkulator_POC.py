@@ -87,8 +87,9 @@ with st.sidebar:
     st.divider()
     st.subheader("🧪 Komposisi Bahan")
     
-    # Initialize inputs
+    # Initialize inputs and prices
     inputs = {}
+    custom_prices = {}
     
     # Load template if selected
     if template != "Custom (Manual)":
@@ -103,15 +104,31 @@ with st.sidebar:
                 # Get default value from template or 0
                 default_val = inputs.get(material, 0.0)
                 
-                qty = st.number_input(
-                    f"{material} ({props['unit']})",
-                    value=float(default_val),
-                    min_value=0.0,
-                    step=0.5,
-                    key=material
-                )
+                # Create two columns for quantity and price
+                col_qty, col_price = st.columns([2, 1])
+                
+                with col_qty:
+                    qty = st.number_input(
+                        f"{material} ({props['unit']})",
+                        value=float(default_val),
+                        min_value=0.0,
+                        step=0.5,
+                        key=f"qty_{material}"
+                    )
+                
+                with col_price:
+                    price = st.number_input(
+                        f"Harga/{ props['unit']}",
+                        value=props['price'],
+                        min_value=0,
+                        step=100,
+                        key=f"price_{material}",
+                        help=f"Default: Rp {props['price']:,}"
+                    )
+                
                 if qty > 0:
                     inputs[material] = qty
+                    custom_prices[material] = price
 
 # Main Content
 if inputs:
@@ -140,7 +157,10 @@ if inputs:
             p_contrib = (qty * props['P']) / 100
             k_contrib = (qty * props['K']) / 100
             c_contrib = (qty * props['C']) / 100
-            cost = qty * props['price']
+            
+            # Use custom price if available, otherwise use default
+            material_price = custom_prices.get(material, props['price'])
+            cost = qty * material_price
             
             total_N += n_contrib
             total_P += p_contrib
@@ -156,6 +176,7 @@ if inputs:
             material_breakdown.append({
                 "Bahan": material,
                 "Jumlah": f"{qty} {props['unit']}",
+                "Harga Satuan": f"Rp {material_price:,.0f}",
                 "N (%)": f"{props['N']}",
                 "P (%)": f"{props['P']}",
                 "K (%)": f"{props['K']}",
