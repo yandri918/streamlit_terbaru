@@ -19,6 +19,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///agrisensa.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
     
     # JWT Configuration
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dev-jwt-secret-key-please-change')
@@ -112,7 +113,6 @@ class ProductionConfig(Config):
     
     # Enable Sentry in production
     SENTRY_DSN = os.getenv('SENTRY_DSN')
-
 
 
 class TestingConfig(Config):

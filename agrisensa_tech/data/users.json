@@ -1,0 +1,8 @@
+{
+  "test_persist_user": {
+    "password": "securepass123",
+    "role": "user",
+    "name": "Test Persist",
+    "email": "test@persist.com"
+  }
+}
