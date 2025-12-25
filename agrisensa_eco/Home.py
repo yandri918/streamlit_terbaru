@@ -23,6 +23,7 @@ with c2:
     st.markdown("### ♻️ Sampah & Organik")
     if st.button("♻️ Pengolahan Sampah"): st.switch_page("pages/54_♻️_Pengolahan_Sampah_Terpadu.py")
     if st.button("🧴 Pembuatan Pupuk Organik"): st.switch_page("pages/43_🧴_Pembuatan_Pupuk_Organik.py")
+    if st.button("🧪 Kalkulator POC"): st.switch_page("pages/42_🧪_Kalkulator_POC.py")
 
 st.markdown("### 🍓 Agrowisata & Rekomendasi")
 c3, c4 = st.columns(2)
