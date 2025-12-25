@@ -358,9 +358,168 @@ with tab_whatif:
             
             st.write(f"- **Efek Booster Buah:** +{(mults['booster']-1)*100:.1f}%")
 
-def sigmoid_curve(val, max_boost=1.1, midpoint=50):
-    """S-curve for organic/bio boosters (diminishing returns)"""
-    return 1 + (max_boost - 1) / (1 + np.exp(-0.1 * (val - midpoint)))
+
+def optimize_budget(budget, params, crop, var, texture_key, fert_prices):
+    """
+    Greedy Hill-Climbing Algorithm:
+    Allocates budget to the most limiting factor iteratively.
+    """
+    current_params = params.copy()
+    remaining_budget = budget
+    purchased_items = {} # Item: Qty
+    
+    # Cost definitions per unit step (Simplified Estimates for algorithm)
+    # Unit sizes chosen for granular increments
+    actions = {
+        "Nitrogen": {"key": "n", "amount": 2, "cost": (2/0.46) * fert_prices["Urea"], "product": "Urea", "p_unit": "kg"},
+        "Fosfor": {"key": "p", "amount": 2, "cost": (2/0.36) * fert_prices["SP-36"], "product": "SP-36", "p_unit": "kg"},
+        "Kalium": {"key": "k", "amount": 2, "cost": (2/0.60) * fert_prices["KCl"], "product": "KCl", "p_unit": "kg"},
+        "pH Tanah": {"key": "ph", "amount": 0.1, "cost": (200 * fert_prices["Dolomit"]), "product": "Dolomit/Kapur", "p_unit": "kg (est 200kg)"}, # Assumes 200kg to raise pH 0.1 (crude)
+        "Nutrisi Mikro": {"key": "micro_pct", "amount": 5, "cost": 0.1 * fert_prices["Mikro Majemuk"], "product": "Mikro Majemuk", "p_unit": "kg"},
+        "Mikro (Avg)": {"key": "micro_pct", "amount": 5, "cost": 0.1 * fert_prices["Mikro Majemuk"], "product": "Mikro Majemuk", "p_unit": "kg"},
+        # Secondary
+        "Kalsium (Ca)": {"key": "ca_ppm", "amount": 10, "cost": (20 * fert_prices["Dolomit"]), "product": "Dolomit", "p_unit": "kg"},
+        "Magnesium (Mg)": {"key": "mg_ppm", "amount": 5, "cost": (5 * fert_prices["Kieserite"]), "product": "Kieserite", "p_unit": "kg"},
+        "Sulfur (S)": {"key": "s_ppm", "amount": 5, "cost": (5 * fert_prices["ZA"]), "product": "ZA/Sulfur", "p_unit": "kg"},
+        # Logic: If nothing else is strict limiting, dump into Organics/Boosters
+        "General_Boost": {"key": "booster_kg", "amount": 1, "cost": 1 * fert_prices["Kalium Booster"], "product": "Kalium Booster", "p_unit": "kg"}
+    }
+    
+    steps_log = []
+    
+    # Safety breakout
+    for _ in range(100): 
+        if remaining_budget <= 5000: break # Minimum transaction
+        
+        # 1. Run Sim to find Limiting Factor
+        res = run_simulation(crop, var, texture_key, current_params)
+        limit = res['limiting_factor']
+        
+        # 2. Determine Action
+        action = actions.get(limit)
+        
+        # If limiting factor is Air/Temp (Unfixable by budget) -> Switch to Booster or Organic
+        if not action or limit in ['Air', 'Suhu']:
+             # Try Organic first if low, else Booster
+             if current_params['org_solid'] < 5000:
+                 action = {"key": "org_solid", "amount": 500, "cost": 500 * fert_prices["Kompos"], "product": "Kompos", "p_unit": "kg"}
+             elif current_params['zpt_ppm'] < 50:
+                  action = {"key": "auxin_ppm", "amount": 5, "cost": 5000, "product": "ZPT Mix", "p_unit": "ppm"} # Simplified ZPT cost
+             else:
+                 action = actions["General_Boost"]
+        
+        # 3. Check Affordability
+        if remaining_budget >= action['cost']:
+            # execute buy
+            remaining_budget -= action['cost']
+            
+            # Update Param
+            current_params[action['key']] = current_params.get(action['key'], 0) + action['amount']
+            
+            # Log purchase
+            item_name = action['product']
+            purchased_items[item_name] = purchased_items.get(item_name, 0) + (action['cost'] / fert_prices.get(item_name.split("/")[0], 1000)) # Approx qty back calc if complex, or just track cost
+            
+            # Better Qty tracking:
+            # We defined 'amount' as nutrient amount, need to map back to product qty for display optimization?
+            # actually action['cost'] is accurate.
+            # Let's just store the 'cost spent' on each item efficiently? 
+            # Or simplified: The user wants "Breakdown apa saja yang ditambahkan"
+            
+            # Simple Text Log for debug or display
+            # steps_log.append(f"Fixed {limit} with {action['product']}")
+            
+        else:
+            break # Can't afford the fix for the bottleneck
+            
+    final_res = run_simulation(crop, var, texture_key, current_params)
+    return current_params, final_res, remaining_budget
+
+# ... (Previous code) ...
+
+    with col_kalkulator:
+        st.subheader("💰 Kalkulator Belanja Pupuk")
+        # ... (Previous calculator code) ...
+        # ... Ensure user inputs like p_urea are captured in a dictionary for the optimizer ...
+        current_prices = {
+            "Urea": p_urea, "SP-36": p_sp36, "KCl": p_kcl, 
+            "Dolomit": p_dolomit, "Kompos": p_kompos, "POC": p_poc,
+            "Kalium Booster": p_booster, "Kieserite": 4000, "ZA": 2500, "Mikro Majemuk": 80000 
+            # Add implicit pricing for others if not in UI yet, or add them to UI
+        }
+        
+        # ... (Existing Calculation Logic for Cost Table) ...
+        
+        st.divider()
+        st.subheader("🤖 Smart Budget Allocator (Reverse)")
+        st.info("Punya modal terbatas? Biarkan AI menentukan prioritas belanja pupuk paling efisien (Hukum Minimum Liebig).")
+        
+        budget_input = st.number_input("Masukkan Modal Tambahan (Rp)", 0, 100000000, 1000000, step=100000, help="Anggaran yang tersedia untuk optimalisasi.")
+        
+        if st.button("✨ Optimalkan Modal Saya"):
+            # Run Optimizer
+            # Start from 'current actual' params (without the manual sliders from columns?)
+            # Usually optimization starts from the 'base' condition (i_n, i_p, etc from Sidebar) 
+            # OR from the current slider state? Let's assume from Sidebar/Base condition to be safe "Add to existing"
+            
+            base_params_for_opt = {
+                "area_ha": s_area, "ph": i_ph, "temp": i_temp, "rain": i_rain,
+                "n": i_n, "p": i_p, "k": i_k,
+                "org_solid": 0, "org_liquid": 0, 
+                "ca_ppm": 100, "mg_ppm": 30, "s_ppm": 20,
+                "fe_ppm": 2, "mn_ppm": 2, "zn_ppm": 1, "b_ppm": 0.5, "cu_ppm": 0.2, "mo_ppm": 0.05,
+                "auxin_ppm": 0, "cyto_ppm": 0, "ga3_ppm": 0, "booster_kg": 0
+            }
+            
+            opt_params, opt_res, left_budget = optimize_budget(budget_input, base_params_for_opt, s_crop, s_var, s_grad, current_prices)
+            
+            # Display Results
+            opt_delta_kg = opt_res['yield_kg'] - res['yield_kg'] # Res is base run
+            opt_delta_rev = opt_delta_kg * price_est
+            spent_budget = budget_input - left_budget
+            opt_roi = ((opt_delta_rev - spent_budget) / spent_budget * 100) if spent_budget > 0 else 0
+            
+            st.success(f"✅ Optimasi Selesai! Anggaran terpakai: Rp {spent_budget:,.0f}")
+            
+            # Metrics
+            c_o1, c_o2, c_o3 = st.columns(3)
+            c_o1.metric("Kenaikan Hasil", f"+{opt_delta_kg:,.0f} kg", f"{opt_res['yield_pct']:.1f}% Potensi")
+            c_o2.metric("Revenue Tambahan", f"Rp {opt_delta_rev:,.0f}")
+            c_o3.metric("ROI Optimasi", f"{opt_roi:.1f}%", help="Return on Investment dari modal tambahan ini")
+            
+            # Visualization: What did we buy?
+            # Compare opt_params vs base_params_for_opt
+            shopping_list = []
+            
+            # NPK Breakdown logic similar to previous table but diff source types
+            # Simplified for display speed
+            if opt_params['n'] > base_params_for_opt['n']:
+                added = opt_params['n'] - base_params_for_opt['n']
+                product_kg = added / 0.46
+                shopping_list.append({"Item": "Urea", "Qty": f"+{product_kg:.1f} kg", "Alasan": "Fix Defisiensi Nitrogen"})
+            
+            if opt_params['p'] > base_params_for_opt['p']:
+                added = opt_params['p'] - base_params_for_opt['p']
+                product_kg = added / 0.36
+                shopping_list.append({"Item": "SP-36", "Qty": f"+{product_kg:.1f} kg", "Alasan": "Fix Defisiensi Fosfor"})
+                
+            if opt_params['k'] > base_params_for_opt['k']:
+                added = opt_params['k'] - base_params_for_opt['k']
+                product_kg = added / 0.60
+                shopping_list.append({"Item": "KCl", "Qty": f"+{product_kg:.1f} kg", "Alasan": "Fix Defisiensi Kalium"})
+
+            if opt_params['ph'] > base_params_for_opt['ph']:
+                # Crude calc
+                shopping_list.append({"Item": "Dolomit/Kapur", "Qty": "Sesuai dosis", "Alasan": "Netralisasi pH Masam"})
+            
+            # Check ZPT/Boosters
+            if opt_params['booster_kg'] > base_params_for_opt['booster_kg']:
+                 shopping_list.append({"Item": "Kalium Booster", "Qty": f"+{opt_params['booster_kg']:.1f} kg", "Alasan": "Maksimalkan fase generatif"})
+                 
+            st.write("**Rekomendasi Belanja Prioritas:**")
+            st.table(shopping_list)
+
+
 
 def run_simulation(crop, variety, texture_key, params):
     # Get base potential
