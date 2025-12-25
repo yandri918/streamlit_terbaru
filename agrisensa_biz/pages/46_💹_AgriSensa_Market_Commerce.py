@@ -23,9 +23,6 @@ try:
     # Initialize Auth
     auth.init_auth_state()
     
-    # DEBUG: Track source file
-    st.write(f"DEBUG: auth module loaded from: {auth.__file__}")
-    
     # Enforce Login (Block 'guest')
     current_user = auth.get_current_user()
     if current_user and current_user.get('username') == 'guest':
