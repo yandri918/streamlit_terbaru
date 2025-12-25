@@ -882,7 +882,15 @@ if inputs:
     
     with col_sci1:
         st.markdown("**1. Parameter Dosis:**")
-        sci_crop = st.selectbox("Pilih Tanaman Referensi", ["-- Custom --"] + list(JOURNAL_DATA.keys()))
+        
+        # Track previous crop to handle updates
+        if 'prev_sci_crop' not in st.session_state:
+            st.session_state['prev_sci_crop'] = "-- Custom --"
+            
+        sci_crop = st.selectbox("Pilih Tanaman Referensi", ["-- Custom --"] + list(JOURNAL_DATA.keys()), key="sci_crop_unique")
+        
+        # Check if crop changed
+        crop_changed = sci_crop != st.session_state['prev_sci_crop']
         
         # Defaults
         def_dose = 10.0
@@ -891,15 +899,33 @@ if inputs:
         
         if sci_crop != "-- Custom --":
             data = JOURNAL_DATA[sci_crop]
-            def_dose = float(data['dose_min'])
-            def_vol = float(data['vol_plant'])
+            # Use data values
+            data_dose = float(data['dose_min'])
+            data_vol = float(data['vol_plant'])
             ref_text = f"Ref: {data['ref']} \n({data['dose_min']}-{data['dose_max']} ml/L)"
             
-        sci_dose = st.number_input("Dosis Konsentrasi (ml POC / Liter Air)", value=def_dose, step=1.0, help="Jumlah ml POC yang dicampur ke 1 Liter air")
+            # Update defaults FOR THIS RENDER
+            def_dose = data_dose
+            def_vol = data_vol
+            
+            # Force update session state if changed
+            if crop_changed:
+                 st.session_state['sci_dose_input'] = data_dose
+                 st.session_state['sci_vol_input'] = data_vol
+                 st.session_state['prev_sci_crop'] = sci_crop
+                 # Rerun to reflect changes immediately in widgets if needed, 
+                 # but usually updating session state before widget render works.
+                 st.rerun()
+        else:
+             if crop_changed:
+                 st.session_state['prev_sci_crop'] = sci_crop
+        
+        # Inputs with keys
+        sci_dose = st.number_input("Dosis Konsentrasi (ml POC / Liter Air)", value=def_dose, step=1.0, help="Jumlah ml POC yang dicampur ke 1 Liter air", key="sci_dose_input")
         if sci_crop != "-- Custom --":
             st.info(f"ℹ️ {ref_text}")
             
-        sci_vol = st.number_input("Volume Siram per Tanaman (ml/tanaman)", value=def_vol, step=50.0, help="Total volume larutan yang disiramkan ke satu tanaman")
+        sci_vol = st.number_input("Volume Siram per Tanaman (ml/tanaman)", value=def_vol, step=50.0, help="Total volume larutan yang disiramkan ke satu tanaman", key="sci_vol_input")
         
     with col_sci2:
         st.markdown("**2. Parameter Populasi:**")
