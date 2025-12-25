@@ -108,6 +108,30 @@ TEMPLATES = {
 with st.sidebar:
     st.header("⚙️ Konfigurasi Resep")
     
+    # AI Optimizer Toggle
+    use_ai_optimizer = st.checkbox("🤖 Gunakan AI Optimizer", value=False, 
+                                     help="AI akan merekomendasikan formula optimal berdasarkan target NPK dan budget")
+    
+    if use_ai_optimizer:
+        st.divider()
+        st.subheader("🎯 Target AI Optimizer")
+        
+        target_type = st.selectbox("Tipe Tanaman", 
+                                    ["Vegetatif (Daun)", "Generatif (Bunga/Buah)", "Balanced"],
+                                    help="AI akan optimize NPK sesuai fase tanaman")
+        
+        budget_limit = st.number_input("Budget Maksimal (Rp)", value=50000, min_value=0, step=5000,
+                                        help="AI akan cari kombinasi paling efisien dalam budget")
+        
+        prefer_organic = st.slider("Preferensi Organik (%)", 0, 100, 50,
+                                     help="0% = Full Kimia, 100% = Full Organik")
+        
+        if st.button("🚀 Generate Formula AI", type="primary", use_container_width=True):
+            st.session_state['ai_generated'] = True
+            st.session_state['target_type'] = target_type
+            st.session_state['budget_limit'] = budget_limit
+            st.session_state['prefer_organic'] = prefer_organic
+            st.rerun()
     # Template selection
     template = st.selectbox("Pilih Template Resep", list(TEMPLATES.keys()))
     
@@ -164,6 +188,72 @@ with st.sidebar:
                 if qty > 0:
                     inputs[material] = qty
                     custom_prices[material] = price
+
+# AI Optimizer Logic
+if st.session_state.get('ai_generated', False):
+    target_type = st.session_state.get('target_type', 'Balanced')
+    budget = st.session_state.get('budget_limit', 50000)
+    organic_pref = st.session_state.get('prefer_organic', 50)
+    
+    st.info(f"🤖 **AI Optimizer Aktif:** Target {target_type}, Budget Rp {budget:,}, Preferensi Organik {organic_pref}%")
+    
+    # AI Logic: Smart material selection based on target
+    ai_inputs = {}
+    ai_prices = {}
+    
+    # Base: Always add molase + dekomposer
+    ai_inputs["Molase (Tetes Tebu)"] = 1.5
+    ai_inputs["Dekomposer (EM4/MOL)"] = 0.5
+    ai_prices["Molase (Tetes Tebu)"] = MATERIALS["Tambahan"]["Molase (Tetes Tebu)"]["price"]
+    ai_prices["Dekomposer (EM4/MOL)"] = MATERIALS["Tambahan"]["Dekomposer (EM4/MOL)"]["price"]
+    
+    remaining_budget = budget - (ai_inputs["Molase (Tetes Tebu)"] * ai_prices["Molase (Tetes Tebu)"]) - (ai_inputs["Dekomposer (EM4/MOL)"] * ai_prices["Dekomposer (EM4/MOL)"])
+    
+    if organic_pref >= 70:  # High organic preference
+        if target_type == "Vegetatif (Daun)":
+            ai_inputs["Urine Kelinci"] = min(20, remaining_budget / 100)
+            ai_inputs["Daun Kelor"] = min(5, (remaining_budget - 20*100) / 3000)
+        elif target_type == "Generatif (Bunga/Buah)":
+            ai_inputs["Bonggol Pisang"] = min(8, remaining_budget / 1000)
+            ai_inputs["Kulit Pisang (cacahan)"] = min(5, (remaining_budget - 8000) / 1500)
+        else:  # Balanced
+            ai_inputs["Urine Sapi"] = min(15, remaining_budget / 100)
+            ai_inputs["Sabut Kelapa (fermentasi)"] = min(5, (remaining_budget - 1500) / 2000)
+    elif organic_pref <= 30:  # High chemical preference
+        if target_type == "Vegetatif (Daun)":
+            ai_inputs["Urea (46-0-0)"] = min(0.5, remaining_budget / 2500)
+            ai_inputs["NPK Phonska (15-15-15)"] = min(1.0, (remaining_budget - 1250) / 2400)
+        elif target_type == "Generatif (Bunga/Buah)":
+            ai_inputs["KCl (0-0-60)"] = min(0.5, remaining_budget / 3500)
+            ai_inputs["NPK Pelangi (15-9-20)"] = min(1.0, (remaining_budget - 1750) / 2500)
+        else:  # Balanced
+            ai_inputs["NPK Phonska (15-15-15)"] = min(1.5, remaining_budget / 2400)
+    else:  # Mixed (50/50)
+        if target_type == "Vegetatif (Daun)":
+            ai_inputs["Urine Kelinci"] = min(10, remaining_budget * 0.3 / 100)
+            ai_inputs["Daun Kelor"] = min(3, remaining_budget * 0.3 / 3000)
+            ai_inputs["Urea (46-0-0)"] = min(0.3, remaining_budget * 0.4 / 2500)
+        elif target_type == "Generatif (Bunga/Buah)":
+            ai_inputs["Bonggol Pisang"] = min(5, remaining_budget * 0.3 / 1000)
+            ai_inputs["KCl (0-0-60)"] = min(0.3, remaining_budget * 0.4 / 3500)
+            ai_inputs["NPK Pelangi (15-9-20)"] = min(0.5, remaining_budget * 0.3 / 2500)
+        else:  # Balanced
+            ai_inputs["Urine Sapi"] = min(10, remaining_budget * 0.3 / 100)
+            ai_inputs["NPK Phonska (15-15-15)"] = min(0.8, remaining_budget * 0.4 / 2400)
+            ai_inputs["Sabut Kelapa (fermentasi)"] = min(3, remaining_budget * 0.3 / 2000)
+    
+    # Update inputs and prices with AI recommendations
+    for material, qty in ai_inputs.items():
+        if qty > 0:
+            inputs[material] = qty
+            # Find price
+            for cat_materials in MATERIALS.values():
+                if material in cat_materials:
+                    custom_prices[material] = cat_materials[material]["price"]
+                    break
+    
+    # Clear AI flag
+    st.session_state['ai_generated'] = False
 
 # Main Content
 if inputs:
