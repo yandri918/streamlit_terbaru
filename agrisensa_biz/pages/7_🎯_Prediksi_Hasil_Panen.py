@@ -120,6 +120,10 @@ SOIL_TEXTURES = {
 # 🧮 SIMULATION ENGINE
 # ================================
 
+# ================================
+# 🧮 SIMULATION ENGINE
+# ================================
+
 def gaussian_curve(val, optimal, sigma=1.0):
     """Bell curve response: 1.0 at optimal, drops as you move away"""
     # Simply: e^(-0.5 * ((x-mu)/sig)^2)
@@ -135,6 +139,10 @@ def saturation_curve(val, optimal):
     k = 4.0 / optimal 
     return 1 - np.exp(-k * val)
 
+def sigmoid_curve(val, max_boost=1.1, midpoint=50):
+    """S-curve for organic/bio boosters (diminishing returns)"""
+    return 1 + (max_boost - 1) / (1 + np.exp(-0.1 * (val - midpoint)))
+
 def run_simulation(crop, variety, texture_key, params):
     # Get base potential
     crop_data = CROP_DB[crop]
@@ -146,23 +154,38 @@ def run_simulation(crop, variety, texture_key, params):
     # Soil Texture Impact
     texture = SOIL_TEXTURES[texture_key]
     
+    # --- ORGANIC & BIO AMENDMENTS IMPACT ---
+    # Organic Solid improves Texture (Water retention & Nutrient Holding)
+    org_solid_factor = 1.0 + (params.get('org_solid', 0) / 10000) * 0.2 # Max 20% improvement at 10ton/ha
+    
+    current_water_retention = min(1.0, texture['water_retention'] * org_solid_factor)
+    current_nutrient_holding = min(1.2, texture['nutrient_holding'] * org_solid_factor)
+    
+    # Organic Liquid/POC acts as immediate nutrient efficiency booster
+    poc_eff_boost = 1.0 + (params.get('org_liquid', 0) / 100) * 0.15 # Max 15% efficiency boost at 100L/ha
+
     # 1. Nutrient Factors (Saturation Curve)
-    # Effective N = Input N * Soil Holding Cap
-    eff_n = params['n'] * texture['nutrient_holding']
+    # Effective N = Input N * Soil Holding Cap * POC Boost
+    eff_n = params['n'] * current_nutrient_holding * poc_eff_boost
     score_n = saturation_curve(eff_n, opt['n'])
     
-    eff_p = params['p'] * texture['nutrient_holding']
+    eff_p = params['p'] * current_nutrient_holding * poc_eff_boost
     score_p = saturation_curve(eff_p, opt['p'])
     
-    eff_k = params['k'] * texture['nutrient_holding']
+    eff_k = params['k'] * current_nutrient_holding * poc_eff_boost
     score_k = saturation_curve(eff_k, opt['k'])
+    
+    # Micro Nutrients (Generic Handling)
+    # If micro is low, it caps the max yield (Law of Minimum)
+    micro_application_pct = params.get('micro_pct', 50) # Default 50% sufficiency if not specified
+    score_micro = 0.5 + (micro_application_pct / 200) # 0% app -> 0.5 score, 100% app -> 1.0 score
     
     # 2. Environmental Factors (Gaussian)
     score_ph = gaussian_curve(params['ph'], opt['ph'])
     score_temp = gaussian_curve(params['temp'], opt['temp'])
     
     # 3. Water (Linear with penalty)
-    eff_water = params['rain'] * texture['water_retention']
+    eff_water = params['rain'] * current_water_retention
     if eff_water < opt['water'] * 0.5:
         score_water = 0.4 + (eff_water / opt['water']) * 0.6
     elif eff_water > opt['water'] * 1.5:
@@ -171,10 +194,10 @@ def run_simulation(crop, variety, texture_key, params):
         score_water = 1.0
         
     # LIEBIG'S LAW OF THE MINIMUM (Modified)
-    # Yield is determined mostly by the lowest limiting factor, but averaged slightly
     factors = {
         "Nitrogen": score_n, "Fosfor": score_p, "Kalium": score_k,
-        "pH Tanah": score_ph, "Air/Curah Hujan": score_water, "Suhu": score_temp
+        "Nutrisi Mikro": score_micro,
+        "pH Tanah": score_ph, "Air": score_water, "Suhu": score_temp
     }
     
     limiting_factor_val = min(factors.values())
@@ -183,8 +206,29 @@ def run_simulation(crop, variety, texture_key, params):
     # Hybrid model: 70% Law of Min, 30% Average
     final_yield_pct = (limiting_factor_val * 0.7) + (avg_factor_val * 0.3)
     
+    # --- BOOSTERS & HORMONES (Multipliers) ---
+    # Hormones (ZPT) - can push beyond 100% potential (genetic expression maximization)
+    # Modeled as Gaussian: Optimal dose gives bonus, overdose crashes yield
+    hormone_dose = params.get('zpt_ppm', 0)
+    # Assume optimal is around 50-100 ppm depending on type, simplified here
+    if hormone_dose > 0:
+        # Peak at 100ppm gives 1.1x multiplier. >200ppm starts dropping.
+        hormone_multiplier = 1.0 + (0.15 * np.exp(-0.5 * ((hormone_dose - 75) / 40)**2))
+    else:
+        hormone_multiplier = 1.0
+        
+    # Booster (e.g. Kalium Booster for fruit phase)
+    # Modeled as Sigmoid - steady increase
+    booster_kg = params.get('booster_kg', 0)
+    booster_multiplier = 1.0 + (0.1 * (1 - np.exp(-0.1 * booster_kg))) # Max 10% boost
+    
+    final_yield_pct = final_yield_pct * hormone_multiplier * booster_multiplier
+    
     # Variety resilience bonus
-    final_yield_pct = min(1.0, final_yield_pct * (0.9 + (var_data['resilience'] * 0.1)))
+    final_yield_pct = final_yield_pct * (0.9 + (var_data['resilience'] * 0.1))
+    
+    # Cap at 130% of standard potential (genetic breakdown limit)
+    final_yield_pct = min(1.3, final_yield_pct)
     
     predicted_kg = potential * final_yield_pct
     
@@ -193,7 +237,13 @@ def run_simulation(crop, variety, texture_key, params):
         "yield_pct": final_yield_pct * 100,
         "factors": factors,
         "limiting_factor": min(factors, key=factors.get),
-        "potential_kg": potential
+        "potential_kg": potential,
+        "multipliers": {
+            "zpt": hormone_multiplier,
+            "booster": booster_multiplier,
+            "organic_solid": org_solid_factor,
+            "organic_liquid": poc_eff_boost
+        }
     }
 
 # ================================
@@ -202,6 +252,7 @@ def run_simulation(crop, variety, texture_key, params):
 
 st.title("🎯 Advanced Harvest Forecast & Simulator")
 st.markdown("### Simulasi Cerdas Berbasis Machine Learning & Ekonomi")
+st.info("💡 **Tips:** Gunakan tab 'What-If Simulator' untuk bereksperimen dengan kombinasi pupuk, hormon, dan booster.")
 
 # --- SIDEBAR INPUTS ---
 with st.sidebar:
@@ -219,14 +270,15 @@ with st.sidebar:
     def_opt = CROP_DB[s_crop]['optimal']
     
     i_ph = st.slider("pH Tanah", 3.0, 10.0, 6.0, 0.1)
-    i_temp = st.slider("Suhu Rata-rata (°C)", 15, 40, 28)
+    i_temp = st.slider("Suhu Rata-rata (°C)", 15, 40, int(def_opt.get('temp', 28)))
     i_rain = st.number_input("Curah Hujan (mm/musim)", 0, 5000, 1200)
     
-    st.info("👇 Masukkan hasil uji lab tanah:")
+    st.markdown("---")
+    st.markdown("**🧪 Input Nutrisi Dasar**")
     c_n, c_p, c_k = st.columns(3)
-    i_n = c_n.number_input("N (kg/ha)", 0, 500, int(def_opt['n']*0.5))
-    i_p = c_p.number_input("P (kg/ha)", 0, 300, int(def_opt['p']*0.5))
-    i_k = c_k.number_input("K (kg/ha)", 0, 300, int(def_opt['k']*0.5))
+    i_n = c_n.number_input("Urea/N (kg)", 0, 1000, int(def_opt['n']*0.5))
+    i_p = c_p.number_input("SP36/P (kg)", 0, 1000, int(def_opt['p']*0.5))
+    i_k = c_k.number_input("KCl/K (kg)", 0, 1000, int(def_opt['k']*0.5))
     
     btn_predict = st.button("🚀 Jalankan Analisis", type="primary", use_container_width=True)
 
@@ -235,7 +287,9 @@ with st.sidebar:
 # Initial params
 params = {
     "area_ha": s_area, "ph": i_ph, "temp": i_temp, "rain": i_rain,
-    "n": i_n, "p": i_p, "k": i_k
+    "n": i_n, "p": i_p, "k": i_k,
+    # Defaults for initial run
+    "org_solid": 0, "org_liquid": 0, "micro_pct": 50, "zpt_ppm": 0, "booster_kg": 0
 }
 
 # Run Simulation
@@ -267,7 +321,7 @@ with tab_sim:
         ))
         fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True, range_r=[0, 1.2])
         fig.update_traces(fill='toself')
-        fig.update_layout(title="Profil Kesehatan Lahan")
+        fig.update_layout(title="Profil Kesehatan Lahan & Nutrisi")
         st.plotly_chart(fig, use_container_width=True)
         
     with c_insight:
@@ -282,11 +336,14 @@ with tab_sim:
         if factors['Nitrogen'] < 0.7:
              recos.append("🟠 **Defisiensi N**: Tambahkan Urea 100kg/ha fase vegetatif.")
         
-        if factors['Air/Curah Hujan'] < 0.6:
+        if factors['Nutrisi Mikro'] < 0.8:
+            recos.append("🟡 **Mikro Rendah**: Aplikasikan pupuk daun mikro lengkap.")
+
+        if factors['Air'] < 0.6:
             recos.append("🔵 **Kekurangan Air**: Wajib irigasi pompa 2x seminggu.")
             
         if not recos:
-            st.success("✅ Kondisi lahan cukup optimal! Lakukan pemupukan berimbang.")
+            st.success("✅ Kondisi lahan cukup optimal! Lakukan pemupukan berimbang atau gunakan Booster.")
         else:
             for r in recos: st.markdown(r)
             
@@ -322,46 +379,91 @@ with tab_eco:
     st.plotly_chart(fig_waterfall, use_container_width=True)
 
 with tab_whatif:
-    st.header("🧪 Lab Simulasi Interaktif")
-    st.markdown("Geser slider untuk melihat bagaimana **perubahan input** mempengaruhi hasil panen secara real-time.")
+    st.header("🧪 Lab Simulasi Interaktif Power-Up")
+    st.write("Eksperimen dengan **Teknologi Input Lanjutan** untuk melihat potensi maksimal panen.")
     
-    wc1, wc2 = st.columns([1, 2])
+    # Layout with cols
+    col_input, col_res = st.columns([1, 1.5])
     
-    with wc1:
-        st.caption("🎮 Kontrol Simulator")
-        sim_n = st.slider("➕ Tambah Pupuk N (kg)", 0, 500, i_n)
-        sim_p = st.slider("➕ Tambah Pupuk P (kg)", 0, 300, i_p)
-        sim_water = st.slider("💧 Irigasi Tambahan (mm)", 0, 1000, 0)
+    with col_input:
+        st.markdown("#### 1️⃣ Nutrisi Makro & Mikro")
+        w_n = st.slider("➕ Tambah N (kg)", 0, 300, 0, help="Tambahan Urea/ZA")
+        w_p = st.slider("➕ Tambah P (kg)", 0, 200, 0, help="Tambahan SP36/DAP")
+        w_k = st.slider("➕ Tambah K (kg)", 0, 200, 0, help="Tambahan KCl/ZK")
+        w_micro = st.slider("✨ Kecukupan Mikro (%)", 0, 100, 50, help="Zn, Fe, Mn, Cu, dll.")
         
-    with wc2:
+        st.divider()
+        st.markdown("#### 2️⃣ Organik & Hayati")
+        w_org_solid = st.slider("🍂 Organik Padat (kg)", 0, 20000, 0, step=500, help="Kompos/Kohe. Memperbaiki tekstur tanah.")
+        w_org_liq = st.slider("🧴 Organik Cair / POC (Liter)", 0, 500, 0, step=10, help="Booster efisiensi serapan hara.")
+
+        st.divider()
+        st.markdown("#### 3️⃣ Hormon & Booster")
+        w_zpt = st.slider("🧬 Hormon ZPT (ppm)", 0, 200, 0, help="Auksin/Giberelin/Sitokinin. Hati-hati overdosis!")
+        w_boost = st.slider("💊 Booster Buah/Umbi (kg)", 0, 50, 0, help="Pupuk khusus fase generatif (e.g., MKP/KNO3).")
+
+    with col_res:
         # Re-run logic for simulator
         sim_params = params.copy()
-        sim_params['n'] = sim_n
-        sim_params['p'] = sim_p
-        sim_params['rain'] += sim_water
+        
+        # Additive updates to base params
+        sim_params['n'] += w_n
+        sim_params['p'] += w_p
+        sim_params['k'] += w_k
+        
+        # New params override
+        sim_params['micro_pct'] = w_micro
+        sim_params['org_solid'] = w_org_solid
+        sim_params['org_liquid'] = w_org_liq
+        sim_params['zpt_ppm'] = w_zpt
+        sim_params['booster_kg'] = w_boost
         
         sim_res = run_simulation(s_crop, s_var, s_grad, sim_params)
         
-        delta_yield = sim_res['yield_kg'] - res['yield_kg']
-        delta_rev = delta_yield * price_est
+        delta_kg = sim_res['yield_kg'] - res['yield_kg']
+        delta_rev = delta_kg * price_est
         
-        # Display Result
-        st.subheader("Hasil Simulasi:")
+        # Cost Estimator for Simulation Inputs (Rough estimates)
+        cost_inputs = (w_n * 5000) + (w_p * 6000) + (w_k * 15000) + \
+                      (w_org_solid * 1000) + (w_org_liq * 25000) + \
+                      (w_zpt * 1000) + (w_boost * 35000)
+                      
+        net_profit_delta = delta_rev - cost_inputs
+
+        st.subheader("📊 Hasil Prediksi Real-Time")
         
-        sm1, sm2 = st.columns(2)
-        sm1.metric("Prediksi Baru", f"{sim_res['yield_kg']:,.0f} kg", f"{delta_yield:+,.0f} kg")
-        sm2.metric("Tambahan Omzet", f"Rp {sim_res['yield_kg']*price_est:,.0f}", f"Rp {delta_rev:+,.0f}")
+        met1, met2, met3 = st.columns(3)
+        met1.metric("Hasil Panen Baru", f"{sim_res['yield_kg']:,.0f} kg", f"{delta_kg:+,.0f} kg")
+        met2.metric("Nilai Tambah (Gross)", f"Rp {delta_rev:+,.0f}", help="Belum dikurangi biaya input simulasi")
+        met3.metric("Net Profit Tambahan", f"Rp {net_profit_delta:,.0f}", delta_color="normal" if net_profit_delta >= 0 else "inverse")
         
-        # Progress Bar Comparison
-        st.write("Perbandingan Efisiensi:")
-        st.progress(int(res['yield_pct']))
-        st.caption(f"Awal: {res['yield_pct']:.1f}%")
-        st.progress(int(sim_res['yield_pct']))
-        st.caption(f"Simulasi: {sim_res['yield_pct']:.1f}%")
+        st.caption(f"estimasi biaya input tambahan: Rp {cost_inputs:,.0f}")
         
-        if delta_yield > 0:
-            st.success(f"🔥 Skenario ini meningkatkan hasil sebesar **{delta_yield:,.0f} kg**!")
-        elif delta_yield < 0:
-            st.error("⚠️ Over-dosis! Penambahan input berlebih justru menurunkan hasil (Hukum Diminishing Return).")
-        else:
-            st.warning("Tidak ada perubahan signifikan.")
+        # Progress Bar Visualization
+        st.write("---")
+        st.write("**Perbandingan Performance (% Potensi Genetik):**")
+        
+        col_bar_lbl, col_bar_val = st.columns([1,3])
+        with col_bar_lbl: st.write("Awal")
+        with col_bar_val: st.progress(int(min(100, res['yield_pct'])))
+        
+        col_bar_lbl2, col_bar_val2 = st.columns([1,3])
+        with col_bar_lbl2: st.write("Simulasi")
+        with col_bar_val2: 
+            p_val = int(min(100, sim_res['yield_pct']))
+            st.progress(p_val)
+            if sim_res['yield_pct'] > 100:
+                st.caption(f"🚀 **SUPER-OPTIMAL!** ({sim_res['yield_pct']:.1f}%) - ZPT & Booster efektif.")
+        
+        # Diagnostics
+        with st.expander("🔍 Analisis Dampak Input (Diagnostics)"):
+            mults = sim_res['multipliers']
+            st.write(f"- **Efek Organik Padat (Perbaikan Tanah):** +{(mults['organic_solid']-1)*100:.1f}%")
+            st.write(f"- **Efek Organik Cair (Efisiensi Hara):** +{(mults['organic_liquid']-1)*100:.1f}%")
+            
+            zpt_effect = (mults['zpt']-1)*100
+            if zpt_effect > 0: st.write(f"- **Efek Hormon ZPT:** 🟢 +{zpt_effect:.1f}% (Boost)")
+            elif zpt_effect < 0: st.write(f"- **Efek Hormon ZPT:** 🔴 {zpt_effect:.1f}% (Overdosis!)")
+            else: st.write("- **Efek Hormon ZPT:** Netral")
+            
+            st.write(f"- **Efek Booster Buah:** +{(mults['booster']-1)*100:.1f}%")
