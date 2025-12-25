@@ -1106,12 +1106,12 @@ with tab2:
     col_prod1, col_prod2, col_prod3 = st.columns(3)
     
     with col_prod1:
-        num_drums = st.number_input("Jumlah Drum (1000L)", value=4, min_value=1, max_value=20, step=1)
-        fermentation_days = st.number_input("Lama Fermentasi (hari)", value=14, min_value=7, max_value=30, step=1)
+        num_drums = st.number_input("Jumlah Drum (1000L)", value=4, min_value=1, max_value=20, step=1, key="biz_num_drums")
+        fermentation_days = st.number_input("Lama Fermentasi (hari)", value=14, min_value=7, max_value=30, step=1, key="biz_fermentation_days")
     
     with col_prod2:
-        cycles_per_month = st.number_input("Siklus per Bulan", value=2, min_value=1, max_value=4, step=1)
-        capacity_utilization = st.slider("Utilisasi Kapasitas (%)", 30, 100, 70, 5)
+        cycles_per_month = st.number_input("Siklus per Bulan", value=2, min_value=1, max_value=4, step=1, key="biz_cycles")
+        capacity_utilization = st.slider("Utilisasi Kapasitas (%)", 30, 100, 70, 5, key="biz_capacity")
     
     with col_prod3:
         monthly_capacity = num_drums * 1000 * cycles_per_month * (capacity_utilization / 100)
@@ -1157,17 +1157,17 @@ with tab2:
         st.markdown("**🔧 Biaya Tetap (Fixed Costs)**")
         
         # Equipment
-        drum_price = st.number_input("Harga Drum 1000L", value=2500000, step=100000)
-        mixer_price = st.number_input("Mixer/Aerator", value=1500000, step=100000)
-        equipment_other = st.number_input("Peralatan Lain", value=2000000, step=100000)
+        drum_price = st.number_input("Harga Drum 1000L", value=2500000, step=100000, key="biz_drum_price")
+        mixer_price = st.number_input("Mixer/Aerator", value=1500000, step=100000, key="biz_mixer_price")
+        equipment_other = st.number_input("Peralatan Lain", value=2000000, step=100000, key="biz_equipment_other")
         
         total_equipment = (drum_price * num_drums) + mixer_price + equipment_other
         
         # Facility
-        monthly_rent = st.number_input("Sewa Tempat/Bulan", value=2000000, step=100000)
+        monthly_rent = st.number_input("Sewa Tempat/Bulan", value=2000000, step=100000, key="biz_rent")
         
         # Licensing
-        licensing = st.number_input("Izin & Sertifikasi", value=2000000, step=100000)
+        licensing = st.number_input("Izin & Sertifikasi", value=2000000, step=100000, key="biz_licensing")
         
         total_fixed_initial = total_equipment + licensing
         monthly_fixed = monthly_rent + (total_equipment / 60)  # Depreciation 5 years
@@ -1184,17 +1184,17 @@ with tab2:
         raw_material_cost = avg_cost_per_liter * monthly_capacity
         
         # Packaging
-        packaging_1l = st.number_input("Kemasan 1L (Rp/unit)", value=2000, step=100)
-        packaging_5l = st.number_input("Kemasan 5L (Rp/unit)", value=8000, step=500)
+        packaging_1l = st.number_input("Kemasan 1L (Rp/unit)", value=2000, step=100, key="biz_pack_1l")
+        packaging_5l = st.number_input("Kemasan 5L (Rp/unit)", value=8000, step=500, key="biz_pack_5l")
         
         # Labor
-        labor_cost = st.number_input("Gaji Karyawan Total", value=7500000, step=500000)
+        labor_cost = st.number_input("Gaji Karyawan Total", value=7500000, step=500000, key="biz_labor")
         
         # Utilities
-        utilities = st.number_input("Listrik + Air + Gas", value=1000000, step=100000)
+        utilities = st.number_input("Listrik + Air + Gas", value=1000000, step=100000, key="biz_utilities")
         
         # Marketing
-        marketing_pct = st.slider("Marketing Budget (% Revenue)", 5, 20, 10, 1)
+        marketing_pct = st.slider("Marketing Budget (% Revenue)", 5, 20, 10, 1, key="biz_marketing_pct")
         
         total_operational_base = raw_material_cost + labor_cost + utilities
         
@@ -1211,7 +1211,7 @@ with tab2:
     
     with col_price1:
         st.markdown("**📊 Margin & Harga**")
-        margin_pct = st.slider("Target Margin (%)", 30, 150, 100, 10)
+        margin_pct = st.slider("Target Margin (%)", 30, 150, 100, 10, key="biz_margin")
         
         # Calculate selling price
         price_1l = avg_cost_per_liter * (1 + margin_pct/100)
@@ -1224,7 +1224,7 @@ with tab2:
     
     with col_price2:
         st.markdown("**📦 Packaging Mix**")
-        packaging_1l_pct = st.slider("Kemasan 1L (%)", 0, 100, 40, 5)
+        packaging_1l_pct = st.slider("Kemasan 1L (%)", 0, 100, 40, 5, key="biz_pack_1l_pct")
         packaging_5l_pct = 100 - packaging_1l_pct
         
         st.info(f"""
@@ -1234,7 +1234,7 @@ with tab2:
     
     with col_price3:
         st.markdown("**💼 Benchmark Pasar**")
-        commercial_poc_price = st.number_input("POC Komersial (Rp/L)", value=50000, step=5000)
+        commercial_poc_price = st.number_input("POC Komersial (Rp/L)", value=50000, step=5000, key="biz_commercial_price")
         
         price_vs_market = ((price_1l - commercial_poc_price) / commercial_poc_price) * 100
         
