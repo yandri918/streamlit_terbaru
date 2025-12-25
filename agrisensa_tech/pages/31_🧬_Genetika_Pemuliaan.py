@@ -2235,13 +2235,28 @@ with tab_tools:
             'Pioneer 21': {'Umur': 103, 'Hasil': 12, 'DM': 'T', 'Borer': 'T', 'Tipe': 'Hybrid', 'Harga': 'Mahal'},
             'NK 212': {'Umur': 98, 'Hasil': 10.5, 'DM': 'T', 'Borer': 'AT', 'Tipe': 'Hybrid', 'Harga': 'Mahal'},
             'Bisma': {'Umur': 98, 'Hasil': 6.5, 'DM': 'AT', 'Borer': 'R', 'Tipe': 'OP', 'Harga': 'Murah'},
+        },
+        'Kedelai': {
+            'Anjasmoro': {'Umur': 87, 'Hasil': 2.3, 'Karat': 'T', 'Ukuran': 'Besar', 'Tipe': 'OP'},
+            'Grobogan': {'Umur': 76, 'Hasil': 3.4, 'Karat': 'AT', 'Ukuran': 'Sangat Besar', 'Tipe': 'OP'},
+            'Dena 1': {'Umur': 78, 'Hasil': 2.9, 'Karat': 'T', 'Ukuran': 'Sedang', 'Tipe': 'OP (Tahan Naungan)'}
+        },
+        'Cabai Merah': {
+            'Lado F1': {'Umur': 115, 'Hasil': 18, 'Layu': 'T', 'Pedas': 'Sedang', 'Tipe': 'Hybrid'},
+            'PM 99': {'Umur': 105, 'Hasil': 25, 'Layu': 'T', 'Pedas': 'Pedas', 'Tipe': 'Hybrid'},
+            'Laba': {'Umur': 95, 'Hasil': 16, 'Layu': 'AT', 'Pedas': 'Sangat Pedas', 'Tipe': 'OP'}
+        },
+        'Bawang Merah': {
+            'Bima Brebes': {'Umur': 60, 'Hasil': 10, 'Hujan': 'R', 'Warna': 'Merah Tua', 'Tipe': 'Lokal'},
+            'Bauji': {'Umur': 58, 'Hasil': 12, 'Hujan': 'T', 'Warna': 'Merah Pucat', 'Tipe': 'Lokal'},
+            'Pikatan': {'Umur': 55, 'Hasil': 11, 'Hujan': 'AT', 'Warna': 'Merah', 'Tipe': 'Lokal'}
         }
     }
     
     col1, col2 = st.columns(2)
     
     with col1:
-        crop_type = st.selectbox("Pilih Komoditas:", ['Padi', 'Jagung'])
+        crop_type = st.selectbox("Pilih Komoditas:", list(variety_db.keys()))
     
     with col2:
         varieties = list(variety_db[crop_type].keys())
@@ -2260,64 +2275,48 @@ with tab_tools:
             comparison_data.append(data)
         
         df_comparison = pd.DataFrame(comparison_data)
-        df_comparison = df_comparison[['Varietas'] + [col for col in df_comparison.columns if col != 'Varietas']]
+        # Reorder columns
+        cols = ['Varietas'] + [c for c in df_comparison.columns if c != 'Varietas']
+        df_comparison = df_comparison[cols]
         
         st.dataframe(df_comparison, use_container_width=True)
         
         # Visualization
-        if crop_type == 'Padi':
-            fig = go.Figure()
-            fig.add_trace(go.Bar(
-                name='Hasil (ton/ha)',
-                x=selected_vars,
-                y=[variety_db[crop_type][v]['Hasil'] for v in selected_vars],
-                marker_color='lightblue'
-            ))
-            fig.add_trace(go.Bar(
-                name='Umur (hari/10)',
-                x=selected_vars,
-                y=[variety_db[crop_type][v]['Umur']/10 for v in selected_vars],
-                marker_color='lightgreen'
-            ))
-            fig.add_trace(go.Bar(
-                name='Kualitas (%/10)',
-                x=selected_vars,
-                y=[variety_db[crop_type][v]['Kualitas']/10 for v in selected_vars],
-                marker_color='lightyellow'
-            ))
-            
-            fig.update_layout(
-                title='Perbandingan Varietas Padi',
-                xaxis_title='Varietas',
-                yaxis_title='Nilai',
-                barmode='group',
-                height=400
-            )
-            st.plotly_chart(fig, use_container_width=True)
+        fig = go.Figure()
         
-        else:  # Jagung
-            fig = go.Figure()
+        # Generic Yield Bar (Almost all have 'Hasil')
+        if 'Hasil' in variety_db[crop_type][selected_vars[0]]:
             fig.add_trace(go.Bar(
-                name='Hasil (ton/ha)',
+                name=f'Hasil (ton/ha)',
                 x=selected_vars,
                 y=[variety_db[crop_type][v]['Hasil'] for v in selected_vars],
-                marker_color='orange'
-            ))
-            fig.add_trace(go.Bar(
-                name='Umur (hari/10)',
-                x=selected_vars,
-                y=[variety_db[crop_type][v]['Umur']/10 for v in selected_vars],
-                marker_color='yellow'
+                marker_color='#3b82f6'
             ))
             
-            fig.update_layout(
-                title='Perbandingan Varietas Jagung',
-                xaxis_title='Varietas',
-                yaxis_title='Nilai',
-                barmode='group',
-                height=400
-            )
-            st.plotly_chart(fig, use_container_width=True)
+        # Generic Duration Bar (Almost all have 'Umur')
+        if 'Umur' in variety_db[crop_type][selected_vars[0]]:
+            # Scale Factor for visualization if needed (e.g. days vs ton)
+            # For Padi/Jagung (100 days vs 6 tons), scaling by 10 makes sense visually
+            # For Chili (100 days vs 20 tons), scaling by 5 is better
+            scale = 10
+            if crop_type in ['Cabai Merah', 'Bawang Merah']: scale = 5
+            
+            fig.add_trace(go.Bar(
+                name=f'Umur (hari/{scale})',
+                x=selected_vars,
+                y=[variety_db[crop_type][v]['Umur']/scale for v in selected_vars],
+                marker_color='#10b981'
+            ))
+            
+        fig.update_layout(
+            title=f'Perbandingan Varietas {crop_type}',
+            xaxis_title='Varietas',
+            yaxis_title='Nilai Relatif',
+            barmode='group',
+            height=400,
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        )
+        st.plotly_chart(fig, use_container_width=True)
     
     st.markdown("---")
     
