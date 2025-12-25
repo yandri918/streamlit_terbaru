@@ -167,23 +167,25 @@ with st.sidebar:
 
 # Main Content
 if inputs:
-    # Calculate total nutrients
-    total_N = 0
-    total_P = 0
-    total_K = 0
-    total_C = 0
-    total_cost = 0
-    total_solid = 0
-    total_liquid = 0
+    # Calculate total nutrients - separated by source
+    # Organic sources
+    organic_N = organic_P = organic_K = organic_C = organic_cost = 0
+    # Chemical sources  
+    chemical_N = chemical_P = chemical_K = chemical_cost = 0
+    # Combined totals
+    total_N = total_P = total_K = total_C = total_cost = 0
+    total_solid = total_liquid = 0
     
     material_breakdown = []
     
     for material, qty in inputs.items():
-        # Find material props
+        # Find material props and category
         props = None
-        for cat_materials in MATERIALS.values():
+        category = None
+        for cat_name, cat_materials in MATERIALS.items():
             if material in cat_materials:
                 props = cat_materials[material]
+                category = cat_name
                 break
         
         if props:
@@ -197,6 +199,22 @@ if inputs:
             material_price = custom_prices.get(material, props['price'])
             cost = qty * material_price
             
+            # Categorize as organic or chemical
+            is_chemical = (category == "Pupuk Kimia (Fermentasi)")
+            
+            if is_chemical:
+                chemical_N += n_contrib
+                chemical_P += p_contrib
+                chemical_K += k_contrib
+                chemical_cost += cost
+            else:
+                organic_N += n_contrib
+                organic_P += p_contrib
+                organic_K += k_contrib
+                organic_C += c_contrib
+                organic_cost += cost
+            
+            # Add to totals
             total_N += n_contrib
             total_P += p_contrib
             total_K += k_contrib
@@ -209,6 +227,7 @@ if inputs:
                 total_liquid += qty
             
             material_breakdown.append({
+                "Kategori": "🧪 Kimia" if is_chemical else "🌿 Organik",
                 "Bahan": material,
                 "Jumlah": f"{qty} {props['unit']}",
                 "Harga Satuan": f"Rp {material_price:,.0f}",
@@ -273,6 +292,46 @@ if inputs:
         st.metric("Total Biaya POC", f"Rp {total_cost_with_water:,.0f}", 
                  delta=f"Rp {total_cost_with_water/target_volume:.0f}/L",
                  help="Biaya bahan + air per liter POC")
+    
+    # 3-Way Comparison: Organic vs Chemical vs Combined
+    st.markdown("---")
+    st.subheader("📊 Perbandingan Kontribusi Hara")
+    
+    # Calculate percentages for each source
+    organic_n_pct = (organic_N / target_volume) * 100
+    organic_p_pct = (organic_P / target_volume) * 100
+    organic_k_pct = (organic_K / target_volume) * 100
+    
+    chemical_n_pct = (chemical_N / target_volume) * 100
+    chemical_p_pct = (chemical_P / target_volume) * 100
+    chemical_k_pct = (chemical_K / target_volume) * 100
+    
+    # Create comparison dataframe
+    comparison_data = {
+        "Sumber": ["🌿 Organik", "🧪 Kimia", "🔄 Gabungan"],
+        "N (%)": [f"{organic_n_pct:.2f}", f"{chemical_n_pct:.2f}", f"{n_pct:.2f}"],
+        "P (%)": [f"{organic_p_pct:.2f}", f"{chemical_p_pct:.2f}", f"{p_pct:.2f}"],
+        "K (%)": [f"{organic_k_pct:.2f}", f"{chemical_k_pct:.2f}", f"{k_pct:.2f}"],
+        "C-Organik (%)": [f"{(organic_C/target_volume)*100:.1f}", "0.0", f"{c_pct:.1f}"],
+        "Biaya": [f"Rp {organic_cost:,.0f}", f"Rp {chemical_cost:,.0f}", f"Rp {total_cost:,.0f}"]
+    }
+    df_comparison = pd.DataFrame(comparison_data)
+    
+    col_comp1, col_comp2 = st.columns([2, 1])
+    
+    with col_comp1:
+        st.dataframe(df_comparison, use_container_width=True, hide_index=True)
+    
+    with col_comp2:
+        st.markdown("**💡 Insight:**")
+        if chemical_N > 0 or chemical_P > 0 or chemical_K > 0:
+            st.info(f"""
+            - Organik: {(organic_cost/total_cost*100):.1f}% biaya
+            - Kimia: {(chemical_cost/total_cost*100):.1f}% biaya
+            - Kombinasi memberikan NPK lebih tinggi
+            """)
+        else:
+            st.success("100% Organik - Ramah lingkungan!")
     
     # NPK Ratio & C/N Ratio
     st.markdown("---")
