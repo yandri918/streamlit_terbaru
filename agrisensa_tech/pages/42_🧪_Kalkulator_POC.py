@@ -158,14 +158,44 @@ with st.sidebar:
         st.divider()
         st.subheader("🎯 Target AI Optimizer")
         
+        # Get preferences from Business Model if available
+        biz_product = st.session_state.get('biz_preferred_product', None)
+        biz_scale = st.session_state.get('biz_production_scale', None)
+        
+        # Map Business Model product to Calculator product type
+        default_target = "Balanced"
+        if biz_product:
+            if "Vegetatif" in biz_product:
+                default_target = "Vegetatif (Daun)"
+            elif "Generatif" in biz_product:
+                default_target = "Generatif (Bunga/Buah)"
+            elif "Balanced" in biz_product:
+                default_target = "Balanced"
+        
+        target_options = ["Vegetatif (Daun)", "Generatif (Bunga/Buah)", "Balanced"]
+        default_index = target_options.index(default_target) if default_target in target_options else 2
+        
         target_type = st.selectbox("Tipe Tanaman", 
-                                    ["Vegetatif (Daun)", "Generatif (Bunga/Buah)", "Balanced"],
+                                    target_options,
+                                    index=default_index,
                                     help="AI akan optimize NPK sesuai fase tanaman")
         
-        budget_limit = st.number_input("Budget Maksimal (Rp)", value=50000, min_value=0, step=5000,
+        # Adjust budget based on scale
+        default_budget = 50000
+        if biz_scale == "🏭 Industri/Komersial":
+            default_budget = 500000  # Higher budget for industrial
+        
+        budget_limit = st.number_input("Budget Maksimal (Rp)", value=default_budget, min_value=0, step=5000,
                                         help="AI akan cari kombinasi paling efisien dalam budget")
         
-        prefer_organic = st.slider("Preferensi Organik (%)", 0, 100, 50,
+        # Adjust organic preference based on scale
+        default_organic = 50
+        if biz_scale == "🏠 Pemakaian Pribadi":
+            default_organic = 80  # Personal use prefers more organic
+        elif biz_scale == "🏭 Industri/Komersial":
+            default_organic = 30  # Industrial may use more chemical for cost efficiency
+        
+        prefer_organic = st.slider("Preferensi Organik (%)", 0, 100, default_organic,
                                      help="0% = Full Kimia, 100% = Full Organik")
         
         if st.button("🚀 Generate Formula AI", type="primary", use_container_width=True):
@@ -1138,6 +1168,9 @@ with tab2:
             help="AI akan memberikan rekomendasi berbeda untuk setiap skala"
         )
         
+        # Save to session state for cross-tab sync
+        st.session_state['biz_production_scale'] = production_scale
+        
         if production_scale == "🏠 Pemakaian Pribadi":
             target_monthly = st.slider("Target Produksi (L/bulan)", 50, 500, 200, 50, key="ai_target_personal")
         else:
@@ -1148,6 +1181,9 @@ with tab2:
             ["Vegetatif (High N)", "Generatif (High K)", "Balanced", "Mix (Semua)"],
             key="ai_product"
         )
+        
+        # Save to session state for cross-tab sync
+        st.session_state['biz_preferred_product'] = preferred_product
     
     with col_ai2:
         st.markdown("**💡 Rekomendasi AI:**")
