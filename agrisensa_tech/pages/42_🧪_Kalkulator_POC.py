@@ -1191,11 +1191,159 @@ with tab2:
         
         # Save to session state for cross-tab sync
         st.session_state['biz_preferred_product'] = preferred_product
+        
+        # Additional inputs for comprehensive optimization
+        st.markdown("**💰 Target Bisnis:**")
+        target_price_1l = st.number_input("Target Harga Jual 1L (Rp)", value=30000, min_value=1000, step=1000, key="ai_target_price")
+        target_margin = st.slider("Target Margin (%)", 30, 200, 100, 10, key="ai_target_margin")
     
     with col_ai2:
-        st.markdown("**💡 Rekomendasi AI:**")
+        st.markdown("**💡 Preview Rekomendasi:**")
         
+        # Show preview based on selections
         if production_scale == "🏠 Pemakaian Pribadi":
+            if target_monthly <= 100:
+                st.info(f"""
+                **Skala: Pribadi Kecil**
+                - Produksi: {target_monthly}L/bulan
+                - Produk: {preferred_product}
+                - Investasi: ~Rp 3 juta
+                - Cocok untuk: Lahan sendiri
+                """)
+            elif target_monthly <= 300:
+                st.info(f"""
+                **Skala: Pribadi Menengah**
+                - Produksi: {target_monthly}L/bulan
+                - Produk: {preferred_product}
+                - Investasi: ~Rp 6 juta
+                - Cocok untuk: 1-2 hektar
+                """)
+            else:
+                st.info(f"""
+                **Skala: Semi-Komersial**
+                - Produksi: {target_monthly}L/bulan
+                - Produk: {preferred_product}
+                - Investasi: ~Rp 9 juta
+                - Cocok untuk: >2 hektar + jual surplus
+                """)
+        else:
+            if target_monthly <= 2000:
+                st.info(f"""
+                **Skala: Industri Startup**
+                - Produksi: {target_monthly:,}L/bulan
+                - Produk: {preferred_product}
+                - Investasi: ~Rp 17 juta
+                - Target: Toko tani lokal
+                """)
+            elif target_monthly <= 5000:
+                st.info(f"""
+                **Skala: Industri Menengah**
+                - Produksi: {target_monthly:,}L/bulan
+                - Produk: {preferred_product}
+                - Investasi: ~Rp 33 juta
+                - Target: Distributor regional
+                """)
+            else:
+                st.info(f"""
+                **Skala: Industri Besar**
+                - Produksi: {target_monthly:,}L/bulan
+                - Produk: {preferred_product}
+                - Investasi: ~Rp 75 juta+
+                - Target: Nasional
+                """)
+        
+        st.markdown("---")
+        st.markdown("**🎯 Klik tombol di bawah untuk generate:**")
+        st.caption("✅ Setup Produksi Optimal")
+        st.caption("✅ Formula POC Ter-scale")
+        st.caption("✅ Analisis Biaya Lengkap")
+        st.caption("✅ Proyeksi Profit & ROI")
+        
+        if st.button("🚀 GENERATE REKOMENDASI LENGKAP", type="primary", use_container_width=True, key="ai_generate_all"):
+            # Calculate optimal setup
+            if production_scale == "🏠 Pemakaian Pribadi":
+                if target_monthly <= 100:
+                    drums_rec, cycles_rec = 1, 1
+                elif target_monthly <= 300:
+                    drums_rec, cycles_rec = 2, 2
+                else:
+                    drums_rec, cycles_rec = 3, 2
+            else:
+                if target_monthly <= 2000:
+                    drums_rec, cycles_rec = 4, 2
+                elif target_monthly <= 5000:
+                    drums_rec, cycles_rec = 8, 2
+                else:
+                    drums_rec, cycles_rec = 12, 3
+            
+            util_rec = (target_monthly / (drums_rec * 1000 * cycles_rec)) * 100
+            
+            # Save production setup
+            st.session_state['ai_drums'] = drums_rec
+            st.session_state['ai_cycles'] = cycles_rec
+            st.session_state['ai_util'] = min(util_rec, 100)
+            
+            # Generate formula based on product
+            if preferred_product == "Vegetatif (High N)":
+                st.session_state['ai_formula'] = {
+                    'Urine Kelinci': 15,
+                    'Daun Kelor': 5,
+                    'Molase': 2,
+                    'Dekomposer (EM4/MOL)': 0.5,
+                    'Urea': 0.5 if production_scale == "🏭 Industri/Komersial" else 0
+                }
+                st.session_state['ai_formula_name'] = "POC Vegetatif (High N)"
+            elif preferred_product == "Generatif (High K)":
+                st.session_state['ai_formula'] = {
+                    'Bonggol Pisang': 10,
+                    'Kulit Pisang': 5,
+                    'KCl': 0.3,
+                    'Molase': 2,
+                    'Dekomposer (EM4/MOL)': 0.5
+                }
+                st.session_state['ai_formula_name'] = "POC Generatif (High K)"
+            elif preferred_product == "Balanced":
+                st.session_state['ai_formula'] = {
+                    'Urine Sapi': 10,
+                    'Sabut Kelapa': 3,
+                    'NPK Phonska (15-15-15)': 0.5,
+                    'Molase': 2,
+                    'Dekomposer (EM4/MOL)': 0.5
+                }
+                st.session_state['ai_formula_name'] = "POC Balanced"
+            else:
+                st.session_state['ai_formula'] = {
+                    'Urine Kambing': 8,
+                    'Bonggol Pisang': 5,
+                    'Daun Kelor': 3,
+                    'Molase': 2,
+                    'Dekomposer (EM4/MOL)': 0.5
+                }
+                st.session_state['ai_formula_name'] = "POC Mix (All Purpose)"
+            
+            st.success(f"""
+            ✅ **REKOMENDASI LENGKAP BERHASIL DI-GENERATE!**
+            
+            **📦 Setup Produksi:**
+            - {drums_rec} drum × 1000L
+            - {cycles_rec} siklus/bulan
+            - {min(util_rec, 100):.0f}% utilisasi
+            - Kapasitas: {target_monthly:,}L/bulan
+            
+            **🧪 Formula POC:**
+            - {st.session_state['ai_formula_name']}
+            - Ter-scale untuk {drums_rec * 1000}L per batch
+            
+            **💰 Target Bisnis:**
+            - Harga jual: Rp {target_price_1l:,}/L
+            - Margin: {target_margin}%
+            
+            **📊 Lihat hasil lengkap di bawah:**
+            - Scroll ke "Setup Produksi" untuk detail equipment
+            - Scroll ke "Proyeksi Pendapatan" untuk profit
+            - Buka tab "🧪 Kalkulator POC" untuk analisis NPK
+            """)
+            st.rerun()
             # Personal use recommendations
             if target_monthly <= 100:
                 drums_rec = 1
