@@ -2146,15 +2146,19 @@ with tab3:
     st.subheader("🧪 Analisis POC")
     
     if st.session_state.get('formula_v2'):
-        formula = st.session_state['formula_v2']
+        formula_base = st.session_state['formula_v2']
         name = st.session_state.get('name_v2', 'Formula')
         drums = st.session_state.get('drums_v2', 4)
         volume = drums * 1000
         
         st.success(f"📋 **{name}** | Volume: **{volume:,}L** per batch")
         
-        # Calculate NPK
-        npk = calculate_npk_from_formula(formula, volume)
+        # SCALE formula to actual volume
+        scale_factor = volume / 100
+        formula_scaled = {mat: qty * scale_factor for mat, qty in formula_base.items()}
+        
+        # Calculate NPK with scaled formula
+        npk = calculate_npk_from_formula(formula_scaled, volume)
         
         # NPK Metrics
         col1, col2, col3, col4 = st.columns(4)
@@ -2166,7 +2170,7 @@ with tab3:
         # Material Table
         st.markdown(f"**Bahan ({volume:,}L):**")
         materials = []
-        for mat, qty_base in formula.items():
+        for mat, qty_base in formula_base.items():
             qty = qty_base * (volume / 100)
             for cat_name, cat_mat in MATERIALS.items():
                 if mat in cat_mat:
