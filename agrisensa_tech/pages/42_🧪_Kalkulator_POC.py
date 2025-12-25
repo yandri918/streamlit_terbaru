@@ -889,12 +889,16 @@ if inputs:
             
         sci_crop = st.selectbox("Pilih Tanaman Referensi", ["-- Custom --"] + list(JOURNAL_DATA.keys()), key="sci_crop_unique")
         
+        # Method Selection
+        sci_method = st.radio("Metode Aplikasi", ["Kocor/Siram (Akar)", "Semprot (Daun)"], horizontal=True)
+        is_spray = "Semprot" in sci_method
+        
         # Check if crop changed
         crop_changed = sci_crop != st.session_state['prev_sci_crop']
         
         # Defaults
         def_dose = 10.0
-        def_vol = 250.0
+        def_vol = 250.0 # Default Kocor
         ref_text = "Input Manual"
         
         if sci_crop != "-- Custom --":
@@ -903,6 +907,12 @@ if inputs:
             data_dose = float(data['dose_min'])
             data_vol = float(data['vol_plant'])
             ref_text = f"Ref: {data['ref']} \n({data['dose_min']}-{data['dose_max']} ml/L)"
+            
+            # Adjust for Spray Method (Typically lower volume & dose)
+            if is_spray:
+                data_dose = max(5.0, data_dose * 0.5) # Lower dose for foliar to prevent burn
+                data_vol = max(50.0, data_vol * 0.2)  # Much lower volume for spray
+                ref_text += " (Disesuaikan untuk Semprot)"
             
             # Update defaults FOR THIS RENDER
             def_dose = data_dose
@@ -919,11 +929,12 @@ if inputs:
                  st.session_state['prev_sci_crop'] = sci_crop
         
         # Inputs with keys
-        sci_dose = st.number_input("Dosis Konsentrasi (ml POC / Liter Air)", value=def_dose, step=1.0, help="Jumlah ml POC yang dicampur ke 1 Liter air", key="sci_dose_input")
+        sci_dose = st.number_input(f"Dosis {'Semprot' if is_spray else 'Kocor'} (ml POC / Liter Air)", value=def_dose, step=1.0, help="Jumlah ml POC yang dicampur ke 1 Liter air", key="sci_dose_input")
         if sci_crop != "-- Custom --":
             st.info(f"ℹ️ {ref_text}")
             
-        sci_vol = st.number_input("Volume Siram per Tanaman (ml/tanaman)", value=def_vol, step=50.0, help="Total volume larutan yang disiramkan ke satu tanaman", key="sci_vol_input")
+        vol_label = "Volume Semprot per Tanaman (ml)" if is_spray else "Volume Siram per Tanaman (ml)"
+        sci_vol = st.number_input(vol_label, value=def_vol, step=10.0, help="Total volume larutan per tanaman", key="sci_vol_input")
         
     with col_sci2:
         st.markdown("**2. Parameter Populasi:**")
@@ -934,6 +945,9 @@ if inputs:
     # Calculation
     # Total solution needed per app (Liters)
     total_sol_per_app_L = (sci_vol * sci_pop) / 1000 
+    
+    # Calculate Tangki 16L
+    tangki_16L = total_sol_per_app_L / 16
     
     # Calculate Mix
     # Assumption: User mixes 'sci_dose' ml of POC into 1 Liter of WATER.
@@ -959,14 +973,16 @@ if inputs:
     st.markdown("---")
     st.markdown("### 📊 Hasil Perhitungan Kebutuhan")
     
-    col_res1, col_res2, col_res3 = st.columns(3)
+    col_res1, col_res2, col_res3, col_res4 = st.columns(4)
     
     with col_res1:
         st.metric("Total Air per Aplikasi", f"{water_needed_L:,.1f} L", help="Air bersih yang dibutuhkan")
     with col_res2:
         st.metric("Total POC per Aplikasi", f"{poc_needed_L:,.2f} L", help=f"Berdasarkan dosis {sci_dose} ml/L")
     with col_res3:
-        st.metric("Total Larutan Siap Pakai", f"{total_sol_per_app_L:,.1f} L", help="Total volume siram")
+        st.metric("Total Larutan", f"{total_sol_per_app_L:,.1f} L", help="Total volume siram/semprot")
+    with col_res4:
+        st.metric("Setara Tangki (16L)", f"{tangki_16L:,.1f} Tangki", help="Estimasi jumlah tangki sprayer 16 liter")
         
     st.success(f"""
     **📦 Kebutuhan Jangka Panjang:**
