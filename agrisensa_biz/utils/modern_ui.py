@@ -107,6 +107,7 @@ def dashboard_header(title, subtitle, user_name=None):
         </p>
     </div>
     """
+    # CRITICAL: Must have unsafe_allow_html=True
     st.markdown(header_html, unsafe_allow_html=True)
 
 
