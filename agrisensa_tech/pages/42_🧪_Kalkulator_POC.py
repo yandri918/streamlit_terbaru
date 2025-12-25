@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
+import json
+import os
 
 # Page config
 from utils.auth import require_auth, show_user_info_sidebar
@@ -17,6 +19,40 @@ st.set_page_config(
 user = require_auth()
 show_user_info_sidebar()
 # ================================
+
+# Recipe Management Functions
+RECIPE_FILE = "data/poc_recipes.json"
+
+def ensure_recipe_file():
+    """Ensure recipe file and directory exist"""
+    os.makedirs("data", exist_ok=True)
+    if not os.path.exists(RECIPE_FILE):
+        with open(RECIPE_FILE, 'w') as f:
+            json.dump({}, f)
+
+def load_recipes():
+    """Load all saved recipes"""
+    ensure_recipe_file()
+    try:
+        with open(RECIPE_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_recipe(name, recipe_data):
+    """Save a recipe"""
+    recipes = load_recipes()
+    recipes[name] = recipe_data
+    with open(RECIPE_FILE, 'w') as f:
+        json.dump(recipes, f, indent=2)
+
+def delete_recipe(name):
+    """Delete a recipe"""
+    recipes = load_recipes()
+    if name in recipes:
+        del recipes[name]
+        with open(RECIPE_FILE, 'w') as f:
+            json.dump(recipes, f, indent=2)
 
 # Header
 st.title("🧪 Kalkulator Pupuk Organik Cair (POC)")
@@ -132,6 +168,45 @@ with st.sidebar:
             st.session_state['budget_limit'] = budget_limit
             st.session_state['prefer_organic'] = prefer_organic
             st.rerun()
+    
+    st.divider()
+    st.subheader("💾 Resep Tersimpan")
+    
+    # Load saved recipes
+    saved_recipes = load_recipes()
+    
+    # Load Recipe
+    if saved_recipes:
+        recipe_names = ["-- Pilih Resep --"] + list(saved_recipes.keys())
+        selected_recipe = st.selectbox("Load Resep", recipe_names, key="load_recipe")
+        
+        col_load, col_del = st.columns(2)
+        with col_load:
+            if st.button("📂 Load", use_container_width=True, disabled=(selected_recipe == "-- Pilih Resep --")):
+                if selected_recipe != "-- Pilih Resep --":
+                    recipe_data = saved_recipes[selected_recipe]
+                    st.session_state['loaded_recipe'] = recipe_data
+                    st.success(f"✅ Loaded: {selected_recipe}")
+                    st.rerun()
+        
+        with col_del:
+            if st.button("🗑️ Hapus", use_container_width=True, disabled=(selected_recipe == "-- Pilih Resep --")):
+                if selected_recipe != "-- Pilih Resep --":
+                    delete_recipe(selected_recipe)
+                    st.success(f"🗑️ Deleted: {selected_recipe}")
+                    st.rerun()
+    else:
+        st.info("Belum ada resep tersimpan")
+    
+    # Save Current Recipe
+    st.markdown("**Simpan Resep Saat Ini:**")
+    recipe_name = st.text_input("Nama Resep", placeholder="Misal: POC Cabai Terbaik", key="recipe_name")
+    if st.button("💾 Simpan Resep", type="primary", use_container_width=True, disabled=(not recipe_name)):
+        # Will save after inputs are populated
+        st.session_state['save_recipe_name'] = recipe_name
+        st.session_state['save_recipe_flag'] = True
+    
+    st.divider()
     # Template selection
     template = st.selectbox("Pilih Template Resep", list(TEMPLATES.keys()))
     
@@ -150,8 +225,17 @@ with st.sidebar:
     inputs = {}
     custom_prices = {}
     
+    # Check if recipe was loaded
+    if st.session_state.get('loaded_recipe'):
+        loaded_data = st.session_state['loaded_recipe']
+        st.success(f"📂 Resep dimuat: {loaded_data.get('name', 'Unknown')}")
+        inputs = loaded_data.get('materials', {})
+        custom_prices = loaded_data.get('prices', {})
+        target_volume = loaded_data.get('volume', 100)
+        # Clear loaded flag
+        del st.session_state['loaded_recipe']
     # Load template if selected
-    if template != "Custom (Manual)":
+    elif template != "Custom (Manual)":
         st.info(f"📋 Template: **{template}**")
         for material, qty in TEMPLATES[template].items():
             inputs[material] = qty
@@ -188,6 +272,22 @@ with st.sidebar:
                 if qty > 0:
                     inputs[material] = qty
                     custom_prices[material] = price
+
+# Save Recipe Logic
+if st.session_state.get('save_recipe_flag', False) and inputs:
+    recipe_name = st.session_state.get('save_recipe_name', '')
+    if recipe_name:
+        recipe_data = {
+            'name': recipe_name,
+            'materials': inputs.copy(),
+            'prices': custom_prices.copy(),
+            'volume': target_volume,
+            'saved_date': datetime.now().strftime("%Y-%m-%d %H:%M")
+        }
+        save_recipe(recipe_name, recipe_data)
+        st.success(f"💾 Resep '{recipe_name}' berhasil disimpan!")
+        st.session_state['save_recipe_flag'] = False
+        st.rerun()
 
 # AI Optimizer Logic
 if st.session_state.get('ai_generated', False):
@@ -600,6 +700,140 @@ if inputs:
     with col_q2:
         for note in quality_notes:
             st.markdown(note)
+    
+    # Dilution Calculator
+    st.markdown("---")
+    st.subheader("🧮 Kalkulator Pengenceran & Aplikasi")
+    
+    col_dil1, col_dil2 = st.columns(2)
+    
+    with col_dil1:
+        st.markdown("**💧 Pengenceran POC:**")
+        dilution_ratio = st.selectbox("Rasio Pengenceran", 
+                                       ["1:5 (Sangat Pekat)", "1:10 (Vegetatif)", "1:15 (Pemeliharaan)", "1:20 (Ringan)", "Custom"],
+                                       help="Pilih rasio sesuai fase tanaman")
+        
+        if dilution_ratio == "Custom":
+            custom_ratio = st.number_input("POC : Air (1:X)", value=10, min_value=1, max_value=50)
+            ratio_value = custom_ratio
+        else:
+            ratio_value = int(dilution_ratio.split(":")[1].split()[0])
+        
+        poc_volume_available = st.number_input("Volume POC Tersedia (Liter)", value=float(target_volume), min_value=0.1, step=0.5)
+        
+        # Calculate dilution
+        water_for_dilution = poc_volume_available * ratio_value
+        total_solution = poc_volume_available + water_for_dilution
+        
+        st.success(f"""
+        **Hasil Pengenceran:**
+        - POC: {poc_volume_available:.1f} L
+        - Air: {water_for_dilution:.1f} L
+        - Total Larutan: {total_solution:.1f} L
+        """)
+    
+    with col_dil2:
+        st.markdown("**🌾 Estimasi Aplikasi:**")
+        application_method = st.radio("Metode Aplikasi", ["Siram ke Tanah", "Semprot Daun"])
+        
+        if application_method == "Siram ke Tanah":
+            dose_per_plant = st.number_input("Dosis per Tanaman (ml)", value=500, min_value=100, max_value=2000, step=100)
+            plants_covered = int((total_solution * 1000) / dose_per_plant)
+            st.metric("Jumlah Tanaman", f"{plants_covered:,} pohon", 
+                     help=f"{total_solution:.1f}L ÷ {dose_per_plant}ml/pohon")
+        else:
+            coverage_per_liter = st.number_input("Coverage per Liter (m²)", value=20, min_value=5, max_value=50, step=5)
+            area_covered = total_solution * coverage_per_liter
+            st.metric("Luas Area", f"{area_covered:,.0f} m²", 
+                     help=f"{total_solution:.1f}L × {coverage_per_liter}m²/L")
+        
+        # Cost per application
+        cost_per_liter_solution = total_cost_with_water / total_solution if total_solution > 0 else 0
+        st.metric("Biaya per Liter Larutan", f"Rp {cost_per_liter_solution:,.0f}")
+    
+    # Crop-Specific Recommendations
+    st.markdown("---")
+    st.subheader("🎯 Rekomendasi Spesifik Tanaman")
+    
+    # Crop database with ideal NPK
+    CROP_NPK = {
+        "Cabai": {"N": 0.3, "P": 0.2, "K": 0.4, "phase": "Generatif", "note": "Tinggi K untuk buah"},
+        "Tomat": {"N": 0.25, "P": 0.25, "K": 0.35, "phase": "Generatif", "note": "Balanced NPK"},
+        "Padi": {"N": 0.4, "P": 0.15, "K": 0.2, "phase": "Vegetatif", "note": "Tinggi N untuk anakan"},
+        "Jagung": {"N": 0.35, "P": 0.2, "K": 0.25, "phase": "Vegetatif", "note": "Tinggi N untuk batang"},
+        "Sawi": {"N": 0.5, "P": 0.1, "K": 0.15, "phase": "Vegetatif", "note": "Sangat tinggi N untuk daun"},
+        "Kangkung": {"N": 0.45, "P": 0.1, "K": 0.15, "phase": "Vegetatif", "note": "Tinggi N untuk daun"},
+        "Terong": {"N": 0.3, "P": 0.2, "K": 0.35, "phase": "Generatif", "note": "Balanced untuk buah"},
+        "Timun": {"N": 0.25, "P": 0.15, "K": 0.4, "phase": "Generatif", "note": "Tinggi K untuk buah"},
+        "Bawang Merah": {"N": 0.2, "P": 0.25, "K": 0.45, "phase": "Generatif", "note": "Tinggi K untuk umbi"},
+        "Kentang": {"N": 0.25, "P": 0.2, "K": 0.4, "phase": "Generatif", "note": "Tinggi K untuk umbi"},
+    }
+    
+    selected_crop = st.selectbox("Pilih Tanaman Target", list(CROP_NPK.keys()))
+    
+    if selected_crop:
+        crop_data = CROP_NPK[selected_crop]
+        
+        col_crop1, col_crop2, col_crop3 = st.columns(3)
+        
+        with col_crop1:
+            st.markdown(f"**Target NPK untuk {selected_crop}:**")
+            st.info(f"""
+            - N: {crop_data['N']}%
+            - P: {crop_data['P']}%
+            - K: {crop_data['K']}%
+            - Fase: {crop_data['phase']}
+            """)
+        
+        with col_crop2:
+            st.markdown("**NPK POC Anda:**")
+            st.success(f"""
+            - N: {n_pct:.2f}%
+            - P: {p_pct:.2f}%
+            - K: {k_pct:.2f}%
+            """)
+        
+        with col_crop3:
+            st.markdown("**Kesesuaian:**")
+            n_match = abs(n_pct - crop_data['N']) < 0.1
+            p_match = abs(p_pct - crop_data['P']) < 0.1
+            k_match = abs(k_pct - crop_data['K']) < 0.1
+            
+            match_score = sum([n_match, p_match, k_match])
+            
+            if match_score == 3:
+                st.success("✅ Sangat Sesuai!")
+            elif match_score == 2:
+                st.info("👍 Cukup Sesuai")
+            else:
+                st.warning("⚠️ Perlu Penyesuaian")
+            
+            st.caption(crop_data['note'])
+        
+        # Recommendations
+        st.markdown("**💡 Saran Penyesuaian:**")
+        suggestions = []
+        
+        if n_pct < crop_data['N'] - 0.1:
+            suggestions.append(f"➕ Tambah sumber N (Urea/Urine Kelinci) untuk mencapai {crop_data['N']}%")
+        elif n_pct > crop_data['N'] + 0.1:
+            suggestions.append(f"➖ Kurangi sumber N, target {crop_data['N']}%")
+        
+        if p_pct < crop_data['P'] - 0.1:
+            suggestions.append(f"➕ Tambah sumber P (SP-36/TSP) untuk mencapai {crop_data['P']}%")
+        elif p_pct > crop_data['P'] + 0.1:
+            suggestions.append(f"➖ Kurangi sumber P, target {crop_data['P']}%")
+        
+        if k_pct < crop_data['K'] - 0.1:
+            suggestions.append(f"➕ Tambah sumber K (KCl/Bonggol Pisang) untuk mencapai {crop_data['K']}%")
+        elif k_pct > crop_data['K'] + 0.1:
+            suggestions.append(f"➖ Kurangi sumber K, target {crop_data['K']}%")
+        
+        if suggestions:
+            for suggestion in suggestions:
+                st.markdown(f"- {suggestion}")
+        else:
+            st.success("✅ Formula POC sudah optimal untuk " + selected_crop + "!")
 
 else:
     st.info("👈 Silakan pilih template atau input bahan di sidebar untuk mulai menghitung POC")
