@@ -235,7 +235,14 @@ with st.sidebar:
             'environmental_impact': w_env/total_w
         }
 
-    with st.expander("4. Referensi Data Standar", expanded=False):
+    with st.expander("4. Harga Pupuk (Rp/kg)", expanded=False):
+        st.write("💰 Edit harga pupuk sesuai pasar lokal:")
+        price_urea = st.number_input("Urea", min_value=1000, max_value=10000, value=2500, step=100)
+        price_sp36 = st.number_input("SP-36", min_value=1000, max_value=10000, value=3500, step=100)
+        price_kcl = st.number_input("KCl", min_value=5000, max_value=20000, value=12000, step=500)
+        price_dolomit = st.number_input("Dolomit/Kapur", min_value=500, max_value=5000, value=1500, step=100)
+    
+    with st.expander("5. Referensi Data Standar", expanded=False):
         st.info("ℹ️ Sistem menggunakan database standar hara optimal untuk menghitung defisit.")
         st.write(f"Target Optimal **{s_crop}**:")
         st.json(NUTRIENT_STANDARDS[s_crop])
@@ -302,11 +309,12 @@ with tab_exec:
         if "Hemat" in top_strategy: dose_factor = 0.6
         if "Organik" in top_strategy: dose_factor = 0.2 # Mostly compost not included here
         
+        dolomit_dose = 2000 if nut_res['status']['pH']['color'] == 'red' else 0
         df_shop = pd.DataFrame([
-            {"Item": "Urea (N)", "Dosis (kg)": nut_res['products']['Urea'] * dose_factor, "Estimasi": f"Rp {nut_res['products']['Urea']*dose_factor*2500:,.0f}"},
-            {"Item": "SP-36 (P)", "Dosis (kg)": nut_res['products']['SP-36'] * dose_factor, "Estimasi": f"Rp {nut_res['products']['SP-36']*dose_factor*3500:,.0f}"},
-            {"Item": "KCl (K)", "Dosis (kg)": nut_res['products']['KCl'] * dose_factor, "Estimasi": f"Rp {nut_res['products']['KCl']*dose_factor*12000:,.0f}"},
-            {"Item": "Dolomit/Kapur", "Dosis (kg)": 2000 if nut_res['status']['pH']['color'] == 'red' else 0, "Estimasi": "Kondisional"}
+            {"Item": "Urea (N)", "Dosis (kg)": nut_res['products']['Urea'] * dose_factor, "Estimasi": f"Rp {nut_res['products']['Urea']*dose_factor*price_urea:,.0f}"},
+            {"Item": "SP-36 (P)", "Dosis (kg)": nut_res['products']['SP-36'] * dose_factor, "Estimasi": f"Rp {nut_res['products']['SP-36']*dose_factor*price_sp36:,.0f}"},
+            {"Item": "KCl (K)", "Dosis (kg)": nut_res['products']['KCl'] * dose_factor, "Estimasi": f"Rp {nut_res['products']['KCl']*dose_factor*price_kcl:,.0f}"},
+            {"Item": "Dolomit/Kapur", "Dosis (kg)": dolomit_dose, "Estimasi": f"Rp {dolomit_dose*price_dolomit:,.0f}" if dolomit_dose > 0 else "Tidak Perlu"}
         ])
         st.dataframe(df_shop, hide_index=True, use_container_width=True)
 
