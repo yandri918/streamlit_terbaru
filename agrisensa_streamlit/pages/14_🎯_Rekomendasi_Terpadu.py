@@ -22,23 +22,25 @@ show_user_info_sidebar()
 # ==========================================
 # 🧠 LOGIC ENGINE (Models & Algorithms)
 # ==========================================
+# 🧠 LOGIC ENGINE (Models & Algorithms)
+# ==========================================
+
+# Database Optimal (Target Soil Levels in ppm)
+# Ref: FAO & Puslitanak (General guide for tropical soils)
+NUTRIENT_STANDARDS = {
+    "Padi":        {"N": 4000, "P": 25, "K": 3500, "pH_opt": 6.5},
+    "Jagung":      {"N": 4500, "P": 30, "K": 4000, "pH_opt": 6.8},
+    "Cabai Merah": {"N": 5000, "P": 40, "K": 4500, "pH_opt": 6.5},
+    "Tomat":       {"N": 4500, "P": 35, "K": 4000, "pH_opt": 6.5},
+    "Krisan":      {"N": 3500, "P": 50, "K": 4000, "pH_opt": 6.0} 
+}
 
 def calculate_continuous_nutrient_needs(crop, n_ppm, p_ppm, k_ppm, ph, area_ha):
     """
     Advanced Logic: Uses continuous saturation curves instead of binary thresholds.
     Modeled after diminishing returns (Mitscherlich / Liebig).
     """
-    # 1. Database Optimal (Target Soil Levels in ppm)
-    # Ref: General guide for tropical soils
-    targets = {
-        "Padi":        {"N": 4000, "P": 25, "K": 3500, "pH_opt": 6.5},
-        "Jagung":      {"N": 4500, "P": 30, "K": 4000, "pH_opt": 6.8},
-        "Cabai Merah": {"N": 5000, "P": 40, "K": 4500, "pH_opt": 6.5},
-        "Tomat":       {"N": 4500, "P": 35, "K": 4000, "pH_opt": 6.5},
-        "Krisan":      {"N": 3500, "P": 50, "K": 4000, "pH_opt": 6.0} 
-    }
-    
-    tgt = targets.get(crop, targets["Padi"])
+    tgt = NUTRIENT_STANDARDS.get(crop, NUTRIENT_STANDARDS["Padi"])
     
     # 2. Continuous Deficit Calculation (Exponential Decay of Soil Supply)
     # We assume 'Efficiency' of soil nutrient extraction is ~50%
@@ -232,6 +234,12 @@ with st.sidebar:
             'risk': w_risk/total_w,
             'environmental_impact': w_env/total_w
         }
+
+    with st.expander("4. Referensi Data Standar", expanded=False):
+        st.info("ℹ️ Sistem menggunakan database standar hara optimal untuk menghitung defisit.")
+        st.write(f"Target Optimal **{s_crop}**:")
+        st.json(NUTRIENT_STANDARDS[s_crop])
+        st.caption("Sumber: Database Internal (FAO/Puslitanak)")
 
 # --- MAIN DASHBOARD ---
 st.title(f"🚀 Dashboard Rekomendasi Terpadu: {s_crop}")
