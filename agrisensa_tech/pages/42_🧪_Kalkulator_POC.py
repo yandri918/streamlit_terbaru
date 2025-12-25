@@ -115,7 +115,26 @@ st.markdown("""
 tab1, tab2 = st.tabs(["🧪 Kalkulator POC", "💼 Business Model"])
 
 with tab1:
-    st.markdown("### Formula & Analisis POC")
+    # Detect mode: Business Model AI or Manual Input
+    is_business_mode = st.session_state.get('ai_formula') is not None
+    
+    if is_business_mode:
+        # Business Mode Header
+        st.success("🤖 **Mode: Business Model AI** - Formula otomatis dari rekomendasi bisnis")
+        col_mode1, col_mode2 = st.columns([3, 1])
+        with col_mode1:
+            formula_name = st.session_state.get('ai_formula_name', 'AI Formula')
+            st.info(f"📋 Formula: **{formula_name}**")
+        with col_mode2:
+            if st.button("🔄 Reset ke Mode Manual", use_container_width=True):
+                if 'ai_formula' in st.session_state:
+                    del st.session_state['ai_formula']
+                if 'ai_formula_name' in st.session_state:
+                    del st.session_state['ai_formula_name']
+                st.rerun()
+    else:
+        # Personal Mode Header
+        st.info("✋ **Mode: Input Manual** - Kontrol penuh untuk eksperimen formula")
 
 # Material Database with Nutrient Content
 MATERIALS = {
@@ -198,8 +217,19 @@ TEMPLATES = {
 with st.sidebar:
     st.header("⚙️ Konfigurasi Resep")
     
-    # Note about AI Optimizer location
-    st.info("💡 **AI Optimizer** ada di tab **Business Model** untuk rekomendasi lengkap")
+    # Check mode
+    is_business_mode = st.session_state.get('ai_formula') is not None
+    
+    if is_business_mode:
+        # Business Mode: Locked sidebar
+        st.warning("🔒 **Mode: Business Model AI**")
+        st.caption("Formula dikontrol dari tab Business Model")
+        st.caption("Volume dan bahan otomatis ter-scale")
+        st.divider()
+        st.info("💡 Untuk ubah formula, gunakan tab **Business Model** atau klik **Reset ke Mode Manual**")
+    else:
+        # Personal Mode: Full controls
+        st.info("💡 **AI Optimizer** ada di tab **Business Model** untuk rekomendasi lengkap")
     
     st.divider()
     st.subheader("💾 Resep Tersimpan")
@@ -1604,16 +1634,46 @@ with tab2:
                 }
                 st.session_state['ai_formula_name'] = "POC Mix (All Purpose)"
             
+            # Calculate NPK preview from generated formula
+            volume_per_drum = drums_rec * 1000
+            npk_preview = calculate_npk_from_formula(st.session_state['ai_formula'], volume_per_drum)
+            
             st.success(f"""
-            ✅ **Rekomendasi AI Diterapkan!**
+            ✅ **REKOMENDASI LENGKAP BERHASIL DI-GENERATE!**
             
-            **Setup Produksi:**
-            - {drums_rec} drum, {cycles_rec} siklus, {min(util_rec, 100):.0f}% utilisasi
+            **📦 Setup Produksi:**
+            - {drums_rec} drum × 1000L = {volume_per_drum:,}L per batch
+            - {cycles_rec} siklus/bulan
+            - {min(util_rec, 100):.0f}% utilisasi
+            - Kapasitas: {target_monthly:,}L/bulan
             
-            **Formula POC:**
+            **🧪 Formula POC:**
             - {st.session_state['ai_formula_name']}
-            - Buka tab "🧪 Kalkulator POC" untuk melihat detail formula
+            - Ter-scale untuk {volume_per_drum:,}L per batch
             """)
+            
+            # Show NPK Preview
+            st.markdown("---")
+            st.subheader("📊 Preview Analisis POC")
+            
+            col_npk1, col_npk2, col_npk3, col_npk4 = st.columns(4)
+            with col_npk1:
+                st.metric("Nitrogen (N)", f"{npk_preview['N']:.2f}%")
+            with col_npk2:
+                st.metric("Fosfor (P)", f"{npk_preview['P']:.2f}%")
+            with col_npk3:
+                st.metric("Kalium (K)", f"{npk_preview['K']:.2f}%")
+            with col_npk4:
+                st.metric("C-Organik", f"{npk_preview['C']:.2f}%")
+            
+            st.info(f"""
+            💰 **Estimasi Biaya per Batch ({volume_per_drum:,}L):**
+            - Bahan Baku: Rp {npk_preview['total_cost']:,.0f}
+            - Biaya per Liter: Rp {(npk_preview['total_cost']/volume_per_drum):,.0f}/L
+            
+            📊 **Lihat analisis lengkap** (charts, recommendations, dll) di tab **"🧪 Kalkulator POC"**
+            """)
+            
             st.rerun()
     
     # Production Setup
