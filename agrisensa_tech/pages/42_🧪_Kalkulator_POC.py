@@ -218,7 +218,22 @@ with st.sidebar:
     
     st.divider()
     st.subheader("📊 Target Volume")
-    target_volume = st.number_input("Volume POC (Liter)", value=100, min_value=10, max_value=1000, step=10)
+    
+    # Check if there's a drum capacity from Business Model
+    business_drums = st.session_state.get('ai_drums', 0)
+    if business_drums > 0:
+        use_drum_capacity = st.checkbox(
+            f"🏭 Gunakan Kapasitas Drum ({business_drums} × 1000L = {business_drums * 1000}L)",
+            value=False,
+            help="Sinkronkan dengan setup produksi di Business Model"
+        )
+        if use_drum_capacity:
+            target_volume = business_drums * 1000
+            st.info(f"✅ Volume disesuaikan dengan kapasitas drum: **{target_volume:,} L**")
+        else:
+            target_volume = st.number_input("Volume POC (Liter)", value=100, min_value=10, max_value=10000, step=10)
+    else:
+        target_volume = st.number_input("Volume POC (Liter)", value=100, min_value=10, max_value=10000, step=10)
     
     # Water price input
     water_price = st.number_input("Harga Air Bersih (Rp/Liter)", value=0, min_value=0, step=10, 
