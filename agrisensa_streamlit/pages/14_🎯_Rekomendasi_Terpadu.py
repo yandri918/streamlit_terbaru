@@ -413,7 +413,8 @@ with tab_sim:
     c_s1, c_s2 = st.columns([1, 1])
     
     with c_s1:
-        st.dataframe(topsis_res.style.highlight_max(axis=0, subset=['topsis_score'], color='lightgreen').format("{:.3f}", subset=['topsis_score']), use_container_width=True)
+        topsis_res['topsis_score'] = topsis_res['topsis_score'].astype(float).round(3)
+        st.dataframe(topsis_res.style.highlight_max(axis=0, subset=['topsis_score'], color='lightgreen'), use_container_width=True)
         st.caption("*Skor TOPSIS mendekati 1.0 berarti strategi paling mendekati solusi ideal.*")
         
     with c_s2:
