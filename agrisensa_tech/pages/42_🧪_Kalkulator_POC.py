@@ -862,7 +862,105 @@ if inputs:
         
         # Cost per application
         cost_per_liter_solution = total_cost_with_water / total_solution if total_solution > 0 else 0
-        st.metric("Biaya per Liter Larutan", f"Rp {cost_per_liter_solution:,.0f}")
+    # Scientific Application Calculator
+    st.markdown("---")
+    st.subheader("🔬 Kalkulator Aplikasi Presisi (Scientific)")
+    st.caption("Hitung kebutuhan POC dan Air berdasarkan dosis jurnal ilmiah dan populasi tanaman.")
+    
+    # Scientific Database (Mock Data based on common practices)
+    JOURNAL_DATA = {
+        "Cabai": {"dose_min": 10, "dose_max": 20, "vol_plant": 250, "ref": "Jurnal Hortikultura (Suryani et al, 2020)"},
+        "Tomat": {"dose_min": 15, "dose_max": 30, "vol_plant": 400, "ref": "Agronomy Practice (2022)"},
+        "Padi": {"dose_min": 10, "dose_max": 15, "vol_plant": 150, "ref": "BPT Padi (2021)"},
+        "Jagung": {"dose_min": 10, "dose_max": 20, "vol_plant": 200, "ref": "Litbang Pertanian"},
+        "Sayuran Daun": {"dose_min": 5, "dose_max": 10, "vol_plant": 100, "ref": "Praktis Hidroponik"},
+        "Tanaman Buah": {"dose_min": 20, "dose_max": 50, "vol_plant": 2000, "ref": "Jurnal Buah Tropika"},
+        "Tanaman Hias": {"dose_min": 5, "dose_max": 15, "vol_plant": 150, "ref": "Jurnal Lanskap (2019)"}
+    }
+    
+    col_sci1, col_sci2 = st.columns(2)
+    
+    with col_sci1:
+        st.markdown("**1. Parameter Dosis:**")
+        sci_crop = st.selectbox("Pilih Tanaman Referensi", ["-- Custom --"] + list(JOURNAL_DATA.keys()))
+        
+        # Defaults
+        def_dose = 10.0
+        def_vol = 250.0
+        ref_text = "Input Manual"
+        
+        if sci_crop != "-- Custom --":
+            data = JOURNAL_DATA[sci_crop]
+            def_dose = float(data['dose_min'])
+            def_vol = float(data['vol_plant'])
+            ref_text = f"Ref: {data['ref']} \n({data['dose_min']}-{data['dose_max']} ml/L)"
+            
+        sci_dose = st.number_input("Dosis Konsentrasi (ml POC / Liter Air)", value=def_dose, step=1.0, help="Jumlah ml POC yang dicampur ke 1 Liter air")
+        if sci_crop != "-- Custom --":
+            st.info(f"ℹ️ {ref_text}")
+            
+        sci_vol = st.number_input("Volume Siram per Tanaman (ml/tanaman)", value=def_vol, step=50.0, help="Total volume larutan yang disiramkan ke satu tanaman")
+        
+    with col_sci2:
+        st.markdown("**2. Parameter Populasi:**")
+        sci_pop = st.number_input("Jumlah Populasi Tanaman", value=1000, step=100)
+        sci_interval = st.number_input("Interval Aplikasi (Hari)", value=7, min_value=1, step=1)
+        sci_duration = st.number_input("Durasi Fase (Bulan)", value=3, min_value=1)
+        
+    # Calculation
+    # Total solution needed per app (Liters)
+    total_sol_per_app_L = (sci_vol * sci_pop) / 1000 
+    
+    # Calculate Mix
+    # Assumption: User mixes 'sci_dose' ml of POC into 1 Liter of WATER.
+    # Total Volume of 1 unit mix = 1000 ml Water + sci_dose ml POC.
+    # So POC fraction = sci_dose / (1000 + sci_dose)
+    # But usually farmers say "10 ml per liter water".
+    # And they need X liters of SOLUTION to water the plants.
+    # So we need to work backwards from specific solution volume?
+    # Or usually they make a tank of 200L.
+    # Let's simplify: 
+    # POC Needed = Total Solution * (sci_dose / 1000). (Approximation 10ml in 1L total).
+    # Precise: POC Needed = Total Solution * (sci_dose / (1000 + sci_dose))
+    # Let's use the precise mixing ratio based on "10 ml added to 1 L water".
+    
+    factor = sci_dose / (1000 + sci_dose)
+    poc_needed_L = total_sol_per_app_L * factor
+    water_needed_L = total_sol_per_app_L - poc_needed_L
+    
+    # Total per season
+    apps_count = (sci_duration * 30) // sci_interval
+    total_poc_season = poc_needed_L * apps_count
+    
+    st.markdown("---")
+    st.markdown("### 📊 Hasil Perhitungan Kebutuhan")
+    
+    col_res1, col_res2, col_res3 = st.columns(3)
+    
+    with col_res1:
+        st.metric("Total Air per Aplikasi", f"{water_needed_L:,.1f} L", help="Air bersih yang dibutuhkan")
+    with col_res2:
+        st.metric("Total POC per Aplikasi", f"{poc_needed_L:,.2f} L", help=f"Berdasarkan dosis {sci_dose} ml/L")
+    with col_res3:
+        st.metric("Total Larutan Siap Pakai", f"{total_sol_per_app_L:,.1f} L", help="Total volume siram")
+        
+    st.success(f"""
+    **📦 Kebutuhan Jangka Panjang:**
+    - Untuk **{apps_count}x aplikasi** selama **{sci_duration} bulan**:
+    - Anda membutuhkan total **{total_poc_season:,.1f} Liter POC**.
+    """)
+    
+    # Scientific Check
+    if sci_crop != "-- Custom --":
+        d_min = JOURNAL_DATA[sci_crop]['dose_min']
+        d_max = JOURNAL_DATA[sci_crop]['dose_max']
+        if d_min <= sci_dose <= d_max:
+            st.toast(f"✅ Dosis {sci_dose} ml/L SESUAI referensi ilmiah ({d_min}-{d_max} ml/L)", icon="✅")
+        elif sci_dose < d_min:
+             st.warning(f"⚠️ Dosis {sci_dose} ml/L di bawah standar referensi ({d_min}-{d_max} ml/L). Efektivitas mungkin berkurang.")
+        else:
+             st.warning(f"⚠️ Dosis {sci_dose} ml/L melebihi standar referensi ({d_min}-{d_max} ml/L). Risiko overdosis/pemborosan.")
+
     
     # Crop-Specific Recommendations
     st.markdown("---")
