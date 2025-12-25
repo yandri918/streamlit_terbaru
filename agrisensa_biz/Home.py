@@ -1,83 +1,39 @@
 import streamlit as st
-import os
 
-st.set_page_config(
-    page_title="AgriSensa Biz", 
-    page_icon="📈", 
-    layout="wide"
-)
+st.set_page_config(page_title="AgriSensa Biz", page_icon="📈", layout="wide")
 
-# Header
-st.title("📈 AgriSensa Biz")
-st.caption("Platform Manajemen Keuangan, Rantai Pasok, dan Agribisnis Terpadu")
-st.markdown("---")
+st.markdown("""
+<style>
+    .hero { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 3rem; border-radius: 1rem; color: white; text-align: center; }
+    .card { background: white; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 1rem; border: 1px solid #e5e7eb; }
+    .card h3 { color: #7c3aed; }
+</style>
+""", unsafe_allow_html=True)
 
-# Main Content
-st.subheader("💰 Analisis Keuangan")
-st.caption("Tools untuk analisis biaya, proyeksi laba, dan perencanaan finansial")
+st.markdown('<div class="hero"><h1>📈 AgriSensa Biz</h1><p>Keuangan, Rantai Pasok, dan Manajemen Agribisnis</p></div>', unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns(3)
+st.markdown("### 💰 Analisis Keuangan")
+c1, c2, c3 = st.columns(3)
+with c1:
+    st.page_link("pages/28_Analisis_Usaha_Tani.py", label="Analisis Usaha Tani", icon="💰", use_container_width=True)
+with c2:
+    st.page_link("pages/6_📈_Analisis_Tren_Harga.py", label="Analisis Tren Harga", icon="📈", use_container_width=True)
+with c3:
+    st.page_link("pages/8_📊_Dasbor_Terpadu.py", label="Dasbor Terpadu", icon="📊", use_container_width=True)
 
-with col1:
-    st.markdown("#### 💰 Analisis Usaha Tani")
-    st.caption("Hitung RAB, proyeksi laba, break-even analysis, dan unit economics untuk berbagai komoditas pertanian.")
-    st.page_link("pages/28_Analisis_Usaha_Tani.py", label="Buka Module", icon="💰", use_container_width=True)
+st.markdown("### 🚚 Rantai Pasok & Produk")
+c4, c5 = st.columns(2)
+with c4:
+    st.page_link("pages/48_🚚_Rantai_Pasok_Live.py", label="Rantai Pasok Live", icon="🚚", use_container_width=True)
+    st.page_link("pages/49_🏷️_Traceability_Produk.py", label="Traceability Produk", icon="🏷️", use_container_width=True)
+with c5:
+    st.page_link("pages/1_🌾_Database_Panen.py", label="Database Panen (Lengkap)", icon="🌾", use_container_width=True)
+    st.page_link("pages/7_🎯_Prediksi_Hasil_Panen.py", label="Prediksi Hasil Panen", icon="🎯", use_container_width=True)
 
-with col2:
-    st.markdown("#### 📈 Analisis Tren Harga")
-    st.caption("Pantau tren harga komoditas, analisis volatilitas, dan prediksi harga untuk keputusan jual-beli optimal.")
-    st.page_link("pages/6_📈_Analisis_Tren_Harga.py", label="Buka Module", icon="📈", use_container_width=True)
-
-with col3:
-    st.markdown("#### 📊 Dasbor Terpadu")
-    st.caption("Dashboard komprehensif dengan visualisasi real-time untuk monitoring performa bisnis pertanian Anda.")
-    st.page_link("pages/8_📊_Dasbor_Terpadu.py", label="Buka Module", icon="📊", use_container_width=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-st.subheader("🚚 Rantai Pasok & Produk")
-st.caption("Manajemen supply chain dan traceability produk")
-
-col4, col5, col6 = st.columns(3)
-
-with col4:
-    st.markdown("#### 🚚 Rantai Pasok Live")
-    st.caption("Tracking real-time pergerakan produk dari farm to table dengan blockchain simulation dan carbon footprint.")
-    st.page_link("pages/48_🚚_Rantai_Pasok_Live.py", label="Buka Module", icon="🚚", use_container_width=True)
-
-with col5:
-    st.markdown("#### 🏷️ Traceability Produk")
-    st.caption("Generate QR code product passport, hash verification, dan consumer feedback loop untuk transparansi produk.")
-    st.page_link("pages/49_🏷️_Traceability_Produk.py", label="Buka Module", icon="🏷️", use_container_width=True)
-
-with col6:
-    st.markdown("#### 🌾 Database Panen")
-    st.caption("Database lengkap hasil panen dengan analisis produktivitas, kualitas, dan historical data.")
-    st.page_link("pages/1_🌾_Database_Panen.py", label="Buka Module", icon="🌾", use_container_width=True)
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-st.subheader("👥 Manajemen & SDM")
-st.caption("Tools untuk manajemen tim dan pengembangan SDM")
-
-col7, col8, col9 = st.columns(3)
-
-with col7:
-    st.markdown("#### 📢 Ruang Kerja PPL")
-    st.caption("Workspace khusus untuk Penyuluh Pertanian Lapangan dengan tools perencanaan dan monitoring kegiatan.")
-    st.page_link("pages/45_📢_Ruang_Kerja_PPL_Final.py", label="Buka Module", icon="📢", use_container_width=True)
-
-with col8:
-    st.markdown("#### 📋 Manajemen Proyek")
-    st.caption("Project management tools untuk koordinasi tim, task tracking, dan timeline monitoring.")
-    st.page_link("pages/50_📋_Manajemen_Proyek_Pertanian.py", label="Buka Module", icon="📋", use_container_width=True)
-
-with col9:
-    st.markdown("#### 🎓 Kurikulum Pelatihan")
-    st.caption("Program pelatihan terstruktur untuk pengembangan kapasitas petani dan tim agribisnis.")
-    st.page_link("pages/53_🎓_Kurikulum_Pelatihan.py", label="Buka Module", icon="🎓", use_container_width=True)
-
-# Footer
-st.markdown("---")
-st.caption("💡 **Tip:** Gunakan sidebar untuk navigasi cepat antar module")
-
+st.markdown("### 👥 Manajemen & SDM")
+c6, c7 = st.columns(2)
+with c6:
+    st.page_link("pages/45_📢_Ruang_Kerja_PPL_Final.py", label="Ruang Kerja PPL", icon="📢", use_container_width=True)
+    st.page_link("pages/50_📋_Manajemen_Proyek_Pertanian.py", label="Manajemen Proyek (Baru)", icon="📋", use_container_width=True)
+with c7:
+    st.page_link("pages/53_🎓_Kurikulum_Pelatihan.py", label="Kurikulum Pelatihan", icon="🎓", use_container_width=True)
