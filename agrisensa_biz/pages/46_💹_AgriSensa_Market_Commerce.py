@@ -29,7 +29,7 @@ try:
     # Enforce Login (Block 'guest')
     current_user = auth.get_current_user()
     if current_user and current_user.get('username') == 'guest':
-        st.info("👋 Halo! Untuk menggunakan Sistem Kasir & Toko, Anda harus login terlebih dahulu.")
+        # Removed hardcoded st.info to allow auth module to handle all UI
         auth.show_login_required()
         st.stop()
         
