@@ -315,10 +315,8 @@ with st.sidebar:
         if scale_factor != 1:
             st.info(f"📐 Formula di-scale {scale_factor}x untuk volume {target_volume}L")
         
-        # Clear AI formula flag
-        del st.session_state['ai_formula']
-        if 'ai_formula_name' in st.session_state:
-            del st.session_state['ai_formula_name']
+        # DON'T delete AI formula - keep it for Business Model tab
+        # It will be cleared when user clicks Reset button
     # Check if recipe was loaded
     elif st.session_state.get('loaded_recipe'):
         loaded_data = st.session_state['loaded_recipe']
