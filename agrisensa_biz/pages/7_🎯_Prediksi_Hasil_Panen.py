@@ -116,28 +116,247 @@ SOIL_TEXTURES = {
     "Liat (Clay)": {"water_retention": 0.9, "nutrient_holding": 1.2, "desc": "Keras saat kering, mengikat air kuat"}
 }
 
-# ================================
-# 🧮 SIMULATION ENGINE
-# ================================
+FERT_PRODUCTS = {
+    # Macros
+    "Urea": {"n": 0.46, "p": 0, "k": 0, "price": 4000, "type": "Solid"},
+    "ZA": {"n": 0.21, "p": 0, "k": 0, "s": 0.24, "price": 2500, "type": "Solid"},
+    "SP-36": {"n": 0, "p": 0.36, "k": 0, "s": 0.05, "price": 3500, "type": "Solid"},
+    "KCl": {"n": 0, "p": 0, "k": 0.60, "price": 12000, "type": "Solid"},
+    "NPK 16-16-16": {"n": 0.16, "p": 0.16, "k": 0.16, "price": 15000, "type": "Solid"},
+    
+    # Secondary & Micro
+    "Dolomit": {"ca": 0.30, "mg": 0.18, "price": 500, "type": "Solid"},
+    "Kieserite": {"mg": 0.27, "s": 0.20, "price": 4000, "type": "Solid"},
+    "Mikro Majemuk": {"fe":0.1, "zn":0.05, "b":0.02, "price": 80000, "type": "Soluble"}, # Simplified
+    
+    # Organics
+    "Kompos": {"price": 1000, "type": "Solid"},
+    "POC": {"price": 35000, "type": "Liquid"},
+    
+    # Hormones
+    "ZPT Auksin": {"price": 45000, "type": "Small"},
+    "ZPT Sitokinin": {"price": 50000, "type": "Small"},
+    "ZPT Giberelin": {"price": 60000, "type": "Small"},
+    "Kalium Booster": {"price": 40000, "type": "Soluble"}
+}
 
-# ================================
-# 🧮 SIMULATION ENGINE
-# ================================
+# ... (Previous simulation code remains unchanged) ...
 
-def gaussian_curve(val, optimal, sigma=1.0):
-    """Bell curve response: 1.0 at optimal, drops as you move away"""
-    # Simply: e^(-0.5 * ((x-mu)/sig)^2)
-    # We calibrate sigma so that +/- 20% deviation gives ~0.8 score
-    spread = optimal * 0.3 # 30% tolerance
-    return np.exp(-0.5 * ((val - optimal) / (spread/2))**2)
+with tab_whatif:
+    st.header("🧪 Lab Simulasi Interaktif Power-Up")
+    st.write("Eksperimen dengan **Teknologi Input Lanjutan** untuk melihat potensi maksimal panen.")
+    
+    # Layout with cols
+    col_input, col_kalkulator = st.columns([1, 1.2]) # Adjusted layout
+    
+    with col_input:
+        with st.expander("1️⃣ Nutrisi Makro Primer (N, P, K)", expanded=True):
+            w_n = st.slider("➕ Tambah N (kg)", 0, 300, 0, help="Tambahan Urea/ZA")
+            w_p = st.slider("➕ Tambah P (kg)", 0, 200, 0, help="Tambahan SP36/DAP")
+            w_k = st.slider("➕ Tambah K (kg)", 0, 200, 0, help="Tambahan KCl/ZK")
+        
+        with st.expander("2️⃣ Nutrisi Makro Sekunder (Ca, Mg, S)"):
+            w_ca = st.slider("🥛 Kalsium (ppm)", 0, 500, 100, help="Dolomit/Kaptan. Penting untuk dinding sel.")
+            w_mg = st.slider("🌿 Magnesium (ppm)", 0, 200, 30, help="Pusat klorofil daun.")
+            w_s = st.slider("🟡 Sulfur (ppm)", 0, 100, 20, help="Penyusun protein & enzim.")
 
-def saturation_curve(val, optimal):
-    """Increases then plateaus (Law of Minimum)"""
-    # 1 - e^(-k * val)
-    # Calibrated so that at 'optimal' value, we reach 0.99
-    if val >= optimal * 1.5: return 0.95 # Toxicity/Waste penalty
-    k = 4.0 / optimal 
-    return 1 - np.exp(-k * val)
+        with st.expander("3️⃣ Nutrisi Mikro Lengkap (Fe, Zn, dll)"):
+            c_m1, c_m2 = st.columns(2)
+            w_fe = c_m1.slider("Besi/Fe", 0.0, 20.0, 2.0)
+            w_mn = c_m2.slider("Mangan/Mn", 0.0, 20.0, 2.0)
+            w_zn = c_m1.slider("Seng/Zn", 0.0, 10.0, 1.0)
+            w_b = c_m2.slider("Boron/B", 0.0, 5.0, 0.5)
+            w_cu = c_m1.slider("Tembaga/Cu", 0.0, 2.0, 0.2)
+            w_mo = c_m2.slider("Molibdenum", 0.0, 1.0, 0.05)
+        
+        with st.expander("4️⃣ Organik & Hayati"):
+            w_org_solid = st.slider("🍂 Organik Padat (kg)", 0, 20000, 0, step=500, help="Kompos/Kohe. Memperbaiki tekstur tanah.")
+            w_org_liq = st.slider("🧴 Organik Cair / POC (Liter)", 0, 500, 0, step=10, help="Booster efisiensi serapan hara.")
+
+        with st.expander("5️⃣ Hormon ZPT & Booster", expanded=True):
+            w_auxin = st.slider("🧬 Auksin (ppm)", 0, 100, 0, help="Perakaran & Vegetatif. Optimal ~30ppm.")
+            w_cyto = st.slider("🦠 Sitokinin (ppm)", 0, 100, 0, help="Pembelahan Sel & Pengisian Buah.")
+            w_ga3 = st.slider("🎋 Giberelin (ppm)", 0, 200, 0, help="Ukuran Buah & Pemanjangan.")
+            st.divider()
+            w_boost = st.slider("💊 Kalium Booster (kg)", 0, 50, 0, help="Pupuk khusus fase generatif.")
+
+    with col_kalkulator:
+        st.subheader("💰 Kalkulator Belanja Pupuk")
+        st.info("Otomatis mengkonversi kebutuhan nutrisi di samping menjadi kebutuhan produk pupuk komersial.")
+        
+        with st.expander("⚙️ Edit Harga Pupuk (Rp/kg atau Rp/L)", expanded=False):
+            c_p1, c_p2 = st.columns(2)
+            p_urea = c_p1.number_input("Harga Urea", 0, 50000, FERT_PRODUCTS["Urea"]["price"])
+            p_sp36 = c_p2.number_input("Harga SP-36", 0, 50000, FERT_PRODUCTS["SP-36"]["price"])
+            p_kcl  = c_p1.number_input("Harga KCl", 0, 50000, FERT_PRODUCTS["KCl"]["price"])
+            p_dolomit = c_p2.number_input("Harga Dolomit", 0, 10000, FERT_PRODUCTS["Dolomit"]["price"])
+            p_kompos = c_p1.number_input("Harga Kompos", 0, 5000, FERT_PRODUCTS["Kompos"]["price"])
+            p_poc = c_p2.number_input("Harga POC (Liter)", 0, 200000, FERT_PRODUCTS["POC"]["price"])
+            p_booster = c_p1.number_input("Harga K-Booster", 0, 200000, FERT_PRODUCTS["Kalium Booster"]["price"])
+        
+        # Calculation Logic
+        req_list = []
+        total_costs = 0
+        
+        # 1. Nitrogen -> Urea (Default)
+        if w_n > 0:
+            qty_urea = w_n / 0.46
+            cost_urea = qty_urea * p_urea
+            req_list.append({"Item": "Urea (46% N)", "Kebutuhan": f"{qty_urea:.1f} kg", "Estimasi Biaya": cost_urea})
+            total_costs += cost_urea
+            
+        # 2. Fosfor -> SP-36
+        if w_p > 0:
+            qty_sp36 = w_p / 0.36
+            cost_sp36 = qty_sp36 * p_sp36
+            req_list.append({"Item": "SP-36 (36% P)", "Kebutuhan": f"{qty_sp36:.1f} kg", "Estimasi Biaya": cost_sp36})
+            total_costs += cost_sp36
+
+        # 3. Kalium -> KCl
+        if w_k > 0:
+            qty_kcl = w_k / 0.60
+            cost_kcl = qty_kcl * p_kcl
+            req_list.append({"Item": "KCl (60% K)", "Kebutuhan": f"{qty_kcl:.1f} kg", "Estimasi Biaya": cost_kcl})
+            total_costs += cost_kcl
+            
+        # 4. Secondary (Example: Ca -> Dolomit)
+        # Ca ppm to kg/ha approx: ppm * 2 (Assuming depth 20cmBD 1.0) -> roughly
+        # Simplified: 1 ppm Ca ~ 2 kg Ca/ha needed in soil app? No, ppm is conc.
+        # Let's assume the slider is "Target increase in ppm".
+        # Soil mass/ha ~ 2,000,000 kg (20cm). 1 ppm = 2 kg element.
+        if w_ca > 0:
+            ca_kg_needed = w_ca * 2 # 2kg Ca per ppm
+            dolomit_needed = ca_kg_needed / 0.30 # 30% Ca
+            cost_dol = dolomit_needed * p_dolomit
+            req_list.append({"Item": "Dolomit (30% Ca)", "Kebutuhan": f"{dolomit_needed:.1f} kg", "Estimasi Biaya": cost_dol})
+            total_costs += cost_dol
+
+        # Organics
+        if w_org_solid > 0:
+            cost_org = w_org_solid * p_kompos
+            req_list.append({"Item": "Kompos/Organik", "Kebutuhan": f"{w_org_solid:,.0f} kg", "Estimasi Biaya": cost_org})
+            total_costs += cost_org
+            
+        if w_org_liq > 0:
+            cost_poc = w_org_liq * p_poc
+            req_list.append({"Item": "POC (Cair)", "Kebutuhan": f"{w_org_liq:,.0f} L", "Estimasi Biaya": cost_poc})
+            total_costs += cost_poc
+            
+        # Booster
+        if w_boost > 0:
+            cost_boost = w_boost * p_booster
+            req_list.append({"Item": "Kalium Booster", "Kebutuhan": f"{w_boost:.1f} kg", "Estimasi Biaya": cost_boost})
+            total_costs += cost_boost
+
+        # Display Table
+        if req_list:
+            df_cost = pd.DataFrame(req_list)
+            st.dataframe(
+                df_cost, 
+                column_config={
+                    "Estimasi Biaya": st.column_config.NumberColumn(format="Rp %d")
+                },
+                use_container_width=True,
+                hide_index=True
+            )
+            st.metric("Total Estimasi Biaya", f"Rp {total_costs:,.0f}", delta_color="off")
+        else:
+            st.info("Geser slider di menu kiri untuk melihat kebutuhan pupuk.")
+            
+        # Re-run logic for simulator (Simplified for brevity in view)
+        sim_params = params.copy()
+        
+        # Additive updates to base params
+        sim_params['n'] += w_n
+        sim_params['p'] += w_p
+        sim_params['k'] += w_k
+        
+        # New params override
+        sim_params['ca_ppm'] = w_ca
+        sim_params['mg_ppm'] = w_mg
+        sim_params['s_ppm'] = w_s
+        
+        sim_params['fe_ppm'] = w_fe
+        sim_params['mn_ppm'] = w_mn
+        sim_params['zn_ppm'] = w_zn
+        sim_params['b_ppm'] = w_b
+        sim_params['cu_ppm'] = w_cu
+        sim_params['mo_ppm'] = w_mo
+        
+        sim_params['org_solid'] = w_org_solid
+        sim_params['org_liquid'] = w_org_liq
+        
+        sim_params['auxin_ppm'] = w_auxin
+        sim_params['cyto_ppm'] = w_cyto
+        sim_params['ga3_ppm'] = w_ga3
+        sim_params['booster_kg'] = w_boost
+        
+        sim_res = run_simulation(s_crop, s_var, s_grad, sim_params)
+        
+        delta_kg = sim_res['yield_kg'] - res['yield_kg']
+        delta_rev = delta_kg * price_est
+        
+        net_profit_delta = delta_rev - total_costs # Use calculated total_costs
+
+        st.subheader("📊 Hasil Prediksi Real-Time")
+        
+        met1, met2, met3 = st.columns(3)
+        met1.metric("Hasil Panen Baru", f"{sim_res['yield_kg']:,.0f} kg", f"{delta_kg:+,.0f} kg")
+        met2.metric("Nilai Tambah (Gross)", f"Rp {delta_rev:+,.0f}", help="Belum dikurangi biaya input simulasi")
+        met3.metric("Net Profit Tambahan", f"Rp {net_profit_delta:,.0f}", delta_color="normal" if net_profit_delta >= 0 else "inverse")
+        
+        # Progress Bar Visualization
+        st.write("---")
+        st.write("**Perbandingan Performance (% Potensi Genetik):**")
+        
+        col_bar_lbl, col_bar_val = st.columns([1,3])
+        with col_bar_lbl: st.write("Awal")
+        with col_bar_val: st.progress(int(min(100, res['yield_pct'])))
+        
+        col_bar_lbl2, col_bar_val2 = st.columns([1,3])
+        with col_bar_lbl2: st.write("Simulasi")
+        with col_bar_val2: 
+            p_val = int(min(100, sim_res['yield_pct']))
+            st.progress(p_val)
+            if sim_res['yield_pct'] > 100:
+                st.caption(f"🚀 **SUPER-OPTIMAL!** ({sim_res['yield_pct']:.1f}%) - Efek ZPT & Booster Aktif.")
+        
+        # Diagnostics
+        with st.expander("🔍 Analisis Dampak Input (Diagnostics)", expanded=True):
+            mults = sim_res['multipliers']
+            st.write(f"- **Efek Organik Padat:** +{(mults['organic_solid']-1)*100:.1f}%")
+            st.write(f"- **Efek Organik Cair:** +{(mults['organic_liquid']-1)*100:.1f}%")
+            
+            # Detailed Hormone Breakdown
+            c_z1, c_z2, c_z3 = st.columns(3)
+            with c_z1:
+                eff = (mults['auxin']-1)*100
+                st.metric("Auksin (Root)", f"{eff:+.1f}%", delta_color="normal" if eff >= 0 else "inverse")
+            with c_z2:
+                eff = (mults['cyto']-1)*100
+                st.metric("Sitokinin (Cell)", f"{eff:+.1f}%")
+            with c_z3:
+                eff = (mults['ga3']-1)*100
+                st.metric("Giberelin (Size)", f"{eff:+.1f}%", delta_color="normal" if eff >= 0 else "inverse")
+
+            st.markdown("---")
+            st.markdown("**Status Nutrisi Mikro & Sekunder:**")
+            micros = sim_res['micros']
+            macros_sec = sim_res['macros_sec']
+            
+            c_d1, c_d2 = st.columns(2)
+            with c_d1:
+                st.write("**Makro Sekunder**")
+                st.progress(macros_sec['ca'], text=f"Kalsium (Ca): {macros_sec['ca']*100:.0f}%")
+                st.progress(macros_sec['mg'], text=f"Magnesium (Mg): {macros_sec['mg']*100:.0f}%")
+                st.progress(macros_sec['s'], text=f"Sulfur (S): {macros_sec['s']*100:.0f}%")
+            with c_d2:
+                st.write("**Mikro Esensial**")
+                st.progress(micros['fe'], text=f"Besi (Fe): {micros['fe']*100:.0f}%")
+                st.progress(micros['zn'], text=f"Seng (Zn): {micros['zn']*100:.0f}%")
+                st.progress(micros['b'], text=f"Boron (B): {micros['b']*100:.0f}%")
+            
+            st.write(f"- **Efek Booster Buah:** +{(mults['booster']-1)*100:.1f}%")
 
 def sigmoid_curve(val, max_boost=1.1, midpoint=50):
     """S-curve for organic/bio boosters (diminishing returns)"""
