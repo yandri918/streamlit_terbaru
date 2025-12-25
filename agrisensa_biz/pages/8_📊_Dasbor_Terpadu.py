@@ -237,7 +237,7 @@ with col_left:
         st.write("Analisis menunjukkan penurunan kualitas tanah (pH atau NPK). Segera lakukan uji lab ulang atau aplikasi pembenah tanah (Dolomit/Organik).")
         st.button("Buka Modul Rekomendasi Pupuk", type="primary")
         
-    if dim_scores['Financial'] < 50 and metrics['harvest_count'] > 0:
+    if dim_scores['Financial'] < 50 and kpi_metrics['harvest_count'] > 0:
         st.warning("⚠️ **Profitability Warning**")
         st.write("Margin keuntungan rata-rata di bawah target 20%. Pertimbangkan efisiensi biaya input atau pivot ke varietas bernilai tinggi.")
         
