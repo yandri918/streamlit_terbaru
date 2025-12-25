@@ -834,6 +834,256 @@ if inputs:
                 st.markdown(f"- {suggestion}")
         else:
             st.success("✅ Formula POC sudah optimal untuk " + selected_crop + "!")
+    
+    # Application Schedule Generator
+    st.markdown("---")
+    st.subheader("📱 Jadwal Aplikasi POC")
+    
+    col_sch1, col_sch2 = st.columns([1, 2])
+    
+    with col_sch1:
+        st.markdown("**⚙️ Konfigurasi Jadwal:**")
+        planting_date = st.date_input("Tanggal Tanam", value=datetime.now())
+        crop_cycle_days = st.number_input("Siklus Tanaman (hari)", value=90, min_value=30, max_value=365, step=10)
+        application_frequency = st.selectbox("Frekuensi Aplikasi", 
+                                             ["Setiap 7 hari", "Setiap 10 hari", "Setiap 14 hari", "Custom"])
+        
+        if application_frequency == "Custom":
+            custom_freq = st.number_input("Interval (hari)", value=7, min_value=3, max_value=30)
+            freq_days = custom_freq
+        else:
+            freq_days = int(application_frequency.split()[1])
+        
+        num_applications = crop_cycle_days // freq_days
+        total_poc_needed = (total_solution / ratio_value) * num_applications  # POC concentrate needed
+    
+    with col_sch2:
+        st.markdown("**📅 Kalender Aplikasi:**")
+        
+        schedule_data = []
+        current_date = planting_date
+        
+        for i in range(num_applications):
+            app_date = current_date + timedelta(days=i * freq_days)
+            day_after_planting = i * freq_days
+            
+            # Determine phase
+            if day_after_planting < crop_cycle_days * 0.4:
+                phase = "🌱 Vegetatif"
+                recommended_ratio = "1:10"
+            elif day_after_planting < crop_cycle_days * 0.8:
+                phase = "🌸 Generatif"
+                recommended_ratio = "1:8"
+            else:
+                phase = "🌾 Pemeliharaan"
+                recommended_ratio = "1:15"
+            
+            schedule_data.append({
+                "Aplikasi": f"#{i+1}",
+                "Tanggal": app_date.strftime("%d %b %Y"),
+                "HST": day_after_planting,
+                "Fase": phase,
+                "Rasio": recommended_ratio,
+                "POC": f"{poc_volume_available:.1f}L"
+            })
+        
+        df_schedule = pd.DataFrame(schedule_data)
+        st.dataframe(df_schedule, use_container_width=True, hide_index=True, height=300)
+        
+        st.info(f"""
+        **📊 Ringkasan:**
+        - Total Aplikasi: {num_applications}x
+        - POC Dibutuhkan: {total_poc_needed:.1f} L
+        - Harvest: {(planting_date + timedelta(days=crop_cycle_days)).strftime('%d %b %Y')}
+        """)
+    
+    # Cost Comparison Chart
+    st.markdown("---")
+    st.subheader("📊 Perbandingan Biaya vs Pupuk Komersial")
+    
+    col_cost1, col_cost2, col_cost3 = st.columns(3)
+    
+    with col_cost1:
+        st.markdown("**💰 Harga Pupuk Komersial:**")
+        commercial_npk_price = st.number_input("NPK Pabrikan (Rp/kg)", value=12000, min_value=0, step=1000)
+        commercial_poc_price = st.number_input("POC Komersial (Rp/L)", value=50000, min_value=0, step=5000)
+    
+    with col_cost2:
+        st.markdown("**🧪 POC Anda:**")
+        poc_cost_per_liter = total_cost_with_water / target_volume
+        st.metric("Biaya POC/Liter", f"Rp {poc_cost_per_liter:,.0f}")
+        
+        # Calculate NPK equivalent
+        npk_equivalent_kg = (n_pct + p_pct + k_pct) / 45 * target_volume  # Rough estimate
+        st.metric("Setara NPK", f"{npk_equivalent_kg:.1f} kg")
+    
+    with col_cost3:
+        st.markdown("**💵 Penghematan:**")
+        
+        # Compare with commercial POC
+        savings_vs_commercial_poc = (commercial_poc_price - poc_cost_per_liter) * target_volume
+        savings_pct_poc = (savings_vs_commercial_poc / (commercial_poc_price * target_volume)) * 100 if commercial_poc_price > 0 else 0
+        
+        st.metric("vs POC Komersial", 
+                 f"Rp {savings_vs_commercial_poc:,.0f}", 
+                 delta=f"{savings_pct_poc:.0f}% lebih murah" if savings_vs_commercial_poc > 0 else f"{abs(savings_pct_poc):.0f}% lebih mahal")
+        
+        # Compare with NPK
+        commercial_npk_cost = npk_equivalent_kg * commercial_npk_price
+        savings_vs_npk = commercial_npk_cost - total_cost_with_water
+        savings_pct_npk = (savings_vs_npk / commercial_npk_cost) * 100 if commercial_npk_cost > 0 else 0
+        
+        st.metric("vs NPK Pabrikan", 
+                 f"Rp {savings_vs_npk:,.0f}", 
+                 delta=f"{savings_pct_npk:.0f}% lebih murah" if savings_vs_npk > 0 else f"{abs(savings_pct_npk):.0f}% lebih mahal")
+    
+    # Visualize cost comparison
+    comparison_chart_data = {
+        "Jenis": ["POC Anda", "POC Komersial", "NPK Pabrikan"],
+        "Biaya": [total_cost_with_water, commercial_poc_price * target_volume, commercial_npk_cost]
+    }
+    df_cost_comp = pd.DataFrame(comparison_chart_data)
+    
+    fig_cost = px.bar(df_cost_comp, x="Jenis", y="Biaya", 
+                      title="Perbandingan Biaya Total",
+                      color="Jenis",
+                      color_discrete_map={"POC Anda": "#10b981", "POC Komersial": "#f59e0b", "NPK Pabrikan": "#ef4444"})
+    fig_cost.update_layout(height=300, showlegend=False)
+    st.plotly_chart(fig_cost, use_container_width=True)
+    
+    # Batch Production Planner
+    st.markdown("---")
+    st.subheader("📅 Perencanaan Produksi Batch")
+    
+    col_batch1, col_batch2 = st.columns([1, 2])
+    
+    with col_batch1:
+        st.markdown("**⚙️ Konfigurasi Produksi:**")
+        batches_per_month = st.number_input("Batch per Bulan", value=4, min_value=1, max_value=12, step=1)
+        fermentation_days = st.number_input("Lama Fermentasi (hari)", value=14, min_value=7, max_value=30, step=1)
+        
+        # Calculate staggered schedule
+        days_between_batches = 30 / batches_per_month
+    
+    with col_batch2:
+        st.markdown("**📅 Jadwal Produksi Bulanan:**")
+        
+        batch_schedule = []
+        start_date = datetime.now()
+        
+        for batch_num in range(batches_per_month):
+            batch_start = start_date + timedelta(days=batch_num * days_between_batches)
+            batch_ready = batch_start + timedelta(days=fermentation_days)
+            
+            batch_schedule.append({
+                "Batch": f"#{batch_num + 1}",
+                "Mulai": batch_start.strftime("%d %b"),
+                "Siap": batch_ready.strftime("%d %b"),
+                "Volume": f"{target_volume}L",
+                "Status": "🟢 Aktif" if batch_num == 0 else "⏳ Terjadwal"
+            })
+        
+        df_batch = pd.DataFrame(batch_schedule)
+        st.dataframe(df_batch, use_container_width=True, hide_index=True)
+        
+        # Monthly summary
+        monthly_poc_production = target_volume * batches_per_month
+        monthly_cost = total_cost_with_water * batches_per_month
+        monthly_materials_needed = {mat: qty * batches_per_month for mat, qty in inputs.items()}
+        
+        st.success(f"""
+        **📊 Ringkasan Bulanan:**
+        - Total Produksi: {monthly_poc_production:.0f} L/bulan
+        - Total Biaya: Rp {monthly_cost:,.0f}/bulan
+        - Biaya per Liter: Rp {monthly_cost/monthly_poc_production:,.0f}
+        """)
+        
+        # Show material needs
+        with st.expander("📦 Kebutuhan Bahan Bulanan"):
+            for material, total_qty in monthly_materials_needed.items():
+                # Find unit
+                unit = "unit"
+                for cat_materials in MATERIALS.values():
+                    if material in cat_materials:
+                        unit = cat_materials[material]['unit']
+                        break
+                st.write(f"- {material}: {total_qty:.1f} {unit}")
+    
+    # Nutrient Trend Tracker
+    st.markdown("---")
+    st.subheader("📈 Pelacak Tren Nutrisi")
+    
+    # Initialize trend data in session state
+    if 'nutrient_history' not in st.session_state:
+        st.session_state['nutrient_history'] = []
+    
+    col_trend1, col_trend2 = st.columns([1, 2])
+    
+    with col_trend1:
+        st.markdown("**💾 Simpan Data Batch:**")
+        
+        if st.button("📊 Simpan Batch Ini ke History", type="primary", use_container_width=True):
+            batch_data = {
+                'date': datetime.now().strftime("%Y-%m-%d"),
+                'batch_name': f"Batch {len(st.session_state['nutrient_history']) + 1}",
+                'N': n_pct,
+                'P': p_pct,
+                'K': k_pct,
+                'C': c_pct,
+                'cost': total_cost_with_water,
+                'volume': target_volume
+            }
+            st.session_state['nutrient_history'].append(batch_data)
+            st.success(f"✅ Batch #{len(st.session_state['nutrient_history'])} tersimpan!")
+            st.rerun()
+        
+        if st.session_state['nutrient_history']:
+            if st.button("🗑️ Clear History", use_container_width=True):
+                st.session_state['nutrient_history'] = []
+                st.rerun()
+            
+            st.info(f"📊 Total Batch: {len(st.session_state['nutrient_history'])}")
+    
+    with col_trend2:
+        if st.session_state['nutrient_history']:
+            st.markdown("**📈 Tren NPK dari Waktu ke Waktu:**")
+            
+            # Create trend dataframe
+            trend_df = pd.DataFrame(st.session_state['nutrient_history'])
+            
+            # Plot NPK trends
+            fig_trend = go.Figure()
+            fig_trend.add_trace(go.Scatter(x=trend_df['batch_name'], y=trend_df['N'], 
+                                          mode='lines+markers', name='N (%)', line=dict(color='#10b981')))
+            fig_trend.add_trace(go.Scatter(x=trend_df['batch_name'], y=trend_df['P'], 
+                                          mode='lines+markers', name='P (%)', line=dict(color='#f59e0b')))
+            fig_trend.add_trace(go.Scatter(x=trend_df['batch_name'], y=trend_df['K'], 
+                                          mode='lines+markers', name='K (%)', line=dict(color='#3b82f6')))
+            
+            fig_trend.update_layout(
+                title="Tren Kandungan NPK",
+                xaxis_title="Batch",
+                yaxis_title="Konsentrasi (%)",
+                height=300,
+                hovermode='x unified'
+            )
+            st.plotly_chart(fig_trend, use_container_width=True)
+            
+            # Analysis
+            if len(trend_df) >= 2:
+                latest_n = trend_df.iloc[-1]['N']
+                prev_n = trend_df.iloc[-2]['N']
+                n_change = ((latest_n - prev_n) / prev_n * 100) if prev_n > 0 else 0
+                
+                st.markdown("**📊 Analisis Perubahan:**")
+                if abs(n_change) < 5:
+                    st.success(f"✅ Formula konsisten (N: {n_change:+.1f}%)")
+                elif n_change > 0:
+                    st.info(f"📈 N meningkat {n_change:.1f}% dari batch sebelumnya")
+                else:
+                    st.warning(f"📉 N menurun {abs(n_change):.1f}% dari batch sebelumnya")
+        else:
+            st.info("💡 Simpan batch pertama untuk mulai tracking tren nutrisi")
 
 else:
     st.info("👈 Silakan pilih template atau input bahan di sidebar untuk mulai menghitung POC")
