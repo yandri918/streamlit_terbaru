@@ -71,7 +71,7 @@ def modern_card(title, value, delta=None, icon="📊", color="green"):
 
 def dashboard_header(title, subtitle, user_name=None):
     """
-    Modern dashboard header with greeting
+    Modern dashboard header with greeting (using Streamlit native components)
     
     Args:
         title: Page title
@@ -79,36 +79,17 @@ def dashboard_header(title, subtitle, user_name=None):
         user_name: Optional user name for personalized greeting
     """
     import datetime
-    hour = datetime.datetime.now().hour
-    greeting = "Selamat Pagi" if hour < 12 else "Selamat Siang" if hour < 18 else "Selamat Malam"
     
-    greeting_html = ''
+    # Greeting message
     if user_name:
-        greeting_html = f"""
-        <div style="color: #94A3B8; font-size: 0.875rem; margin-bottom: 0.5rem;">
-            {greeting}, {user_name} 👋
-        </div>
-        """
+        hour = datetime.datetime.now().hour
+        greeting = "Selamat Pagi" if hour < 12 else "Selamat Siang" if hour < 18 else "Selamat Malam"
+        st.caption(f"{greeting}, {user_name} 👋")
     
-    header_html = f"""
-    <div style="
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-        padding: 2rem;
-        border-radius: 16px;
-        margin-bottom: 2rem;
-        border: 1px solid #334155;
-    ">
-        {greeting_html}
-        <h1 style="color: #F1F5F9; margin: 0; font-size: 2rem; font-weight: 700;">
-            {title}
-        </h1>
-        <p style="color: #94A3B8; margin-top: 0.5rem; font-size: 1rem; margin-bottom: 0;">
-            {subtitle}
-        </p>
-    </div>
-    """
-    # CRITICAL: Must have unsafe_allow_html=True
-    st.markdown(header_html, unsafe_allow_html=True)
+    # Title and subtitle using native Streamlit
+    st.title(f"📈 {title}")
+    st.caption(subtitle)
+    st.markdown("---")
 
 
 def stats_grid(stats_list):
@@ -177,23 +158,15 @@ def info_card(title, content, icon="ℹ️", color="blue"):
 
 def section_header(title, subtitle=None):
     """
-    Section header with optional subtitle
+    Section header with optional subtitle (using Streamlit native)
     
     Args:
         title: Section title
         subtitle: Optional subtitle
     """
-    subtitle_html = f'<p style="color: #94A3B8; margin-top: 0.25rem; font-size: 0.9375rem;">{subtitle}</p>' if subtitle else ''
-    
-    header_html = f"""
-    <div style="margin: 2rem 0 1rem 0;">
-        <h2 style="color: #F1F5F9; margin: 0; font-size: 1.5rem; font-weight: 700;">
-            {title}
-        </h2>
-        {subtitle_html}
-    </div>
-    """
-    st.markdown(header_html, unsafe_allow_html=True)
+    st.subheader(title)
+    if subtitle:
+        st.caption(subtitle)
 
 
 def loading_spinner(message="Loading..."):
