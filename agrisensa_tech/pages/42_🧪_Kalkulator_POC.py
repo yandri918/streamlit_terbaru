@@ -63,6 +63,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Create tabs
+tab1, tab2 = st.tabs(["🧪 Kalkulator POC", "💼 Business Model"])
+
+with tab1:
+    st.markdown("### Formula & Analisis POC")
+
 # Material Database with Nutrient Content
 MATERIALS = {
     "Urine": {
@@ -1087,6 +1093,296 @@ if inputs:
 
 else:
     st.info("👈 Silakan pilih template atau input bahan di sidebar untuk mulai menghitung POC")
+
+# Business Model Tab
+with tab2:
+    st.markdown("### 💼 Model Bisnis Produksi POC Komersial")
+    st.info("🏭 **Kapasitas Pabrikan:** Drum 1000 Liter | 3 Varian Produk | Analisis Kelayakan Bisnis Lengkap")
+    
+    # Production Setup
+    st.markdown("---")
+    st.subheader("🏭 Setup Produksi")
+    
+    col_prod1, col_prod2, col_prod3 = st.columns(3)
+    
+    with col_prod1:
+        num_drums = st.number_input("Jumlah Drum (1000L)", value=4, min_value=1, max_value=20, step=1)
+        fermentation_days = st.number_input("Lama Fermentasi (hari)", value=14, min_value=7, max_value=30, step=1)
+    
+    with col_prod2:
+        cycles_per_month = st.number_input("Siklus per Bulan", value=2, min_value=1, max_value=4, step=1)
+        capacity_utilization = st.slider("Utilisasi Kapasitas (%)", 30, 100, 70, 5)
+    
+    with col_prod3:
+        monthly_capacity = num_drums * 1000 * cycles_per_month * (capacity_utilization / 100)
+        annual_capacity = monthly_capacity * 12
+        st.metric("Kapasitas Bulanan", f"{monthly_capacity:,.0f} L")
+        st.metric("Kapasitas Tahunan", f"{annual_capacity:,.0f} L")
+    
+    # Product Variants
+    st.markdown("---")
+    st.subheader("📦 Varian Produk & Sales Mix")
+    
+    col_var1, col_var2, col_var3 = st.columns(3)
+    
+    with col_var1:
+        st.markdown("**🌱 POC Vegetatif (High N)**")
+        st.caption("Target: N=0.4%, P=0.15%, K=0.2%")
+        veg_mix = st.slider("Sales Mix Vegetatif (%)", 0, 100, 30, 5, key="veg_mix")
+        veg_cost_per_liter = st.number_input("Biaya Produksi/L", value=500, min_value=100, step=50, key="veg_cost")
+    
+    with col_var2:
+        st.markdown("**🌸 POC Generatif (High K)**")
+        st.caption("Target: N=0.25%, P=0.2%, K=0.45%")
+        gen_mix = st.slider("Sales Mix Generatif (%)", 0, 100, 40, 5, key="gen_mix")
+        gen_cost_per_liter = st.number_input("Biaya Produksi/L", value=600, min_value=100, step=50, key="gen_cost")
+    
+    with col_var3:
+        st.markdown("**⚖️ POC Balanced**")
+        st.caption("Target: N=0.3%, P=0.2%, K=0.3%")
+        bal_mix = 100 - veg_mix - gen_mix
+        st.metric("Sales Mix Balanced", f"{bal_mix}%")
+        bal_cost_per_liter = st.number_input("Biaya Produksi/L", value=550, min_value=100, step=50, key="bal_cost")
+    
+    # Weighted average cost
+    avg_cost_per_liter = (veg_cost_per_liter * veg_mix + gen_cost_per_liter * gen_mix + bal_cost_per_liter * bal_mix) / 100
+    
+    # Cost Structure
+    st.markdown("---")
+    st.subheader("💰 Struktur Biaya")
+    
+    col_cost1, col_cost2 = st.columns(2)
+    
+    with col_cost1:
+        st.markdown("**🔧 Biaya Tetap (Fixed Costs)**")
+        
+        # Equipment
+        drum_price = st.number_input("Harga Drum 1000L", value=2500000, step=100000)
+        mixer_price = st.number_input("Mixer/Aerator", value=1500000, step=100000)
+        equipment_other = st.number_input("Peralatan Lain", value=2000000, step=100000)
+        
+        total_equipment = (drum_price * num_drums) + mixer_price + equipment_other
+        
+        # Facility
+        monthly_rent = st.number_input("Sewa Tempat/Bulan", value=2000000, step=100000)
+        
+        # Licensing
+        licensing = st.number_input("Izin & Sertifikasi", value=2000000, step=100000)
+        
+        total_fixed_initial = total_equipment + licensing
+        monthly_fixed = monthly_rent + (total_equipment / 60)  # Depreciation 5 years
+        
+        st.success(f"""
+        **Total Investasi Awal:** Rp {total_fixed_initial:,.0f}
+        **Biaya Tetap Bulanan:** Rp {monthly_fixed:,.0f}
+        """)
+    
+    with col_cost2:
+        st.markdown("**⚙️ Biaya Operasional Bulanan**")
+        
+        # Raw materials (already calculated per liter)
+        raw_material_cost = avg_cost_per_liter * monthly_capacity
+        
+        # Packaging
+        packaging_1l = st.number_input("Kemasan 1L (Rp/unit)", value=2000, step=100)
+        packaging_5l = st.number_input("Kemasan 5L (Rp/unit)", value=8000, step=500)
+        
+        # Labor
+        labor_cost = st.number_input("Gaji Karyawan Total", value=7500000, step=500000)
+        
+        # Utilities
+        utilities = st.number_input("Listrik + Air + Gas", value=1000000, step=100000)
+        
+        # Marketing
+        marketing_pct = st.slider("Marketing Budget (% Revenue)", 5, 20, 10, 1)
+        
+        total_operational_base = raw_material_cost + labor_cost + utilities
+        
+        st.success(f"""
+        **Bahan Baku:** Rp {raw_material_cost:,.0f}
+        **Total Operasional:** Rp {total_operational_base:,.0f}/bulan
+        """)
+    
+    # Pricing Strategy
+    st.markdown("---")
+    st.subheader("💵 Strategi Harga & Packaging")
+    
+    col_price1, col_price2, col_price3 = st.columns(3)
+    
+    with col_price1:
+        st.markdown("**📊 Margin & Harga**")
+        margin_pct = st.slider("Target Margin (%)", 30, 150, 100, 10)
+        
+        # Calculate selling price
+        price_1l = avg_cost_per_liter * (1 + margin_pct/100)
+        price_5l_per_liter = price_1l * 0.9  # 10% discount for 5L
+        price_5l = price_5l_per_liter * 5
+        
+        st.metric("Harga 1L", f"Rp {price_1l:,.0f}")
+        st.metric("Harga 5L", f"Rp {price_5l:,.0f}")
+        st.caption(f"(Rp {price_5l_per_liter:,.0f}/L)")
+    
+    with col_price2:
+        st.markdown("**📦 Packaging Mix**")
+        packaging_1l_pct = st.slider("Kemasan 1L (%)", 0, 100, 40, 5)
+        packaging_5l_pct = 100 - packaging_1l_pct
+        
+        st.info(f"""
+        - 1L: {packaging_1l_pct}%
+        - 5L: {packaging_5l_pct}%
+        """)
+    
+    with col_price3:
+        st.markdown("**💼 Benchmark Pasar**")
+        commercial_poc_price = st.number_input("POC Komersial (Rp/L)", value=50000, step=5000)
+        
+        price_vs_market = ((price_1l - commercial_poc_price) / commercial_poc_price) * 100
+        
+        if price_vs_market < -20:
+            st.success(f"✅ {abs(price_vs_market):.0f}% lebih murah dari pasar")
+        elif price_vs_market < 0:
+            st.info(f"👍 {abs(price_vs_market):.0f}% lebih murah dari pasar")
+        else:
+            st.warning(f"⚠️ {price_vs_market:.0f}% lebih mahal dari pasar")
+    
+    # Revenue Projections
+    st.markdown("---")
+    st.subheader("📈 Proyeksi Pendapatan & Profit")
+    
+    # Calculate revenue
+    volume_1l = monthly_capacity * (packaging_1l_pct / 100)
+    volume_5l_units = (monthly_capacity * (packaging_5l_pct / 100)) / 5
+    
+    revenue_1l = volume_1l * price_1l
+    revenue_5l = volume_5l_units * price_5l
+    total_revenue = revenue_1l + revenue_5l
+    
+    # Packaging costs
+    packaging_cost = (volume_1l * packaging_1l) + (volume_5l_units * packaging_5l)
+    
+    # Marketing cost
+    marketing_cost = total_revenue * (marketing_pct / 100)
+    
+    # Total costs
+    total_monthly_cost = monthly_fixed + total_operational_base + packaging_cost + marketing_cost
+    
+    # Profit
+    monthly_profit = total_revenue - total_monthly_cost
+    annual_profit = monthly_profit * 12
+    
+    # Metrics
+    col_rev1, col_rev2, col_rev3, col_rev4 = st.columns(4)
+    
+    with col_rev1:
+        st.metric("Revenue Bulanan", f"Rp {total_revenue:,.0f}")
+        st.caption(f"1L: Rp {revenue_1l:,.0f}")
+        st.caption(f"5L: Rp {revenue_5l:,.0f}")
+    
+    with col_rev2:
+        st.metric("Total Biaya", f"Rp {total_monthly_cost:,.0f}")
+        st.caption(f"Fixed: Rp {monthly_fixed:,.0f}")
+        st.caption(f"Variable: Rp {(total_monthly_cost - monthly_fixed):,.0f}")
+    
+    with col_rev3:
+        st.metric("Profit Bulanan", f"Rp {monthly_profit:,.0f}", 
+                 delta=f"{(monthly_profit/total_revenue*100):.1f}% margin")
+        st.caption(f"Tahunan: Rp {annual_profit:,.0f}")
+    
+    with col_rev4:
+        roi_annual = (annual_profit / total_fixed_initial) * 100
+        payback_months = total_fixed_initial / monthly_profit if monthly_profit > 0 else 999
+        st.metric("ROI Tahunan", f"{roi_annual:.0f}%")
+        st.caption(f"Payback: {payback_months:.1f} bulan")
+    
+    # Break-Even Analysis
+    st.markdown("---")
+    st.subheader("⚖️ Analisis Break-Even")
+    
+    col_be1, col_be2 = st.columns(2)
+    
+    with col_be1:
+        # Calculate break-even
+        contribution_margin_per_liter = ((price_1l * packaging_1l_pct + price_5l_per_liter * packaging_5l_pct) / 100) - avg_cost_per_liter
+        
+        if contribution_margin_per_liter > 0:
+            breakeven_liters = monthly_fixed / contribution_margin_per_liter
+            breakeven_pct = (breakeven_liters / monthly_capacity) * 100 if monthly_capacity > 0 else 0
+            
+            st.success(f"""
+            **Break-Even Point:**
+            - Volume: {breakeven_liters:,.0f} Liter/bulan
+            - Utilisasi: {breakeven_pct:.1f}% kapasitas
+            - Revenue: Rp {(breakeven_liters * ((price_1l * packaging_1l_pct + price_5l_per_liter * packaging_5l_pct) / 100)):,.0f}
+            """)
+        else:
+            st.error("⚠️ Margin negatif - harga jual terlalu rendah!")
+    
+    with col_be2:
+        # Profitability chart
+        scenarios = ["Worst (30%)", "Base (70%)", "Best (90%)"]
+        scenario_utils = [30, 70, 90]
+        scenario_profits = []
+        
+        for util in scenario_utils:
+            scenario_capacity = num_drums * 1000 * cycles_per_month * (util / 100)
+            scenario_revenue = scenario_capacity * ((price_1l * packaging_1l_pct + price_5l_per_liter * packaging_5l_pct) / 100)
+            scenario_var_cost = scenario_capacity * avg_cost_per_liter + (scenario_revenue * marketing_pct / 100)
+            scenario_profit = scenario_revenue - monthly_fixed - scenario_var_cost
+            scenario_profits.append(scenario_profit)
+        
+        fig_scenario = go.Figure(data=[
+            go.Bar(x=scenarios, y=scenario_profits, 
+                   marker_color=['#ef4444', '#3b82f6', '#10b981'],
+                   text=[f"Rp {p:,.0f}" for p in scenario_profits],
+                   textposition='outside')
+        ])
+        fig_scenario.update_layout(
+            title="Profit per Skenario Utilisasi",
+            yaxis_title="Profit (Rp)",
+            height=300,
+            showlegend=False
+        )
+        st.plotly_chart(fig_scenario, use_container_width=True)
+    
+    # Business Summary
+    st.markdown("---")
+    st.subheader("📊 Ringkasan Kelayakan Bisnis")
+    
+    # Determine feasibility
+    is_feasible = monthly_profit > 0 and payback_months < 24 and roi_annual > 50
+    
+    if is_feasible:
+        st.success(f"""
+        ### ✅ BISNIS LAYAK!
+        
+        **Highlights:**
+        - 💰 Profit: Rp {monthly_profit:,.0f}/bulan (Rp {annual_profit:,.0f}/tahun)
+        - 📈 ROI: {roi_annual:.0f}% per tahun
+        - ⏱️ Payback Period: {payback_months:.1f} bulan
+        - 🎯 Break-Even: {breakeven_pct:.1f}% kapasitas
+        - 💵 Margin: {(monthly_profit/total_revenue*100):.1f}%
+        
+        **Rekomendasi:**
+        - Mulai dengan {num_drums} drum untuk test market
+        - Focus pada produk Generatif (margin lebih tinggi)
+        - Target utilisasi minimal {breakeven_pct:.0f}% untuk BEP
+        - Investasi marketing {marketing_pct}% dari revenue
+        """)
+    else:
+        st.warning(f"""
+        ### ⚠️ PERLU OPTIMASI
+        
+        **Issues:**
+        - Profit: Rp {monthly_profit:,.0f}/bulan
+        - ROI: {roi_annual:.0f}% (target >50%)
+        - Payback: {payback_months:.1f} bulan (target <24)
+        
+        **Saran Perbaikan:**
+        - Tingkatkan margin jual (sekarang {margin_pct}%)
+        - Kurangi biaya operasional
+        - Tingkatkan utilisasi kapasitas
+        - Review pricing strategy
+        """)
 
 # Footer
 st.markdown("---")
