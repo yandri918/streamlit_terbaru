@@ -20,19 +20,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 try:
     from agrisensa_tech.utils import auth
     
-    # Initialize Auth
-    auth.init_auth_state()
+    # Initialize & Enforce Auth (Blocks guests & unauthenticated users)
+    auth.require_auth()
     
-    # Enforce Login (Block 'guest')
-    current_user = auth.get_current_user()
-    if current_user and current_user.get('username') == 'guest':
-        # Removed hardcoded st.info to allow auth module to handle all UI
-        auth.show_login_required()
-        st.stop()
-        
     # Show User Info if logged in
-    if auth.is_authenticated():
-        auth.show_user_info_sidebar()
+    auth.show_user_info_sidebar()
         
 except ImportError:
     st.warning("⚠️ Modul Auth tidak ditemukan. Menjalankan dalam mode bypass.")
