@@ -142,222 +142,189 @@ FERT_PRODUCTS = {
 
 # ... (Previous simulation code remains unchanged) ...
 
-with tab_whatif:
-    st.header("🧪 Lab Simulasi Interaktif Power-Up")
-    st.write("Eksperimen dengan **Teknologi Input Lanjutan** untuk melihat potensi maksimal panen.")
+
+# ================================
+# 🧮 SIMULATION ENGINE
+# ================================
+
+def gaussian_curve(val, optimal, sigma=1.0):
+    """Bell curve response: 1.0 at optimal, drops as you move away"""
+    # Simply: e^(-0.5 * ((x-mu)/sig)^2)
+    # We calibrate sigma so that +/- 20% deviation gives ~0.8 score
+    spread = optimal * 0.3 # 30% tolerance
+    return np.exp(-0.5 * ((val - optimal) / (spread/2))**2)
+
+def saturation_curve(val, optimal):
+    """Increases then plateaus (Law of Minimum)"""
+    # 1 - e^(-k * val)
+    # Calibrated so that at 'optimal' value, we reach 0.99
+    if val >= optimal * 1.5: return 0.95 # Toxicity/Waste penalty
+    k = 4.0 / optimal 
+    return 1 - np.exp(-k * val)
+
+def sigmoid_curve(val, max_boost=1.1, midpoint=50):
+    """S-curve for organic/bio boosters (diminishing returns)"""
+    return 1 + (max_boost - 1) / (1 + np.exp(-0.1 * (val - midpoint)))
+
+def run_simulation(crop, variety, texture_key, params):
+    # Get base potential
+    crop_data = CROP_DB[crop]
+    var_data = crop_data['varieties'][variety]
+    opt = crop_data['optimal']
     
-    # Layout with cols
-    col_input, col_kalkulator = st.columns([1, 1.2]) # Adjusted layout
+    potential = var_data['potential'] * params['area_ha']
     
-    with col_input:
-        with st.expander("1️⃣ Nutrisi Makro Primer (N, P, K)", expanded=True):
-            w_n = st.slider("➕ Tambah N (kg)", 0, 300, 0, help="Tambahan Urea/ZA")
-            w_p = st.slider("➕ Tambah P (kg)", 0, 200, 0, help="Tambahan SP36/DAP")
-            w_k = st.slider("➕ Tambah K (kg)", 0, 200, 0, help="Tambahan KCl/ZK")
-        
-        with st.expander("2️⃣ Nutrisi Makro Sekunder (Ca, Mg, S)"):
-            w_ca = st.slider("🥛 Kalsium (ppm)", 0, 500, 100, help="Dolomit/Kaptan. Penting untuk dinding sel.")
-            w_mg = st.slider("🌿 Magnesium (ppm)", 0, 200, 30, help="Pusat klorofil daun.")
-            w_s = st.slider("🟡 Sulfur (ppm)", 0, 100, 20, help="Penyusun protein & enzim.")
+    # Soil Texture Impact
+    texture = SOIL_TEXTURES[texture_key]
+    
+    # --- ORGANIC & BIO AMENDMENTS IMPACT ---
+    # Organic Solid improves Texture (Water retention & Nutrient Holding)
+    org_solid_factor = 1.0 + (params.get('org_solid', 0) / 10000) * 0.2 # Max 20% improvement at 10ton/ha
+    
+    current_water_retention = min(1.0, texture['water_retention'] * org_solid_factor)
+    current_nutrient_holding = min(1.2, texture['nutrient_holding'] * org_solid_factor)
+    
+    # Organic Liquid/POC acts as immediate nutrient efficiency booster
+    poc_eff_boost = 1.0 + (params.get('org_liquid', 0) / 100) * 0.15 # Max 15% efficiency boost at 100L/ha
 
-        with st.expander("3️⃣ Nutrisi Mikro Lengkap (Fe, Zn, dll)"):
-            c_m1, c_m2 = st.columns(2)
-            w_fe = c_m1.slider("Besi/Fe", 0.0, 20.0, 2.0)
-            w_mn = c_m2.slider("Mangan/Mn", 0.0, 20.0, 2.0)
-            w_zn = c_m1.slider("Seng/Zn", 0.0, 10.0, 1.0)
-            w_b = c_m2.slider("Boron/B", 0.0, 5.0, 0.5)
-            w_cu = c_m1.slider("Tembaga/Cu", 0.0, 2.0, 0.2)
-            w_mo = c_m2.slider("Molibdenum", 0.0, 1.0, 0.05)
+    # 1. Nutrient Factors (Saturation Curve)
+    # Effective N = Input N * Soil Holding Cap * POC Boost
+    eff_n = params['n'] * current_nutrient_holding * poc_eff_boost
+    score_n = saturation_curve(eff_n, opt['n'])
+    
+    eff_p = params['p'] * current_nutrient_holding * poc_eff_boost
+    score_p = saturation_curve(eff_p, opt['p'])
+    
+    eff_k = params['k'] * current_nutrient_holding * poc_eff_boost
+    score_k = saturation_curve(eff_k, opt['k'])
+    
+    # Secondary Macros (Ca, Mg, S) - Critical for quality/enzyme function
+    score_ca = saturation_curve(params.get('ca_ppm', 0), 200) # Need ~200ppm
+    score_mg = saturation_curve(params.get('mg_ppm', 0), 50)  # Need ~50ppm
+    score_s  = saturation_curve(params.get('s_ppm', 0), 30)   # Need ~30ppm
+    
+    # Micro Nutrients (Fe, Mn, Zn, B, Cu, Mo) - Trace but vital
+    score_fe = saturation_curve(params.get('fe_ppm', 0), 5)   # Iron
+    score_mn = saturation_curve(params.get('mn_ppm', 0), 5)   # Manganese
+    score_zn = saturation_curve(params.get('zn_ppm', 0), 2)   # Zinc
+    score_b  = saturation_curve(params.get('b_ppm', 0), 1)    # Boron
+    score_cu = saturation_curve(params.get('cu_ppm', 0), 0.5) # Copper
+    score_mo = saturation_curve(params.get('mo_ppm', 0), 0.1) # Molybdenum
+    
+    # Aggregate Micro Score (Geometric Mean for average health, but Min for Liebig)
+    micro_scores = [score_fe, score_mn, score_zn, score_b, score_cu, score_mo]
+    avg_micro_score = np.mean(micro_scores)
+    
+    # 2. Environmental Factors (Gaussian)
+    score_ph = gaussian_curve(params['ph'], opt['ph'])
+    score_temp = gaussian_curve(params['temp'], opt['temp'])
+    
+    # 3. Water (Linear with penalty)
+    eff_water = params['rain'] * current_water_retention
+    if eff_water < opt['water'] * 0.5:
+        score_water = 0.4 + (eff_water / opt['water']) * 0.6
+    elif eff_water > opt['water'] * 1.5:
+        score_water = 0.8 # Flood stress
+    else:
+        score_water = 1.0
         
-        with st.expander("4️⃣ Organik & Hayati"):
-            w_org_solid = st.slider("🍂 Organik Padat (kg)", 0, 20000, 0, step=500, help="Kompos/Kohe. Memperbaiki tekstur tanah.")
-            w_org_liq = st.slider("🧴 Organik Cair / POC (Liter)", 0, 500, 0, step=10, help="Booster efisiensi serapan hara.")
+    # LIEBIG'S LAW OF THE MINIMUM (Expanded)
+    factors = {
+        "Nitrogen": score_n, "Fosfor": score_p, "Kalium": score_k,
+        "Kalsium (Ca)": score_ca, "Magnesium (Mg)": score_mg, "Sulfur (S)": score_s,
+        "Mikro (Avg)": avg_micro_score, # For radar chart simplicity
+        "pH Tanah": score_ph, "Air": score_water, "Suhu": score_temp
+    }
+    
+    # Check strict limiting factor including specific micros
+    all_scores_dict = factors.copy()
+    all_scores_dict.update({
+        "Besi (Fe)": score_fe, "Mangan (Mn)": score_mn, "Seng (Zn)": score_zn,
+        "Boron (B)": score_b, "Tembaga (Cu)": score_cu, "Molibdenum (Mo)": score_mo
+    })
+    
+    limiting_factor_val = min(all_scores_dict.values())
+    limiting_factor_name = min(all_scores_dict, key=all_scores_dict.get)
+    
+    # Average of major groups
+    avg_factor_val = sum(factors.values()) / len(factors)
+    
+    # Hybrid model
+    final_yield_pct = (limiting_factor_val * 0.6) + (avg_factor_val * 0.4)
+    
+    # --- BOOSTERS & HORMONES (Multipliers) ---
+    # Hormones (ZPT) Split: Auksin, Sitokinin, Giberelin
+    
+    # Auksin: Rooting & Nutrient Uptake Efficiency (Gaussian)
+    # Optimal ~20-40 ppm. 
+    auxin_ppm = params.get('auxin_ppm', 0)
+    mu_auxin = 30
+    if auxin_ppm > 0:
+        auxin_mult = 1.0 + (0.12 * np.exp(-0.5 * ((auxin_ppm - mu_auxin) / 15)**2))
+        # High overdose penalty
+        if auxin_ppm > 80: auxin_mult -= ((auxin_ppm - 80) * 0.005) 
+    else:
+        auxin_mult = 1.0
 
-        with st.expander("5️⃣ Hormon ZPT & Booster", expanded=True):
-            w_auxin = st.slider("🧬 Auksin (ppm)", 0, 100, 0, help="Perakaran & Vegetatif. Optimal ~30ppm.")
-            w_cyto = st.slider("🦠 Sitokinin (ppm)", 0, 100, 0, help="Pembelahan Sel & Pengisian Buah.")
-            w_ga3 = st.slider("🎋 Giberelin (ppm)", 0, 200, 0, help="Ukuran Buah & Pemanjangan.")
-            st.divider()
-            w_boost = st.slider("💊 Kalium Booster (kg)", 0, 50, 0, help="Pupuk khusus fase generatif.")
+    # Sitokinin: Cell Division & Filling (Sigmoid -> Plateau)
+    # Good for grain filling / vegetable leafiness. Harder to overdose than Auxin.
+    cyto_ppm = params.get('cyto_ppm', 0)
+    if cyto_ppm > 0:
+        cyto_mult = 1.0 + (0.10 * (1 - np.exp(-0.05 * cyto_ppm)))    
+    else:
+        cyto_mult = 1.0
+        
+    # Giberelin (GA3): Size & Elongation (Gaussian broad)
+    # Powerful but risky (bolting). Optimal ~50-80 ppm.
+    ga3_ppm = params.get('ga3_ppm', 0)
+    mu_ga3 = 60
+    if ga3_ppm > 0:
+        ga3_mult = 1.0 + (0.15 * np.exp(-0.5 * ((ga3_ppm - mu_ga3) / 25)**2))
+        if ga3_ppm > 150: ga3_mult -= ((ga3_ppm - 150) * 0.003)
+    else:
+        ga3_mult = 1.0
 
-    with col_kalkulator:
-        st.subheader("💰 Kalkulator Belanja Pupuk")
-        st.info("Otomatis mengkonversi kebutuhan nutrisi di samping menjadi kebutuhan produk pupuk komersial.")
+    # Combined ZPT Effect (Multiplicative with damping)
+    zpt_total_mult = auxin_mult * cyto_mult * ga3_mult
         
-        with st.expander("⚙️ Edit Harga Pupuk (Rp/kg atau Rp/L)", expanded=False):
-            c_p1, c_p2 = st.columns(2)
-            p_urea = c_p1.number_input("Harga Urea", 0, 50000, FERT_PRODUCTS["Urea"]["price"])
-            p_sp36 = c_p2.number_input("Harga SP-36", 0, 50000, FERT_PRODUCTS["SP-36"]["price"])
-            p_kcl  = c_p1.number_input("Harga KCl", 0, 50000, FERT_PRODUCTS["KCl"]["price"])
-            p_dolomit = c_p2.number_input("Harga Dolomit", 0, 10000, FERT_PRODUCTS["Dolomit"]["price"])
-            p_kompos = c_p1.number_input("Harga Kompos", 0, 5000, FERT_PRODUCTS["Kompos"]["price"])
-            p_poc = c_p2.number_input("Harga POC (Liter)", 0, 200000, FERT_PRODUCTS["POC"]["price"])
-            p_booster = c_p1.number_input("Harga K-Booster", 0, 200000, FERT_PRODUCTS["Kalium Booster"]["price"])
-        
-        # Calculation Logic
-        req_list = []
-        total_costs = 0
-        
-        # 1. Nitrogen -> Urea (Default)
-        if w_n > 0:
-            qty_urea = w_n / 0.46
-            cost_urea = qty_urea * p_urea
-            req_list.append({"Item": "Urea (46% N)", "Kebutuhan": f"{qty_urea:.1f} kg", "Estimasi Biaya": cost_urea})
-            total_costs += cost_urea
-            
-        # 2. Fosfor -> SP-36
-        if w_p > 0:
-            qty_sp36 = w_p / 0.36
-            cost_sp36 = qty_sp36 * p_sp36
-            req_list.append({"Item": "SP-36 (36% P)", "Kebutuhan": f"{qty_sp36:.1f} kg", "Estimasi Biaya": cost_sp36})
-            total_costs += cost_sp36
-
-        # 3. Kalium -> KCl
-        if w_k > 0:
-            qty_kcl = w_k / 0.60
-            cost_kcl = qty_kcl * p_kcl
-            req_list.append({"Item": "KCl (60% K)", "Kebutuhan": f"{qty_kcl:.1f} kg", "Estimasi Biaya": cost_kcl})
-            total_costs += cost_kcl
-            
-        # 4. Secondary (Example: Ca -> Dolomit)
-        # Ca ppm to kg/ha approx: ppm * 2 (Assuming depth 20cmBD 1.0) -> roughly
-        # Simplified: 1 ppm Ca ~ 2 kg Ca/ha needed in soil app? No, ppm is conc.
-        # Let's assume the slider is "Target increase in ppm".
-        # Soil mass/ha ~ 2,000,000 kg (20cm). 1 ppm = 2 kg element.
-        if w_ca > 0:
-            ca_kg_needed = w_ca * 2 # 2kg Ca per ppm
-            dolomit_needed = ca_kg_needed / 0.30 # 30% Ca
-            cost_dol = dolomit_needed * p_dolomit
-            req_list.append({"Item": "Dolomit (30% Ca)", "Kebutuhan": f"{dolomit_needed:.1f} kg", "Estimasi Biaya": cost_dol})
-            total_costs += cost_dol
-
-        # Organics
-        if w_org_solid > 0:
-            cost_org = w_org_solid * p_kompos
-            req_list.append({"Item": "Kompos/Organik", "Kebutuhan": f"{w_org_solid:,.0f} kg", "Estimasi Biaya": cost_org})
-            total_costs += cost_org
-            
-        if w_org_liq > 0:
-            cost_poc = w_org_liq * p_poc
-            req_list.append({"Item": "POC (Cair)", "Kebutuhan": f"{w_org_liq:,.0f} L", "Estimasi Biaya": cost_poc})
-            total_costs += cost_poc
-            
-        # Booster
-        if w_boost > 0:
-            cost_boost = w_boost * p_booster
-            req_list.append({"Item": "Kalium Booster", "Kebutuhan": f"{w_boost:.1f} kg", "Estimasi Biaya": cost_boost})
-            total_costs += cost_boost
-
-        # Display Table
-        if req_list:
-            df_cost = pd.DataFrame(req_list)
-            st.dataframe(
-                df_cost, 
-                column_config={
-                    "Estimasi Biaya": st.column_config.NumberColumn(format="Rp %d")
-                },
-                use_container_width=True,
-                hide_index=True
-            )
-            st.metric("Total Estimasi Biaya", f"Rp {total_costs:,.0f}", delta_color="off")
-        else:
-            st.info("Geser slider di menu kiri untuk melihat kebutuhan pupuk.")
-            
-        # Re-run logic for simulator (Simplified for brevity in view)
-        sim_params = params.copy()
-        
-        # Additive updates to base params
-        sim_params['n'] += w_n
-        sim_params['p'] += w_p
-        sim_params['k'] += w_k
-        
-        # New params override
-        sim_params['ca_ppm'] = w_ca
-        sim_params['mg_ppm'] = w_mg
-        sim_params['s_ppm'] = w_s
-        
-        sim_params['fe_ppm'] = w_fe
-        sim_params['mn_ppm'] = w_mn
-        sim_params['zn_ppm'] = w_zn
-        sim_params['b_ppm'] = w_b
-        sim_params['cu_ppm'] = w_cu
-        sim_params['mo_ppm'] = w_mo
-        
-        sim_params['org_solid'] = w_org_solid
-        sim_params['org_liquid'] = w_org_liq
-        
-        sim_params['auxin_ppm'] = w_auxin
-        sim_params['cyto_ppm'] = w_cyto
-        sim_params['ga3_ppm'] = w_ga3
-        sim_params['booster_kg'] = w_boost
-        
-        sim_res = run_simulation(s_crop, s_var, s_grad, sim_params)
-        
-        delta_kg = sim_res['yield_kg'] - res['yield_kg']
-        delta_rev = delta_kg * price_est
-        
-        net_profit_delta = delta_rev - total_costs # Use calculated total_costs
-
-        st.subheader("📊 Hasil Prediksi Real-Time")
-        
-        met1, met2, met3 = st.columns(3)
-        met1.metric("Hasil Panen Baru", f"{sim_res['yield_kg']:,.0f} kg", f"{delta_kg:+,.0f} kg")
-        met2.metric("Nilai Tambah (Gross)", f"Rp {delta_rev:+,.0f}", help="Belum dikurangi biaya input simulasi")
-        met3.metric("Net Profit Tambahan", f"Rp {net_profit_delta:,.0f}", delta_color="normal" if net_profit_delta >= 0 else "inverse")
-        
-        # Progress Bar Visualization
-        st.write("---")
-        st.write("**Perbandingan Performance (% Potensi Genetik):**")
-        
-        col_bar_lbl, col_bar_val = st.columns([1,3])
-        with col_bar_lbl: st.write("Awal")
-        with col_bar_val: st.progress(int(min(100, res['yield_pct'])))
-        
-        col_bar_lbl2, col_bar_val2 = st.columns([1,3])
-        with col_bar_lbl2: st.write("Simulasi")
-        with col_bar_val2: 
-            p_val = int(min(100, sim_res['yield_pct']))
-            st.progress(p_val)
-            if sim_res['yield_pct'] > 100:
-                st.caption(f"🚀 **SUPER-OPTIMAL!** ({sim_res['yield_pct']:.1f}%) - Efek ZPT & Booster Aktif.")
-        
-        # Diagnostics
-        with st.expander("🔍 Analisis Dampak Input (Diagnostics)", expanded=True):
-            mults = sim_res['multipliers']
-            st.write(f"- **Efek Organik Padat:** +{(mults['organic_solid']-1)*100:.1f}%")
-            st.write(f"- **Efek Organik Cair:** +{(mults['organic_liquid']-1)*100:.1f}%")
-            
-            # Detailed Hormone Breakdown
-            c_z1, c_z2, c_z3 = st.columns(3)
-            with c_z1:
-                eff = (mults['auxin']-1)*100
-                st.metric("Auksin (Root)", f"{eff:+.1f}%", delta_color="normal" if eff >= 0 else "inverse")
-            with c_z2:
-                eff = (mults['cyto']-1)*100
-                st.metric("Sitokinin (Cell)", f"{eff:+.1f}%")
-            with c_z3:
-                eff = (mults['ga3']-1)*100
-                st.metric("Giberelin (Size)", f"{eff:+.1f}%", delta_color="normal" if eff >= 0 else "inverse")
-
-            st.markdown("---")
-            st.markdown("**Status Nutrisi Mikro & Sekunder:**")
-            micros = sim_res['micros']
-            macros_sec = sim_res['macros_sec']
-            
-            c_d1, c_d2 = st.columns(2)
-            with c_d1:
-                st.write("**Makro Sekunder**")
-                st.progress(macros_sec['ca'], text=f"Kalsium (Ca): {macros_sec['ca']*100:.0f}%")
-                st.progress(macros_sec['mg'], text=f"Magnesium (Mg): {macros_sec['mg']*100:.0f}%")
-                st.progress(macros_sec['s'], text=f"Sulfur (S): {macros_sec['s']*100:.0f}%")
-            with c_d2:
-                st.write("**Mikro Esensial**")
-                st.progress(micros['fe'], text=f"Besi (Fe): {micros['fe']*100:.0f}%")
-                st.progress(micros['zn'], text=f"Seng (Zn): {micros['zn']*100:.0f}%")
-                st.progress(micros['b'], text=f"Boron (B): {micros['b']*100:.0f}%")
-            
-            st.write(f"- **Efek Booster Buah:** +{(mults['booster']-1)*100:.1f}%")
-
+    # Booster (e.g. Kalium Booster for fruit phase)
+    # Modeled as Sigmoid - steady increase
+    booster_kg = params.get('booster_kg', 0)
+    booster_multiplier = 1.0 + (0.1 * (1 - np.exp(-0.1 * booster_kg))) # Max 10% boost
+    
+    final_yield_pct = final_yield_pct * zpt_total_mult * booster_multiplier
+    
+    # Variety resilience bonus
+    final_yield_pct = final_yield_pct * (0.9 + (var_data['resilience'] * 0.1))
+    
+    # Cap at 130% of standard potential (genetic breakdown limit)
+    final_yield_pct = min(1.3, final_yield_pct)
+    
+    predicted_kg = potential * final_yield_pct
+    
+    return {
+        "yield_kg": predicted_kg,
+        "yield_pct": final_yield_pct * 100,
+        "factors": factors,
+        "limiting_factor": limiting_factor_name,
+        "potential_kg": potential,
+        "multipliers": {
+            "auxin": auxin_mult,
+            "cyto": cyto_mult,
+            "ga3": ga3_mult,
+            "zpt_total": zpt_total_mult,
+            "booster": booster_multiplier,
+            "organic_solid": org_solid_factor,
+            "organic_liquid": poc_eff_boost
+        },
+        "micros": {
+            "fe": score_fe, "mn": score_mn, "zn": score_zn, 
+            "b": score_b, "cu": score_cu, "mo": score_mo
+        },
+        "macros_sec": {
+            "ca": score_ca, "mg": score_mg, "s": score_s
+        }
+    }
 
 def optimize_budget(budget, params, crop, var, texture_key, fert_prices):
     """
@@ -420,104 +387,15 @@ def optimize_budget(budget, params, crop, var, texture_key, fert_prices):
             item_name = action['product']
             purchased_items[item_name] = purchased_items.get(item_name, 0) + (action['cost'] / fert_prices.get(item_name.split("/")[0], 1000)) # Approx qty back calc if complex, or just track cost
             
-            # Better Qty tracking:
-            # We defined 'amount' as nutrient amount, need to map back to product qty for display optimization?
-            # actually action['cost'] is accurate.
-            # Let's just store the 'cost spent' on each item efficiently? 
-            # Or simplified: The user wants "Breakdown apa saja yang ditambahkan"
-            
-            # Simple Text Log for debug or display
-            # steps_log.append(f"Fixed {limit} with {action['product']}")
-            
         else:
             break # Can't afford the fix for the bottleneck
             
     final_res = run_simulation(crop, var, texture_key, current_params)
     return current_params, final_res, remaining_budget
 
-# ... (Previous code) ...
-
-    with col_kalkulator:
-        st.subheader("💰 Kalkulator Belanja Pupuk")
-        # ... (Previous calculator code) ...
-        # ... Ensure user inputs like p_urea are captured in a dictionary for the optimizer ...
-        current_prices = {
-            "Urea": p_urea, "SP-36": p_sp36, "KCl": p_kcl, 
-            "Dolomit": p_dolomit, "Kompos": p_kompos, "POC": p_poc,
-            "Kalium Booster": p_booster, "Kieserite": 4000, "ZA": 2500, "Mikro Majemuk": 80000 
-            # Add implicit pricing for others if not in UI yet, or add them to UI
-        }
-        
-        # ... (Existing Calculation Logic for Cost Table) ...
-        
-        st.divider()
-        st.subheader("🤖 Smart Budget Allocator (Reverse)")
-        st.info("Punya modal terbatas? Biarkan AI menentukan prioritas belanja pupuk paling efisien (Hukum Minimum Liebig).")
-        
-        budget_input = st.number_input("Masukkan Modal Tambahan (Rp)", 0, 100000000, 1000000, step=100000, help="Anggaran yang tersedia untuk optimalisasi.")
-        
-        if st.button("✨ Optimalkan Modal Saya"):
-            # Run Optimizer
-            # Start from 'current actual' params (without the manual sliders from columns?)
-            # Usually optimization starts from the 'base' condition (i_n, i_p, etc from Sidebar) 
-            # OR from the current slider state? Let's assume from Sidebar/Base condition to be safe "Add to existing"
-            
-            base_params_for_opt = {
-                "area_ha": s_area, "ph": i_ph, "temp": i_temp, "rain": i_rain,
-                "n": i_n, "p": i_p, "k": i_k,
-                "org_solid": 0, "org_liquid": 0, 
-                "ca_ppm": 100, "mg_ppm": 30, "s_ppm": 20,
-                "fe_ppm": 2, "mn_ppm": 2, "zn_ppm": 1, "b_ppm": 0.5, "cu_ppm": 0.2, "mo_ppm": 0.05,
-                "auxin_ppm": 0, "cyto_ppm": 0, "ga3_ppm": 0, "booster_kg": 0
-            }
-            
-            opt_params, opt_res, left_budget = optimize_budget(budget_input, base_params_for_opt, s_crop, s_var, s_grad, current_prices)
-            
-            # Display Results
-            opt_delta_kg = opt_res['yield_kg'] - res['yield_kg'] # Res is base run
-            opt_delta_rev = opt_delta_kg * price_est
-            spent_budget = budget_input - left_budget
-            opt_roi = ((opt_delta_rev - spent_budget) / spent_budget * 100) if spent_budget > 0 else 0
-            
-            st.success(f"✅ Optimasi Selesai! Anggaran terpakai: Rp {spent_budget:,.0f}")
-            
-            # Metrics
-            c_o1, c_o2, c_o3 = st.columns(3)
-            c_o1.metric("Kenaikan Hasil", f"+{opt_delta_kg:,.0f} kg", f"{opt_res['yield_pct']:.1f}% Potensi")
-            c_o2.metric("Revenue Tambahan", f"Rp {opt_delta_rev:,.0f}")
-            c_o3.metric("ROI Optimasi", f"{opt_roi:.1f}%", help="Return on Investment dari modal tambahan ini")
-            
-            # Visualization: What did we buy?
-            # Compare opt_params vs base_params_for_opt
-            shopping_list = []
-            
-            # NPK Breakdown logic similar to previous table but diff source types
-            # Simplified for display speed
-            if opt_params['n'] > base_params_for_opt['n']:
-                added = opt_params['n'] - base_params_for_opt['n']
-                product_kg = added / 0.46
-                shopping_list.append({"Item": "Urea", "Qty": f"+{product_kg:.1f} kg", "Alasan": "Fix Defisiensi Nitrogen"})
-            
-            if opt_params['p'] > base_params_for_opt['p']:
-                added = opt_params['p'] - base_params_for_opt['p']
-                product_kg = added / 0.36
-                shopping_list.append({"Item": "SP-36", "Qty": f"+{product_kg:.1f} kg", "Alasan": "Fix Defisiensi Fosfor"})
-                
-            if opt_params['k'] > base_params_for_opt['k']:
-                added = opt_params['k'] - base_params_for_opt['k']
-                product_kg = added / 0.60
-                shopping_list.append({"Item": "KCl", "Qty": f"+{product_kg:.1f} kg", "Alasan": "Fix Defisiensi Kalium"})
-
-            if opt_params['ph'] > base_params_for_opt['ph']:
-                # Crude calc
-                shopping_list.append({"Item": "Dolomit/Kapur", "Qty": "Sesuai dosis", "Alasan": "Netralisasi pH Masam"})
-            
-            # Check ZPT/Boosters
-            if opt_params['booster_kg'] > base_params_for_opt['booster_kg']:
-                 shopping_list.append({"Item": "Kalium Booster", "Qty": f"+{opt_params['booster_kg']:.1f} kg", "Alasan": "Maksimalkan fase generatif"})
-                 
-            st.write("**Rekomendasi Belanja Prioritas:**")
-            st.table(shopping_list)
+# ================================
+# 🖥️ UI INTERFACE
+# ================================
 
 
 
@@ -829,7 +707,7 @@ with tab_whatif:
     st.write("Eksperimen dengan **Teknologi Input Lanjutan** untuk melihat potensi maksimal panen.")
     
     # Layout with cols
-    col_input, col_res = st.columns([1, 1.5])
+    col_input, col_kalkulator = st.columns([1, 1.2]) # Adjusted layout
     
     with col_input:
         with st.expander("1️⃣ Nutrisi Makro Primer (N, P, K)", expanded=True):
@@ -855,15 +733,93 @@ with tab_whatif:
             w_org_solid = st.slider("🍂 Organik Padat (kg)", 0, 20000, 0, step=500, help="Kompos/Kohe. Memperbaiki tekstur tanah.")
             w_org_liq = st.slider("🧴 Organik Cair / POC (Liter)", 0, 500, 0, step=10, help="Booster efisiensi serapan hara.")
 
-        with st.expander("5️⃣ Hormon ZPT (Tri-Hormon) & Booster", expanded=True):
+        with st.expander("5️⃣ Hormon ZPT & Booster", expanded=True):
             w_auxin = st.slider("🧬 Auksin (ppm)", 0, 100, 0, help="Perakaran & Vegetatif. Optimal ~30ppm.")
             w_cyto = st.slider("🦠 Sitokinin (ppm)", 0, 100, 0, help="Pembelahan Sel & Pengisian Buah.")
-            w_ga3 = st.slider("🎋 Giberelin (ppm)", 0, 200, 0, help="Ukuran Buah & Pemanjangan. Hati-hati overdosis!")
+            w_ga3 = st.slider("🎋 Giberelin (ppm)", 0, 200, 0, help="Ukuran Buah & Pemanjangan.")
             st.divider()
-            w_boost = st.slider("💊 Kalium Booster (kg)", 0, 50, 0, help="Pupuk khusus fase generatif (e.g., MKP/KNO3).")
+            w_boost = st.slider("💊 Kalium Booster (kg)", 0, 50, 0, help="Pupuk khusus fase generatif.")
 
-    with col_res:
-        # Re-run logic for simulator
+    with col_kalkulator:
+        st.subheader("💰 Kalkulator Belanja Pupuk")
+        st.info("Otomatis mengkonversi kebutuhan nutrisi di samping menjadi kebutuhan produk pupuk komersial.")
+        
+        with st.expander("⚙️ Edit Harga Pupuk (Rp/kg atau Rp/L)", expanded=False):
+            c_p1, c_p2 = st.columns(2)
+            p_urea = c_p1.number_input("Harga Urea", 0, 50000, FERT_PRODUCTS["Urea"]["price"])
+            p_sp36 = c_p2.number_input("Harga SP-36", 0, 50000, FERT_PRODUCTS["SP-36"]["price"])
+            p_kcl  = c_p1.number_input("Harga KCl", 0, 50000, FERT_PRODUCTS["KCl"]["price"])
+            p_dolomit = c_p2.number_input("Harga Dolomit", 0, 10000, FERT_PRODUCTS["Dolomit"]["price"])
+            p_kompos = c_p1.number_input("Harga Kompos", 0, 5000, FERT_PRODUCTS["Kompos"]["price"])
+            p_poc = c_p2.number_input("Harga POC (Liter)", 0, 200000, FERT_PRODUCTS["POC"]["price"])
+            p_booster = c_p1.number_input("Harga K-Booster", 0, 200000, FERT_PRODUCTS["Kalium Booster"]["price"])
+        
+        # Calculation Logic
+        req_list = []
+        total_costs = 0
+        
+        # 1. Nitrogen -> Urea (Default)
+        if w_n > 0:
+            qty_urea = w_n / 0.46
+            cost_urea = qty_urea * p_urea
+            req_list.append({"Item": "Urea (46% N)", "Kebutuhan": f"{qty_urea:.1f} kg", "Estimasi Biaya": cost_urea})
+            total_costs += cost_urea
+            
+        # 2. Fosfor -> SP-36
+        if w_p > 0:
+            qty_sp36 = w_p / 0.36
+            cost_sp36 = qty_sp36 * p_sp36
+            req_list.append({"Item": "SP-36 (36% P)", "Kebutuhan": f"{qty_sp36:.1f} kg", "Estimasi Biaya": cost_sp36})
+            total_costs += cost_sp36
+
+        # 3. Kalium -> KCl
+        if w_k > 0:
+            qty_kcl = w_k / 0.60
+            cost_kcl = qty_kcl * p_kcl
+            req_list.append({"Item": "KCl (60% K)", "Kebutuhan": f"{qty_kcl:.1f} kg", "Estimasi Biaya": cost_kcl})
+            total_costs += cost_kcl
+            
+        # 4. Secondary (Example: Ca -> Dolomit)
+        if w_ca > 0:
+            ca_kg_needed = w_ca * 2 # 2kg Ca per ppm
+            dolomit_needed = ca_kg_needed / 0.30 # 30% Ca
+            cost_dol = dolomit_needed * p_dolomit
+            req_list.append({"Item": "Dolomit (30% Ca)", "Kebutuhan": f"{dolomit_needed:.1f} kg", "Estimasi Biaya": cost_dol})
+            total_costs += cost_dol
+
+        # Organics
+        if w_org_solid > 0:
+            cost_org = w_org_solid * p_kompos
+            req_list.append({"Item": "Kompos/Organik", "Kebutuhan": f"{w_org_solid:,.0f} kg", "Estimasi Biaya": cost_org})
+            total_costs += cost_org
+            
+        if w_org_liq > 0:
+            cost_poc = w_org_liq * p_poc
+            req_list.append({"Item": "POC (Cair)", "Kebutuhan": f"{w_org_liq:,.0f} L", "Estimasi Biaya": cost_poc})
+            total_costs += cost_poc
+            
+        # Booster
+        if w_boost > 0:
+            cost_boost = w_boost * p_booster
+            req_list.append({"Item": "Kalium Booster", "Kebutuhan": f"{w_boost:.1f} kg", "Estimasi Biaya": cost_boost})
+            total_costs += cost_boost
+
+        # Display Table
+        if req_list:
+            df_cost = pd.DataFrame(req_list)
+            st.dataframe(
+                df_cost, 
+                column_config={
+                    "Estimasi Biaya": st.column_config.NumberColumn(format="Rp %d")
+                },
+                use_container_width=True,
+                hide_index=True
+            )
+            st.metric("Total Estimasi Biaya", f"Rp {total_costs:,.0f}", delta_color="off")
+        else:
+            st.info("Geser slider di menu kiri untuk melihat kebutuhan pupuk.")
+            
+        # Re-run logic for simulator (Simplified for brevity in view)
         sim_params = params.copy()
         
         # Additive updates to base params
@@ -896,13 +852,7 @@ with tab_whatif:
         delta_kg = sim_res['yield_kg'] - res['yield_kg']
         delta_rev = delta_kg * price_est
         
-        # Cost Estimator for Simulation Inputs (Rough estimates)
-        cost_inputs = (w_n * 5000) + (w_p * 6000) + (w_k * 15000) + \
-                      (w_org_solid * 1000) + (w_org_liq * 25000) + \
-                      (w_auxin * 2000) + (w_cyto * 3000) + (w_ga3 * 3000) + \
-                      (w_boost * 35000)
-                      
-        net_profit_delta = delta_rev - cost_inputs
+        net_profit_delta = delta_rev - total_costs # Use calculated total_costs
 
         st.subheader("📊 Hasil Prediksi Real-Time")
         
@@ -910,8 +860,6 @@ with tab_whatif:
         met1.metric("Hasil Panen Baru", f"{sim_res['yield_kg']:,.0f} kg", f"{delta_kg:+,.0f} kg")
         met2.metric("Nilai Tambah (Gross)", f"Rp {delta_rev:+,.0f}", help="Belum dikurangi biaya input simulasi")
         met3.metric("Net Profit Tambahan", f"Rp {net_profit_delta:,.0f}", delta_color="normal" if net_profit_delta >= 0 else "inverse")
-        
-        st.caption(f"estimasi biaya input tambahan: Rp {cost_inputs:,.0f}")
         
         # Progress Bar Visualization
         st.write("---")
@@ -965,3 +913,67 @@ with tab_whatif:
                 st.progress(micros['b'], text=f"Boron (B): {micros['b']*100:.0f}%")
 
             st.write(f"- **Efek Booster Buah:** +{(mults['booster']-1)*100:.1f}%")
+
+        # SMART BUDGET ALLOCATOR LOGIC
+        st.divider()
+        st.subheader("🤖 Smart Budget Allocator (Reverse)")
+        st.info("Punya modal terbatas? Biarkan AI menentukan prioritas belanja pupuk paling efisien (Hukum Minimum Liebig).")
+        
+        budget_input = st.number_input("Masukkan Modal Tambahan (Rp)", 0, 100000000, 1000000, step=100000, help="Anggaran yang tersedia untuk optimalisasi.")
+        
+        if st.button("✨ Optimalkan Modal Saya"):
+            # Capture current prices
+            current_prices = {
+                "Urea": p_urea, "SP-36": p_sp36, "KCl": p_kcl, 
+                "Dolomit": p_dolomit, "Kompos": p_kompos, "POC": p_poc,
+                "Kalium Booster": p_booster, "Kieserite": 4000, "ZA": 2500, "Mikro Majemuk": 80000 
+            }
+            
+            base_params_for_opt = {
+                "area_ha": s_area, "ph": i_ph, "temp": i_temp, "rain": i_rain,
+                "n": i_n, "p": i_p, "k": i_k,
+                "org_solid": 0, "org_liquid": 0, 
+                "ca_ppm": 100, "mg_ppm": 30, "s_ppm": 20,
+                "fe_ppm": 2, "mn_ppm": 2, "zn_ppm": 1, "b_ppm": 0.5, "cu_ppm": 0.2, "mo_ppm": 0.05,
+                "auxin_ppm": 0, "cyto_ppm": 0, "ga3_ppm": 0, "booster_kg": 0
+            }
+            
+            opt_params, opt_res, left_budget = optimize_budget(budget_input, base_params_for_opt, s_crop, s_var, s_grad, current_prices)
+            
+            opt_delta_kg = opt_res['yield_kg'] - res['yield_kg']
+            opt_delta_rev = opt_delta_kg * price_est
+            spent_budget = budget_input - left_budget
+            opt_roi = ((opt_delta_rev - spent_budget) / spent_budget * 100) if spent_budget > 0 else 0
+            
+            st.success(f"✅ Optimasi Selesai! Anggaran terpakai: Rp {spent_budget:,.0f}")
+            
+            c_o1, c_o2, c_o3 = st.columns(3)
+            c_o1.metric("Kenaikan Hasil", f"+{opt_delta_kg:,.0f} kg", f"{opt_res['yield_pct']:.1f}% Potensi")
+            c_o2.metric("Revenue Tambahan", f"Rp {opt_delta_rev:,.0f}")
+            c_o3.metric("ROI Optimasi", f"{opt_roi:.1f}%", help="Return on Investment dari modal tambahan ini")
+            
+            shopping_list = []
+            
+            if opt_params['n'] > base_params_for_opt['n']:
+                added = opt_params['n'] - base_params_for_opt['n']
+                product_kg = added / 0.46
+                shopping_list.append({"Item": "Urea", "Qty": f"+{product_kg:.1f} kg", "Alasan": "Fix Defisiensi Nitrogen"})
+            
+            if opt_params['p'] > base_params_for_opt['p']:
+                added = opt_params['p'] - base_params_for_opt['p']
+                product_kg = added / 0.36
+                shopping_list.append({"Item": "SP-36", "Qty": f"+{product_kg:.1f} kg", "Alasan": "Fix Defisiensi Fosfor"})
+                
+            if opt_params['k'] > base_params_for_opt['k']:
+                added = opt_params['k'] - base_params_for_opt['k']
+                product_kg = added / 0.60
+                shopping_list.append({"Item": "KCl", "Qty": f"+{product_kg:.1f} kg", "Alasan": "Fix Defisiensi Kalium"})
+
+            if opt_params['ph'] > base_params_for_opt['ph']:
+                shopping_list.append({"Item": "Dolomit/Kapur", "Qty": "Sesuai dosis", "Alasan": "Netralisasi pH Masam"})
+            
+            if opt_params['booster_kg'] > base_params_for_opt['booster_kg']:
+                 shopping_list.append({"Item": "Kalium Booster", "Qty": f"+{opt_params['booster_kg']:.1f} kg", "Alasan": "Maksimalkan fase generatif"})
+                 
+            st.write("**Rekomendasi Belanja Prioritas:**")
+            st.table(shopping_list)
