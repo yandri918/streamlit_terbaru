@@ -257,7 +257,7 @@ with tab_eco:
     
     # Visualization: Waterfall
     fig_waterfall = go.Figure(go.Waterfall(
-        measures = ["relative", "relative", "total"],
+        measure = ["relative", "relative", "total"],
         x = ["Penjualan", "Biaya Produksi", "Laba Bersih"],
         y = [revenue, -cost_est, profit],
         connector = {"line":{"color":"rgb(63, 63, 63)"}},
