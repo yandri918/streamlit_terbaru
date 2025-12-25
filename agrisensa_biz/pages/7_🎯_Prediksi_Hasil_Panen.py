@@ -175,10 +175,27 @@ def run_simulation(crop, variety, texture_key, params):
     eff_k = params['k'] * current_nutrient_holding * poc_eff_boost
     score_k = saturation_curve(eff_k, opt['k'])
     
-    # Micro Nutrients (Generic Handling)
-    # If micro is low, it caps the max yield (Law of Minimum)
-    micro_application_pct = params.get('micro_pct', 50) # Default 50% sufficiency if not specified
-    score_micro = 0.5 + (micro_application_pct / 200) # 0% app -> 0.5 score, 100% app -> 1.0 score
+    # Secondary Macros (Ca, Mg, S) - Critical for quality/enzyme function
+    # Modeled as sufficiency score (0.0 - 1.0) based on input ppm/kg
+    # Simplified thresholds for simulator
+    score_ca = saturation_curve(params.get('ca_ppm', 0), 200) # Need ~200ppm
+    score_mg = saturation_curve(params.get('mg_ppm', 0), 50)  # Need ~50ppm
+    score_s  = saturation_curve(params.get('s_ppm', 0), 30)   # Need ~30ppm
+    
+    # Micro Nutrients (Fe, Mn, Zn, B, Cu, Mo) - Trace but vital
+    # Modeled as individual sufficiency
+    score_fe = saturation_curve(params.get('fe_ppm', 0), 5)   # Iron
+    score_mn = saturation_curve(params.get('mn_ppm', 0), 5)   # Manganese
+    score_zn = saturation_curve(params.get('zn_ppm', 0), 2)   # Zinc
+    score_b  = saturation_curve(params.get('b_ppm', 0), 1)    # Boron
+    score_cu = saturation_curve(params.get('cu_ppm', 0), 0.5) # Copper
+    score_mo = saturation_curve(params.get('mo_ppm', 0), 0.1) # Molybdenum
+    
+    # Aggregate Micro Score (Geometric Mean for average health, but Min for Liebig)
+    # Using geometric mean for the "Micro Group" score to avoid one zero killing everything unduly in the display,
+    # but strictly, Liebig says Min.
+    micro_scores = [score_fe, score_mn, score_zn, score_b, score_cu, score_mo]
+    avg_micro_score = np.mean(micro_scores)
     
     # 2. Environmental Factors (Gaussian)
     score_ph = gaussian_curve(params['ph'], opt['ph'])
@@ -193,18 +210,29 @@ def run_simulation(crop, variety, texture_key, params):
     else:
         score_water = 1.0
         
-    # LIEBIG'S LAW OF THE MINIMUM (Modified)
+    # LIEBIG'S LAW OF THE MINIMUM (Expanded)
     factors = {
         "Nitrogen": score_n, "Fosfor": score_p, "Kalium": score_k,
-        "Nutrisi Mikro": score_micro,
+        "Kalsium (Ca)": score_ca, "Magnesium (Mg)": score_mg, "Sulfur (S)": score_s,
+        "Mikro (Avg)": avg_micro_score, # For radar chart simplicity
         "pH Tanah": score_ph, "Air": score_water, "Suhu": score_temp
     }
     
-    limiting_factor_val = min(factors.values())
+    # Check strict limiting factor including specific micros
+    all_scores_dict = factors.copy()
+    all_scores_dict.update({
+        "Besi (Fe)": score_fe, "Mangan (Mn)": score_mn, "Seng (Zn)": score_zn,
+        "Boron (B)": score_b, "Tembaga (Cu)": score_cu, "Molibdenum (Mo)": score_mo
+    })
+    
+    limiting_factor_val = min(all_scores_dict.values())
+    limiting_factor_name = min(all_scores_dict, key=all_scores_dict.get)
+    
+    # Average of major groups
     avg_factor_val = sum(factors.values()) / len(factors)
     
-    # Hybrid model: 70% Law of Min, 30% Average
-    final_yield_pct = (limiting_factor_val * 0.7) + (avg_factor_val * 0.3)
+    # Hybrid model
+    final_yield_pct = (limiting_factor_val * 0.6) + (avg_factor_val * 0.4)
     
     # --- BOOSTERS & HORMONES (Multipliers) ---
     # Hormones (ZPT) Split: Auksin, Sitokinin, Giberelin
@@ -260,7 +288,7 @@ def run_simulation(crop, variety, texture_key, params):
         "yield_kg": predicted_kg,
         "yield_pct": final_yield_pct * 100,
         "factors": factors,
-        "limiting_factor": min(factors, key=factors.get),
+        "limiting_factor": limiting_factor_name,
         "potential_kg": potential,
         "multipliers": {
             "auxin": auxin_mult,
@@ -270,6 +298,13 @@ def run_simulation(crop, variety, texture_key, params):
             "booster": booster_multiplier,
             "organic_solid": org_solid_factor,
             "organic_liquid": poc_eff_boost
+        },
+        "micros": {
+            "fe": score_fe, "mn": score_mn, "zn": score_zn, 
+            "b": score_b, "cu": score_cu, "mo": score_mo
+        },
+        "macros_sec": {
+            "ca": score_ca, "mg": score_mg, "s": score_s
         }
     }
 
@@ -279,7 +314,7 @@ def run_simulation(crop, variety, texture_key, params):
 
 st.title("🎯 Advanced Harvest Forecast & Simulator")
 st.markdown("### Simulasi Cerdas Berbasis Machine Learning & Ekonomi")
-st.info("💡 **Tips:** Gunakan tab 'What-If Simulator' untuk bereksperimen dengan kombinasi pupuk, hormon, dan booster.")
+st.info("💡 **Tips:** Gunakan tab 'What-If Simulator' untuk bereksperimen dengan kombinasi pupuk lengkap (Makro, Mikro, ZPT).")
 
 # --- SIDEBAR INPUTS ---
 with st.sidebar:
@@ -316,7 +351,9 @@ params = {
     "area_ha": s_area, "ph": i_ph, "temp": i_temp, "rain": i_rain,
     "n": i_n, "p": i_p, "k": i_k,
     # Defaults for initial run
-    "org_solid": 0, "org_liquid": 0, "micro_pct": 50, 
+    "org_solid": 0, "org_liquid": 0, 
+    "ca_ppm": 100, "mg_ppm": 30, "s_ppm": 20, # Moderate defaults
+    "fe_ppm": 2, "mn_ppm": 2, "zn_ppm": 1, "b_ppm": 0.5, "cu_ppm": 0.2, "mo_ppm": 0.05, # Moderate defaults
     "auxin_ppm": 0, "cyto_ppm": 0, "ga3_ppm": 0, "booster_kg": 0
 }
 
@@ -334,7 +371,7 @@ with tab_sim:
     gap = res['potential_kg'] - res['yield_kg']
     c2.metric("Potensi Hilang (Loss)", f"{gap:,.0f} kg", "Opportunity Gap", delta_color="inverse")
     
-    c3.metric("Faktor Pembatas Utama", res['limiting_factor'], f"Skor: {res['factors'][res['limiting_factor']]*100:.0f}%", delta_color="inverse")
+    c3.metric("Faktor Pembatas Utama", res['limiting_factor'], f"Optimasi Perlu Ditingkatkan", delta_color="inverse")
 
     st.divider()
     
@@ -364,8 +401,11 @@ with tab_sim:
         if factors['Nitrogen'] < 0.7:
              recos.append("🟠 **Defisiensi N**: Tambahkan Urea 100kg/ha fase vegetatif.")
         
-        if factors['Nutrisi Mikro'] < 0.8:
-            recos.append("🟡 **Mikro Rendah**: Aplikasikan pupuk daun mikro lengkap.")
+        if factors['Mikro (Avg)'] < 0.8:
+            recos.append("🟡 **Mikro Rendah**: Aplikasikan pupuk daun mikro lengkap (Fe, Zn, B).")
+            
+        if factors['Sulfur (S)'] < 0.7:
+            recos.append("🟡 **Defisiensi Sulfur**: Gunakan ZA atau Gypsum.")
 
         if factors['Air'] < 0.6:
             recos.append("🔵 **Kekurangan Air**: Wajib irigasi pompa 2x seminggu.")
@@ -414,25 +454,35 @@ with tab_whatif:
     col_input, col_res = st.columns([1, 1.5])
     
     with col_input:
-        st.markdown("#### 1️⃣ Nutrisi Makro & Mikro")
-        w_n = st.slider("➕ Tambah N (kg)", 0, 300, 0, help="Tambahan Urea/ZA")
-        w_p = st.slider("➕ Tambah P (kg)", 0, 200, 0, help="Tambahan SP36/DAP")
-        w_k = st.slider("➕ Tambah K (kg)", 0, 200, 0, help="Tambahan KCl/ZK")
-        w_micro = st.slider("✨ Kecukupan Mikro (%)", 0, 100, 50, help="Zn, Fe, Mn, Cu, dll.")
+        with st.expander("1️⃣ Nutrisi Makro Primer (N, P, K)", expanded=True):
+            w_n = st.slider("➕ Tambah N (kg)", 0, 300, 0, help="Tambahan Urea/ZA")
+            w_p = st.slider("➕ Tambah P (kg)", 0, 200, 0, help="Tambahan SP36/DAP")
+            w_k = st.slider("➕ Tambah K (kg)", 0, 200, 0, help="Tambahan KCl/ZK")
         
-        st.divider()
-        st.markdown("#### 2️⃣ Organik & Hayati")
-        w_org_solid = st.slider("🍂 Organik Padat (kg)", 0, 20000, 0, step=500, help="Kompos/Kohe. Memperbaiki tekstur tanah.")
-        w_org_liq = st.slider("🧴 Organik Cair / POC (Liter)", 0, 500, 0, step=10, help="Booster efisiensi serapan hara.")
+        with st.expander("2️⃣ Nutrisi Makro Sekunder (Ca, Mg, S)"):
+            w_ca = st.slider("🥛 Kalsium (ppm)", 0, 500, 100, help="Dolomit/Kaptan. Penting untuk dinding sel.")
+            w_mg = st.slider("🌿 Magnesium (ppm)", 0, 200, 30, help="Pusat klorofil daun.")
+            w_s = st.slider("🟡 Sulfur (ppm)", 0, 100, 20, help="Penyusun protein & enzim.")
 
-        st.divider()
-        st.markdown("#### 3️⃣ Hormon ZPT (Tri-Hormon)")
-        w_auxin = st.slider("🧬 Auksin (ppm)", 0, 100, 0, help="Perakaran & Vegetatif. Optimal ~30ppm.")
-        w_cyto = st.slider("🦠 Sitokinin (ppm)", 0, 100, 0, help="Pembelahan Sel & Pengisian Buah.")
-        w_ga3 = st.slider("🎋 Giberelin (ppm)", 0, 200, 0, help="Ukuran Buah & Pemanjangan. Hati-hati overdosis!")
+        with st.expander("3️⃣ Nutrisi Mikro Lengkap (Fe, Zn, dll)"):
+            c_m1, c_m2 = st.columns(2)
+            w_fe = c_m1.slider("Besi/Fe", 0.0, 20.0, 2.0)
+            w_mn = c_m2.slider("Mangan/Mn", 0.0, 20.0, 2.0)
+            w_zn = c_m1.slider("Seng/Zn", 0.0, 10.0, 1.0)
+            w_b = c_m2.slider("Boron/B", 0.0, 5.0, 0.5)
+            w_cu = c_m1.slider("Tembaga/Cu", 0.0, 2.0, 0.2)
+            w_mo = c_m2.slider("Molibdenum", 0.0, 1.0, 0.05)
         
-        st.divider()
-        w_boost = st.slider("💊 Kalium Booster (kg)", 0, 50, 0, help="Pupuk khusus fase generatif (e.g., MKP/KNO3).")
+        with st.expander("4️⃣ Organik & Hayati"):
+            w_org_solid = st.slider("🍂 Organik Padat (kg)", 0, 20000, 0, step=500, help="Kompos/Kohe. Memperbaiki tekstur tanah.")
+            w_org_liq = st.slider("🧴 Organik Cair / POC (Liter)", 0, 500, 0, step=10, help="Booster efisiensi serapan hara.")
+
+        with st.expander("5️⃣ Hormon ZPT (Tri-Hormon) & Booster", expanded=True):
+            w_auxin = st.slider("🧬 Auksin (ppm)", 0, 100, 0, help="Perakaran & Vegetatif. Optimal ~30ppm.")
+            w_cyto = st.slider("🦠 Sitokinin (ppm)", 0, 100, 0, help="Pembelahan Sel & Pengisian Buah.")
+            w_ga3 = st.slider("🎋 Giberelin (ppm)", 0, 200, 0, help="Ukuran Buah & Pemanjangan. Hati-hati overdosis!")
+            st.divider()
+            w_boost = st.slider("💊 Kalium Booster (kg)", 0, 50, 0, help="Pupuk khusus fase generatif (e.g., MKP/KNO3).")
 
     with col_res:
         # Re-run logic for simulator
@@ -444,7 +494,17 @@ with tab_whatif:
         sim_params['k'] += w_k
         
         # New params override
-        sim_params['micro_pct'] = w_micro
+        sim_params['ca_ppm'] = w_ca
+        sim_params['mg_ppm'] = w_mg
+        sim_params['s_ppm'] = w_s
+        
+        sim_params['fe_ppm'] = w_fe
+        sim_params['mn_ppm'] = w_mn
+        sim_params['zn_ppm'] = w_zn
+        sim_params['b_ppm'] = w_b
+        sim_params['cu_ppm'] = w_cu
+        sim_params['mo_ppm'] = w_mo
+        
         sim_params['org_solid'] = w_org_solid
         sim_params['org_liquid'] = w_org_liq
         
@@ -508,5 +568,22 @@ with tab_whatif:
             with c_z3:
                 eff = (mults['ga3']-1)*100
                 st.metric("Giberelin (Size)", f"{eff:+.1f}%", delta_color="normal" if eff >= 0 else "inverse")
+
+            st.markdown("---")
+            st.markdown("**Status Nutrisi Mikro & Sekunder:**")
+            micros = sim_res['micros']
+            macros_sec = sim_res['macros_sec']
+            
+            c_d1, c_d2 = st.columns(2)
+            with c_d1:
+                st.write("**Makro Sekunder**")
+                st.progress(macros_sec['ca'], text=f"Kalsium (Ca): {macros_sec['ca']*100:.0f}%")
+                st.progress(macros_sec['mg'], text=f"Magnesium (Mg): {macros_sec['mg']*100:.0f}%")
+                st.progress(macros_sec['s'], text=f"Sulfur (S): {macros_sec['s']*100:.0f}%")
+            with c_d2:
+                st.write("**Mikro Esensial**")
+                st.progress(micros['fe'], text=f"Besi (Fe): {micros['fe']*100:.0f}%")
+                st.progress(micros['zn'], text=f"Seng (Zn): {micros['zn']*100:.0f}%")
+                st.progress(micros['b'], text=f"Boron (B): {micros['b']*100:.0f}%")
 
             st.write(f"- **Efek Booster Buah:** +{(mults['booster']-1)*100:.1f}%")
