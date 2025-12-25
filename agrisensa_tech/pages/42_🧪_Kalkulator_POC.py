@@ -209,6 +209,7 @@ with st.sidebar:
         # Get preferences from Business Model if available
         biz_product = st.session_state.get('biz_preferred_product', None)
         biz_scale = st.session_state.get('biz_production_scale', None)
+        biz_drums = st.session_state.get('ai_drums', 0)
         
         # Map Business Model product to Calculator product type
         default_target = "Balanced"
@@ -228,13 +229,18 @@ with st.sidebar:
                                     index=default_index,
                                     help="AI akan optimize NPK sesuai fase tanaman")
         
-        # Adjust budget based on scale
+        # Adjust budget based on drum capacity (scale with production volume)
         default_budget = 50000
-        if biz_scale == "🏭 Industri/Komersial":
+        if biz_drums > 0:
+            # Budget scales with capacity: base 50k for 100L, multiply by volume ratio
+            volume_ratio = (biz_drums * 1000) / 100
+            default_budget = int(50000 * volume_ratio)
+            st.info(f"💡 Budget disesuaikan untuk {biz_drums * 1000}L kapasitas")
+        elif biz_scale == "🏭 Industri/Komersial":
             default_budget = 500000  # Higher budget for industrial
         
         budget_limit = st.number_input("Budget Maksimal (Rp)", value=default_budget, min_value=0, step=5000,
-                                        help="AI akan cari kombinasi paling efisien dalam budget")
+                                        help="Budget otomatis disesuaikan dengan kapasitas produksi")
         
         # Adjust organic preference based on scale
         default_organic = 50
