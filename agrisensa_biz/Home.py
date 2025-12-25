@@ -1,61 +1,129 @@
 import streamlit as st
 import os
+from utils.modern_ui import load_custom_css, dashboard_header, feature_card, section_header
 
-st.set_page_config(page_title="AgriSensa Biz", page_icon="📈", layout="wide")
+st.set_page_config(
+    page_title="AgriSensa Biz", 
+    page_icon="📈", 
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-st.markdown("""
-<style>
-    .hero { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 3rem; border-radius: 1rem; color: white; text-align: center; }
-    .card { background: white; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 1rem; border: 1px solid #e5e7eb; }
-    .card h3 { color: #7c3aed; }
-</style>
-""", unsafe_allow_html=True)
+# Load custom CSS theme
+load_custom_css()
 
-st.markdown('<div class="hero"><h1>📈 AgriSensa Biz</h1><p>Keuangan, Rantai Pasok, dan Manajemen Agribisnis</p></div>', unsafe_allow_html=True)
+# Dashboard Header
+dashboard_header(
+    "AgriSensa Biz",
+    "Platform Manajemen Keuangan, Rantai Pasok, dan Agribisnis Terpadu",
+    user_name=st.session_state.get('user', {}).get('full_name')
+)
 
-st.markdown("### 💰 Analisis Keuangan")
-c1, c2, c3 = st.columns(3)
-with c1:
-    st.page_link("pages/28_Analisis_Usaha_Tani.py", label="Analisis Usaha Tani", icon="💰", use_container_width=True)
-with c2:
-    st.page_link("pages/6_📈_Analisis_Tren_Harga.py", label="Analisis Tren Harga", icon="📈", use_container_width=True)
-with c3:
-    st.page_link("pages/8_📊_Dasbor_Terpadu.py", label="Dasbor Terpadu", icon="📊", use_container_width=True)
+# Main Content
+section_header("💰 Analisis Keuangan", "Tools untuk analisis biaya, proyeksi laba, dan perencanaan finansial")
 
-st.markdown("### 🚚 Rantai Pasok & Produk")
-c4, c5 = st.columns(2)
-with c4:
-    st.page_link("pages/48_🚚_Rantai_Pasok_Live.py", label="Rantai Pasok Live", icon="🚚", use_container_width=True)
-    st.page_link("pages/49_🏷️_Traceability_Produk.py", label="Traceability Produk", icon="🏷️", use_container_width=True)
-with c5:
-    st.page_link("pages/1_🌾_Database_Panen.py", label="Database Panen (Lengkap)", icon="🌾", use_container_width=True)
-    st.page_link("pages/7_🎯_Prediksi_Hasil_Panen.py", label="Prediksi Hasil Panen", icon="🎯", use_container_width=True)
+col1, col2, col3 = st.columns(3)
 
-st.markdown("### 👥 Manajemen & SDM")
-c6, c7 = st.columns(2)
-with c6:
-    st.page_link("pages/45_📢_Ruang_Kerja_PPL_Final.py", label="Ruang Kerja PPL", icon="📢", use_container_width=True)
-    st.page_link("pages/50_📋_Manajemen_Proyek_Pertanian.py", label="Manajemen Proyek (Baru)", icon="📋", use_container_width=True)
-with c7:
-    st.page_link("pages/53_🎓_Kurikulum_Pelatihan.py", label="Kurikulum Pelatihan", icon="🎓", use_container_width=True)
+with col1:
+    feature_card(
+        "Analisis Usaha Tani",
+        "Hitung RAB, proyeksi laba, break-even analysis, dan unit economics untuk berbagai komoditas pertanian.",
+        "💰",
+        "pages/28_Analisis_Usaha_Tani.py"
+    )
+
+with col2:
+    feature_card(
+        "Analisis Tren Harga",
+        "Pantau tren harga komoditas, analisis volatilitas, dan prediksi harga untuk keputusan jual-beli optimal.",
+        "📈",
+        "pages/6_📈_Analisis_Tren_Harga.py"
+    )
+
+with col3:
+    feature_card(
+        "Dasbor Terpadu",
+        "Dashboard komprehensif dengan visualisasi real-time untuk monitoring performa bisnis pertanian Anda.",
+        "📊",
+        "pages/8_📊_Dasbor_Terpadu.py"
+    )
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+section_header("🚚 Rantai Pasok & Produk", "Manajemen supply chain dan traceability produk")
+
+col4, col5, col6 = st.columns(3)
+
+with col4:
+    feature_card(
+        "Rantai Pasok Live",
+        "Tracking real-time pergerakan produk dari farm to table dengan blockchain simulation dan carbon footprint.",
+        "🚚",
+        "pages/48_🚚_Rantai_Pasok_Live.py"
+    )
+
+with col5:
+    feature_card(
+        "Traceability Produk",
+        "Generate QR code product passport, hash verification, dan consumer feedback loop untuk transparansi produk.",
+        "🏷️",
+        "pages/49_🏷️_Traceability_Produk.py"
+    )
+
+with col6:
+    feature_card(
+        "Database Panen",
+        "Database lengkap hasil panen dengan analisis produktivitas, kualitas, dan historical data.",
+        "🌾",
+        "pages/1_🌾_Database_Panen.py"
+    )
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+section_header("👥 Manajemen & SDM", "Tools untuk manajemen tim dan pengembangan SDM")
+
+col7, col8, col9 = st.columns(3)
+
+with col7:
+    feature_card(
+        "Ruang Kerja PPL",
+        "Workspace khusus untuk Penyuluh Pertanian Lapangan dengan tools perencanaan dan monitoring kegiatan.",
+        "📢",
+        "pages/45_📢_Ruang_Kerja_PPL_Final.py"
+    )
+
+with col8:
+    feature_card(
+        "Manajemen Proyek",
+        "Project management tools untuk koordinasi tim, task tracking, dan timeline monitoring.",
+        "📋",
+        "pages/50_📋_Manajemen_Proyek_Pertanian.py"
+    )
+
+with col9:
+    feature_card(
+        "Kurikulum Pelatihan",
+        "Program pelatihan terstruktur untuk pengembangan kapasitas petani dan tim agribisnis.",
+        "🎓",
+        "pages/53_🎓_Kurikulum_Pelatihan.py"
+    )
 
 # Footer
+st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("---")
-# Debugging Section (Visible only to Admin/Dev)
-with st.expander("🔧 Debug Page Paths (System Info)"):
-    st.write("Current File:", __file__)
-    st.write("CWD:", os.getcwd())
+
+# Debug Section (Collapsible)
+with st.expander("🔧 System Information"):
+    st.caption("**Current File:**")
+    st.code(__file__, language="text")
+    st.caption("**Working Directory:**")
+    st.code(os.getcwd(), language="text")
     
     try:
         from streamlit.source_util import get_pages
         pages = get_pages("Home.py")
-        st.write("Registered Pages in Streamlit:", pages)
-        
-        st.write("Files in 'pages' directory:")
-        if os.path.exists("pages"):
-            st.write(sorted(os.listdir("pages")))
-        else:
-            st.error("'pages' directory not found!")
-            
+        st.caption("**Registered Pages:**")
+        st.json({k: v['page_name'] for k, v in pages.items()})
     except Exception as e:
         st.error(f"Error reading pages: {e}")
+
