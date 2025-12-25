@@ -207,22 +207,46 @@ def run_simulation(crop, variety, texture_key, params):
     final_yield_pct = (limiting_factor_val * 0.7) + (avg_factor_val * 0.3)
     
     # --- BOOSTERS & HORMONES (Multipliers) ---
-    # Hormones (ZPT) - can push beyond 100% potential (genetic expression maximization)
-    # Modeled as Gaussian: Optimal dose gives bonus, overdose crashes yield
-    hormone_dose = params.get('zpt_ppm', 0)
-    # Assume optimal is around 50-100 ppm depending on type, simplified here
-    if hormone_dose > 0:
-        # Peak at 100ppm gives 1.1x multiplier. >200ppm starts dropping.
-        hormone_multiplier = 1.0 + (0.15 * np.exp(-0.5 * ((hormone_dose - 75) / 40)**2))
+    # Hormones (ZPT) Split: Auksin, Sitokinin, Giberelin
+    
+    # Auksin: Rooting & Nutrient Uptake Efficiency (Gaussian)
+    # Optimal ~20-40 ppm. 
+    auxin_ppm = params.get('auxin_ppm', 0)
+    mu_auxin = 30
+    if auxin_ppm > 0:
+        auxin_mult = 1.0 + (0.12 * np.exp(-0.5 * ((auxin_ppm - mu_auxin) / 15)**2))
+        # High overdose penalty
+        if auxin_ppm > 80: auxin_mult -= ((auxin_ppm - 80) * 0.005) 
     else:
-        hormone_multiplier = 1.0
+        auxin_mult = 1.0
+
+    # Sitokinin: Cell Division & Filling (Sigmoid -> Plateau)
+    # Good for grain filling / vegetable leafiness. Harder to overdose than Auxin.
+    cyto_ppm = params.get('cyto_ppm', 0)
+    if cyto_ppm > 0:
+        cyto_mult = 1.0 + (0.10 * (1 - np.exp(-0.05 * cyto_ppm)))    
+    else:
+        cyto_mult = 1.0
+        
+    # Giberelin (GA3): Size & Elongation (Gaussian broad)
+    # Powerful but risky (bolting). Optimal ~50-80 ppm.
+    ga3_ppm = params.get('ga3_ppm', 0)
+    mu_ga3 = 60
+    if ga3_ppm > 0:
+        ga3_mult = 1.0 + (0.15 * np.exp(-0.5 * ((ga3_ppm - mu_ga3) / 25)**2))
+        if ga3_ppm > 150: ga3_mult -= ((ga3_ppm - 150) * 0.003)
+    else:
+        ga3_mult = 1.0
+
+    # Combined ZPT Effect (Multiplicative with damping)
+    zpt_total_mult = auxin_mult * cyto_mult * ga3_mult
         
     # Booster (e.g. Kalium Booster for fruit phase)
     # Modeled as Sigmoid - steady increase
     booster_kg = params.get('booster_kg', 0)
     booster_multiplier = 1.0 + (0.1 * (1 - np.exp(-0.1 * booster_kg))) # Max 10% boost
     
-    final_yield_pct = final_yield_pct * hormone_multiplier * booster_multiplier
+    final_yield_pct = final_yield_pct * zpt_total_mult * booster_multiplier
     
     # Variety resilience bonus
     final_yield_pct = final_yield_pct * (0.9 + (var_data['resilience'] * 0.1))
@@ -239,7 +263,10 @@ def run_simulation(crop, variety, texture_key, params):
         "limiting_factor": min(factors, key=factors.get),
         "potential_kg": potential,
         "multipliers": {
-            "zpt": hormone_multiplier,
+            "auxin": auxin_mult,
+            "cyto": cyto_mult,
+            "ga3": ga3_mult,
+            "zpt_total": zpt_total_mult,
             "booster": booster_multiplier,
             "organic_solid": org_solid_factor,
             "organic_liquid": poc_eff_boost
@@ -289,7 +316,8 @@ params = {
     "area_ha": s_area, "ph": i_ph, "temp": i_temp, "rain": i_rain,
     "n": i_n, "p": i_p, "k": i_k,
     # Defaults for initial run
-    "org_solid": 0, "org_liquid": 0, "micro_pct": 50, "zpt_ppm": 0, "booster_kg": 0
+    "org_solid": 0, "org_liquid": 0, "micro_pct": 50, 
+    "auxin_ppm": 0, "cyto_ppm": 0, "ga3_ppm": 0, "booster_kg": 0
 }
 
 # Run Simulation
@@ -398,9 +426,13 @@ with tab_whatif:
         w_org_liq = st.slider("🧴 Organik Cair / POC (Liter)", 0, 500, 0, step=10, help="Booster efisiensi serapan hara.")
 
         st.divider()
-        st.markdown("#### 3️⃣ Hormon & Booster")
-        w_zpt = st.slider("🧬 Hormon ZPT (ppm)", 0, 200, 0, help="Auksin/Giberelin/Sitokinin. Hati-hati overdosis!")
-        w_boost = st.slider("💊 Booster Buah/Umbi (kg)", 0, 50, 0, help="Pupuk khusus fase generatif (e.g., MKP/KNO3).")
+        st.markdown("#### 3️⃣ Hormon ZPT (Tri-Hormon)")
+        w_auxin = st.slider("🧬 Auksin (ppm)", 0, 100, 0, help="Perakaran & Vegetatif. Optimal ~30ppm.")
+        w_cyto = st.slider("🦠 Sitokinin (ppm)", 0, 100, 0, help="Pembelahan Sel & Pengisian Buah.")
+        w_ga3 = st.slider("🎋 Giberelin (ppm)", 0, 200, 0, help="Ukuran Buah & Pemanjangan. Hati-hati overdosis!")
+        
+        st.divider()
+        w_boost = st.slider("💊 Kalium Booster (kg)", 0, 50, 0, help="Pupuk khusus fase generatif (e.g., MKP/KNO3).")
 
     with col_res:
         # Re-run logic for simulator
@@ -415,7 +447,10 @@ with tab_whatif:
         sim_params['micro_pct'] = w_micro
         sim_params['org_solid'] = w_org_solid
         sim_params['org_liquid'] = w_org_liq
-        sim_params['zpt_ppm'] = w_zpt
+        
+        sim_params['auxin_ppm'] = w_auxin
+        sim_params['cyto_ppm'] = w_cyto
+        sim_params['ga3_ppm'] = w_ga3
         sim_params['booster_kg'] = w_boost
         
         sim_res = run_simulation(s_crop, s_var, s_grad, sim_params)
@@ -426,7 +461,8 @@ with tab_whatif:
         # Cost Estimator for Simulation Inputs (Rough estimates)
         cost_inputs = (w_n * 5000) + (w_p * 6000) + (w_k * 15000) + \
                       (w_org_solid * 1000) + (w_org_liq * 25000) + \
-                      (w_zpt * 1000) + (w_boost * 35000)
+                      (w_auxin * 2000) + (w_cyto * 3000) + (w_ga3 * 3000) + \
+                      (w_boost * 35000)
                       
         net_profit_delta = delta_rev - cost_inputs
 
@@ -453,17 +489,24 @@ with tab_whatif:
             p_val = int(min(100, sim_res['yield_pct']))
             st.progress(p_val)
             if sim_res['yield_pct'] > 100:
-                st.caption(f"🚀 **SUPER-OPTIMAL!** ({sim_res['yield_pct']:.1f}%) - ZPT & Booster efektif.")
+                st.caption(f"🚀 **SUPER-OPTIMAL!** ({sim_res['yield_pct']:.1f}%) - Efek ZPT & Booster Aktif.")
         
         # Diagnostics
-        with st.expander("🔍 Analisis Dampak Input (Diagnostics)"):
+        with st.expander("🔍 Analisis Dampak Input (Diagnostics)", expanded=True):
             mults = sim_res['multipliers']
-            st.write(f"- **Efek Organik Padat (Perbaikan Tanah):** +{(mults['organic_solid']-1)*100:.1f}%")
-            st.write(f"- **Efek Organik Cair (Efisiensi Hara):** +{(mults['organic_liquid']-1)*100:.1f}%")
+            st.write(f"- **Efek Organik Padat:** +{(mults['organic_solid']-1)*100:.1f}%")
+            st.write(f"- **Efek Organik Cair:** +{(mults['organic_liquid']-1)*100:.1f}%")
             
-            zpt_effect = (mults['zpt']-1)*100
-            if zpt_effect > 0: st.write(f"- **Efek Hormon ZPT:** 🟢 +{zpt_effect:.1f}% (Boost)")
-            elif zpt_effect < 0: st.write(f"- **Efek Hormon ZPT:** 🔴 {zpt_effect:.1f}% (Overdosis!)")
-            else: st.write("- **Efek Hormon ZPT:** Netral")
-            
+            # Detailed Hormone Breakdown
+            c_z1, c_z2, c_z3 = st.columns(3)
+            with c_z1:
+                eff = (mults['auxin']-1)*100
+                st.metric("Auksin (Root)", f"{eff:+.1f}%", delta_color="normal" if eff >= 0 else "inverse")
+            with c_z2:
+                eff = (mults['cyto']-1)*100
+                st.metric("Sitokinin (Cell)", f"{eff:+.1f}%")
+            with c_z3:
+                eff = (mults['ga3']-1)*100
+                st.metric("Giberelin (Size)", f"{eff:+.1f}%", delta_color="normal" if eff >= 0 else "inverse")
+
             st.write(f"- **Efek Booster Buah:** +{(mults['booster']-1)*100:.1f}%")
