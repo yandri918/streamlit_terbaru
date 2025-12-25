@@ -914,27 +914,33 @@ if inputs:
                 data_vol = max(50.0, data_vol * 0.2)  # Much lower volume for spray
                 ref_text += " (Disesuaikan untuk Semprot)"
             
-            # Update defaults FOR THIS RENDER
-            def_dose = data_dose
-            def_vol = data_vol
-            
-            # Force update session state if changed
-            if crop_changed:
-                 st.session_state['sci_dose_input'] = data_dose
-                 st.session_state['sci_vol_input'] = data_vol
-                 st.session_state['prev_sci_crop'] = sci_crop
-
-        else:
-             if crop_changed:
-                 st.session_state['prev_sci_crop'] = sci_crop
+        # Update logic: If crop changed, we update session state.
+        # Streamlit widgets with 'key' will read from session_state automatically if present.
+        # But we must NOT provide 'value' if we want it to read from state? No, 'value' is default.
+        # The Warning happens if we set session_state AND provide a value that conflicts or is redundant in a way st detects.
+        # Best Practice: To update a widget programmatically, update session_state.
+        # If we update session_state, we don't need to force 'value' in the widget call if the key matches.
         
-        # Inputs with keys
-        sci_dose = st.number_input(f"Dosis {'Semprot' if is_spray else 'Kocor'} (ml POC / Liter Air)", value=def_dose, step=1.0, help="Jumlah ml POC yang dicampur ke 1 Liter air", key="sci_dose_input")
+        if crop_changed:
+             if sci_crop != "-- Custom --":
+                 st.session_state['sci_dose_input'] = float(def_dose)
+                 st.session_state['sci_vol_input'] = float(def_vol)
+             st.session_state['prev_sci_crop'] = sci_crop
+        
+        # Ensure session keys exist
+        if 'sci_dose_input' not in st.session_state:
+            st.session_state['sci_dose_input'] = float(def_dose)
+        if 'sci_vol_input' not in st.session_state:
+            st.session_state['sci_vol_input'] = float(def_vol)
+
+        # Inputs with keys - REMOVE 'value' argument to avoid conflict
+        # Streamlit will use the value in st.session_state[key]
+        sci_dose = st.number_input(f"Dosis {'Semprot' if is_spray else 'Kocor'} (ml POC / Liter Air)", step=1.0, help="Jumlah ml POC yang dicampur ke 1 Liter air", key="sci_dose_input")
         if sci_crop != "-- Custom --":
             st.info(f"ℹ️ {ref_text}")
             
         vol_label = "Volume Semprot per Tanaman (ml)" if is_spray else "Volume Siram per Tanaman (ml)"
-        sci_vol = st.number_input(vol_label, value=def_vol, step=10.0, help="Total volume larutan per tanaman", key="sci_vol_input")
+        sci_vol = st.number_input(vol_label, step=10.0, help="Total volume larutan per tanaman", key="sci_vol_input")
         
     with col_sci2:
         st.markdown("**2. Parameter Populasi:**")
