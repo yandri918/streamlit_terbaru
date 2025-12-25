@@ -1099,6 +1099,247 @@ with tab2:
     st.markdown("### 💼 Model Bisnis Produksi POC Komersial")
     st.info("🏭 **Kapasitas Pabrikan:** Drum 1000 Liter | 3 Varian Produk | Analisis Kelayakan Bisnis Lengkap")
     
+    # AI Optimizer for Production Setup
+    st.markdown("---")
+    st.subheader("🤖 AI Optimizer - Rekomendasi Setup Produksi")
+    
+    col_ai1, col_ai2 = st.columns([1, 2])
+    
+    with col_ai1:
+        st.markdown("**⚙️ Pilih Skala Produksi:**")
+        production_scale = st.radio(
+            "Tipe Produksi",
+            ["🏠 Pemakaian Pribadi", "🏭 Industri/Komersial"],
+            help="AI akan memberikan rekomendasi berbeda untuk setiap skala"
+        )
+        
+        if production_scale == "🏠 Pemakaian Pribadi":
+            target_monthly = st.slider("Target Produksi (L/bulan)", 50, 500, 200, 50, key="ai_target_personal")
+        else:
+            target_monthly = st.slider("Target Produksi (L/bulan)", 500, 10000, 2000, 500, key="ai_target_industrial")
+        
+        preferred_product = st.selectbox(
+            "Produk Utama",
+            ["Vegetatif (High N)", "Generatif (High K)", "Balanced", "Mix (Semua)"],
+            key="ai_product"
+        )
+    
+    with col_ai2:
+        st.markdown("**💡 Rekomendasi AI:**")
+        
+        if production_scale == "🏠 Pemakaian Pribadi":
+            # Personal use recommendations
+            if target_monthly <= 100:
+                drums_rec = 1
+                cycles_rec = 1
+                util_rec = target_monthly / 1000 * 100
+                st.success(f"""
+                **Setup untuk Pemakaian Pribadi (Skala Kecil)**
+                
+                📦 **Rekomendasi Equipment:**
+                - Drum: {drums_rec} unit (1000L)
+                - Siklus: {cycles_rec}x per bulan
+                - Utilisasi: {util_rec:.0f}%
+                - Produksi: {target_monthly} L/bulan
+                
+                💰 **Estimasi Investasi:**
+                - Drum 1000L: Rp 2,500,000
+                - Mixer sederhana: Rp 500,000
+                - Total: ~Rp 3,000,000
+                
+                🎯 **Fokus Produk:**
+                - {preferred_product}
+                - Untuk kebutuhan lahan sendiri
+                - Surplus bisa dijual ke tetangga
+                
+                ✅ **Keuntungan:**
+                - Hemat biaya pupuk (vs beli POC komersial)
+                - Kontrol kualitas sendiri
+                - Ramah lingkungan
+                """)
+            elif target_monthly <= 300:
+                drums_rec = 2
+                cycles_rec = 2
+                util_rec = target_monthly / (2 * 1000 * 2) * 100
+                st.success(f"""
+                **Setup untuk Pemakaian Pribadi (Skala Menengah)**
+                
+                📦 **Rekomendasi Equipment:**
+                - Drum: {drums_rec} unit (1000L)
+                - Siklus: {cycles_rec}x per bulan
+                - Utilisasi: {util_rec:.0f}%
+                - Produksi: {target_monthly} L/bulan
+                
+                💰 **Estimasi Investasi:**
+                - Drum 1000L: Rp 5,000,000 (2 unit)
+                - Mixer: Rp 1,000,000
+                - Total: ~Rp 6,000,000
+                
+                🎯 **Fokus Produk:**
+                - {preferred_product}
+                - Untuk lahan 1-2 hektar
+                - Bisa jual surplus ke kelompok tani
+                
+                ✅ **Keuntungan:**
+                - ROI < 6 bulan (vs beli POC)
+                - Bisa mulai bisnis kecil-kecilan
+                - Stok selalu tersedia
+                """)
+            else:
+                drums_rec = 3
+                cycles_rec = 2
+                util_rec = target_monthly / (3 * 1000 * 2) * 100
+                st.info(f"""
+                **Setup Semi-Komersial**
+                
+                📦 **Rekomendasi Equipment:**
+                - Drum: {drums_rec} unit (1000L)
+                - Siklus: {cycles_rec}x per bulan
+                - Utilisasi: {util_rec:.0f}%
+                - Produksi: {target_monthly} L/bulan
+                
+                💰 **Estimasi Investasi:**
+                - Drum 1000L: Rp 7,500,000 (3 unit)
+                - Mixer profesional: Rp 1,500,000
+                - Total: ~Rp 9,000,000
+                
+                🎯 **Fokus Produk:**
+                - {preferred_product}
+                - Untuk lahan >2 hektar
+                - **Mulai pertimbangkan bisnis POC**
+                
+                💡 **Saran:**
+                - Pertimbangkan izin PIRT
+                - Mulai branding & packaging
+                - Target: Kelompok tani lokal
+                """)
+        
+        else:
+            # Industrial recommendations
+            if target_monthly <= 2000:
+                drums_rec = 4
+                cycles_rec = 2
+                util_rec = target_monthly / (4 * 1000 * 2) * 100
+                st.success(f"""
+                **Setup Industri Kecil (Startup)**
+                
+                📦 **Rekomendasi Equipment:**
+                - Drum: {drums_rec} unit (1000L)
+                - Siklus: {cycles_rec}x per bulan
+                - Utilisasi: {util_rec:.0f}%
+                - Produksi: {target_monthly:,} L/bulan
+                
+                💰 **Estimasi Investasi:**
+                - Drum 1000L: Rp 10,000,000 (4 unit)
+                - Mixer industrial: Rp 2,000,000
+                - Packaging equipment: Rp 3,000,000
+                - Izin & sertifikasi: Rp 2,000,000
+                - Total: ~Rp 17,000,000
+                
+                🎯 **Strategi Produk:**
+                - Mix produk: 30% Veg, 40% Gen, 30% Bal
+                - Packaging: 60% kemasan 5L, 40% kemasan 1L
+                - Target: Toko tani & distributor lokal
+                
+                👥 **SDM:**
+                - 1 operator produksi
+                - 1 admin/marketing
+                
+                📈 **Target Pasar:**
+                - Radius 50 km
+                - 20-30 pelanggan tetap
+                - Omzet: Rp 50-100 juta/bulan
+                """)
+            elif target_monthly <= 5000:
+                drums_rec = 8
+                cycles_rec = 2
+                util_rec = target_monthly / (8 * 1000 * 2) * 100
+                st.success(f"""
+                **Setup Industri Menengah**
+                
+                📦 **Rekomendasi Equipment:**
+                - Drum: {drums_rec} unit (1000L)
+                - Siklus: {cycles_rec}x per bulan
+                - Utilisasi: {util_rec:.0f}%
+                - Produksi: {target_monthly:,} L/bulan
+                
+                💰 **Estimasi Investasi:**
+                - Drum 1000L: Rp 20,000,000 (8 unit)
+                - Mixer industrial: Rp 3,000,000
+                - Packaging line: Rp 5,000,000
+                - QC equipment: Rp 2,000,000
+                - Izin lengkap: Rp 3,000,000
+                - Total: ~Rp 33,000,000
+                
+                🎯 **Strategi Produk:**
+                - 3 varian lengkap + custom formula
+                - Packaging: 50% bulk (20L), 30% jerigen (5L), 20% botol (1L)
+                - Target: Distributor regional & koperasi
+                
+                👥 **SDM:**
+                - 2 operator produksi
+                - 1 QC specialist
+                - 1 admin
+                - 1 sales/marketing
+                
+                📈 **Target Pasar:**
+                - Radius 100 km
+                - 50-100 pelanggan
+                - Omzet: Rp 150-300 juta/bulan
+                """)
+            else:
+                drums_rec = 12
+                cycles_rec = 3
+                util_rec = target_monthly / (12 * 1000 * 3) * 100
+                st.warning(f"""
+                **Setup Industri Besar (Enterprise)**
+                
+                📦 **Rekomendasi Equipment:**
+                - Drum: {drums_rec}+ unit (1000L)
+                - Siklus: {cycles_rec}x per bulan
+                - Utilisasi: {util_rec:.0f}%
+                - Produksi: {target_monthly:,} L/bulan
+                
+                💰 **Estimasi Investasi:**
+                - Drum 1000L: Rp 30,000,000+ (12+ unit)
+                - Automated mixing system: Rp 10,000,000
+                - Packaging automation: Rp 15,000,000
+                - Lab QC lengkap: Rp 5,000,000
+                - Izin & sertifikasi: Rp 5,000,000
+                - Warehouse & logistics: Rp 10,000,000
+                - Total: ~Rp 75,000,000+
+                
+                🎯 **Strategi Produk:**
+                - Full product line (5+ varian)
+                - Custom formulation service
+                - White label untuk brand lain
+                - Packaging: Semua ukuran (1L, 5L, 20L, 200L)
+                
+                👥 **SDM:**
+                - 4-6 operator produksi (shift)
+                - 2 QC specialist
+                - 2 admin
+                - 3-5 sales team
+                - 1 supervisor/manager
+                
+                📈 **Target Pasar:**
+                - Nasional (multi-provinsi)
+                - 200+ pelanggan
+                - Omzet: Rp 500 juta - 1 miliar/bulan
+                
+                ⚠️ **Catatan:**
+                - Pertimbangkan PT/CV
+                - Perlu business plan detail
+                - Funding/investor mungkin diperlukan
+                """)
+        
+        if st.button("✅ Terapkan Rekomendasi AI", type="primary", use_container_width=True):
+            st.session_state['ai_drums'] = drums_rec
+            st.session_state['ai_cycles'] = cycles_rec
+            st.session_state['ai_util'] = min(util_rec, 100)
+            st.success(f"✅ Setup produksi diatur: {drums_rec} drum, {cycles_rec} siklus, {min(util_rec, 100):.0f}% utilisasi")
+            st.rerun()
+    
     # Production Setup
     st.markdown("---")
     st.subheader("🏭 Setup Produksi")
@@ -1106,12 +1347,15 @@ with tab2:
     col_prod1, col_prod2, col_prod3 = st.columns(3)
     
     with col_prod1:
-        num_drums = st.number_input("Jumlah Drum (1000L)", value=4, min_value=1, max_value=20, step=1, key="biz_num_drums")
+        default_drums = st.session_state.get('ai_drums', 4)
+        num_drums = st.number_input("Jumlah Drum (1000L)", value=default_drums, min_value=1, max_value=20, step=1, key="biz_num_drums")
         fermentation_days = st.number_input("Lama Fermentasi (hari)", value=14, min_value=7, max_value=30, step=1, key="biz_fermentation_days")
     
     with col_prod2:
-        cycles_per_month = st.number_input("Siklus per Bulan", value=2, min_value=1, max_value=4, step=1, key="biz_cycles")
-        capacity_utilization = st.slider("Utilisasi Kapasitas (%)", 30, 100, 70, 5, key="biz_capacity")
+        default_cycles = st.session_state.get('ai_cycles', 2)
+        default_util = st.session_state.get('ai_util', 70)
+        cycles_per_month = st.number_input("Siklus per Bulan", value=default_cycles, min_value=1, max_value=4, step=1, key="biz_cycles")
+        capacity_utilization = st.slider("Utilisasi Kapasitas (%)", 30, 100, int(default_util), 5, key="biz_capacity")
     
     with col_prod3:
         monthly_capacity = num_drums * 1000 * cycles_per_month * (capacity_utilization / 100)
