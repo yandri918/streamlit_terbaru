@@ -46,13 +46,61 @@ def save_recipe(name, recipe_data):
     with open(RECIPE_FILE, 'w') as f:
         json.dump(recipes, f, indent=2)
 
-def delete_recipe(name):
+def delete_recipe(recipe_name):
     """Delete a recipe"""
     recipes = load_recipes()
-    if name in recipes:
-        del recipes[name]
+    if recipe_name in recipes:
+        del recipes[recipe_name]
         with open(RECIPE_FILE, 'w') as f:
             json.dump(recipes, f, indent=2)
+
+# Helper function to calculate NPK from formula
+def calculate_npk_from_formula(inputs, target_volume=100):
+    """Calculate NPK content from material inputs without UI"""
+    total_N = 0
+    total_P = 0
+    total_K = 0
+    total_C = 0
+    total_liquid = 0
+    total_cost = 0
+    
+    for material, qty in inputs.items():
+        # Find material in database
+        found = False
+        for category, materials in MATERIALS.items():
+            if material in materials:
+                props = materials[material]
+                
+                # Calculate nutrients
+                total_N += (props['N'] / 100) * qty
+                total_P += (props['P'] / 100) * qty
+                total_K += (props['K'] / 100) * qty
+                total_C += (props['C'] / 100) * qty
+                
+                # Calculate liquid volume
+                if props['unit'] == 'liter':
+                    total_liquid += qty
+                
+                # Calculate cost
+                total_cost += props['price'] * qty
+                
+                found = True
+                break
+    
+    # Calculate percentages
+    n_pct = (total_N / target_volume) * 100 if target_volume > 0 else 0
+    p_pct = (total_P / target_volume) * 100 if target_volume > 0 else 0
+    k_pct = (total_K / target_volume) * 100 if target_volume > 0 else 0
+    c_pct = (total_C / target_volume) * 100 if target_volume > 0 else 0
+    
+    return {
+        'N': n_pct,
+        'P': p_pct,
+        'K': k_pct,
+        'C': c_pct,
+        'total_cost': total_cost,
+        'total_liquid': total_liquid
+    }
 
 # Header
 st.title("🧪 Kalkulator Pupuk Organik Cair (POC)")
@@ -1635,26 +1683,40 @@ with tab2:
     st.markdown("---")
     st.subheader("📦 Varian Produk & Sales Mix")
     
+    st.info("💡 **NPK dan biaya produksi dihitung otomatis dari formula bahan**")
+    
+    # Calculate NPK and cost from formula templates
+    veg_formula = {'Urine Kelinci': 15, 'Daun Kelor': 5, 'Molase': 2, 'Dekomposer (EM4/MOL)': 0.5}
+    gen_formula = {'Bonggol Pisang': 10, 'Kulit Pisang': 5, 'KCl': 0.3, 'Molase': 2, 'Dekomposer (EM4/MOL)': 0.5}
+    bal_formula = {'Urine Sapi': 10, 'Sabut Kelapa': 3, 'NPK Phonska (15-15-15)': 0.5, 'Molase': 2, 'Dekomposer (EM4/MOL)': 0.5}
+    
+    veg_data = calculate_npk_from_formula(veg_formula, 100)
+    gen_data = calculate_npk_from_formula(gen_formula, 100)
+    bal_data = calculate_npk_from_formula(bal_formula, 100)
+    
     col_var1, col_var2, col_var3 = st.columns(3)
     
     with col_var1:
         st.markdown("**🌱 POC Vegetatif (High N)**")
-        st.caption("Target: N=0.4%, P=0.15%, K=0.2%")
+        st.caption(f"NPK: N={veg_data['N']:.2f}%, P={veg_data['P']:.2f}%, K={veg_data['K']:.2f}%")
+        st.caption(f"Biaya: Rp {veg_data['total_cost']:,.0f}/100L")
         veg_mix = st.slider("Sales Mix Vegetatif (%)", 0, 100, 30, 5, key="veg_mix")
-        veg_cost_per_liter = st.number_input("Biaya Produksi/L", value=500, min_value=100, step=50, key="veg_cost")
+        veg_cost_per_liter = veg_data['total_cost'] / 100  # Auto-calculated
     
     with col_var2:
         st.markdown("**🌸 POC Generatif (High K)**")
-        st.caption("Target: N=0.25%, P=0.2%, K=0.45%")
+        st.caption(f"NPK: N={gen_data['N']:.2f}%, P={gen_data['P']:.2f}%, K={gen_data['K']:.2f}%")
+        st.caption(f"Biaya: Rp {gen_data['total_cost']:,.0f}/100L")
         gen_mix = st.slider("Sales Mix Generatif (%)", 0, 100, 40, 5, key="gen_mix")
-        gen_cost_per_liter = st.number_input("Biaya Produksi/L", value=600, min_value=100, step=50, key="gen_cost")
+        gen_cost_per_liter = gen_data['total_cost'] / 100  # Auto-calculated
     
     with col_var3:
         st.markdown("**⚖️ POC Balanced**")
-        st.caption("Target: N=0.3%, P=0.2%, K=0.3%")
+        st.caption(f"NPK: N={bal_data['N']:.2f}%, P={bal_data['P']:.2f}%, K={bal_data['K']:.2f}%")
+        st.caption(f"Biaya: Rp {bal_data['total_cost']:,.0f}/100L")
         bal_mix = 100 - veg_mix - gen_mix
         st.metric("Sales Mix Balanced", f"{bal_mix}%")
-        bal_cost_per_liter = st.number_input("Biaya Produksi/L", value=550, min_value=100, step=50, key="bal_cost")
+        bal_cost_per_liter = bal_data['total_cost'] / 100  # Auto-calculated
     
     # Weighted average cost
     avg_cost_per_liter = (veg_cost_per_liter * veg_mix + gen_cost_per_liter * gen_mix + bal_cost_per_liter * bal_mix) / 100
