@@ -13,6 +13,7 @@ import os
 from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(page_title="AgriSensa Command Center", page_icon="📡", layout="wide")
+# Force redeploy check
 
 # ===== AUTH & CONFIG =====
 user = require_auth()
