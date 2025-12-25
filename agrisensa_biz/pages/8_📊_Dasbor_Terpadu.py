@@ -1,5 +1,5 @@
-# Dasbor Rekomendasi Terpadu
-# Integrated dashboard with holistic recommendations
+# 📊 AgriSensa Command Center (Dasbor Terpadu)
+# Executive Dashboard for Farm Management incorporating Financial, Agronomic, and Operational Health.
 
 import streamlit as st
 import pandas as pd
@@ -12,406 +12,256 @@ import os
 
 from utils.auth import require_auth, show_user_info_sidebar
 
-st.set_page_config(page_title="Dasbor Terpadu", page_icon="📊", layout="wide")
+st.set_page_config(page_title="AgriSensa Command Center", page_icon="📡", layout="wide")
 
-# ===== AUTHENTICATION CHECK =====
+# ===== AUTH & CONFIG =====
 user = require_auth()
 show_user_info_sidebar()
-# ================================
 
+# Custom CSS for Modern Cards
+st.markdown("""
+<style>
+    .kpi-card {
+        background-color: #f8fafc;
+        border-radius: 10px;
+        padding: 20px;
+        border-left: 5px solid #3b82f6;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .kpi-title { font-size: 14px; color: #64748b; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+    .kpi-trend { font-size: 14px; margin-top: 5px; }
+    .trend-up { color: #10b981; }
+    .trend-down { color: #ef4444; }
+    .stProgress > div > div > div > div { background-color: #3b82f6; }
+</style>
+""", unsafe_allow_html=True)
 
-# ========== DATA LOADING ==========
-def load_harvest_data():
-    """Load harvest data if exists"""
-    file_path = "data/harvest_data_streamlit.json"
-    if os.path.exists(file_path):
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+# ==========================================
+# 📥 DATA INGESTION LAYERS
+# ==========================================
+
+def load_data_source(filename):
+    """Generic JSON loader with safety"""
+    try:
+        if os.path.exists(filename):
+            with open(filename, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        # Silent fail or log
+        pass
     return []
 
-def load_npk_data():
-    """Load NPK analysis data if exists"""
-    file_path = "data/npk_analysis_records.json"
-    if os.path.exists(file_path):
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return []
+# Load all relevant data sources
+harvest_data = load_data_source("data/harvest_data_streamlit.json")
+soil_data = load_data_source("data/npk_analysis_records.json")
+market_data = [] # Placeholder for future expansion
+tasks_data = [] # Placeholder
 
-# ========== ANALYSIS FUNCTIONS ==========
-def analyze_farm_health(harvest_data, npk_data):
-    """Analyze overall farm health"""
-    health_score = 0
-    factors = {}
+# ==========================================
+# 🧠 INTELLIGENCE ENGINE (Scoring Logic)
+# ==========================================
+
+def calculate_farm_kpis(harvest, soil):
+    """
+    Advanced Scoring Logic:
+    Returns a unified score (0-100) and breakdown by dimension.
+    """
+    scores = {
+        "Financial": 0,    # Revenue, Margin
+        "Agronomic": 0,    # Soil Health
+        "Operational": 0,  # Data Velocity
+        "Resilience": 0    # Diversity, Sustainability (Mock)
+    }
     
-    # Harvest performance (40 points)
-    if harvest_data:
-        df = pd.DataFrame(harvest_data)
-        avg_margin = df['profit_margin'].mean() if 'profit_margin' in df.columns else 0
+    metrics = {
+        "total_revenue": 0,
+        "avg_margin": 0,
+        "harvest_count": 0,
+        "soil_n_status": "Unknown",
+        "soil_ph": 7.0
+    }
+    
+    # 1. Financial Dimension
+    if harvest:
+        df = pd.DataFrame(harvest)
+        metrics['total_revenue'] = df['total_value'].sum() if 'total_value' in df.columns else 0
+        metrics['avg_margin'] = df['profit_margin'].mean() if 'profit_margin' in df.columns else 0
+        metrics['harvest_count'] = len(df)
         
-        if avg_margin > 30:
-            harvest_score = 40
-        elif avg_margin > 20:
-            harvest_score = 30
-        elif avg_margin > 10:
-            harvest_score = 20
-        else:
-            harvest_score = 10
+        # Score Logic: Margin > 30% is ideal (100 pts)
+        margin_score = min(100, max(0, metrics['avg_margin'] / 30 * 100))
+        # Activity Score: At least 3 harvests for full points
+        activity_score = min(100, len(df) * 33) 
         
-        health_score += harvest_score
-        factors['harvest'] = harvest_score
+        scores['Financial'] = (margin_score * 0.7) + (activity_score * 0.3)
+    
+    # 2. Agronomic Dimension
+    if soil:
+        latest = soil[-1]
+        metrics['soil_n_status'] = latest['analysis'].get('n_status', 'Unknown')
+        metrics['soil_ph'] = latest.get('ph', 7.0)
+        
+        # Score Logic
+        n_score = 100 if metrics['soil_n_status'] in ['Sedang', 'Optimal'] else 50
+        ph_dev = abs(metrics['soil_ph'] - 6.5) # Deviation from ideal 6.5
+        ph_score = max(0, 100 - (ph_dev * 20)) # -20 pts per 1.0 pH deviation
+        
+        scores['Agronomic'] = (n_score * 0.5) + (ph_score * 0.5)
+        
+    # 3. Operational Dimension (Data Completeness)
+    data_points = 0
+    if harvest: data_points += 50
+    if soil: data_points += 50
+    scores['Operational'] = data_points
+    
+    # 4. Resilience (Mock / Placeholder)
+    # Assumes diversified crops = higher resilience
+    if harvest:
+        unique_crops = len(set(x.get('commodity', 'Unknown') for x in harvest))
+        scores['Resilience'] = min(100, unique_crops * 50) # 2 crops = 100%
     else:
-        factors['harvest'] = 0
-    
-    # Soil health (40 points)
-    if npk_data:
-        latest_npk = npk_data[-1]
-        n_status = latest_npk['analysis']['n_status']
-        p_status = latest_npk['analysis']['p_status']
-        k_status = latest_npk['analysis']['k_status']
+        scores['Resilience'] = 20 # Baseline
         
-        status_scores = {'Tinggi': 15, 'Sedang': 10, 'Rendah': 5}
-        soil_score = (status_scores.get(n_status, 0) + 
-                     status_scores.get(p_status, 0) + 
-                     status_scores.get(k_status, 0))
+    # Composite Score (Weighted)
+    final_score = (
+        scores['Financial'] * 0.4 + 
+        scores['Agronomic'] * 0.3 + 
+        scores['Operational'] * 0.2 + 
+        scores['Resilience'] * 0.1
+    )
+    
+    return final_score, scores, metrics
+
+# Calculate Analysis
+overall_score, dim_scores, kpi_metrics = calculate_farm_kpis(harvest_data, soil_data)
+
+# ==========================================
+# 🖥️ UI / VISUALIZATION
+# ==========================================
+
+st.title("📡 AgriSensa Command Center")
+st.caption(f"Last Updated: {datetime.now().strftime('%d %B %Y %H:%M')}")
+
+# --- HERO SECTION: FARM HEALTH PULSE ---
+col_pulse, col_radar = st.columns([1, 2])
+
+with col_pulse:
+    st.markdown("### ❤️ Farm Health Pulse")
+    
+    # Dynamic Color Logic
+    color = "#10b981" # Green
+    status_msg = "Excellent"
+    if overall_score < 75: 
+        color = "#f59e0b" # Orange
+        status_msg = "Good"
+    if overall_score < 50: 
+        color = "#ef4444" # Red
+        status_msg = "Critical"
         
-        # pH bonus
-        ph = latest_npk.get('ph', 7)
-        if 6.0 <= ph <= 7.0:
-            soil_score += 10
-        
-        health_score += min(40, soil_score)
-        factors['soil'] = min(40, soil_score)
-    else:
-        factors['soil'] = 0
+    # Gauge Chart
+    fig_gauge = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = overall_score,
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        title = {'text': status_msg, 'font': {'size': 24, 'color': color}},
+        gauge = {
+            'axis': {'range': [None, 100], 'tickwidth': 1, 'tickcolor': "darkblue"},
+            'bar': {'color': color},
+            'bgcolor': "white",
+            'borderwidth': 2,
+            'bordercolor': "gray",
+            'steps': [
+                {'range': [0, 50], 'color': '#fef2f2'},
+                {'range': [50, 75], 'color': '#fffbeb'},
+                {'range': [75, 100], 'color': '#ecfdf5'}],
+            'threshold': {
+                'line': {'color': "black", 'width': 4},
+                'thickness': 0.75,
+                'value': overall_score}}))
     
-    # Data completeness (20 points)
-    data_score = 0
-    if harvest_data:
-        data_score += 10
-    if npk_data:
-        data_score += 10
-    
-    health_score += data_score
-    factors['data'] = data_score
-    
-    return health_score, factors
+    fig_gauge.update_layout(height=300, margin=dict(l=20,r=20,t=50,b=20))
+    st.plotly_chart(fig_gauge, use_container_width=True)
 
-def get_priority_recommendations(harvest_data, npk_data):
-    """Get prioritized recommendations"""
-    recommendations = []
+with col_radar:
+    st.markdown("### 🕸️ Holistic Assessment (360° View)")
     
-    # NPK recommendations
-    if npk_data:
-        latest = npk_data[-1]
-        if latest['analysis']['n_status'] == 'Rendah':
-            recommendations.append({
-                'priority': 'HIGH',
-                'category': 'Nutrisi',
-                'title': 'Nitrogen Rendah',
-                'description': 'Kandungan Nitrogen tanah rendah, segera tambahkan pupuk Urea',
-                'action': 'Aplikasikan 200-300 kg Urea per hektar',
-                'impact': 'Meningkatkan hasil panen 20-30%'
-            })
-        
-        if latest['analysis']['p_status'] == 'Rendah':
-            recommendations.append({
-                'priority': 'HIGH',
-                'category': 'Nutrisi',
-                'title': 'Fosfor Rendah',
-                'description': 'Kandungan Fosfor tanah rendah, tambahkan pupuk SP-36',
-                'action': 'Aplikasikan 150-200 kg SP-36 per hektar',
-                'impact': 'Meningkatkan kualitas hasil 15-25%'
-            })
+    # Radar Data
+    df_radar = pd.DataFrame(dict(
+        r=[dim_scores['Financial'], dim_scores['Agronomic'], dim_scores['Operational'], dim_scores['Resilience']],
+        theta=['Financial<br>(Profit)', 'Agronomic<br>(Soil/Plant)', 'Operational<br>(Data)', 'Resilience<br>(Risk)']
+    ))
     
-    # Harvest recommendations
-    if harvest_data:
-        df = pd.DataFrame(harvest_data)
-        if 'profit_margin' in df.columns:
-            avg_margin = df['profit_margin'].mean()
-            
-            if avg_margin < 15:
-                recommendations.append({
-                    'priority': 'MEDIUM',
-                    'category': 'Profitabilitas',
-                    'title': 'Margin Keuntungan Rendah',
-                    'description': f'Rata-rata margin hanya {avg_margin:.1f}%, perlu optimasi',
-                    'action': 'Review biaya produksi dan strategi penjualan',
-                    'impact': 'Potensi peningkatan margin 10-15%'
-                })
-    
-    # General recommendations
-    if not npk_data:
-        recommendations.append({
-            'priority': 'HIGH',
-            'category': 'Data',
-            'title': 'Belum Ada Data NPK',
-            'description': 'Lakukan uji tanah untuk mendapatkan rekomendasi yang akurat',
-            'action': 'Ambil sampel tanah dan uji di laboratorium',
-            'impact': 'Dasar untuk pemupukan yang tepat'
-        })
-    
-    if not harvest_data:
-        recommendations.append({
-            'priority': 'MEDIUM',
-            'category': 'Data',
-            'title': 'Belum Ada Data Panen',
-            'description': 'Mulai catat data hasil panen untuk analisis profitabilitas',
-            'action': 'Gunakan modul Database Panen untuk tracking',
-            'impact': 'Monitoring performa dan trend'
-        })
-    
-    # Sort by priority
-    priority_order = {'HIGH': 0, 'MEDIUM': 1, 'LOW': 2}
-    recommendations.sort(key=lambda x: priority_order[x['priority']])
-    
-    return recommendations
+    fig_radar = px.line_polar(df_radar, r='r', theta='theta', line_close=True)
+    fig_radar.update_traces(fill='toself', line_color=color)
+    fig_radar.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+        showlegend=False,
+        height=300,
+        margin=dict(l=40,r=40,t=20,b=20)
+    )
+    st.plotly_chart(fig_radar, use_container_width=True)
 
-# ========== MAIN APP ==========
-st.title("📊 Dasbor Rekomendasi Terpadu")
-st.markdown("**Dashboard komprehensif dengan rekomendasi holistik untuk optimasi pertanian**")
+# --- KPI CARDS ROW ---
+st.markdown("### 📊 Key Performance Indicators")
+k1, k2, k3, k4 = st.columns(4)
 
-# Load data
-harvest_data = load_harvest_data()
-npk_data = load_npk_data()
-
-# Calculate health score
-health_score, health_factors = analyze_farm_health(harvest_data, npk_data)
-
-# Health score display
-st.markdown("---")
-st.subheader("🏥 Skor Kesehatan Pertanian")
-
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    # Overall health
-    health_color = "🟢" if health_score >= 80 else "🟡" if health_score >= 60 else "🔴"
-    health_status = "Excellent" if health_score >= 80 else "Good" if health_score >= 60 else "Needs Improvement"
+def kpi_card(col, title, value, subtext, trend="neutral"):
+    trend_color = "#64748b"
+    if trend == "up": trend_color = "#10b981"
+    if trend == "down": trend_color = "#ef4444"
     
-    st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); 
-                padding: 2rem; border-radius: 12px; border: 2px solid #10b981; text-align: center;">
-        <div style="font-size: 3rem;">{health_color}</div>
-        <h2 style="color: #059669; margin: 0.5rem 0;">{health_score}/100</h2>
-        <p style="color: #6b7280; margin: 0;">{health_status}</p>
+    col.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-title">{title}</div>
+        <div class="kpi-value">{value}</div>
+        <div class="kpi-trend" style="color: {trend_color};">{subtext}</div>
     </div>
     """, unsafe_allow_html=True)
 
-with col2:
-    harvest_pct = (health_factors['harvest'] / 40) * 100
-    st.metric("Performa Panen", f"{harvest_pct:.0f}%", 
-             delta="40 poin max", help="Berdasarkan profitabilitas panen")
+kpi_card(k1, "Total Revenue", f"Rp {kpi_metrics['total_revenue']/1e6:.1f} M", f"{kpi_metrics['harvest_count']} siklus panen", "up")
+kpi_card(k2, "Avg Profit Margin", f"{kpi_metrics['avg_margin']:.1f}%", "Target: >30%", "up" if kpi_metrics['avg_margin']>20 else "down")
+kpi_card(k3, "Soil Health (pH)", f"{kpi_metrics['soil_ph']}", "Ideal: 6.0 - 7.0", "neutral")
+kpi_card(k4, "Active Modules", "5", "Integrated System", "neutral")
 
-with col3:
-    soil_pct = (health_factors['soil'] / 40) * 100
-    st.metric("Kesehatan Tanah", f"{soil_pct:.0f}%",
-             delta="40 poin max", help="Berdasarkan status NPK & pH")
-
-with col4:
-    data_pct = (health_factors['data'] / 20) * 100
-    st.metric("Kelengkapan Data", f"{data_pct:.0f}%",
-             delta="20 poin max", help="Kelengkapan data untuk analisis")
-
-# Health breakdown chart
+# --- INTELLIGENT INSIGHTS (ACTION ITEMS) ---
 st.markdown("---")
-st.subheader("📈 Breakdown Skor Kesehatan")
+st.subheader("🤖 AI Strategic Insights")
 
-fig = go.Figure(go.Bar(
-    x=['Performa Panen<br>(40 poin)', 'Kesehatan Tanah<br>(40 poin)', 'Kelengkapan Data<br>(20 poin)'],
-    y=[health_factors['harvest'], health_factors['soil'], health_factors['data']],
-    marker_color=['#3b82f6', '#10b981', '#f59e0b'],
-    text=[f"{health_factors['harvest']}", f"{health_factors['soil']}", f"{health_factors['data']}"],
-    textposition='auto',
-))
+col_left, col_right = st.columns([2, 1])
 
-fig.add_hline(y=40, line_dash="dash", line_color="green", annotation_text="Max (Panen & Tanah)")
-fig.add_hline(y=20, line_dash="dash", line_color="orange", annotation_text="Max (Data)")
-
-fig.update_layout(
-    title="Kontribusi Setiap Faktor ke Skor Kesehatan",
-    yaxis_title="Poin",
-    height=300,
-    showlegend=False
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# Priority recommendations
-st.markdown("---")
-st.subheader("🎯 Rekomendasi Prioritas")
-
-recommendations = get_priority_recommendations(harvest_data, npk_data)
-
-if recommendations:
-    for i, rec in enumerate(recommendations[:5]):  # Show top 5
-        priority_colors = {
-            'HIGH': ('#fee2e2', '#dc2626', '🔴'),
-            'MEDIUM': ('#fef3c7', '#f59e0b', '🟡'),
-            'LOW': ('#dbeafe', '#3b82f6', '🔵')
-        }
+with col_left:  
+    # Dynamic Recommendations based on Logic
+    if dim_scores['Agronomic'] < 60:
+        st.error("🚨 **Critical Issue: Soil Health Degrading**")
+        st.write("Analisis menunjukkan penurunan kualitas tanah (pH atau NPK). Segera lakukan uji lab ulang atau aplikasi pembenah tanah (Dolomit/Organik).")
+        st.button("Buka Modul Rekomendasi Pupuk", type="primary")
         
-        bg_color, border_color, icon = priority_colors[rec['priority']]
+    if dim_scores['Financial'] < 50 and metrics['harvest_count'] > 0:
+        st.warning("⚠️ **Profitability Warning**")
+        st.write("Margin keuntungan rata-rata di bawah target 20%. Pertimbangkan efisiensi biaya input atau pivot ke varietas bernilai tinggi.")
         
-        st.markdown(f"""
-        <div style="background: {bg_color}; padding: 1.5rem; border-radius: 8px; 
-                    border-left: 4px solid {border_color}; margin: 1rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div>
-                    <h4 style="margin: 0; color: #1f2937;">
-                        {icon} {rec['title']}
-                        <span style="background: {border_color}; color: white; padding: 0.2rem 0.5rem; 
-                                     border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">
-                            {rec['priority']}
-                        </span>
-                    </h4>
-                    <p style="color: #6b7280; margin: 0.5rem 0;">{rec['description']}</p>
-                    <p style="margin: 0.5rem 0;"><strong>Aksi:</strong> {rec['action']}</p>
-                    <p style="color: #059669; margin: 0;"><strong>Dampak:</strong> {rec['impact']}</p>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-else:
-    st.success("✅ Tidak ada rekomendasi prioritas. Semua aspek dalam kondisi baik!")
-
-# Quick stats
-st.markdown("---")
-st.subheader("📊 Statistik Cepat")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.markdown("**📦 Data Panen**")
-    if harvest_data:
-        df = pd.DataFrame(harvest_data)
-        st.metric("Total Catatan", len(harvest_data))
-        st.metric("Total Hasil", f"{df['total_quantity'].sum():,.0f} kg")
-        st.metric("Total Pendapatan", f"Rp {df['total_value'].sum():,.0f}")
-    else:
-        st.info("Belum ada data panen")
-
-with col2:
-    st.markdown("**🌱 Data NPK**")
-    if npk_data:
-        latest = npk_data[-1]
-        st.metric("Total Analisis", len(npk_data))
-        st.metric("N (Latest)", f"{latest['n_value']:.0f} ppm")
-        st.metric("P (Latest)", f"{latest['p_value']:.1f} ppm")
-    else:
-        st.info("Belum ada data NPK")
-
-with col3:
-    st.markdown("**📈 Tren**")
-    if harvest_data and len(harvest_data) >= 2:
-        df = pd.DataFrame(harvest_data)
-        df = df.sort_values('created_at')
+    if dim_scores['Operational'] < 50:
+        st.info("ℹ️ **Data Gap Detected**")
+        st.write("Sistem kekurangan data historis untuk membuat prediksi akurat. Mulai catat setiap aktivitas harian.")
         
-        # Calculate trend
-        recent_margin = df['profit_margin'].iloc[-3:].mean() if len(df) >= 3 else df['profit_margin'].iloc[-1]
-        older_margin = df['profit_margin'].iloc[:3].mean() if len(df) >= 6 else df['profit_margin'].iloc[0]
+    if overall_score > 80:
+        st.success("✅ **Operations Optimization**")
+        st.write("Performa pertanian sangat baik! Saatnya memikirkan ekspansi lahan atau investasi teknologi IoT/Drone.")
+
+with col_right:
+    # Quick Actions
+    st.markdown("**⚡ Quick Actions**")
+    with st.expander("Update Data Harian"):
+        st.markdown("[📝 Catat Panen Baru](Database_Panen)")
+        st.markdown("[🧪 Input Hasil Lab](Peta_Data_Tanah)")
+        st.markdown("[💰 Transaksi Keuangan](Analisis_Usaha_Tani)")
         
-        trend = "📈 Naik" if recent_margin > older_margin else "📉 Turun"
-        
-        st.metric("Tren Margin", trend)
-        st.metric("Margin Terbaru", f"{recent_margin:.1f}%")
-        st.metric("Perubahan", f"{(recent_margin - older_margin):.1f}%")
-    else:
-        st.info("Perlu lebih banyak data")
+    with st.expander("Tools Kalkulator"):
+        st.markdown("[🧮 Kalkulator Pupuk](Rekomendasi_Terpadu)")
+        st.markdown("[💵 Simulasi Kredit](Analisis_Kelayakan_Bisnis)")
+        st.markdown("[🔬 Cek Penyakit (BWD)](Rekomendasi_Terpadu)")
 
-# Action items
+# --- FOOTER ---
 st.markdown("---")
-st.subheader("✅ Action Items")
-
-st.markdown("""
-**Langkah-langkah yang bisa dilakukan:**
-
-1. **Jika belum ada data NPK:**
-   - Kunjungi modul **Peta Data Tanah** atau **Analisis NPK**
-   - Input data hasil uji lab tanah
-   - Dapatkan rekomendasi pupuk yang tepat
-
-2. **Jika belum ada data panen:**
-   - Kunjungi modul **Database Panen**
-   - Catat hasil panen terakhir
-   - Mulai tracking profitabilitas
-
-3. **Untuk optimasi:**
-   - Gunakan **Kalkulator Pupuk** untuk hitung kebutuhan
-   - Cek **Analisis Tren Harga** untuk timing penjualan
-   - Gunakan **Prediksi Hasil Panen** untuk planning
-
-4. **Monitoring rutin:**
-   - Update data NPK setiap 3-6 bulan
-   - Catat setiap hasil panen
-   - Review dashboard ini secara berkala
-""")
-
-# Module shortcuts
-st.markdown("---")
-st.subheader("🚀 Akses Cepat ke Modul")
-
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    st.markdown("""
-    **📊 Analisis**
-    - Analisis NPK
-    - Analisis Tren Harga
-    - Prediksi Hasil Panen
-    """)
-
-with col2:
-    st.markdown("""
-    **🧮 Kalkulator**
-    - Kalkulator Pupuk
-    - Konversi Pupuk
-    """)
-
-with col3:
-    st.markdown("""
-    **📦 Data**
-    - Database Panen
-    - Peta Data Tanah
-    """)
-
-with col4:
-    st.markdown("""
-    **📈 Visualisasi**
-    - Charts & Graphs
-    - Export Data
-    """)
-
-# Tips
-st.markdown("---")
-with st.expander("💡 Tips Menggunakan Dashboard"):
-    st.markdown("""
-    **Untuk Hasil Optimal:**
-    
-    1. **Lengkapi Data:**
-       - Semakin lengkap data, semakin akurat rekomendasi
-       - Update data secara berkala
-    
-    2. **Ikuti Rekomendasi Prioritas:**
-       - Fokus pada rekomendasi HIGH priority dulu
-       - Implementasikan secara bertahap
-    
-    3. **Monitor Tren:**
-       - Perhatikan perubahan skor kesehatan
-       - Identifikasi pola dari data historical
-    
-    4. **Integrasi Antar Modul:**
-       - Data NPK → Kalkulator Pupuk
-       - Prediksi Harga → Timing Penjualan
-       - Prediksi Hasil → Planning Produksi
-    
-    5. **Review Berkala:**
-       - Cek dashboard minimal 1x per bulan
-       - Evaluasi progress implementasi rekomendasi
-    """)
-
-# Footer
-st.markdown("---")
-st.caption("""
-📊 **Dashboard Terpadu AgriSensa** - Mengintegrasikan semua data dan analisis untuk memberikan 
-rekomendasi holistik yang membantu optimasi pertanian Anda.
-""")
+st.caption("AgriSensa Enterprise v2.0 - Powered by Decision Support System (DSS) Core")
