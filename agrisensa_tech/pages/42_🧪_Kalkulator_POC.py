@@ -217,19 +217,7 @@ TEMPLATES = {
 with st.sidebar:
     st.header("⚙️ Konfigurasi Resep")
     
-    # Check mode
-    is_business_mode = st.session_state.get('ai_formula') is not None
-    
-    if is_business_mode:
-        # Business Mode: Locked sidebar
-        st.warning("🔒 **Mode: Business Model AI**")
-        st.caption("Formula dikontrol dari tab Business Model")
-        st.caption("Volume dan bahan otomatis ter-scale")
-        st.divider()
-        st.info("💡 Untuk ubah formula, gunakan tab **Business Model** atau klik **Reset ke Mode Manual**")
-    else:
-        # Personal Mode: Full controls
-        st.info("💡 **AI Optimizer** ada di tab **Business Model** untuk rekomendasi lengkap")
+    st.info("💡 **AI Optimizer** ada di tab **Business Model** untuk rekomendasi lengkap di tab kalkulator poc")
     
     st.divider()
     st.subheader("💾 Resep Tersimpan")
