@@ -112,7 +112,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Create tabs
-tab1, tab2 = st.tabs(["🧪 Kalkulator POC", "💼 Business Model"])
+tab1, tab2, tab3 = st.tabs(["🧪 Kalkulator POC", "💼 Business Model (Old)", "🚀 Business Model v2"])
 
 with tab1:
     # Detect mode: Business Model AI or Manual Input
@@ -2086,6 +2086,149 @@ with tab2:
         - Tingkatkan utilisasi kapasitas
         - Review pricing strategy
         """)
+
+# ============================================================================
+# TAB 3: BUSINESS MODEL V2 (NEW CLEAN VERSION)
+# ============================================================================
+with tab3:
+    st.markdown("### 🚀 Business Model v2 - Simple & Clean")
+    st.info("Versi baru dengan logika yang lebih sederhana dan jelas")
+    
+    # AI OPTIMIZER
+    st.subheader("🤖 AI Optimizer")
+    
+    col_ai1, col_ai2 = st.columns(2)
+    
+    with col_ai1:
+        scale_v2 = st.radio("Skala", ["Pribadi", "Komersial"], key="scale_v2")
+        
+        if scale_v2 == "Pribadi":
+            target_v2 = st.slider("Target (L/bulan)", 50, 500, 200, 50, key="target_v2")
+        else:
+            target_v2 = st.slider("Target (L/bulan)", 500, 10000, 2000, 500, key="target_v2")
+        
+        product_v2 = st.selectbox("Produk", ["Vegetatif", "Generatif", "Balanced"], key="product_v2")
+    
+    with col_ai2:
+        # Calculate drums
+        if scale_v2 == "Pribadi":
+            drums_v2 = 1 if target_v2 <= 100 else (2 if target_v2 <= 300 else 3)
+            cycles_v2 = 1 if target_v2 <= 100 else 2
+        else:
+            drums_v2 = 4 if target_v2 <= 2000 else (8 if target_v2 <= 5000 else 12)
+            cycles_v2 = 2 if target_v2 <= 5000 else 3
+        
+        util_v2 = min((target_v2 / (drums_v2 * 1000 * cycles_v2)) * 100, 100)
+        
+        st.info(f"**Setup:**\n- {drums_v2} drum\n- {cycles_v2} siklus\n- {util_v2:.0f}% util")
+        
+        if st.button("🚀 GENERATE", key="gen_v2", type="primary"):
+            # Generate formula
+            if product_v2 == "Vegetatif":
+                formula_v2 = {'Urine Kelinci': 15, 'Daun Kelor': 5, 'Molase': 2, 'Dekomposer (EM4/MOL)': 0.5}
+                name_v2 = "POC Vegetatif"
+            elif product_v2 == "Generatif":
+                formula_v2 = {'Bonggol Pisang': 10, 'Kulit Pisang': 5, 'KCl': 0.3, 'Molase': 2, 'Dekomposer (EM4/MOL)': 0.5}
+                name_v2 = "POC Generatif"
+            else:
+                formula_v2 = {'Urine Sapi': 10, 'Sabut Kelapa': 3, 'NPK Phonska (15-15-15)': 0.5, 'Molase': 2, 'Dekomposer (EM4/MOL)': 0.5}
+                name_v2 = "POC Balanced"
+            
+            st.session_state['formula_v2'] = formula_v2
+            st.session_state['name_v2'] = name_v2
+            st.session_state['drums_v2'] = drums_v2
+            st.session_state['cycles_v2'] = cycles_v2
+            st.success("✅ Generated!")
+            st.rerun()
+    
+    # POC ANALYSIS
+    st.markdown("---")
+    st.subheader("🧪 Analisis POC")
+    
+    if st.session_state.get('formula_v2'):
+        formula = st.session_state['formula_v2']
+        name = st.session_state.get('name_v2', 'Formula')
+        drums = st.session_state.get('drums_v2', 4)
+        volume = drums * 1000
+        
+        st.success(f"📋 **{name}** | Volume: **{volume:,}L** per batch")
+        
+        # Calculate NPK
+        npk = calculate_npk_from_formula(formula, volume)
+        
+        # NPK Metrics
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("N", f"{npk['N']:.2f}%")
+        col2.metric("P", f"{npk['P']:.2f}%")
+        col3.metric("K", f"{npk['K']:.2f}%")
+        col4.metric("C", f"{npk['C']:.2f}%")
+        
+        # Material Table
+        st.markdown(f"**Bahan ({volume:,}L):**")
+        materials = []
+        for mat, qty_base in formula.items():
+            qty = qty_base * (volume / 100)
+            for cat_name, cat_mat in MATERIALS.items():
+                if mat in cat_mat:
+                    props = cat_mat[mat]
+                    materials.append({
+                        "Bahan": mat,
+                        "Jumlah": f"{qty:.1f} {props['unit']}",
+                        "Biaya": f"Rp {qty * props['price']:,.0f}"
+                    })
+                    break
+        
+        st.dataframe(pd.DataFrame(materials), use_container_width=True, hide_index=True)
+        
+        # Cost Summary
+        col_a, col_b = st.columns(2)
+        col_a.metric("Total Biaya", f"Rp {npk['total_cost']:,.0f}")
+        col_b.metric("Per Liter", f"Rp {(npk['total_cost']/volume):,.0f}/L")
+    
+    else:
+        st.warning("⚠️ Klik GENERATE di atas")
+    
+    # BUSINESS CALC
+    st.markdown("---")
+    st.subheader("💰 Kalkulasi Bisnis")
+    
+    if st.session_state.get('formula_v2'):
+        drums = st.session_state.get('drums_v2', 4)
+        cycles = st.session_state.get('cycles_v2', 2)
+        
+        col_b1, col_b2 = st.columns(2)
+        
+        with col_b1:
+            st.markdown("**Input:**")
+            invest = st.number_input("Investasi", value=5000000, step=500000, key="invest_v2")
+            labor = st.number_input("Gaji/bulan", value=3000000, step=500000, key="labor_v2")
+            price = st.number_input("Harga Jual/L", value=30000, min_value=1000, step=1000, key="price_v2")
+        
+        with col_b2:
+            st.markdown("**Output:**")
+            npk = calculate_npk_from_formula(st.session_state['formula_v2'], drums * 1000)
+            bahan_monthly = npk['total_cost'] * cycles
+            total_cost = bahan_monthly + labor + 500000
+            capacity = drums * 1000 * cycles * 0.7
+            revenue = price * capacity
+            profit = revenue - total_cost
+            
+            st.metric("Kapasitas/bulan", f"{capacity:,.0f} L")
+            st.metric("Revenue/bulan", f"Rp {revenue:,.0f}")
+            st.metric("Profit/bulan", f"Rp {profit:,.0f}")
+            
+            roi = (profit * 12 / invest * 100) if invest > 0 else 0
+            payback = (invest / profit) if profit > 0 else 999
+            
+            st.metric("ROI", f"{roi:.0f}%")
+            st.metric("Payback", f"{payback:.1f} bulan")
+        
+        # Kelayakan
+        st.markdown("---")
+        if profit > 0 and roi > 50:
+            st.success(f"✅ LAYAK | Profit: Rp {profit:,.0f}/bulan | ROI: {roi:.0f}%")
+        else:
+            st.warning(f"⚠️ PERLU OPTIMASI | Profit: Rp {profit:,.0f} | ROI: {roi:.0f}%")
 
 # Footer
 st.markdown("---")
