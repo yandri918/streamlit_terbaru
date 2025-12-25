@@ -1741,6 +1741,111 @@ with tab2:
     # Weighted average cost
     avg_cost_per_liter = (veg_cost_per_liter * veg_mix + gen_cost_per_liter * gen_mix + bal_cost_per_liter * bal_mix) / 100
     
+    # POC Analysis & Material Breakdown - FROM AI GENERATED FORMULA
+    st.markdown("---")
+    st.subheader("🧪 Analisis POC dari Formula AI")
+    
+    # Check if AI formula exists
+    if st.session_state.get('ai_formula'):
+        ai_formula = st.session_state.get('ai_formula')
+        ai_formula_name = st.session_state.get('ai_formula_name', 'AI Formula')
+        ai_drums = st.session_state.get('ai_drums', 4)
+        volume_per_batch = ai_drums * 1000
+        
+        st.success(f"📋 **Formula Aktif:** {ai_formula_name} | **Volume:** {volume_per_batch:,}L per batch")
+        
+        # Calculate NPK from AI formula at actual volume
+        ai_npk = calculate_npk_from_formula(ai_formula, volume_per_batch)
+        
+        # Display NPK metrics
+        col_ai1, col_ai2, col_ai3, col_ai4 = st.columns(4)
+        with col_ai1:
+            st.metric("Nitrogen (N)", f"{ai_npk['N']:.2f}%")
+        with col_ai2:
+            st.metric("Fosfor (P)", f"{ai_npk['P']:.2f}%")
+        with col_ai3:
+            st.metric("Kalium (K)", f"{ai_npk['K']:.2f}%")
+        with col_ai4:
+            st.metric("C-Organik", f"{ai_npk['C']:.2f}%")
+        
+        # Build material breakdown table
+        st.markdown(f"**📋 Rincian Bahan (per {volume_per_batch:,}L):**")
+        ai_material_list = []
+        for material, qty_base in ai_formula.items():
+            # Scale quantity to actual volume
+            qty_scaled = qty_base * (volume_per_batch / 100)
+            
+            # Find material in database
+            for cat_name, cat_materials in MATERIALS.items():
+                if material in cat_materials:
+                    props = cat_materials[material]
+                    n_contrib = (qty_scaled * props['N']) / 100
+                    p_contrib = (qty_scaled * props['P']) / 100
+                    k_contrib = (qty_scaled * props['K']) / 100
+                    unit = props['unit']
+                    price = props['price']
+                    cost = qty_scaled * price
+                    
+                    ai_material_list.append({
+                        "Bahan": material,
+                        "Jumlah": f"{qty_scaled:.1f} {unit}",
+                        "Kontribusi N": f"{n_contrib:.3f} kg",
+                        "Kontribusi P": f"{p_contrib:.3f} kg",
+                        "Kontribusi K": f"{k_contrib:.3f} kg",
+                        "Biaya": f"Rp {cost:,.0f}"
+                    })
+                    break
+        
+        ai_materials_df = pd.DataFrame(ai_material_list)
+        st.dataframe(ai_materials_df, use_container_width=True, hide_index=True)
+        
+        # Cost summary
+        col_cost1, col_cost2, col_cost3 = st.columns(3)
+        with col_cost1:
+            st.metric("Total Biaya Bahan", f"Rp {ai_npk['total_cost']:,.0f}")
+        with col_cost2:
+            st.metric("Biaya per Liter", f"Rp {(ai_npk['total_cost']/volume_per_batch):,.0f}/L")
+        with col_cost3:
+            st.metric("Biaya per 100L", f"Rp {(ai_npk['total_cost']/volume_per_batch*100):,.0f}")
+        
+        st.info(f"""
+        **🎯 Rekomendasi Penggunaan:**
+        - Formula ini di-generate khusus untuk **{ai_formula_name}**
+        - Cocok untuk skala produksi **{volume_per_batch:,}L per batch**
+        - Total investasi bahan baku: **Rp {ai_npk['total_cost']:,.0f}** per batch
+        
+        **📊 Lihat analisis teknis lengkap** di tab **"🧪 Kalkulator POC"**
+        """)
+        
+    else:
+        st.warning("""
+        ⚠️ **Belum ada formula AI yang di-generate**
+        
+        Untuk melihat analisis POC:
+        1. Scroll ke atas ke section **"🤖 AI Optimizer"**
+        2. Input preferensi (skala, target, produk)
+        3. Klik **"🚀 GENERATE REKOMENDASI LENGKAP"**
+        4. Analisis akan muncul di sini secara otomatis
+        """)
+        
+        # Show template analysis as reference
+        st.markdown("---")
+        st.caption("📚 **Referensi: Analisis Template Formula** (untuk perbandingan)")
+        
+        ref_tab1, ref_tab2, ref_tab3 = st.tabs(["🌱 Vegetatif", "🌸 Generatif", "⚖️ Balanced"])
+        
+        with ref_tab1:
+            st.caption(f"NPK: N={veg_data['N']:.2f}%, P={veg_data['P']:.2f}%, K={veg_data['K']:.2f}%")
+            st.caption(f"Biaya: Rp {veg_data['total_cost']:,.0f}/100L")
+        
+        with ref_tab2:
+            st.caption(f"NPK: N={gen_data['N']:.2f}%, P={gen_data['P']:.2f}%, K={gen_data['K']:.2f}%")
+            st.caption(f"Biaya: Rp {gen_data['total_cost']:,.0f}/100L")
+        
+        with ref_tab3:
+            st.caption(f"NPK: N={bal_data['N']:.2f}%, P={bal_data['P']:.2f}%, K={bal_data['K']:.2f}%")
+            st.caption(f"Biaya: Rp {bal_data['total_cost']:,.0f}/100L")
+    
     # POC Analysis & Material Breakdown
     st.markdown("---")
     st.subheader("🧪 Analisis POC & Rincian Unsur Hara")
