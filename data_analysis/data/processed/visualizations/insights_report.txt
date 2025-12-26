@@ -1,15 +1,15 @@
 ======================================================================
 AGRISENSA - SEASONAL PATTERN ANALYSIS REPORT
 ======================================================================
-Generated: 2025-12-26 19:37:48
+Generated: 2025-12-26 19:40:29
 Dataset: 9864 records from 2022 to 2024
 
 1. POLA HARGA MUSIMAN (Cabai Merah)
 ----------------------------------------------------------------------
-   Transisi_Hujan      : Rp     92,116/kg
-   Kemarau             : Rp     83,910/kg
-   Hujan               : Rp     70,133/kg
-   Transisi_Kemarau    : Rp     61,047/kg
+   Transisi_Hujan      : Rp     93,350/kg
+   Kemarau             : Rp     83,990/kg
+   Hujan               : Rp     70,313/kg
+   Transisi_Kemarau    : Rp     61,875/kg
 
    💡 INSIGHT:
    - Harga tertinggi di musim Transisi (Sep-Okt) karena 'double trouble'
@@ -17,11 +17,11 @@ Dataset: 9864 records from 2022 to 2024
 
 2. EFEK NATARU (Desember-Januari)
 ----------------------------------------------------------------------
-   Non-Nataru : Rp     73,034/kg
-   Nataru     : Rp     89,068/kg (+22.0%)
+   Non-Nataru : Rp     73,406/kg
+   Nataru     : Rp     89,843/kg (+22.4%)
 
    💡 INSIGHT:
-   - Harga naik 22.0% saat Nataru karena demand tinggi
+   - Harga naik 22.4% saat Nataru karena demand tinggi
    - Peluang profit maksimal jika panen di Desember-Januari
 
 3. REKOMENDASI WAKTU TANAM
