@@ -288,11 +288,126 @@ PORTFOLIO_META = {
     "Jagung Manis": {
         "risk_volatility": 0.20, "return_roi": 0.35, "market_score": 8, 
         "type": "Annual", "partners": ["Cabai Merah", "Kacang Panjang", "Melon"], 
-        "min_area": 0.1, "desc": "Peminat Tinggi, Panen Cepat"
+        "min_area": 0.1, "desc": "Peminat Tinggi, Panen Cepat",
+        "role": "Tall/Barrier"
     }
 }
 
-def calculate_portfolio_allocation(selected_crops, risk_aversion=0.5):
+# ==========================================
+# 🧠 SMART INTERCROPPING LAYOUTS (Pola Tanam)
+# ==========================================
+INTERCROPPING_PATTERNS = {
+    # FORMAT: (Crop A, Crop B) -> {Layout Name, Description, Efficiency Bonus}
+    # Main + Border (Pematang)
+    frozenset(["Padi", "Kacang Panjang"]): {
+        "layout": "Border Cropping (Tanaman Pematang)",
+        "desc": "Padi di petakan utama, Kacang Panjang ditanam di pematang/galengan. Mengoptimalkan lahan pinggiran.",
+        "bonus": 10
+    },
+    frozenset(["Padi", "Jagung"]): {
+        "layout": "Border Cropping (Tanaman Pematang)",
+        "desc": "Padi di petakan utama, Jagung ditanam di pematang sebagai barrier angin/hama.",
+        "bonus": 8
+    },
+    
+    # Strip Cropping (Baris Berseling) - High Value + Companion
+    frozenset(["Cabai Merah", "Tomat"]): {
+        "layout": "Bedengan Selang-seling (1:1)",
+        "desc": "Bedengan Cabai diselingi Tomat. Mengurangi penyebaran virus spesifik karena jarak fisik antar spesies sama.",
+        "bonus": 5
+    },
+    frozenset(["Cabai Merah", "Jagung"]): {
+        "layout": "Barrier Cropping (Jagung Pagar)",
+        "desc": "5 Bedengan Cabai dikelilingi 2 baris Jagung. Jagung berfungsi sebagai tanaman perangkap (trap crop) hama kutu.",
+        "bonus": 15
+    },
+    frozenset(["Cabai Merah", "Jagung Manis"]): {
+        "layout": "Barrier Cropping (Jagung Pagar)",
+        "desc": "Jagung Manis sebagai pagar pelindung Cabai dari angin & hama kutu (Vektor Virus).",
+        "bonus": 15
+    },
+    
+    # Synergy (Nitrogen Fixer)
+    frozenset(["Jagung", "Kedelai"]): {
+        "layout": "Strip Intercropping (2:4)",
+        "desc": "2 Baris Jagung : 4 Baris Kedelai. Kedelai menyuplai Nitrogen alami untuk Jagung.",
+        "bonus": 12
+    },
+    frozenset(["Jagung", "Kacang Tanah"]): {
+        "layout": "Strip Intercropping (2:4)",
+        "desc": "2 Baris Jagung : 4 Baris Kacang Tanah. Efisiensi lahan kering & pemupukan N.",
+        "bonus": 12
+    },
+    
+    # Catch Crop (Tumpang Sela)
+    frozenset(["Kopi Robusta", "Lada"]): {
+        "layout": "Sistem Tajar Hidup",
+        "desc": "Lada merambat pada pohon pelindung Kopi. Efisiensi lahan vertikal.",
+        "bonus": 20
+    },
+    frozenset(["Kopi Robusta", "Kakao"]): {
+        "layout": "Mixed Agroforestry",
+        "desc": "Kopi dan Kakao dalam satu hamparan naungan. Diversifikasi risiko harga komoditas perkebunan.",
+        "bonus": 10
+    },
+    
+    # Horti Synergy
+    frozenset(["Melon", "Jagung Manis"]): {
+        "layout": "Windbreak System",
+        "desc": "Jagung Manis ditanam di keliling lahan Melon untuk memecah angin & mengurangi spora jamur.",
+        "bonus": 10
+    },
+    frozenset(["Tomat", "Kobis"]): {
+        "layout": "Companion Mixed (Tumpang Sari Acak)",
+        "desc": "Aroma Tomat dapat mengusir ngengat perusak Kobis (Plutella). Tanam Tomat di antara bedengan Kobis.",
+        "bonus": 15
+    }
+}
+
+def recommend_intercropping_layout(selected_crops):
+    """Check for compatible pairs and return specific LAYOUT recommendations"""
+    recommendations = []
+    total_bonus_score = 0
+    
+    # Check pairs
+    import itertools
+    
+    # Handle single crop (no intercropping)
+    if len(selected_crops) < 2:
+        return [], 0
+
+    # Sort to ensure consistent pair checking if logic requires, but frozenset handles order
+    for a, b in itertools.combinations(selected_crops, 2):
+        pair_key = frozenset([a, b])
+        
+        # 1. Check Specific Defined Patterns
+        if pair_key in INTERCROPPING_PATTERNS:
+            pattern = INTERCROPPING_PATTERNS[pair_key]
+            rec_html = f"""
+            <div style='background-color: #f0fdf4; border-left: 4px solid #16a34a; padding: 10px; margin-bottom: 10px; border-radius: 4px;'>
+                <strong style='color: #15803d;'>✅ Pola Tanam: {pattern['layout']}</strong><br>
+                <span style='font-size: 0.9em;'>{a} + {b}</span><br>
+                <i style='color: #4b5563;'>"{pattern['desc']}"</i>
+            </div>
+            """
+            recommendations.append(rec_html)
+            total_bonus_score += pattern['bonus']
+            
+        # 2. Check Generic Compatibility (Fallback)
+        else:
+            meta_a = PORTFOLIO_META.get(a, {})
+            if b in meta_a.get('partners', []):
+                rec_html = f"""
+                <div style='background-color: #eff6ff; border-left: 4px solid #2563eb; padding: 10px; margin-bottom: 10px; border-radius: 4px;'>
+                    <strong style='color: #1d4ed8;'>ℹ️ Sinergi Umum: Tumpangsari Biasa</strong><br>
+                    <span style='font-size: 0.9em;'>{a} + {b}</span><br>
+                    <i style='color: #4b5563;'>Kedua tanaman kompatibel, bisa ditanam bedengan berdampingan.</i>
+                </div>
+                """
+                recommendations.append(rec_html)
+                total_bonus_score += 5 # Generic bonus
+            
+    return recommendations, total_bonus_score
     """
     Simplified Markowitz Optimizer for Agriculture
     risk_aversion: 0.0 (Gambler) to 1.0 (Conservative)
@@ -1366,8 +1481,8 @@ with tab_portfolio:
             # A. Calculate Allocation
             allocations = calculate_portfolio_allocation(selected_candidates, risk_aversion)
             
-            # B. Check Intercropping
-            bonuses, efficiency = check_intercropping_bonus(selected_candidates)
+            # B. Check Intercropping Layouts
+            recommendations_html, efficiency = recommend_intercropping_layout(selected_candidates)
             
             # C. Persist Data for Dashboard (Page 100)
             if 'dashboard_portfolio' not in st.session_state:
@@ -1413,16 +1528,16 @@ with tab_portfolio:
                     st.caption(f"  *Alasan: Market Score {meta['market_score']}/10, ROI {meta['return_roi']*100}%*")
             
             with c_res2:
-                st.subheader("💡 Analisis Sinergi")
+                st.subheader("💡 Rekomendasi Pola Tanam (Layout)")
                 
                 # Intercropping Status
-                if bonuses:
-                    st.success(f"✨ **Potensi Efisiensi: +{efficiency}%**")
-                    for b in bonuses:
-                        st.markdown(b)
-                    st.info("Pola tumpangsari direkomendasikan untuk menekan biaya dan risiko hama.")
+                if recommendations_html:
+                    st.success(f"✨ **Efisiensi Lahan: +{efficiency}%**")
+                    for html in recommendations_html:
+                        st.markdown(html, unsafe_allow_html=True)
+                    st.info("Gunakan pola di atas untuk memaksimalkan hasil dalam satu hamparan lahan.")
                 else:
-                    st.warning("Tidak ditemukan sinergi tumpangsari yang signifikan antar tanaman pilihan.")
+                    st.warning("Belum ada rekomendasi pola tanam spesifik untuk kombinasi ini. Gunakan sistem bedengan terpisah.")
                     
                 # Market Insight Suitability
                 st.markdown("#### 🛒 Kecocokan Pasar")
