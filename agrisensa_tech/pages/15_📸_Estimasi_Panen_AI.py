@@ -15,9 +15,9 @@ show_user_info_sidebar()
 # ==========================================
 # 🧠 COMPUTER VISION LOGIC (OpenCV)
 # ==========================================
-def detect_objects_by_color(image_bytes, hsv_lower, hsv_upper, min_area=50):
+def detect_objects_by_color(image_bytes, hsv_lower, hsv_upper, min_area=50, min_circularity=0.3):
     """
-    Detect objects based on HSV color range.
+    Detect objects based on HSV color range & Shape.
     Returns: processed_image, count, contours
     """
     # Convert bytes to numpy array
@@ -46,8 +46,34 @@ def detect_objects_by_color(image_bytes, hsv_lower, hsv_upper, min_area=50):
     # Find Contours
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
-    # Filter by Area
-    valid_contours = [cnt for cnt in contours if cv2.contourArea(cnt) > min_area]
+    # Filter by Area & Shape (Circularity)
+    valid_contours = []
+    
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area < min_area:
+            continue
+            
+        # Circularity Check (4*pi*area / perimeter^2)
+        perimeter = cv2.arcLength(cnt, True)
+        if perimeter == 0: continue
+        circularity = (4 * np.pi * area) / (perimeter ** 2)
+        
+        # Bounding Rect (Aspect Ratio)
+        x, y, w, h = cv2.boundingRect(cnt)
+        aspect_ratio = float(w)/h
+        
+        # Logic: 
+        # - Stems are long thin lines -> Low Circularity (< 0.2) or High/Low Aspect Ratio
+        # - Fruits are round -> High Circularity (> 0.5)
+        # We use a user-controlled threshold or a hardcoded safe default for "Roundness"
+        # Let's pass 'min_circularity' as arg or use default. Assuming arguments passed later.
+        
+        # Use simple global variable approach for now, or default hardcoded
+        # If user wants strict fruit detection, circularity > 0.4 is good
+        if circularity > min_circularity: 
+             valid_contours.append(cnt)
+
     count = len(valid_contours)
     
     # Draw Results
@@ -103,6 +129,7 @@ v_max = st.sidebar.slider("Value Max", 0, 255, def_v_high)
 
 st.sidebar.divider()
 min_area_val = st.sidebar.slider("Min Pixel Area (Size Filter)", 10, 500, 50, help="Abaikan bintik kecil (noise)")
+min_circ_val = st.sidebar.slider("Min Circularity (Shape Filter)", 0.0, 1.0, 0.3, step=0.05, help="0.0=Semua, 1.0=Lingkaran Sempurna. Naikkan untuk membuang tangkai (garis).")
 
 # --- MAIN AREA ---
 col_in, col_out = st.columns(2)
@@ -127,7 +154,7 @@ if uploaded_file is not None:
         # Reset pointer or read once.
         # detect_objects_by_color reads it.
         
-        result_image, count = detect_objects_by_color(uploaded_file, hsv_lower, hsv_upper, min_area=min_area_val)
+        result_image, count = detect_objects_by_color(uploaded_file, hsv_lower, hsv_upper, min_area=min_area_val, min_circularity=min_circ_val)
         
         with col_out:
             st.subheader("2. Hasil Deteksi")
