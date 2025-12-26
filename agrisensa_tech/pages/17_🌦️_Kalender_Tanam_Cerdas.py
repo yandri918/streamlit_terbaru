@@ -280,6 +280,53 @@ with tab1:
             st.warning("- **Jamur tinggi**: Siapkan fungisida (Metalaxyl, Mankozeb)")
         if harvest_month in [9, 10]:
             st.error("- **DOUBLE TROUBLE**: Perlu monitoring ekstra ketat!")
+    
+    # Kementan Validation
+    with st.expander("✅ Validasi dengan Kalender Tanam Kementan"):
+        st.markdown("""
+        **Rekomendasi Resmi Kementan untuk Indonesia:**
+        
+        ### 📅 Musim Tanam Nasional
+        
+        **Musim Tanam I (MT-I):**
+        - **Periode**: Oktober - Maret (Musim Hujan)
+        - **Komoditas Utama**: Padi, Jagung, Kedelai
+        - **Waktu Tanam Optimal**: November - Desember
+        - **Karakteristik**: Curah hujan tinggi, risiko banjir di dataran rendah
+        
+        **Musim Tanam II (MT-II):**
+        - **Periode**: April - September (Musim Kemarau)
+        - **Komoditas Utama**: Padi (dengan irigasi), Palawija, Hortikultura
+        - **Waktu Tanam Optimal**: April - Mei
+        - **Karakteristik**: Curah hujan rendah, perlu irigasi memadai
+        
+        ### 🐛 Risiko OPT Musiman (Kementan)
+        
+        **Musim Hujan (Nov-Mar):**
+        - Penyakit: Blast, Hawar Daun Bakteri, Busuk Batang
+        - Hama: Keong Mas, Tikus (awal musim)
+        
+        **Musim Kemarau (Jun-Sep):**
+        - Hama: Wereng Coklat, Penggerek Batang, Walang Sangit
+        - Penyakit: Kresek (jika irigasi tidak lancar)
+        
+        ### 💡 Rekomendasi Kementan
+        
+        - **Padi**: Tanam MT-I (Nov-Des) untuk hasil optimal
+        - **Jagung**: Tanam MT-I (Okt-Nov) atau MT-II (Apr-Mei)
+        - **Cabai**: Tanam Apr-Mei (panen Jul-Agu, harga tinggi)
+        - **Bawang Merah**: Tanam Jun-Jul (musim kemarau, kualitas baik)
+        
+        ---
+        
+        **Sumber:** [SI KATAM Terpadu Kementan](http://katam.info)
+        
+        📝 **Catatan:** 
+        - Data ini adalah pola umum nasional
+        - Untuk rekomendasi spesifik wilayah Anda, kunjungi website KATAM
+        - KATAM menyediakan data per kecamatan yang di-update 3x/tahun
+        - Akses via: Website, App Android, atau SMS ke 082123456500
+        """)
 
 
 # ========== TAB 2: POLA MUSIM & RISIKO ==========
