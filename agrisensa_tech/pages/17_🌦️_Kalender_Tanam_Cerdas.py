@@ -178,9 +178,9 @@ def calculate_planting_score(risk_score, predicted_price, harvest_month):
     price_ratio = predicted_price / 35000
     price_component = min(price_ratio * 50, 50)  # 50% weight, max 50 points
     
-    # Season bonus (avoid extreme months)
+    # Season bonus/penalty (avoid extreme months)
     if harvest_month in [9, 10]:  # Double trouble
-        season_penalty = -10
+        season_bonus = -10  # Penalty
     elif harvest_month in [1, 12]:  # Nataru bonus
         season_bonus = 10
     else:
