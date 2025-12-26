@@ -15,11 +15,11 @@ app_port: 7860
 ### Platform Pertanian Cerdas Berbasis AI untuk Petani Indonesia
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-3.0-green.svg)](https://flask.palletsprojects.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.32-red.svg)](https://streamlit.io/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Hugging Face](https://img.shields.io/badge/🤗-Hugging%20Face-orange)](https://huggingface.co/spaces/yandri918/agrisensa-api)
+[![Streamlit Cloud](https://img.shields.io/badge/Streamlit-Cloud-orange)](https://mirai39.streamlit.app/)
 
-[Demo](https://huggingface.co/spaces/yandri918/agrisensa-api) • [Dokumentasi](#dokumentasi) • [Fitur](#fitur-utama) • [Instalasi](#instalasi)
+[Demo](https://mirai39.streamlit.app/) • [Dokumentasi](#dokumentasi) • [Fitur](#fitur-utama) • [Instalasi](#instalasi)
 
 </div>
 
@@ -89,18 +89,15 @@ AgriSensa adalah platform pertanian cerdas yang memanfaatkan teknologi **Artific
 
 ### Tech Stack
 
-**Backend:**
+**Backend & Framework:**
 - Python 3.12
-- Flask 3.0 (Web Framework)
-- SQLAlchemy (ORM)
-- Flask-Migrate (Database Migrations)
-- Flask-JWT-Extended (Authentication)
-- Flask-CORS (Cross-Origin Resource Sharing)
-- Flask-Limiter (Rate Limiting)
+- Streamlit 1.32+ (Web Framework)
+- pandas (Data Processing)
+- plotly (Interactive Visualizations)
+- numpy (Numerical Computing)
 
 **Machine Learning & AI:**
 - scikit-learn (ML Models)
-- TensorFlow/Keras (Deep Learning)
 - Google Generative AI (Gemini API)
 - Roboflow (Computer Vision)
 - SHAP (Explainable AI)
@@ -109,54 +106,45 @@ AgriSensa adalah platform pertanian cerdas yang memanfaatkan teknologi **Artific
 - pandas (Data Manipulation)
 - numpy (Numerical Computing)
 - Pillow (Image Processing)
+- openpyxl (Excel Processing)
 
-**Frontend:**
-- HTML5, CSS3, JavaScript (ES6+)
-- Chart.js (Data Visualization)
-- Marked.js (Markdown Rendering)
+**Visualization:**
+- plotly (Interactive Charts)
+- matplotlib (Static Charts)
+- seaborn (Statistical Plots)
 
 **Deployment:**
-- Docker (Containerization)
-- Hugging Face Spaces (Hosting)
+- Streamlit Cloud (Hosting)
 - Git (Version Control)
+- GitHub (Repository)
 
 ### Struktur Direktori
 
 ```
-agrisensa-api/
-├── app/
-│   ├── __init__.py           # Application factory
-│   ├── config/               # Configuration files
-│   ├── data/                 # Static data & databases
-│   │   ├── cultivation_db.py # Cultivation knowledge base
-│   │   ├── pest_disease_db.py# Pest & disease database
-│   │   └── fertilizer_db.py  # Fertilizer database
-│   ├── models/               # SQLAlchemy models
-│   ├── routes/               # API routes/blueprints
-│   │   ├── main.py          # Main routes
-│   │   ├── legacy.py        # Legacy endpoints
-│   │   ├── analysis.py      # Analysis endpoints
+streamlit_terbaru/
+├── agrisensa_main.py        # Main hub application
+├── agrisensa_tech/          # Technology modules
+│   ├── pages/              # Streamlit pages
+│   │   ├── 11_📊_Analisis_Risiko.py
+│   │   ├── 15_📸_Estimasi_Panen_AI.py
+│   │   ├── 17_🌦️_Kalender_Tanam_Cerdas.py
 │   │   └── ...
-│   ├── services/             # Business logic
-│   │   ├── ml_service.py    # ML model service
-│   │   ├── market_service.py# Market intelligence
-│   │   ├── chatbot_service.py# Chatbot service
-│   │   └── ...
-│   └── utils/               # Utility functions
-├── templates/               # HTML templates
-│   └── modules/            # Module-specific templates
-├── static/                 # Static assets
-│   ├── css/
-│   ├── js/
-│   ├── icons/
-│   ├── manifest.json       # PWA manifest
-│   └── sw.js              # Service worker
-├── instance/              # Instance-specific files
-├── migrations/            # Database migrations
-├── Dockerfile            # Docker configuration
-├── requirements.txt      # Python dependencies
-├── run.py               # Application entry point
-└── README.md            # This file
+├── agrisensa_commodities/   # Commodity guides
+│   └── pages/
+├── agrisensa_biz/          # Business intelligence
+│   └── pages/
+├── agrisensa_eco/          # Ecosystem modules
+│   └── pages/
+├── agrisensa_livestock/    # Livestock modules
+│   └── pages/
+├── data_analysis/          # Data & datasets
+├── services/               # Shared services
+│   ├── gemini_service.py  # Gemini AI integration
+│   ├── roboflow_service.py# Computer vision
+│   └── ...
+├── utils/                  # Utility functions
+├── requirements.txt        # Python dependencies
+└── README.md              # This file
 ```
 
 ---
@@ -204,35 +192,21 @@ DATABASE_URL=sqlite:///agrisensa.db
 GEMINI_API_KEY=your-gemini-api-key
 ```
 
-5. **Initialize Database**
+5. **Run Streamlit App**
 ```bash
-flask init-db
+streamlit run agrisensa_main.py
 ```
 
-6. **Run Development Server**
-```bash
-python run.py
-```
+Server akan berjalan di `http://localhost:8501`
 
-Server akan berjalan di `http://localhost:5000`
+### Streamlit Cloud Deployment
 
-### Docker Deployment
-
-```bash
-# Build image
-docker build -t agrisensa-api .
-
-# Run container
-docker run -p 7860:7860 agrisensa-api
-```
-
-### Hugging Face Spaces
-
-1. Fork repository ini
-2. Buat Space baru di Hugging Face
-3. Connect repository ke Space
-4. Set environment variables di Space Settings
-5. Deploy!
+1. Push repository ke GitHub
+2. Login ke [Streamlit Cloud](https://streamlit.io/cloud)
+3. Connect GitHub repository
+4. Set main file: `agrisensa_main.py`
+5. Add secrets di Settings (GEMINI_API_KEY, dll)
+6. Deploy!
 
 ---
 
@@ -257,12 +231,19 @@ AgriSensa mendukung instalasi sebagai aplikasi Android/iOS melalui PWA:
 
 ### Base URL
 ```
-Production: https://huggingface.co/spaces/yandri918/agrisensa-api
-Local: http://localhost:5000
+Production: https://mirai39.streamlit.app/
+Local: http://localhost:8501
 ```
 
-### Authentication
-Beberapa endpoint memerlukan JWT token. Dapatkan token melalui `/api/auth/login`.
+### Streamlit Pages
+AgriSensa menggunakan arsitektur multi-page Streamlit dengan 6 aplikasi satelit:
+
+1. **Main Hub** - Dashboard utama dan navigasi
+2. **AgriSensa Tech** - Modul teknologi (AI, ML, Computer Vision)
+3. **AgriSensa Commodities** - Panduan budidaya komoditas
+4. **AgriSensa Biz** - Business intelligence & market analysis
+5. **AgriSensa Eco** - Ekosistem pertanian berkelanjutan
+6. **AgriSensa Livestock** - Peternakan & akuakultur
 
 ### Key Endpoints
 
@@ -336,7 +317,7 @@ Content-Type: application/json
 }
 ```
 
-Dokumentasi lengkap tersedia di `/api/info`
+Dokumentasi lengkap tersedia di halaman "Metodologi & Validasi" dalam aplikasi.
 
 ---
 
