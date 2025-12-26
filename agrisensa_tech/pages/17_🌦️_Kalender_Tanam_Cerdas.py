@@ -240,13 +240,33 @@ CABAI_PRICE_PATTERN = {
     12: {"base_price": 35000, "multiplier": 1.4, "volatility": 0.55},  # Nataru (+40%)
 }
 
+# Price Pattern for Padi (Gabah Kering Panen - GKP)
+# Base price from BAPANAS: Rp 5,500/kg (GKP), volatility 20%
+PADI_PRICE_PATTERN = {
+    1: {"base_price": 5500, "multiplier": 1.0, "volatility": 0.20},   # Hujan
+    2: {"base_price": 5500, "multiplier": 0.95, "volatility": 0.18},  # Hujan (supply mulai naik)
+    3: {"base_price": 5500, "multiplier": 0.90, "volatility": 0.15},  # Panen MT-I mulai (-10%)
+    4: {"base_price": 5500, "multiplier": 0.85, "volatility": 0.15},  # Panen MT-I puncak (-15%)
+    5: {"base_price": 5500, "multiplier": 0.90, "volatility": 0.18},  # Panen MT-I akhir (-10%)
+    6: {"base_price": 5500, "multiplier": 1.0, "volatility": 0.20},   # Transisi
+    7: {"base_price": 5500, "multiplier": 1.05, "volatility": 0.22},  # Kemarau (+5%)
+    8: {"base_price": 5500, "multiplier": 1.10, "volatility": 0.25},  # Kemarau (+10%)
+    9: {"base_price": 5500, "multiplier": 1.15, "volatility": 0.25},  # Panen MT-II mulai (+15%)
+    10: {"base_price": 5500, "multiplier": 1.10, "volatility": 0.22}, # Panen MT-II puncak (+10%)
+    11: {"base_price": 5500, "multiplier": 1.05, "volatility": 0.20}, # Transisi (+5%)
+    12: {"base_price": 5500, "multiplier": 1.10, "volatility": 0.22}, # Awal hujan (+10%)
+}
+
 # Crop growing days
 CROP_GROWING_DAYS = {
+    "Padi": 120,            # 4 bulan (MT-I: Nov-Mar, MT-II: Apr-Agu)
     "Cabai Merah": 120,
     "Cabai Rawit": 100,
     "Tomat": 90,
     "Terong": 80,
     "Bawang Merah": 70,
+    "Jagung": 100,          # 3-3.5 bulan
+    "Kedelai": 80,          # 2.5-3 bulan
 }
 
 
@@ -303,9 +323,15 @@ def get_risk_level(score):
         return "🟢 Rendah", "green"
 
 
-def get_price_prediction(month):
-    """Get price prediction for harvest month"""
-    pattern = CABAI_PRICE_PATTERN[month]
+def get_price_prediction(month, crop="Cabai Merah"):
+    """Get price prediction for harvest month based on crop"""
+    # Select price pattern based on crop
+    if crop == "Padi":
+        pattern = PADI_PRICE_PATTERN[month]
+    else:
+        # Default to Cabai pattern for all hortikultura
+        pattern = CABAI_PRICE_PATTERN[month]
+    
     predicted_price = pattern['base_price'] * pattern['multiplier']
     min_price = predicted_price * (1 - pattern['volatility'])
     max_price = predicted_price * (1 + pattern['volatility'])
@@ -313,7 +339,9 @@ def get_price_prediction(month):
     return {
         'predicted': round(predicted_price, 0),
         'min': round(min_price, 0),
-        'max': round(max_price, 0)
+        'max': round(max_price, 0),
+        'base': pattern['base_price'],
+        'volatility_pct': round(pattern['volatility'] * 100, 0)
     }
 
 
@@ -511,7 +539,7 @@ with tab1:
     # Get data
     risk_score = get_risk_score(harvest_month)
     risk_level, risk_color = get_risk_level(risk_score)
-    price = get_price_prediction(harvest_month)
+    price = get_price_prediction(harvest_month, crop)
     recommendation, reason = get_recommendation(risk_score, price['predicted'])
     
     # Display metrics
@@ -632,7 +660,7 @@ with tab1:
         for m in comparison_months:
             harvest_m = calculate_harvest_month(m, CROP_GROWING_DAYS[crop])
             risk = get_risk_score(harvest_m)
-            price_pred = get_price_prediction(harvest_m)
+            price_pred = get_price_prediction(harvest_m, crop)
             score = calculate_planting_score(risk, price_pred['predicted'], harvest_m)
             glut = get_supply_glut_warning(harvest_m)
             contract = get_contract_farming_recommendation(price_pred['predicted'], harvest_m)
@@ -1124,8 +1152,8 @@ with tab3:
     ))
     
     # Add price range (min-max)
-    price_min = [get_price_prediction(m)['min'] for m in months]
-    price_max = [get_price_prediction(m)['max'] for m in months]
+    price_min = [get_price_prediction(m, "Cabai Merah")['min'] for m in months]
+    price_max = [get_price_prediction(m, "Cabai Merah")['max'] for m in months]
     
     fig3.add_trace(go.Scatter(
         x=df_annual['month_name'] + df_annual['month_name'][::-1],
