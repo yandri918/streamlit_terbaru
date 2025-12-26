@@ -2,12 +2,60 @@ import streamlit as st
 import sys
 import os
 
-# Add biz utils to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'agrisensa_biz'))
-try:
-    from utils.modern_ui import price_ticker
-except ImportError:
-    def price_ticker(): pass
+# Direct Ticker Implementation (Fixes Import Issues)
+def price_ticker():
+    # Mock Data (Simulated Bapanas Feed)
+    prices = [
+        {"name": "🌶️ Cabai Merah", "price": "Rp 45.000", "trend": "up"},
+        {"name": "🧅 Bawang Merah", "price": "Rp 28.500", "trend": "down"},
+        {"name": "🍚 Beras Premium", "price": "Rp 14.200", "trend": "stable"},
+        {"name": "🐔 Daging Ayam", "price": "Rp 35.000", "trend": "up"},
+        {"name": "🌽 Jagung Pipil", "price": "Rp 5.800", "trend": "stable"},
+    ]
+    
+    ticker_items = []
+    for p in prices:
+        color = "#10b981" if p['trend'] == "up" else ("#ef4444" if p['trend'] == "down" else "#fbbf24")
+        icon = "▲" if p['trend'] == "up" else ("▼" if p['trend'] == "down" else "●")
+        price_color = "#e2e8f0"
+        
+        item_html = f'''
+        <span style="margin-right: 40px; font-family: monospace; font-size: 1.1em;">
+            <span style="color: #94a3b8;">{p["name"]}</span> 
+            <span style="color: {price_color}; font-weight: bold;">{p["price"]}</span> 
+            <span style="color: {color}; font-weight: bold;">{icon}</span>
+        </span>
+        '''
+        ticker_items.append(item_html)
+    
+    ticker_content = "".join(ticker_items)
+    
+    st.markdown(f"""
+    <div class="ticker-container" style="
+        background: #0f172a; 
+        border-bottom: 2px solid #334155;
+        overflow: hidden; 
+        white-space: nowrap;
+        position: relative;
+        padding: 8px 0;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    ">
+        <div class="ticker-text" style="
+            display: inline-block; 
+            animation: marquee 20s linear infinite;
+        ">
+            {ticker_content} {ticker_content} {ticker_content}
+        </div>
+    </div>
+    
+    <style>
+        @keyframes marquee {{
+            0% {{ transform: translateX(0); }}
+            100% {{ transform: translateX(-50%); }} 
+        }}
+    </style>
+    """, unsafe_allow_html=True)
 
 st.set_page_config(page_title="AgriSensa Tech", page_icon="🛰️", layout="wide")
 
