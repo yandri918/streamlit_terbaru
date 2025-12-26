@@ -22,19 +22,46 @@ st.markdown("---")
 # 1. KEY PERFORMANCE INDICATORS (KPIs)
 # ==========================================
 # Simulated aggregated data
+# ==========================================
+# 1. KEY PERFORMANCE INDICATORS (KPIs)
+# ==========================================
+# Retrieve Real Data or Fallback to Dummy
+risk_data = st.session_state.get('dashboard_risk', {})
+port_data = st.session_state.get('dashboard_portfolio', {})
+
+# Data extraction
+total_land = port_data.get('total_land', 0)
+risk_score = risk_data.get('risk_score', 0.42) # Default 0.42
+revenue_proj = risk_data.get('projected_revenue', 850000000.0)
+crop_name = risk_data.get('crop_name', 'Not Selected')
+
+is_simulated = not (risk_data or port_data)
+
+if is_simulated:
+    st.info("ℹ️ Tampilan ini menggunakan **Data Simulasi**. Jalankan 'Analisis Risiko' (Page 11) untuk melihat data riil Anda.")
+else:
+    st.success("✅ **Data Live Terhubung**: Menampilkan hasil analisis terakhir Anda.")
+
 col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4)
 
 with col_kpi1:
-    st.metric("Total Lahan Dikelola", "15.5 Ha", "+2.5 Ha")
+    val = f"{total_land} Ha" if total_land > 0 else "15.5 Ha (Sim)"
+    delta = "Real" if total_land > 0 else "Simulated"
+    st.metric("Total Lahan Dikelola", val, delta)
 
 with col_kpi2:
-    st.metric("Proj. Annual Revenue", "Rp 850 Jt", "+12%")
+    val_rev = f"Rp {revenue_proj/1000000:.1f} Jt"
+    st.metric("Proj. Annual Revenue", val_rev, "+12%")
 
 with col_kpi3:
-    st.metric("Weighted Risk Score", "4.2/10", "-0.5 (Mitigated)")
+    # Risk Score inverted logic (Higher prob success = Lower Risk)
+    risk_display = (1 - risk_score) * 10
+    delta_risk = f"{(risk_display-5):.1f}" 
+    st.metric("Risk Level (0-10)", f"{risk_display:.1f}/10", delta_risk, delta_color="inverse")
 
 with col_kpi4:
-    st.metric("Active Campaigns", "3 Projects", "Padi, Cabai, Jagung")
+    active = crop_name if crop_name != 'Not Selected' else "3 Projects (Sim)"
+    st.metric("Active Campaigns", active, "On Track")
 
 # ==========================================
 # 2. PORTFOLIO SNAPSHOT
@@ -44,43 +71,47 @@ col_main1, col_main2 = st.columns([2, 1])
 
 with col_main1:
     st.subheader("💰 Portfolio Allocation Snapshot")
-    # Simplified data mimicking Page 13 results
-    portfolio_data = pd.DataFrame({
-        'Crop': ['Padi (Food Base)', 'Cabai (Cash Cow)', 'Jagung (Rotation)', 'Kedelai (Nitrogen Fixer)'],
-        'Allocation': [40, 30, 20, 10],
-        'Type': ['Low Risk', 'High Risk', 'Medium Risk', 'Low Risk']
-    })
     
-    fig_pie = px.pie(portfolio_data, values='Allocation', names='Crop', hole=0.4, 
-                     color_discrete_sequence=px.colors.sequential.RdBu)
+    if port_data.get('allocations'):
+        alloc = port_data['allocations']
+        labels = list(alloc.keys())
+        values = [v * 100 for v in alloc.values()]
+        
+        portfolio_data = pd.DataFrame({'Crop': labels, 'Allocation': values})
+        fig_pie = px.pie(portfolio_data, values='Allocation', names='Crop', hole=0.4, 
+                         color_discrete_sequence=px.colors.sequential.RdBu)
+        title_text = f"Real Allocation ({port_data.get('risk_profile', 'Custom')})"
+    else:
+        # Dummy fallback
+        portfolio_data = pd.DataFrame({
+            'Crop': ['Padi (Food Base)', 'Cabai (Cash Cow)', 'Jagung (Rotation)', 'Kedelai (Nitrogen Fixer)'],
+            'Allocation': [40, 30, 20, 10]
+        })
+        fig_pie = px.pie(portfolio_data, values='Allocation', names='Crop', hole=0.4, 
+                         color_discrete_sequence=px.colors.sequential.RdBu)
+        title_text = "Simulated Allocation"
+
     fig_pie.update_traces(textposition='inside', textinfo='percent+label')
-    fig_pie.update_layout(margin=dict(t=0, b=0, l=0, r=0), height=300)
+    fig_pie.update_layout(title=title_text, margin=dict(t=30, b=0, l=0, r=0), height=300)
     
     st.plotly_chart(fig_pie, use_container_width=True)
 
 with col_main2:
     st.subheader("⚠️ Critical Risk Alerts")
     
-    # Alert Card 1
-    st.error("""
-    **🚨 Harga Cabai Volatil**
-    - **Risk:** Price Crash predicted next month (-15%)
-    - **Action:** Lock price with contract farming now.
-    """)
-    
-    # Alert Card 2
-    st.warning("""
-    **🌦️ El Nino Warning**
-    - **Risk:** Drought Risk for Padi (Oct-Dec)
-    - **Action:** Activate irrigation pumps (Mitigation #4).
-    """)
-    
-    # Alert Card 3
-    st.success("""
-    **✅ Nitrogen Efficiency**
-    - **Status:** Good synergy detected (Jagung + Kedelai)
-    - **Impact:** Fertilizer cost reduced by 15%.
-    """)
+    if is_simulated:
+        # Dummy Alerts
+        st.error("**🚨 Harga Cabai Volatil**\n- **Risk:** Price Crash (-15%)\n- **Action:** Lock price.")
+        st.warning("**🌦️ El Nino Warning**\n- **Risk:** Drought Risk (Oct-Dec)\n- **Action:** Irrigation (Mitigation #4).")
+        st.success("**✅ Nitrogen Efficiency**\n- **Status:** Good synergy (Jagung + Kedelai)")
+    else:
+        # Real Logic based on Risk Score
+        if risk_score < 0.5:
+            st.error(f"**🚨 Risiko Tinggi: {crop_name}**\n- **Probabilitas:** Hanya {risk_score*100:.0f}%\n- **Saran:** Cek tab Mitigasi di Page 11.")
+        elif risk_score < 0.7:
+            st.warning(f"**⚠️ Risiko Sedang: {crop_name}**\n- **Probabilitas:** {risk_score*100:.0f}%\n- **Saran:** Pantau cuaca.")
+        else:
+            st.success(f"**✅ Kondisi Optimal: {crop_name}**\n- **Probabilitas:** {risk_score*100:.0f}%\n- **Saran:** Lanjutkan rencana tanam.")
 
 # ==========================================
 # 3. FINANCIAL PROJECTION (Monte Carlo Summary)
@@ -88,14 +119,32 @@ with col_main2:
 st.divider()
 st.subheader("📈 Financial Projection (Risk-Adjusted)")
 
-# Simulated distribution data
-x_dist = [-20, -10, 0, 10, 20, 30, 40, 50, 60]
-y_prob = [0.01, 0.05, 0.1, 0.2, 0.3, 0.2, 0.1, 0.03, 0.01]
+import numpy as np
+
+if risk_data.get('roi_results') is not None:
+    # Real Monte Carlo Data
+    roi_dist = np.array(risk_data['roi_results'])
+    # Create histogram data
+    counts, bins = np.histogram(roi_dist, bins=20, density=True)
+    x_dist = (bins[:-1] + bins[1:]) / 2
+    y_prob = counts
+    title_fin = f"Real ROI Distribution ({crop_name})"
+    most_likely = np.mean(roi_dist)
+    var_95 = np.percentile(roi_dist, 5)
+    upside = np.percentile(roi_dist, 95)
+else:
+    # Simulated
+    x_dist = [-20, -10, 0, 10, 20, 30, 40, 50, 60]
+    y_prob = [0.01, 0.05, 0.1, 0.2, 0.3, 0.2, 0.1, 0.03, 0.01]
+    title_fin = "Simulated ROI Distribution"
+    most_likely = 25.0
+    var_95 = -5.0
+    upside = 60.0
 
 fig_area = go.Figure()
 fig_area.add_trace(go.Scatter(x=x_dist, y=y_prob, fill='tozeroy', mode='none', fillcolor='rgba(0, 100, 80, 0.2)'))
 fig_area.update_layout(
-    title="ROI Probability Distribution (Monte Carlo)",
+    title=title_fin,
     xaxis_title="Potential ROI (%)",
     yaxis_title="Probability Density",
     height=300
@@ -104,16 +153,17 @@ fig_area.update_layout(
 col_fin1, col_fin2 = st.columns([1, 2])
 
 with col_fin1:
-    st.markdown("""
+    st.markdown(f"""
     **Analisis Keuangan:**
     
-    - **Most Likely ROI:** 20-30%
-    - **Value at Risk (95%):** -5%
-      *(Kemungkinan rugi hanya 5%)*
-    - **Upside Potential:** up to 60%
+    - **Most Likely ROI:** {most_likely:.1f}%
+    - **Value at Risk (95%):** {var_95:.1f}%
+      *(Kemungkinan rugi terburuk)*
+    - **Upside Potential:** up to {upside:.1f}%
     """)
     
-    st.button("View Detailed Analysis (Page 11) →")
+    if st.button("View Detailed Analysis (Page 11) →"):
+        st.switch_page("pages/11_⚠️_Analisis_Risiko.py")
 
 with col_fin2:
     st.plotly_chart(fig_area, use_container_width=True)
