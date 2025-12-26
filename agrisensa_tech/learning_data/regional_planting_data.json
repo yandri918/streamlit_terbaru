@@ -1,0 +1,29 @@
+[
+    {
+        "region": "Brebes",
+        "crop": "Bawang Merah",
+        "planting_month": 6,
+        "harvest_month": 8,
+        "year": 2024,
+        "notes": "Sentra bawang merah terbesar di Indonesia",
+        "created_at": "2024-12-27 06:20:00"
+    },
+    {
+        "region": "Garut",
+        "crop": "Cabai Merah",
+        "planting_month": 4,
+        "harvest_month": 8,
+        "year": 2024,
+        "notes": "Daerah dataran tinggi, cocok untuk cabai",
+        "created_at": "2024-12-27 06:20:00"
+    },
+    {
+        "region": "Temanggung",
+        "crop": "Cabai Rawit",
+        "planting_month": 5,
+        "harvest_month": 8,
+        "year": 2024,
+        "notes": "Sentra cabai rawit Jawa Tengah",
+        "created_at": "2024-12-27 06:20:00"
+    }
+]

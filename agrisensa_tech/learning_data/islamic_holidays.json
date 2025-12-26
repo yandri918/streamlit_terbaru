@@ -1,0 +1,42 @@
+[
+    {
+        "holiday_name": "Idul Fitri",
+        "hijri_date": "1 Syawal",
+        "gregorian_month": 4,
+        "gregorian_day": 10,
+        "year": 2024,
+        "significance": "Hari raya setelah Ramadhan, perayaan besar umat Islam",
+        "impact_on_farming": "Banyak petani libur, harga komoditas naik menjelang hari raya",
+        "created_at": "2024-12-27 06:20:00"
+    },
+    {
+        "holiday_name": "Idul Adha",
+        "hijri_date": "10 Dzulhijjah",
+        "gregorian_month": 6,
+        "gregorian_day": 16,
+        "year": 2024,
+        "significance": "Hari raya kurban, perayaan besar kedua",
+        "impact_on_farming": "Permintaan sayuran meningkat untuk masakan hari raya",
+        "created_at": "2024-12-27 06:20:00"
+    },
+    {
+        "holiday_name": "Maulid Nabi Muhammad SAW",
+        "hijri_date": "12 Rabiul Awal",
+        "gregorian_month": 9,
+        "gregorian_day": 15,
+        "year": 2024,
+        "significance": "Peringatan kelahiran Nabi Muhammad SAW",
+        "impact_on_farming": "Perayaan sederhana, dampak minimal pada pertanian",
+        "created_at": "2024-12-27 06:20:00"
+    },
+    {
+        "holiday_name": "Isra Mi'raj",
+        "hijri_date": "27 Rajab",
+        "gregorian_month": 2,
+        "gregorian_day": 8,
+        "year": 2024,
+        "significance": "Peringatan perjalanan Nabi ke Sidratul Muntaha",
+        "impact_on_farming": "Hari libur nasional, aktivitas pertanian berkurang",
+        "created_at": "2024-12-27 06:20:00"
+    }
+]

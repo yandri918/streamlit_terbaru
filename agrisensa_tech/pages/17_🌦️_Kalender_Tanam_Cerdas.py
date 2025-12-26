@@ -493,6 +493,108 @@ def get_contract_farming_recommendation(predicted_price, harvest_month):
 
 
 # ==========================================
+# DATA MANAGEMENT FUNCTIONS (JSON-based)
+# ==========================================
+
+def get_data_file_path(filename):
+    """Get absolute path to data file"""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(current_dir, '..', 'learning_data')
+    os.makedirs(data_dir, exist_ok=True)
+    return os.path.join(data_dir, filename)
+
+
+def load_regional_data():
+    """Load regional planting data from JSON"""
+    import json
+    filepath = get_data_file_path('regional_planting_data.json')
+    
+    try:
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        else:
+            return []
+    except Exception as e:
+        st.error(f"Error loading regional data: {e}")
+        return []
+
+
+def save_regional_data(data):
+    """Save regional planting data to JSON"""
+    import json
+    filepath = get_data_file_path('regional_planting_data.json')
+    
+    try:
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        st.error(f"Error saving regional data: {e}")
+        return False
+
+
+def load_islamic_holidays():
+    """Load Islamic holidays data from JSON"""
+    import json
+    filepath = get_data_file_path('islamic_holidays.json')
+    
+    try:
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        else:
+            return []
+    except Exception as e:
+        st.error(f"Error loading Islamic holidays: {e}")
+        return []
+
+
+def save_islamic_holidays(data):
+    """Save Islamic holidays data to JSON"""
+    import json
+    filepath = get_data_file_path('islamic_holidays.json')
+    
+    try:
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        st.error(f"Error saving Islamic holidays: {e}")
+        return False
+
+
+def get_regional_planting_pattern(region=None, crop=None):
+    """Analyze regional planting patterns"""
+    data = load_regional_data()
+    
+    if not data:
+        return None
+    
+    # Filter by region and/or crop if specified
+    filtered_data = data
+    if region:
+        filtered_data = [d for d in filtered_data if d['region'] == region]
+    if crop:
+        filtered_data = [d for d in filtered_data if d['crop'] == crop]
+    
+    if not filtered_data:
+        return None
+    
+    # Analyze patterns
+    planting_months = {}
+    for entry in filtered_data:
+        month = entry['planting_month']
+        planting_months[month] = planting_months.get(month, 0) + 1
+    
+    return {
+        'total_entries': len(filtered_data),
+        'planting_distribution': planting_months,
+        'most_common_month': max(planting_months, key=planting_months.get) if planting_months else None
+    }
+
+
+# ==========================================
 # MAIN APP
 # ==========================================
 
@@ -501,10 +603,12 @@ st.markdown("**Prediksi Risiko Hama & Harga Berdasarkan Pola Musim**")
 st.caption("💡 Berbasis pengalaman lapangan & pola musim Indonesia")
 
 # Tabs
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "🎯 Rekomendasi Tanam",
     "📊 Pola Musim & Risiko",
     "💰 Prediksi Harga",
+    "📝 Input Data Pembelajaran",
+    "📈 Analisis Data Sentra",
     "📚 Panduan Penggunaan"
 ])
 
@@ -1554,8 +1658,559 @@ with tab3:
     """)
 
 
-# ========== TAB 4: PANDUAN ==========
+# ========== TAB 4: INPUT DATA PEMBELAJARAN ==========
 with tab4:
+    st.subheader("📝 Input Data Pembelajaran")
+    st.markdown("""
+    Karena belum ada database internal, gunakan form ini untuk menginput data sebagai bahan pembelajaran sistem:
+    - **Data Penanaman Daerah Sentra**: Kapan daerah-daerah sentra melakukan penanaman
+    - **Hari Besar Islam**: Data hari besar agama Islam untuk analisis pola
+    """)
+    
+    # Two columns for two input sections
+    col_input1, col_input2 = st.columns(2)
+    
+    # ===== SECTION 1: Regional Planting Data =====
+    with col_input1:
+        st.markdown("### 🌾 Data Penanaman Daerah Sentra")
+        
+        with st.form("regional_planting_form"):
+            st.markdown("**Input Data Baru:**")
+            
+            region_input = st.text_input(
+                "Nama Daerah/Kabupaten",
+                placeholder="Contoh: Brebes, Garut, Temanggung",
+                help="Nama daerah sentra produksi"
+            )
+            
+            crop_input = st.selectbox(
+                "Komoditas",
+                list(CROP_GROWING_DAYS.keys()),
+                help="Pilih jenis tanaman"
+            )
+            
+            col_month1, col_month2 = st.columns(2)
+            with col_month1:
+                planting_month_input = st.selectbox(
+                    "Bulan Tanam",
+                    range(1, 13),
+                    format_func=lambda x: datetime(2024, x, 1).strftime('%B')
+                )
+            
+            with col_month2:
+                harvest_month_input = st.selectbox(
+                    "Bulan Panen",
+                    range(1, 13),
+                    format_func=lambda x: datetime(2024, x, 1).strftime('%B')
+                )
+            
+            year_input = st.number_input(
+                "Tahun",
+                min_value=2020,
+                max_value=2030,
+                value=2024,
+                step=1
+            )
+            
+            notes_input = st.text_area(
+                "Catatan (opsional)",
+                placeholder="Contoh: Sentra bawang merah terbesar, dataran tinggi, dll",
+                height=80
+            )
+            
+            submit_regional = st.form_submit_button("💾 Simpan Data Regional", use_container_width=True)
+            
+            if submit_regional:
+                if not region_input:
+                    st.error("❌ Nama daerah harus diisi!")
+                else:
+                    # Load existing data
+                    regional_data = load_regional_data()
+                    
+                    # Add new entry
+                    from datetime import datetime as dt
+                    new_entry = {
+                        "region": region_input,
+                        "crop": crop_input,
+                        "planting_month": planting_month_input,
+                        "harvest_month": harvest_month_input,
+                        "year": year_input,
+                        "notes": notes_input,
+                        "created_at": dt.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    
+                    regional_data.append(new_entry)
+                    
+                    # Save
+                    if save_regional_data(regional_data):
+                        st.success(f"✅ Data penanaman {crop_input} di {region_input} berhasil disimpan!")
+                        st.balloons()
+                    else:
+                        st.error("❌ Gagal menyimpan data")
+        
+        # Display existing data
+        st.markdown("---")
+        st.markdown("**📋 Data yang Sudah Diinput:**")
+        
+        regional_data = load_regional_data()
+        
+        if regional_data:
+            # Convert to DataFrame for display
+            df_regional = pd.DataFrame(regional_data)
+            
+            # Format month names
+            df_regional['Bulan Tanam'] = df_regional['planting_month'].apply(
+                lambda x: datetime(2024, x, 1).strftime('%B')
+            )
+            df_regional['Bulan Panen'] = df_regional['harvest_month'].apply(
+                lambda x: datetime(2024, x, 1).strftime('%B')
+            )
+            
+            # Select columns to display
+            display_cols = ['region', 'crop', 'Bulan Tanam', 'Bulan Panen', 'year', 'notes']
+            df_display = df_regional[display_cols].copy()
+            df_display.columns = ['Daerah', 'Komoditas', 'Bulan Tanam', 'Bulan Panen', 'Tahun', 'Catatan']
+            
+            st.dataframe(df_display, use_container_width=True, hide_index=True)
+            
+            st.caption(f"Total: {len(regional_data)} data penanaman daerah sentra")
+        else:
+            st.info("Belum ada data. Silakan input data pertama Anda!")
+    
+    # ===== SECTION 2: Islamic Holidays =====
+    with col_input2:
+        st.markdown("### 🕌 Hari Besar Islam")
+        
+        with st.form("islamic_holiday_form"):
+            st.markdown("**Input Hari Besar Baru:**")
+            
+            holiday_name_input = st.text_input(
+                "Nama Hari Besar",
+                placeholder="Contoh: Idul Fitri, Idul Adha, Maulid Nabi",
+                help="Nama hari besar Islam"
+            )
+            
+            hijri_date_input = st.text_input(
+                "Tanggal Hijriyah",
+                placeholder="Contoh: 1 Syawal, 10 Dzulhijjah",
+                help="Tanggal dalam kalender Hijriyah"
+            )
+            
+            col_greg1, col_greg2 = st.columns(2)
+            with col_greg1:
+                gregorian_month_input = st.selectbox(
+                    "Bulan Masehi (Estimasi)",
+                    range(1, 13),
+                    format_func=lambda x: datetime(2024, x, 1).strftime('%B'),
+                    help="Perkiraan bulan dalam kalender Masehi"
+                )
+            
+            with col_greg2:
+                gregorian_day_input = st.number_input(
+                    "Tanggal Masehi",
+                    min_value=1,
+                    max_value=31,
+                    value=1,
+                    help="Perkiraan tanggal"
+                )
+            
+            year_holiday_input = st.number_input(
+                "Tahun",
+                min_value=2020,
+                max_value=2030,
+                value=2024,
+                step=1
+            )
+            
+            significance_input = st.text_area(
+                "Makna/Signifikansi",
+                placeholder="Contoh: Hari raya setelah Ramadhan, perayaan besar umat Islam",
+                height=60
+            )
+            
+            impact_input = st.text_area(
+                "Dampak pada Pertanian (opsional)",
+                placeholder="Contoh: Permintaan sayuran meningkat, banyak petani libur, dll",
+                height=60
+            )
+            
+            submit_holiday = st.form_submit_button("💾 Simpan Hari Besar", use_container_width=True)
+            
+            if submit_holiday:
+                if not holiday_name_input or not hijri_date_input:
+                    st.error("❌ Nama hari besar dan tanggal Hijriyah harus diisi!")
+                else:
+                    # Load existing data
+                    holidays_data = load_islamic_holidays()
+                    
+                    # Add new entry
+                    from datetime import datetime as dt
+                    new_holiday = {
+                        "holiday_name": holiday_name_input,
+                        "hijri_date": hijri_date_input,
+                        "gregorian_month": gregorian_month_input,
+                        "gregorian_day": gregorian_day_input,
+                        "year": year_holiday_input,
+                        "significance": significance_input,
+                        "impact_on_farming": impact_input,
+                        "created_at": dt.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    
+                    holidays_data.append(new_holiday)
+                    
+                    # Save
+                    if save_islamic_holidays(holidays_data):
+                        st.success(f"✅ Hari besar {holiday_name_input} berhasil disimpan!")
+                        st.balloons()
+                    else:
+                        st.error("❌ Gagal menyimpan data")
+        
+        # Display existing data
+        st.markdown("---")
+        st.markdown("**📋 Hari Besar yang Sudah Diinput:**")
+        
+        holidays_data = load_islamic_holidays()
+        
+        if holidays_data:
+            # Convert to DataFrame for display
+            df_holidays = pd.DataFrame(holidays_data)
+            
+            # Format date
+            df_holidays['Tanggal Masehi'] = df_holidays.apply(
+                lambda row: f"{row['gregorian_day']} {datetime(2024, row['gregorian_month'], 1).strftime('%B')}",
+                axis=1
+            )
+            
+            # Select columns to display
+            display_cols = ['holiday_name', 'hijri_date', 'Tanggal Masehi', 'year', 'significance']
+            df_display_holidays = df_holidays[display_cols].copy()
+            df_display_holidays.columns = ['Hari Besar', 'Tanggal Hijriyah', 'Tanggal Masehi', 'Tahun', 'Makna']
+            
+            st.dataframe(df_display_holidays, use_container_width=True, hide_index=True)
+            
+            st.caption(f"Total: {len(holidays_data)} hari besar Islam")
+            
+            # Show calendar view
+            st.markdown("---")
+            st.markdown("**📅 Kalender Hari Besar Islam 2024:**")
+            
+            # Create month-based calendar view
+            months_with_holidays = {}
+            for holiday in holidays_data:
+                if holiday['year'] == 2024:
+                    month = holiday['gregorian_month']
+                    if month not in months_with_holidays:
+                        months_with_holidays[month] = []
+                    months_with_holidays[month].append(holiday)
+            
+            # Display in columns
+            if months_with_holidays:
+                cols_calendar = st.columns(3)
+                for idx, (month, holidays) in enumerate(sorted(months_with_holidays.items())):
+                    with cols_calendar[idx % 3]:
+                        month_name = datetime(2024, month, 1).strftime('%B')
+                        st.markdown(f"**{month_name}:**")
+                        for h in holidays:
+                            st.markdown(f"- 🕌 {h['holiday_name']} ({h['gregorian_day']} {month_name})")
+        else:
+            st.info("Belum ada data. Silakan input hari besar pertama!")
+    
+    # Info box
+    st.markdown("---")
+    st.info("""
+    💡 **Catatan Penggunaan:**
+    - Data ini akan digunakan sebagai bahan pembelajaran sistem
+    - Semakin banyak data yang diinput, semakin akurat analisis pola yang bisa dilakukan
+    - Data disimpan dalam format JSON di folder `learning_data`
+    - Anda bisa mengedit file JSON secara manual jika diperlukan
+    """)
+
+
+# ========== TAB 5: ANALISIS DATA SENTRA ==========
+with tab5:
+    st.subheader("📈 Analisis Pola Tanam Daerah Sentra")
+    st.markdown("""
+    Analisis pola penanaman dari berbagai daerah sentra berdasarkan data yang telah diinput.
+    Gunakan visualisasi ini untuk melihat kapan daerah-daerah sentra melakukan penanaman.
+    """)
+    
+    # Load data
+    regional_data = load_regional_data()
+    
+    if not regional_data or len(regional_data) == 0:
+        st.warning("⚠️ Belum ada data regional. Silakan input data di tab **Input Data Pembelajaran** terlebih dahulu.")
+    else:
+        # Convert to DataFrame
+        df_regional = pd.DataFrame(regional_data)
+        
+        # Filter options
+        st.markdown("### 🔍 Filter Data")
+        col_filter1, col_filter2, col_filter3 = st.columns(3)
+        
+        with col_filter1:
+            # Get unique regions
+            all_regions = sorted(df_regional['region'].unique())
+            selected_regions = st.multiselect(
+                "Pilih Daerah",
+                options=all_regions,
+                default=all_regions,
+                help="Filter berdasarkan daerah"
+            )
+        
+        with col_filter2:
+            # Get unique crops
+            all_crops = sorted(df_regional['crop'].unique())
+            selected_crops = st.multiselect(
+                "Pilih Komoditas",
+                options=all_crops,
+                default=all_crops,
+                help="Filter berdasarkan komoditas"
+            )
+        
+        with col_filter3:
+            # Year filter
+            all_years = sorted(df_regional['year'].unique(), reverse=True)
+            selected_year = st.selectbox(
+                "Pilih Tahun",
+                options=all_years,
+                help="Filter berdasarkan tahun"
+            )
+        
+        # Apply filters
+        df_filtered = df_regional[
+            (df_regional['region'].isin(selected_regions)) &
+            (df_regional['crop'].isin(selected_crops)) &
+            (df_regional['year'] == selected_year)
+        ]
+        
+        if len(df_filtered) == 0:
+            st.info("Tidak ada data yang sesuai dengan filter. Silakan ubah filter.")
+        else:
+            st.markdown("---")
+            
+            # Summary metrics
+            st.markdown("### 📊 Ringkasan Data")
+            col_metric1, col_metric2, col_metric3, col_metric4 = st.columns(4)
+            
+            with col_metric1:
+                st.metric("Total Data", len(df_filtered))
+            
+            with col_metric2:
+                st.metric("Jumlah Daerah", df_filtered['region'].nunique())
+            
+            with col_metric3:
+                st.metric("Jumlah Komoditas", df_filtered['crop'].nunique())
+            
+            with col_metric4:
+                # Most common planting month
+                most_common_month = df_filtered['planting_month'].mode()[0] if len(df_filtered) > 0 else 1
+                month_name = datetime(2024, most_common_month, 1).strftime('%B')
+                st.metric("Bulan Tanam Terpopuler", month_name)
+            
+            # Heatmap: Region vs Planting Month
+            st.markdown("---")
+            st.markdown("### 🔥 Heatmap: Pola Tanam per Daerah")
+            
+            # Create pivot table for heatmap
+            # Count occurrences of each region-month combination
+            heatmap_data = df_filtered.groupby(['region', 'planting_month']).size().reset_index(name='count')
+            heatmap_pivot = heatmap_data.pivot(index='region', columns='planting_month', values='count').fillna(0)
+            
+            # Create month labels
+            month_labels = [datetime(2024, m, 1).strftime('%b') for m in range(1, 13)]
+            
+            # Ensure all months are present
+            for month in range(1, 13):
+                if month not in heatmap_pivot.columns:
+                    heatmap_pivot[month] = 0
+            
+            # Sort columns
+            heatmap_pivot = heatmap_pivot[sorted(heatmap_pivot.columns)]
+            
+            # Create heatmap
+            fig_heatmap = go.Figure(data=go.Heatmap(
+                z=heatmap_pivot.values,
+                x=[datetime(2024, m, 1).strftime('%b') for m in heatmap_pivot.columns],
+                y=heatmap_pivot.index,
+                colorscale='Greens',
+                text=heatmap_pivot.values,
+                texttemplate='%{text}',
+                textfont={"size": 10},
+                colorbar=dict(title="Jumlah<br>Penanaman")
+            ))
+            
+            fig_heatmap.update_layout(
+                title=f"Pola Penanaman Daerah Sentra - Tahun {selected_year}",
+                xaxis_title="Bulan Tanam",
+                yaxis_title="Daerah",
+                height=max(400, len(heatmap_pivot) * 50)
+            )
+            
+            st.plotly_chart(fig_heatmap, use_container_width=True)
+            
+            # Bar chart: Planting distribution by month
+            st.markdown("---")
+            st.markdown("### 📊 Distribusi Penanaman per Bulan")
+            
+            month_distribution = df_filtered.groupby('planting_month').size().reset_index(name='count')
+            month_distribution['month_name'] = month_distribution['planting_month'].apply(
+                lambda x: datetime(2024, x, 1).strftime('%B')
+            )
+            
+            fig_bar = px.bar(
+                month_distribution,
+                x='month_name',
+                y='count',
+                title=f"Jumlah Penanaman per Bulan - {selected_year}",
+                labels={'month_name': 'Bulan', 'count': 'Jumlah Penanaman'},
+                color='count',
+                color_continuous_scale='Greens'
+            )
+            
+            fig_bar.update_layout(height=400)
+            st.plotly_chart(fig_bar, use_container_width=True)
+            
+            # Crop distribution
+            st.markdown("---")
+            st.markdown("### 🌾 Distribusi Komoditas")
+            
+            col_crop1, col_crop2 = st.columns(2)
+            
+            with col_crop1:
+                # Pie chart
+                crop_distribution = df_filtered.groupby('crop').size().reset_index(name='count')
+                
+                fig_pie = px.pie(
+                    crop_distribution,
+                    values='count',
+                    names='crop',
+                    title="Proporsi Komoditas yang Ditanam"
+                )
+                
+                st.plotly_chart(fig_pie, use_container_width=True)
+            
+            with col_crop2:
+                # Bar chart
+                fig_crop_bar = px.bar(
+                    crop_distribution.sort_values('count', ascending=False),
+                    x='crop',
+                    y='count',
+                    title="Jumlah Penanaman per Komoditas",
+                    labels={'crop': 'Komoditas', 'count': 'Jumlah'},
+                    color='count',
+                    color_continuous_scale='Blues'
+                )
+                
+                st.plotly_chart(fig_crop_bar, use_container_width=True)
+            
+            # Insights
+            st.markdown("---")
+            st.markdown("### 💡 Insights & Rekomendasi")
+            
+            # Calculate insights
+            insights = []
+            
+            # 1. Peak planting months
+            peak_months = month_distribution.nlargest(3, 'count')
+            peak_month_names = ", ".join(peak_months['month_name'].tolist())
+            insights.append(f"📅 **Bulan tanam terpopuler**: {peak_month_names}")
+            
+            # 2. Most active regions
+            region_counts = df_filtered.groupby('region').size().reset_index(name='count')
+            top_regions = region_counts.nlargest(3, 'count')
+            top_region_names = ", ".join(top_regions['region'].tolist())
+            insights.append(f"🏆 **Daerah paling aktif**: {top_region_names}")
+            
+            # 3. Most planted crops
+            top_crops = crop_distribution.nlargest(3, 'count')
+            top_crop_names = ", ".join(top_crops['crop'].tolist())
+            insights.append(f"🌱 **Komoditas terpopuler**: {top_crop_names}")
+            
+            # 4. Comparison with system recommendation
+            for month in peak_months['planting_month'].tolist()[:2]:
+                harvest_month = calculate_harvest_month(month, 120)  # Assume 120 days
+                risk_score = get_risk_score(harvest_month)
+                price = get_price_prediction(harvest_month)
+                
+                if risk_score < 50 and price['predicted'] > 40000:
+                    insights.append(f"✅ **Bulan {datetime(2024, month, 1).strftime('%B')}**: Sesuai dengan rekomendasi sistem (risiko rendah, harga tinggi)")
+                elif risk_score > 70:
+                    insights.append(f"⚠️ **Bulan {datetime(2024, month, 1).strftime('%B')}**: Perhatian! Risiko hama/penyakit tinggi ({risk_score:.0f}%)")
+            
+            # Display insights
+            for insight in insights:
+                st.markdown(f"- {insight}")
+            
+            # Comparison table
+            st.markdown("---")
+            st.markdown("### 📋 Perbandingan dengan Rekomendasi Sistem")
+            
+            comparison_data = []
+            for month in sorted(df_filtered['planting_month'].unique()):
+                count = len(df_filtered[df_filtered['planting_month'] == month])
+                harvest_month = calculate_harvest_month(month, 120)
+                risk_score = get_risk_score(harvest_month)
+                price = get_price_prediction(harvest_month)
+                score = calculate_planting_score(risk_score, price['predicted'], harvest_month)
+                
+                comparison_data.append({
+                    'Bulan Tanam': datetime(2024, month, 1).strftime('%B'),
+                    'Jumlah Petani': count,
+                    'Risiko (%)': f"{risk_score:.0f}%",
+                    'Harga Prediksi': f"Rp {price['predicted']:,.0f}",
+                    'Score Sistem': f"{score}/100",
+                    'Status': '✅ Bagus' if score >= 65 else '⚠️ Hati-hati' if score >= 50 else '❌ Tidak Optimal'
+                })
+            
+            df_comparison = pd.DataFrame(comparison_data)
+            st.dataframe(df_comparison, use_container_width=True, hide_index=True)
+            
+            st.info("""
+            💡 **Cara Membaca:**
+            - **Jumlah Petani**: Berapa banyak data penanaman di bulan tersebut
+            - **Risiko**: Prediksi risiko hama/penyakit saat panen
+            - **Harga Prediksi**: Estimasi harga saat panen
+            - **Score Sistem**: Skor optimal dari sistem AgriSensa (0-100)
+            - **Status**: Rekomendasi berdasarkan analisis sistem
+            """)
+            
+            # Islamic holidays correlation
+            st.markdown("---")
+            st.markdown("### 🕌 Korelasi dengan Hari Besar Islam")
+            
+            holidays_data = load_islamic_holidays()
+            
+            if holidays_data and len(holidays_data) > 0:
+                df_holidays = pd.DataFrame(holidays_data)
+                df_holidays_year = df_holidays[df_holidays['year'] == selected_year]
+                
+                if len(df_holidays_year) > 0:
+                    st.markdown("**Hari besar Islam yang mungkin mempengaruhi pola tanam:**")
+                    
+                    for _, holiday in df_holidays_year.iterrows():
+                        month = holiday['gregorian_month']
+                        # Check if there's planting activity around this month
+                        activity_count = len(df_filtered[
+                            (df_filtered['planting_month'] >= month - 1) & 
+                            (df_filtered['planting_month'] <= month + 1)
+                        ])
+                        
+                        if activity_count > 0:
+                            st.markdown(f"""
+                            - **{holiday['holiday_name']}** ({datetime(2024, month, 1).strftime('%B')}):
+                              - {holiday['significance']}
+                              - Dampak: {holiday.get('impact_on_farming', 'Tidak ada catatan')}
+                              - Aktivitas tanam sekitar bulan ini: {activity_count} data
+                            """)
+                else:
+                    st.info(f"Belum ada data hari besar Islam untuk tahun {selected_year}")
+            else:
+                st.info("Belum ada data hari besar Islam. Silakan input di tab **Input Data Pembelajaran**")
+
+
+
+# ========== TAB 6: PANDUAN ==========
+with tab6:
     st.subheader("📚 Panduan Penggunaan Kalender Tanam Cerdas")
     
     st.markdown("""
