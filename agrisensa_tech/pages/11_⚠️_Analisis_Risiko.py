@@ -356,6 +356,8 @@ def monte_carlo_advanced(base_scores, crop_key, crop_params, n_simulations=2000)
             base_prob *= 0.70 # Higher risk for rain-sensitive crops (disease)
             
         # Add random variation to probability
+        # CLIP PROBABILITY to avoid Beta error (0 or 1)
+        base_prob = np.clip(base_prob, 0.01, 0.99)
         sim_prob = np.random.beta(base_prob * 10, (1-base_prob) * 10)
         
         # 2. Catastrophic Event Check (Puso/Total Failure)
@@ -965,6 +967,44 @@ with tab_sensitivitas:
             - Skor saat ini: **{current:.0f}%**
             - Potensi peningkatan: **+{impact:.1f}%** ke probabilitas total
             """)
+            
+        st.divider()
+        st.subheader("🌋 Heatmap Skenario: Yield vs Harga")
+        st.info("Simulasi ROI pada berbagai kombinasi perubahan Harga dan Yield")
+        
+        # Heatmap Data Generation
+        p_changes = np.linspace(-30, 30, 7) # -30% to +30%
+        y_changes = np.linspace(-30, 30, 7)
+        
+        base_rev = data['params']['selling_price'] * CROP_DATABASE[data['crop']]['yield_potential'] * data['params']['area_ha']
+        base_cost = data['params']['capital_per_ha'] * data['params']['area_ha']
+        
+        z_values = []
+        for y_chg in y_changes:
+            row = []
+            for p_chg in p_changes:
+                new_rev = base_rev * (1 + y_chg/100) * (1 + p_chg/100)
+                new_roi = ((new_rev - base_cost) / base_cost) * 100
+                row.append(new_roi)
+            z_values.append(row)
+            
+        # Plot Heatmap
+        fig_heat = go.Figure(data=go.Heatmap(
+            z=z_values,
+            x=[f"{x:+.0f}%" for x in p_changes],
+            y=[f"{y:+.0f}%" for y in y_changes],
+            colorscale='RdYlGn',
+            colorbar=dict(title='ROI (%)'),
+            zmin=-50, zmax=150
+        ))
+        
+        fig_heat.update_layout(
+            title='Sensitivitas ROI (Yield vs Harga)',
+            xaxis_title='Perubahan Harga (%)',
+            yaxis_title='Perubahan Yield (%)',
+            height=500
+        )
+        st.plotly_chart(fig_heat, use_container_width=True)
 
 # ========== TAB 5: REKOMENDASI ==========
 with tab_rekomendasi:
@@ -1073,6 +1113,15 @@ with tab_rekomendasi:
                      delta="Profit" if net_revenue > 0 else "Loss")
         with econ_col4:
             st.metric("Expected ROI", f"{roi:.0f}%")
+            
+        st.divider()
+        st.markdown("### 🔗 Langkah Selanjutnya")
+        st.success("""
+        **Ingin melakukan diversifikasi?** 
+        Gunakan fitur **Optimasi Portofolio** di modul Ekonomi untuk membagi risiko dengan menanam >1 komoditas.
+        """)
+        if st.button("⮕ Buka Optimasi Portofolio (Page 13)"):
+            st.switch_page("pages/13_📊_Ekonomi_Pertanian.py")
 
 # Footer
 st.markdown("---")
