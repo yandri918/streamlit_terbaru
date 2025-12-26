@@ -1,6 +1,22 @@
 import streamlit as st
+import sys
+import os
+
+# Add biz utils to path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'agrisensa_biz'))
+try:
+    from utils.modern_ui import price_ticker
+except ImportError:
+    def price_ticker(): pass
 
 st.set_page_config(page_title="AgriSensa Tech", page_icon="🛰️", layout="wide")
+
+# Validasi Auth (Optional check if needed)
+# from utils.auth import require_auth
+# require_auth()
+
+# --- RUNNING TEXT TICKER ---
+price_ticker()
 
 st.markdown("""
 <style>

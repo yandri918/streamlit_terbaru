@@ -248,3 +248,64 @@ def feature_card(title, description, icon, link=None):
     </div>
     """
     st.markdown(card_html, unsafe_allow_html=True)
+
+
+def price_ticker():
+    """
+    Display a running text ticker with commodity prices.
+    Simulates BAPANAS Real-Time Data.
+    """
+    # Mock Data (Simulated Bapanas Feed)
+    prices = [
+        {"name": "🌶️ Cabai Merah", "price": "Rp 45.000", "trend": "up"},
+        {"name": "🧅 Bawang Merah", "price": "Rp 28.500", "trend": "down"},
+        {"name": "🍚 Beras Premium", "price": "Rp 14.200", "trend": "stable"},
+        {"name": "🐔 Daging Ayam", "price": "Rp 35.000", "trend": "up"},
+        {"name": "🥚 Telur Ayam", "price": "Rp 27.000", "trend": "down"},
+        {"name": "🌽 Jagung Pipil", "price": "Rp 5.800", "trend": "stable"},
+        {"name": "🍜 Minyak Goreng", "price": "Rp 16.500", "trend": "up"},
+    ]
+    
+    ticker_items = []
+    for p in prices:
+        color = "#10b981" if p['trend'] == "up" else ("#ef4444" if p['trend'] == "down" else "#fbbf24")
+        icon = "▲" if p['trend'] == "up" else ("▼" if p['trend'] == "down" else "●")
+        price_color = "#e2e8f0" # Light gray for text
+        
+        item_html = f'''
+        <span style="margin-right: 40px; font-family: monospace; font-size: 1.1em;">
+            <span style="color: #94a3b8;">{p["name"]}</span> 
+            <span style="color: {price_color}; font-weight: bold;">{p["price"]}</span> 
+            <span style="color: {color}; font-weight: bold;">{icon}</span>
+        </span>
+        '''
+        ticker_items.append(item_html)
+    
+    ticker_content = "".join(ticker_items)
+    
+    # CSS Animation for Infinite Scroll
+    st.markdown(f"""
+    <div class="ticker-container" style="
+        background: #0f172a; 
+        border-bottom: 2px solid #334155;
+        overflow: hidden; 
+        white-space: nowrap;
+        position: relative;
+        padding: 8px 0;
+        margin-bottom: 20px;
+    ">
+        <div class="ticker-text" style="
+            display: inline-block; 
+            animation: marquee 25s linear infinite;
+        ">
+            {ticker_content} {ticker_content} {ticker_content}
+        </div>
+    </div>
+    
+    <style>
+        @keyframes marquee {{
+            0% {{ transform: translateX(0); }}
+            100% {{ transform: translateX(-50%); }} 
+        }}
+    </style>
+    """, unsafe_allow_html=True)
