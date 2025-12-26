@@ -73,20 +73,22 @@ BANYUMAS_PEST_PATTERN = {
     5: {"thrips": 60, "kutu_kebul": 55, "jamur": 35, "patek": 30, "layu_bakteri": 35},
 }
 
-# Price Pattern (dari mock data analysis)
+# Price Pattern (dari CROP_DATABASE Page 11 + seasonal adjustment)
+# Base price Cabai Merah: Rp 35,000/kg (dari Page 11)
+# Volatility: 50% (highly volatile)
 CABAI_PRICE_PATTERN = {
-    1: {"base_price": 75000, "multiplier": 1.2, "volatility": 0.15},  # Nataru
-    2: {"base_price": 75000, "multiplier": 0.9, "volatility": 0.12},
-    3: {"base_price": 75000, "multiplier": 0.85, "volatility": 0.10},
-    4: {"base_price": 75000, "multiplier": 0.95, "volatility": 0.12},
-    5: {"base_price": 75000, "multiplier": 1.1, "volatility": 0.15},
-    6: {"base_price": 75000, "multiplier": 1.3, "volatility": 0.18},
-    7: {"base_price": 75000, "multiplier": 1.5, "volatility": 0.20},  # Kemarau puncak
-    8: {"base_price": 75000, "multiplier": 1.4, "volatility": 0.18},
-    9: {"base_price": 75000, "multiplier": 1.6, "volatility": 0.22},  # Transisi (tertinggi!)
-    10: {"base_price": 75000, "multiplier": 1.5, "volatility": 0.20},
-    11: {"base_price": 75000, "multiplier": 1.1, "volatility": 0.15},
-    12: {"base_price": 75000, "multiplier": 1.3, "volatility": 0.18},  # Nataru
+    1: {"base_price": 35000, "multiplier": 1.3, "volatility": 0.50},  # Nataru (+30%)
+    2: {"base_price": 35000, "multiplier": 0.9, "volatility": 0.45},  # Hujan puncak (-10%)
+    3: {"base_price": 35000, "multiplier": 0.85, "volatility": 0.40},  # Hujan (-15%)
+    4: {"base_price": 35000, "multiplier": 0.95, "volatility": 0.45},  # Transisi (-5%)
+    5: {"base_price": 35000, "multiplier": 1.1, "volatility": 0.50},  # Mulai kemarau (+10%)
+    6: {"base_price": 35000, "multiplier": 1.4, "volatility": 0.55},  # Kemarau (+40%)
+    7: {"base_price": 35000, "multiplier": 1.6, "volatility": 0.60},  # Kemarau puncak (+60%)
+    8: {"base_price": 35000, "multiplier": 1.5, "volatility": 0.55},  # Kemarau (+50%)
+    9: {"base_price": 35000, "multiplier": 1.8, "volatility": 0.65},  # Transisi - TERTINGGI! (+80%)
+    10: {"base_price": 35000, "multiplier": 1.7, "volatility": 0.60},  # Transisi (+70%)
+    11: {"base_price": 35000, "multiplier": 1.2, "volatility": 0.50},  # Mulai hujan (+20%)
+    12: {"base_price": 35000, "multiplier": 1.4, "volatility": 0.55},  # Nataru (+40%)
 }
 
 # Crop growing days
@@ -151,14 +153,14 @@ def get_price_prediction(month):
 
 def get_recommendation(risk_score, predicted_price):
     """Get planting recommendation"""
-    # Risk-Return Matrix
-    if risk_score < 50 and predicted_price > 85000:
+    # Risk-Return Matrix (adjusted for base price Rp 35,000)
+    if risk_score < 50 and predicted_price > 50000:  # >Rp 50k = very high
         return "✅ SANGAT DIREKOMENDASIKAN", "Risiko rendah, harga tinggi - kondisi ideal!"
-    elif risk_score < 60 and predicted_price > 75000:
+    elif risk_score < 60 and predicted_price > 40000:  # >Rp 40k = high
         return "✅ DIREKOMENDASIKAN", "Risk-reward balance bagus"
     elif risk_score > 75:
         return "❌ TIDAK DIREKOMENDASIKAN", "Risiko gagal panen sangat tinggi"
-    elif predicted_price < 60000:
+    elif predicted_price < 30000:  # <Rp 30k = very low
         return "⚠️ KURANG MENGUNTUNGKAN", "Harga rendah, pertimbangkan komoditas lain"
     else:
         return "⚠️ HATI-HATI", "Pertimbangkan mitigasi risiko"
@@ -412,9 +414,10 @@ with tab3:
     
     st.success("""
     **💡 Strategi Harga:**
-    - **Harga Tertinggi**: September (Rp 120,000/kg) - Transisi, produksi turun
-    - **Harga Terendah**: Maret (Rp 64,000/kg) - Hujan, banyak yang tanam
-    - **Nataru Bonus**: Desember-Januari (+20-30%)
+    - **Harga Tertinggi**: September (Rp 63,000/kg) - Transisi, produksi turun drastis
+    - **Harga Terendah**: Maret (Rp 30,000/kg) - Hujan, banyak yang tanam
+    - **Nataru Bonus**: Desember-Januari (+30-40% dari base)
+    - **Base Price**: Rp 35,000/kg (dari database Page 11)
     """)
 
 
