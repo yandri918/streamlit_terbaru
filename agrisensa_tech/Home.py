@@ -48,14 +48,19 @@ def price_ticker():
                             margin-bottom: 20px;
                             box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     <p style="color: #e2e8f0; margin: 0; font-size: 0.95rem; font-weight: 500;">
-                        📊 <strong>Harga Pangan Hari Ini (BAPANAS):</strong> {ticker_text}
+                        📊 <strong>Harga Pangan Hari Ini (BAPANAS - LIVE):</strong> {ticker_text}
                     </p>
                 </div>
                 """, unsafe_allow_html=True)
                 return
+            else:
+                # API returned empty data
+                st.warning("⚠️ API BAPANAS mengembalikan data kosong. Menggunakan fallback.")
         except Exception as e:
-            # Silent fail, show fallback
-            pass
+            # Show error for debugging
+            st.error(f"❌ Error saat mengambil data BAPANAS: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
     
     # Fallback: Show static message if API fails
     st.markdown("""
