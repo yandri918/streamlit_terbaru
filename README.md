@@ -174,8 +174,8 @@ agrisensa-api/
 
 1. **Clone Repository**
 ```bash
-git clone https://github.com/yourusername/agrisensa-api.git
-cd agrisensa-api
+git clone https://github.com/yandri918/streamlit_terbaru.git
+cd streamlit_terbaru
 ```
 
 2. **Create Virtual Environment**
@@ -450,9 +450,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Team
 
-**Developer:** Yandri918  
-**Email:** [your-email@example.com]  
-**GitHub:** [@yandri918](https://github.com/yandri918)
+**Developer:** Andriyanto  
+**Email:** [yandri918@gmail.com](mailto:yandri918@gmail.com)  
+**GitHub:** [@yandri918](https://github.com/yandri918)  
+**LinkedIn:** [Andriyanto NA](https://www.linkedin.com/in/andriyanto-na-147492157)  
+**Website:** [mirai39.streamlit.app](https://mirai39.streamlit.app/)
 
 ---
 
@@ -499,6 +501,6 @@ Butuh bantuan? Hubungi kami:
 
 ⭐ Star repository ini jika bermanfaat!
 
-[Website](https://agrisensa.com) • [Twitter](https://twitter.com/agrisensa) • [LinkedIn](https://linkedin.com/company/agrisensa)
+[Website](https://mirai39.streamlit.app/) • [GitHub](https://github.com/yandri918) • [LinkedIn](https://www.linkedin.com/in/andriyanto-na-147492157)
 
 </div>
