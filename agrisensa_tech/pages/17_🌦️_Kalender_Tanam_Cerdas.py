@@ -282,33 +282,37 @@ def calculate_harvest_month(plant_month, growing_days):
     return harvest_month
 
 
-def get_risk_score(month):
-    """Get total pest risk score for a month"""
+def get_risk_score(month, crop="Cabai Merah"):
+    """Get total pest risk score for a month based on crop type"""
     pests = INDONESIA_PEST_PATTERN[month]
     
-    # Weighted average - prioritas penyakit jamur/bakteri (lebih berbahaya)
-    # Core pests (always present)
-    core_score = (
-        pests.get('thrips', 0) * 0.10 + 
-        pests.get('kutu_kebul', 0) * 0.10 + 
-        pests.get('jamur', 0) * 0.20 +          # Fusarium - sangat berbahaya
-        pests.get('patek', 0) * 0.20 +          # Phytophthora - sangat berbahaya
-        pests.get('layu_bakteri', 0) * 0.15 +   # Bacterial wilt
-        pests.get('antraknosa', 0) * 0.10       # Anthracnose
-    )
+    # Separate calculation for Padi vs Hortikultura
+    if crop == "Padi":
+        # PADI-SPECIFIC RISK (fokus hama/penyakit padi)
+        padi_score = (
+            pests.get('wereng', 0) * 0.30 +        # Wereng - hama utama padi
+            pests.get('blast', 0) * 0.25 +         # Blast - penyakit utama padi
+            pests.get('hawar_daun', 0) * 0.20 +    # Hawar daun bakteri
+            pests.get('keong_mas', 0) * 0.15 +     # Keong mas (sawah basah)
+            pests.get('jamur', 0) * 0.05 +         # Jamur (minor untuk padi)
+            pests.get('layu_bakteri', 0) * 0.05    # Bakteri (minor untuk padi)
+        )
+        return round(padi_score, 1)
     
-    # Additional pests (if present)
-    additional_score = (
-        pests.get('tungau', 0) * 0.05 +
-        pests.get('ulat_grayak', 0) * 0.03 +
-        pests.get('lalat_buah', 0) * 0.02 +
-        pests.get('wereng', 0) * 0.02 +         # For padi
-        pests.get('blast', 0) * 0.02 +          # For padi
-        pests.get('hawar_daun', 0) * 0.01       # For padi
-    )
-    
-    total = core_score + additional_score
-    return round(total, 1)
+    else:
+        # HORTIKULTURA-SPECIFIC RISK (fokus hama/penyakit cabai/tomat/sayuran)
+        horti_score = (
+            pests.get('jamur', 0) * 0.20 +          # Fusarium - sangat berbahaya
+            pests.get('patek', 0) * 0.20 +          # Phytophthora - sangat berbahaya
+            pests.get('layu_bakteri', 0) * 0.15 +   # Bacterial wilt
+            pests.get('antraknosa', 0) * 0.10 +     # Anthracnose
+            pests.get('thrips', 0) * 0.10 +         # Thrips
+            pests.get('kutu_kebul', 0) * 0.10 +     # Whitefly
+            pests.get('tungau', 0) * 0.07 +         # Mites
+            pests.get('ulat_grayak', 0) * 0.05 +    # Armyworm
+            pests.get('lalat_buah', 0) * 0.03       # Fruit fly
+        )
+        return round(horti_score, 1)
 
 
 def get_risk_level(score):
@@ -537,7 +541,7 @@ with tab1:
     st.subheader(f"📈 Analisis: Tanam {datetime(2024, plant_month, 1).strftime('%B')} → Panen {datetime(2024, harvest_month, 1).strftime('%B')}")
     
     # Get data
-    risk_score = get_risk_score(harvest_month)
+    risk_score = get_risk_score(harvest_month, crop)
     risk_level, risk_color = get_risk_level(risk_score)
     price = get_price_prediction(harvest_month, crop)
     recommendation, reason = get_recommendation(risk_score, price['predicted'])
@@ -659,7 +663,7 @@ with tab1:
         comparison_data = []
         for m in comparison_months:
             harvest_m = calculate_harvest_month(m, CROP_GROWING_DAYS[crop])
-            risk = get_risk_score(harvest_m)
+            risk = get_risk_score(harvest_m, crop)
             price_pred = get_price_prediction(harvest_m, crop)
             score = calculate_planting_score(risk, price_pred['predicted'], harvest_m)
             glut = get_supply_glut_warning(harvest_m)
