@@ -327,6 +327,89 @@ with tab1:
         - KATAM menyediakan data per kecamatan yang di-update 3x/tahun
         - Akses via: Website, App Android, atau SMS ke 082123456500
         """)
+    
+    # Pranata Mangsa
+    with st.expander("🌾 Kearifan Lokal: Pranata Mangsa Jawa"):
+        st.markdown("""
+        **Kalender Pertanian Tradisional Jawa**
+        
+        Pranata Mangsa adalah sistem penanggalan tradisional Jawa yang ditetapkan oleh 
+        **Sunan Pakubuwono VII (1855)** untuk Kasunanan Surakarta sebagai pedoman pertanian.
+        
+        ### 📅 12 Mangsa (Musim) dalam Setahun
+        """)
+        
+        # Create Pranata Mangsa table
+        mangsa_data = [
+            {"No": 1, "Mangsa": "Kasa", "Periode": "22 Jun - 1 Agu", "Hari": 41, "Musim": "Kemarau", "Aktivitas": "Bakar jerami, tanam palawija (jagung, kacang, ubi)"},
+            {"No": 2, "Mangsa": "Karo", "Periode": "2 - 24 Agu", "Hari": 23, "Musim": "Kemarau (Paceklik)", "Aktivitas": "Palawija tumbuh, randu & mangga bersemi"},
+            {"No": 3, "Mangsa": "Katelu", "Periode": "25 Agu - 17 Sep", "Hari": 24, "Musim": "Kemarau Puncak", "Aktivitas": "Panen palawija awal"},
+            {"No": 4, "Mangsa": "Kapat", "Periode": "18 Sep - 12 Okt", "Hari": 24, "Musim": "Transisi", "Aktivitas": "Cek saluran irigasi, hujan kecil mulai"},
+            {"No": 5, "Mangsa": "Kalima", "Periode": "13 Okt - 8 Nov", "Hari": 27, "Musim": "Awal Hujan", "Aktivitas": "⭐ SEMAI BENIH PADI"},
+            {"No": 6, "Mangsa": "Kanem", "Periode": "9 Nov - 21 Des", "Hari": 43, "Musim": "Hujan", "Aktivitas": "⭐ BAJAK SAWAH, TANAM PADI"},
+            {"No": 7, "Mangsa": "Kapitu", "Periode": "22 Des - 2 Feb", "Hari": 43, "Musim": "Hujan Lebat", "Aktivitas": "Padi tumbuh, waspadai banjir"},
+            {"No": 8, "Mangsa": "Kawolu", "Periode": "3 - 28 Feb", "Hari": 26, "Musim": "Hujan", "Aktivitas": "Padi berbunga"},
+            {"No": 9, "Mangsa": "Kasanga", "Periode": "2 - 26 Mar", "Hari": 25, "Musim": "Hujan + Kilat", "Aktivitas": "Pasang orang-orangan sawah"},
+            {"No": 10, "Mangsa": "Kadasa", "Periode": "26 Mar - 18 Apr", "Hari": 24, "Musim": "Pancaroba", "Aktivitas": "⭐ PANEN PADI RAYA"},
+            {"No": 11, "Mangsa": "Dhesta", "Periode": "19 Apr - 11 Mei", "Hari": 23, "Musim": "Kemarau Awal", "Aktivitas": "⭐ PANEN RAYA, potong padi"},
+            {"No": 12, "Mangsa": "Saddha", "Periode": "12 Mei - 21 Jun", "Hari": 41, "Musim": "Kemarau", "Aktivitas": "Panen selesai, istirahat lahan"},
+        ]
+        
+        df_mangsa = pd.DataFrame(mangsa_data)
+        st.dataframe(df_mangsa, use_container_width=True, hide_index=True)
+        
+        st.markdown("""
+        ### 🌦️ 4 Musim Utama Pranata Mangsa
+        
+        1. **Katiga (Kering)**: Mangsa Kasa - Katelu (Jun-Sep)
+           - Karakteristik: Kemarau, tanah kering, paceklik
+           - Komoditas: Palawija (jagung, kacang, ubi)
+        
+        2. **Labuh (Awal Hujan)**: Mangsa Kapat - Kalima (Sep-Nov)
+           - Karakteristik: Hujan mulai turun, persiapan tanam
+           - Komoditas: Semai padi, persiapan sawah
+        
+        3. **Rendheng (Hujan Puncak)**: Mangsa Kanem - Kasanga (Nov-Mar)
+           - Karakteristik: Hujan lebat, banjir, petir
+           - Komoditas: Padi (tanam & tumbuh)
+        
+        4. **Mareng (Transisi)**: Mangsa Kadasa - Dhesta (Mar-Mei)
+           - Karakteristik: Hujan berkurang, panas
+           - Komoditas: Panen padi raya
+        
+        ### 💡 Korelasi dengan Rekomendasi AgriSensa
+        
+        **Untuk Cabai (Hortikultura):**
+        - **Tanam Optimal**: Mangsa Dhesta - Saddha (Apr-Jun)
+          - Panen di Mangsa Katelu - Kapat (Agu-Okt)
+          - Sesuai rekomendasi AgriSensa: Tanam Apr → Panen Jul-Agu (harga tinggi!)
+        
+        - **Hindari**: Mangsa Kanem - Kapitu (Nov-Feb)
+          - Hujan lebat, risiko jamur/patek sangat tinggi
+          - Sesuai data AgriSensa: Risiko jamur 80-85% di periode ini
+        
+        **Untuk Padi:**
+        - **Tanam Optimal**: Mangsa Kanem (Nov-Des) - MT I
+        - **Panen**: Mangsa Kadasa - Dhesta (Mar-Mei)
+        
+        ### 📜 Kearifan Lokal
+        
+        Pranata Mangsa menggunakan **tanda alam** sebagai indikator:
+        - 🌳 Pohon asam bertunas → Mangsa Kalima (mulai hujan)
+        - 🐍 Ular keluar → Mangsa Kalima (awal hujan)
+        - 🦗 Jangkrik & tonggeret → Mangsa Kawolu (padi berbunga)
+        - ✨ Kunang-kunang beterbangan → Mangsa Saddha (panen selesai)
+        
+        ---
+        
+        **Sumber:** Kasunanan Surakarta Hadiningrat (1855)
+        
+        📝 **Catatan:** 
+        - Pranata Mangsa masih relevan untuk Jawa Tengah (termasuk Banyumas)
+        - Kombinasikan dengan data cuaca modern (BMKG) untuk akurasi lebih tinggi
+        - Sistem ini sudah digunakan petani Jawa selama **170+ tahun**!
+        """)
+
 
 
 # ========== TAB 2: POLA MUSIM & RISIKO ==========
