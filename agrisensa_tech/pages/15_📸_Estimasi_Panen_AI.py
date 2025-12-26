@@ -15,7 +15,7 @@ show_user_info_sidebar()
 # ==========================================
 # 🧠 COMPUTER VISION LOGIC (OpenCV)
 # ==========================================
-def detect_objects_by_color(image_bytes, hsv_lower, hsv_upper, min_area=50, min_circularity=0.3):
+def detect_objects_by_color(image_bytes, hsv_lower, hsv_upper, min_area=50, min_circularity=0.3, erosion_size=1):
     """
     Detect objects based on HSV color range & Shape.
     Returns: processed_image, count, contours
@@ -23,12 +23,6 @@ def detect_objects_by_color(image_bytes, hsv_lower, hsv_upper, min_area=50, min_
     # Convert bytes to numpy array
     file_bytes = np.asarray(bytearray(image_bytes.read()), dtype=np.uint8)
     image = cv2.imdecode(file_bytes, 1)
-    
-    # Resize for consistency (optional, but good for speed)
-    # height, width = image.shape[:2]
-    # if width > 1000:
-    #     scale = 1000 / width
-    #     image = cv2.resize(image, (int(width*scale), int(height*scale)))
     
     # Convert BGR to HSV
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -38,47 +32,45 @@ def detect_objects_by_color(image_bytes, hsv_lower, hsv_upper, min_area=50, min_
     upper_bound = np.array(hsv_upper)
     mask = cv2.inRange(hsv, lower_bound, upper_bound)
     
-    # Morphological operations to clean noise
-    kernel = np.ones((5,5), np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    # Morphological operations to clean noise AND remove stems
+    # 1. Open (Erosion then Dilation) to remove thin lines (stems)
+    kernel_erode = np.ones((erosion_size, erosion_size), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel_erode, iterations=1)
+    
+    # 2. Close (Dilation then Erosion) to fill gaps in fruits
+    kernel_close = np.ones((5,5), np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel_close)
     
     # Find Contours
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     # Filter by Area & Shape (Circularity)
     valid_contours = []
+    rejected_contours = []
     
     for cnt in contours:
         area = cv2.contourArea(cnt)
         if area < min_area:
             continue
             
-        # Circularity Check (4*pi*area / perimeter^2)
+        # Circularity Check
         perimeter = cv2.arcLength(cnt, True)
         if perimeter == 0: continue
         circularity = (4 * np.pi * area) / (perimeter ** 2)
         
-        # Bounding Rect (Aspect Ratio)
-        x, y, w, h = cv2.boundingRect(cnt)
-        aspect_ratio = float(w)/h
-        
-        # Logic: 
-        # - Stems are long thin lines -> Low Circularity (< 0.2) or High/Low Aspect Ratio
-        # - Fruits are round -> High Circularity (> 0.5)
-        # We use a user-controlled threshold or a hardcoded safe default for "Roundness"
-        # Let's pass 'min_circularity' as arg or use default. Assuming arguments passed later.
-        
-        # Use simple global variable approach for now, or default hardcoded
-        # If user wants strict fruit detection, circularity > 0.4 is good
         if circularity > min_circularity: 
              valid_contours.append(cnt)
+        else:
+             rejected_contours.append(cnt)
 
     count = len(valid_contours)
     
     # Draw Results
     result_img = image.copy()
+    # Draw Valid in GREEN
     cv2.drawContours(result_img, valid_contours, -1, (0, 255, 0), 2)
+    # Draw Rejected (Stems/Noise) in RED so user sees what is ignored
+    cv2.drawContours(result_img, rejected_contours, -1, (0, 0, 255), 1)
     
     # Add count label
     cv2.putText(result_img, f"Count: {count}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 3)
@@ -130,6 +122,7 @@ v_max = st.sidebar.slider("Value Max", 0, 255, def_v_high)
 st.sidebar.divider()
 min_area_val = st.sidebar.slider("Min Pixel Area (Size Filter)", 10, 500, 50, help="Abaikan bintik kecil (noise)")
 min_circ_val = st.sidebar.slider("Min Circularity (Shape Filter)", 0.0, 1.0, 0.3, step=0.05, help="0.0=Semua, 1.0=Lingkaran Sempurna. Naikkan untuk membuang tangkai (garis).")
+erosion_val = st.sidebar.slider("Stem Removal Strength (Erosion)", 1, 9, 3, step=2, help="Kekuatan penghapusan garis tipis. Ganjil (1,3,5...). Semakin besar, tangkai semakin hilang tapi buah kecil bisa ikut hilang.")
 
 # --- MAIN AREA ---
 col_in, col_out = st.columns(2)
@@ -154,7 +147,7 @@ if uploaded_file is not None:
         # Reset pointer or read once.
         # detect_objects_by_color reads it.
         
-        result_image, count = detect_objects_by_color(uploaded_file, hsv_lower, hsv_upper, min_area=min_area_val, min_circularity=min_circ_val)
+        result_image, count = detect_objects_by_color(uploaded_file, hsv_lower, hsv_upper, min_area=min_area_val, min_circularity=min_circ_val, erosion_size=erosion_val)
         
         with col_out:
             st.subheader("2. Hasil Deteksi")
