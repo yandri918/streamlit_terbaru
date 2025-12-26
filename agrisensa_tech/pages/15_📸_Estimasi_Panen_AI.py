@@ -171,10 +171,41 @@ if uploaded_file is not None:
             sample_rate = st.number_input("Jumlah Sampel Foto:", 1, 100, 1, help="Berapa pohon yang Anda foto?")
             
         # Calc
+        # Calc Raw
         avg_fruit_per_tree = count / sample_rate # Asumsi foto mewakili X sampel
-        est_yield_kg = (avg_fruit_per_tree * avg_weight * plant_pop) / 1000
+        raw_yield_kg = (avg_fruit_per_tree * avg_weight * plant_pop) / 1000
         
-        st.metric("Potensi Tonase Panen (Estimasi)", f"{est_yield_kg:,.1f} Kg")
+        # --- STAGE 3: CLIMATE CORRECTION ---
+        st.markdown("#### 🌤️ Koreksi Iklim (Predictive)")
+        climate_scenario = st.selectbox(
+            "Prakiraan Cuaca Musim Depan:",
+            ["Normal / Ideal (Optimis)", "El Nino / Kekeringan (-20%)", "La Nina / Curah Hujan Tinggi (-15%)"],
+            help="AI akan mengoreksi target panen berdasarkan stres lingkungan."
+        )
+        
+        correction_factor = 0.0
+        correction_desc = "Optimal"
+        if "El Nino" in climate_scenario:
+            correction_factor = -0.20
+            correction_desc = "Stres Air (Buah Mengecil)"
+        elif "La Nina" in climate_scenario:
+            correction_factor = -0.15
+            correction_desc = "Risiko Busuk/Jamur"
+            
+        final_yield_kg = raw_yield_kg * (1 + correction_factor)
+        loss_kg = raw_yield_kg - final_yield_kg
+        
+        # Display
+        col_res1, col_res2 = st.columns(2)
+        with col_res1:
+            st.metric("Potensi Awal (Raw)", f"{raw_yield_kg:,.1f} Kg", help="Hitungan murni dari kamera x populasi.")
+        with col_res2:
+            delta_color = "off" if correction_factor == 0 else "inverse"
+            st.metric("Prediksi Akhir (Climate Adjusted)", f"{final_yield_kg:,.1f} Kg", f"{correction_factor*100:.0f}% ({correction_desc})", delta_color=delta_color)
+            
+        if correction_factor != 0:
+            st.warning(f"⚠️ Potensi kehilangan hasil: **{loss_kg:,.1f} Kg** akibat faktor cuaca.")
+            
         st.caption(f"Asumsi: {avg_fruit_per_tree:.1f} buah/pohon x {avg_weight}gr x {plant_pop} pohon.")
         
     except Exception as e:
