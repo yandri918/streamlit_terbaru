@@ -848,48 +848,53 @@ with tab1:
         
         st.markdown("**Tingkat Risiko per Jenis OPT (Berbasis Jurnal Penelitian):**")
         
-        # Prepare pest data - show all available pests
+        # Prepare pest data - show only relevant pests based on crop
         pest_list = []
         pest_names = []
         
-        # Core pests (always show)
-        core_pests = [
-            ('Thrips', 'thrips'),
-            ('Kutu Kebul (Whitefly)', 'kutu_kebul'),
-            ('Tungau (Mites)', 'tungau'),
-            ('Ulat Grayak', 'ulat_grayak'),
-            ('Lalat Buah', 'lalat_buah'),
-            ('Jamur (Fusarium)', 'jamur'),
-            ('Patek (Phytophthora)', 'patek'),
-            ('Layu Bakteri', 'layu_bakteri'),
-            ('Antraknosa', 'antraknosa')
-        ]
+        if crop == "Padi":
+            # PADI-SPECIFIC PESTS ONLY
+            padi_pests = [
+                ('Wereng', 'wereng'),
+                ('Blast', 'blast'),
+                ('Hawar Daun Bakteri', 'hawar_daun'),
+                ('Keong Mas', 'keong_mas'),
+                ('Jamur (Minor)', 'jamur'),
+                ('Layu Bakteri (Minor)', 'layu_bakteri')
+            ]
+            
+            for name, key in padi_pests:
+                if key in pests:
+                    pest_names.append(name)
+                    pest_list.append(pests[key])
         
-        for name, key in core_pests:
-            if key in pests:
-                pest_names.append(name)
-                pest_list.append(pests[key])
-        
-        # Additional pests (padi-specific, only show if present)
-        additional_pests = [
-            ('Wereng (Padi)', 'wereng'),
-            ('Blast (Padi)', 'blast'),
-            ('Hawar Daun (Padi)', 'hawar_daun'),
-            ('Keong Mas (Padi)', 'keong_mas')
-        ]
-        
-        for name, key in additional_pests:
-            if key in pests and pests[key] > 0:
-                pest_names.append(name)
-                pest_list.append(pests[key])
+        else:
+            # HORTIKULTURA-SPECIFIC PESTS ONLY
+            horti_pests = [
+                ('Jamur (Fusarium)', 'jamur'),
+                ('Patek (Phytophthora)', 'patek'),
+                ('Layu Bakteri', 'layu_bakteri'),
+                ('Antraknosa', 'antraknosa'),
+                ('Thrips', 'thrips'),
+                ('Kutu Kebul (Whitefly)', 'kutu_kebul'),
+                ('Tungau (Mites)', 'tungau'),
+                ('Ulat Grayak', 'ulat_grayak'),
+                ('Lalat Buah', 'lalat_buah')
+            ]
+            
+            for name, key in horti_pests:
+                if key in pests:
+                    pest_names.append(name)
+                    pest_list.append(pests[key])
         
         pest_df = pd.DataFrame({
             'OPT': pest_names,
             'Risiko (%)': pest_list
         })
         
+        crop_type = "Padi" if crop == "Padi" else "Hortikultura"
         fig_pest = px.bar(pest_df, x='OPT', y='Risiko (%)', 
-                         title=f"Risiko OPT Bulan {datetime(2024, harvest_month, 1).strftime('%B')} (Indonesia)",
+                         title=f"Risiko OPT {crop_type} - Bulan {datetime(2024, harvest_month, 1).strftime('%B')} (Indonesia)",
                          color='Risiko (%)', color_continuous_scale='Reds',
                          height=500)
         fig_pest.update_xaxes(tickangle=-45)
