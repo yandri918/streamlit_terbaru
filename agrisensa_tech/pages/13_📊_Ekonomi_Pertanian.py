@@ -48,7 +48,7 @@ PORTFOLIO_META = {
     },
     "Cabai Merah": {
         "risk_volatility": 0.50, "return_roi": 0.80, "market_score": 9, 
-        "type": "Annual", "partners": ["Tomat", "Jagung"], 
+        "type": "Annual", "partners": ["Tomat", "Jagung", "Jagung Manis", "Kacang Panjang"], 
         "min_area": 0.1, "desc": "High Risk High Return"
     },
     "Bawang Merah": {
@@ -71,10 +71,30 @@ PORTFOLIO_META = {
         "type": "Perennial", "partners": [], 
         "min_area": 2.0, "desc": "Investasi, Cashflow Rutin"
     },
-     "Melon": {
+    "Melon": {
         "risk_volatility": 0.35, "return_roi": 0.50, "market_score": 8, 
-        "type": "Annual", "partners": ["Semangka"], 
+        "type": "Annual", "partners": ["Semangka", "Jagung Manis"], 
         "min_area": 0.1, "desc": "Hortikultura Premium"
+    },
+    "Tomat": {
+        "risk_volatility": 0.40, "return_roi": 0.60, "market_score": 7, 
+        "type": "Annual", "partners": ["Cabai Merah", "Jagung", "Kobis"], 
+        "min_area": 0.1, "desc": "Pendamping Cabai"
+    },
+    "Kacang Panjang": {
+        "risk_volatility": 0.15, "return_roi": 0.30, "market_score": 6, 
+        "type": "Annual", "partners": ["Jagung", "Terong", "Cabai Merah"], 
+        "min_area": 0.05, "desc": "Panen Cepat, Nitrogen Fixer"
+    },
+    "Kobis": {
+        "risk_volatility": 0.25, "return_roi": 0.45, "market_score": 7, 
+        "type": "Annual", "partners": ["Tomat", "Bawang Merah"], 
+        "min_area": 0.2, "desc": "Sayuran Dataran Tinggi"
+    },
+    "Jagung Manis": {
+        "risk_volatility": 0.20, "return_roi": 0.35, "market_score": 8, 
+        "type": "Annual", "partners": ["Cabai Merah", "Kacang Panjang", "Melon"], 
+        "min_area": 0.1, "desc": "Peminat Tinggi, Panen Cepat"
     }
 }
 
