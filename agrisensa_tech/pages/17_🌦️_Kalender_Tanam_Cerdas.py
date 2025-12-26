@@ -166,6 +166,134 @@ def get_recommendation(risk_score, predicted_price):
         return "⚠️ HATI-HATI", "Pertimbangkan mitigasi risiko"
 
 
+def calculate_planting_score(risk_score, predicted_price, harvest_month):
+    """
+    Calculate optimal planting score (0-100)
+    Factors: Risk, Price, Season, Supply Glut
+    """
+    # Base score from risk (inverse - lower risk = higher score)
+    risk_component = (100 - risk_score) * 0.4  # 40% weight
+    
+    # Price component (normalized to base price 35k)
+    price_ratio = predicted_price / 35000
+    price_component = min(price_ratio * 50, 50)  # 50% weight, max 50 points
+    
+    # Season bonus (avoid extreme months)
+    if harvest_month in [9, 10]:  # Double trouble
+        season_penalty = -10
+    elif harvest_month in [1, 12]:  # Nataru bonus
+        season_bonus = 10
+    else:
+        season_bonus = 0
+    
+    # Supply glut penalty (tanam serentak)
+    if harvest_month in [2, 3]:  # Panen serentak musim hujan
+        supply_penalty = -15
+    elif harvest_month in [7, 8]:  # Panen serentak kemarau
+        supply_penalty = -10
+    else:
+        supply_penalty = 0
+    
+    total_score = risk_component + price_component + season_bonus + supply_penalty
+    return max(0, min(100, round(total_score, 1)))
+
+
+def get_supply_glut_warning(harvest_month):
+    """Check if harvest month has supply glut risk"""
+    # Months when many farmers harvest simultaneously
+    glut_months = {
+        2: {"severity": "HIGH", "reason": "Panen serentak MT-I (musim hujan), banyak petani tanam Nov-Des"},
+        3: {"severity": "HIGH", "reason": "Puncak panen MT-I, supply melimpah"},
+        7: {"severity": "MEDIUM", "reason": "Panen MT-II, kompetisi dengan sentra produksi lain"},
+        8: {"severity": "MEDIUM", "reason": "Akhir panen MT-II"},
+    }
+    
+    if harvest_month in glut_months:
+        return glut_months[harvest_month]
+    return None
+
+
+def calculate_roi(area_ha, predicted_price, harvest_month):
+    """
+    Calculate ROI for cabai merah
+    Data from CROP_DATABASE Page 11
+    """
+    # Constants from Page 11
+    CAPITAL_PER_HA = 45000000  # Rp 45 juta/ha
+    YIELD_POTENTIAL = 12000  # kg/ha
+    
+    # Adjust yield based on risk
+    risk_score = get_risk_score(harvest_month)
+    yield_factor = 1 - (risk_score / 200)  # High risk = lower yield
+    actual_yield = YIELD_POTENTIAL * yield_factor * area_ha
+    
+    # Revenue
+    revenue = actual_yield * predicted_price
+    
+    # Costs
+    total_cost = CAPITAL_PER_HA * area_ha
+    
+    # Profit & ROI
+    profit = revenue - total_cost
+    roi_pct = (profit / total_cost) * 100
+    
+    return {
+        'area_ha': area_ha,
+        'yield_kg': round(actual_yield, 0),
+        'price_per_kg': predicted_price,
+        'revenue': round(revenue, 0),
+        'cost': round(total_cost, 0),
+        'profit': round(profit, 0),
+        'roi_pct': round(roi_pct, 1),
+        'payback_months': round((total_cost / (profit / 4)) if profit > 0 else 999, 1)  # Assuming 4 months cycle
+    }
+
+
+def get_contract_farming_recommendation(predicted_price, harvest_month):
+    """
+    Recommend contract farming if price risk is high
+    """
+    glut = get_supply_glut_warning(harvest_month)
+    
+    if glut and glut['severity'] == 'HIGH':
+        return {
+            'recommended': True,
+            'reason': f"⚠️ Risiko harga jatuh tinggi: {glut['reason']}",
+            'partners': [
+                "🏭 **Indofood** (Cabai untuk sambal/bumbu)",
+                "🏭 **ABC** (Sambal botol)",
+                "🏭 **Dua Belibis** (Sambal sachet)",
+                "🏪 **Supermarket** (Lotte Mart, Transmart, Hypermart)"
+            ],
+            'benefits': [
+                "✅ Harga terjamin (tidak terpengaruh fluktuasi pasar)",
+                "✅ Pembayaran pasti",
+                "✅ Standar kualitas jelas",
+                "✅ Bisa akses kredit/modal kerja"
+            ]
+        }
+    elif predicted_price < 35000:  # Below base price
+        return {
+            'recommended': True,
+            'reason': "⚠️ Prediksi harga rendah, kontrak farming bisa jadi safety net",
+            'partners': [
+                "🏭 **Indofood** (Harga kontrak biasanya Rp 30-35k/kg)",
+                "🏪 **Supermarket** (Pre-order untuk supply reguler)"
+            ],
+            'benefits': [
+                "✅ Harga minimum terjamin",
+                "✅ Mengurangi risiko kerugian"
+            ]
+        }
+    else:
+        return {
+            'recommended': False,
+            'reason': "✅ Kondisi pasar cukup baik, jual spot market lebih menguntungkan",
+            'note': "Tetap monitor harga menjelang panen"
+        }
+
+
+
 # ==========================================
 # MAIN APP
 # ==========================================
@@ -255,6 +383,161 @@ with tab1:
         st.error(f"### {recommendation}\n{reason}")
     else:
         st.warning(f"### {recommendation}\n{reason}")
+    
+    # NEW FEATURE 1: Optimal Planting Score
+    st.markdown("---")
+    planting_score = calculate_planting_score(risk_score, price['predicted'], harvest_month)
+    
+    col_score1, col_score2 = st.columns([1, 2])
+    
+    with col_score1:
+        # Score gauge
+        if planting_score >= 80:
+            score_color = "🟢"
+            score_label = "EXCELLENT"
+        elif planting_score >= 65:
+            score_color = "🟡"
+            score_label = "GOOD"
+        elif planting_score >= 50:
+            score_color = "🟠"
+            score_label = "FAIR"
+        else:
+            score_color = "🔴"
+            score_label = "POOR"
+        
+        st.metric("Optimal Planting Score", f"{planting_score}/100", score_color + " " + score_label)
+    
+    with col_score2:
+        st.info(f"""
+        **Komponen Score:**
+        - Risiko Hama/Penyakit: {(100-risk_score)*0.4:.1f} pts
+        - Prediksi Harga: {min((price['predicted']/35000)*50, 50):.1f} pts
+        - Faktor Musim & Supply: {planting_score - (100-risk_score)*0.4 - min((price['predicted']/35000)*50, 50):.1f} pts
+        """)
+    
+    # Supply Glut Warning
+    glut_warning = get_supply_glut_warning(harvest_month)
+    if glut_warning:
+        severity_color = "🔴" if glut_warning['severity'] == 'HIGH' else "🟠"
+        st.warning(f"""
+        {severity_color} **PERINGATAN: Risiko Supply Glut ({glut_warning['severity']})**
+        
+        {glut_warning['reason']}
+        
+        **Dampak:** Harga bisa jatuh 20-40% karena oversupply di pasar.
+        """)
+    
+    # NEW FEATURE 2: ROI Calculator
+    with st.expander("💰 Kalkulator ROI & Kelayakan Usaha", expanded=False):
+        st.markdown("**Hitung estimasi keuntungan berdasarkan luas lahan Anda**")
+        
+        area_input = st.number_input(
+            "Luas Lahan (hektar)",
+            min_value=0.1,
+            max_value=100.0,
+            value=1.0,
+            step=0.1,
+            help="Masukkan luas lahan yang akan ditanami cabai"
+        )
+        
+        roi_data = calculate_roi(area_input, price['predicted'], harvest_month)
+        
+        st.markdown("### 📊 Analisis Finansial")
+        
+        col_roi1, col_roi2, col_roi3 = st.columns(3)
+        
+        with col_roi1:
+            st.metric("Total Biaya", f"Rp {roi_data['cost']/1e6:.1f} Jt")
+            st.caption(f"Rp 45 jt/ha × {area_input} ha")
+        
+        with col_roi2:
+            st.metric("Estimasi Revenue", f"Rp {roi_data['revenue']/1e6:.1f} Jt")
+            st.caption(f"{roi_data['yield_kg']:,.0f} kg × Rp {roi_data['price_per_kg']:,.0f}/kg")
+        
+        with col_roi3:
+            profit_color = "normal" if roi_data['profit'] > 0 else "inverse"
+            st.metric("Profit", f"Rp {roi_data['profit']/1e6:.1f} Jt", 
+                     f"ROI: {roi_data['roi_pct']:.1f}%",
+                     delta_color=profit_color)
+        
+        # Detailed breakdown
+        st.markdown("---")
+        st.markdown("**Detail Perhitungan:**")
+        
+        breakdown_df = pd.DataFrame({
+            'Item': [
+                'Luas Lahan',
+                'Potensi Yield',
+                'Yield Adjusted (Risk)',
+                'Harga Jual',
+                'Total Revenue',
+                'Total Biaya Modal',
+                'Profit Bersih',
+                'ROI',
+                'Payback Period'
+            ],
+            'Nilai': [
+                f"{roi_data['area_ha']} ha",
+                f"12,000 kg/ha",
+                f"{roi_data['yield_kg']:,.0f} kg",
+                f"Rp {roi_data['price_per_kg']:,.0f}/kg",
+                f"Rp {roi_data['revenue']:,.0f}",
+                f"Rp {roi_data['cost']:,.0f}",
+                f"Rp {roi_data['profit']:,.0f}",
+                f"{roi_data['roi_pct']:.1f}%",
+                f"{roi_data['payback_months']:.1f} bulan" if roi_data['payback_months'] < 999 else "N/A"
+            ]
+        })
+        
+        st.dataframe(breakdown_df, use_container_width=True, hide_index=True)
+        
+        # Profitability assessment
+        if roi_data['roi_pct'] > 50:
+            st.success("✅ **Sangat Menguntungkan** - ROI >50%, layak untuk dijalankan!")
+        elif roi_data['roi_pct'] > 20:
+            st.info("✅ **Menguntungkan** - ROI >20%, cukup baik untuk usaha pertanian")
+        elif roi_data['roi_pct'] > 0:
+            st.warning("⚠️ **Profit Tipis** - ROI rendah, pertimbangkan efisiensi biaya")
+        else:
+            st.error("❌ **Tidak Menguntungkan** - Prediksi rugi, pertimbangkan bulan tanam lain")
+    
+    # NEW FEATURE 3: Contract Farming Recommendation
+    contract_rec = get_contract_farming_recommendation(price['predicted'], harvest_month)
+    
+    if contract_rec['recommended']:
+        with st.expander("🤝 Rekomendasi: Contract Farming", expanded=glut_warning is not None):
+            st.markdown(f"### {contract_rec['reason']}")
+            
+            st.markdown("**Mitra Potensial:**")
+            for partner in contract_rec['partners']:
+                st.markdown(f"- {partner}")
+            
+            st.markdown("\n**Keuntungan Contract Farming:**")
+            for benefit in contract_rec['benefits']:
+                st.markdown(f"- {benefit}")
+            
+            st.info("""
+            💡 **Tips Negosiasi Kontrak:**
+            1. Minta harga minimum guarantee (floor price)
+            2. Pastikan standar kualitas jelas (grade A, B, C)
+            3. Tanyakan skema pembayaran (cash, tempo berapa hari)
+            4. Cek apakah ada bantuan input (bibit, pupuk, pestisida)
+            5. Minta kontrak tertulis yang jelas
+            """)
+    else:
+        with st.expander("📈 Strategi Penjualan: Spot Market"):
+            st.success(contract_rec['reason'])
+            st.markdown(f"**Catatan:** {contract_rec.get('note', '')}")
+            
+            st.markdown("""
+            **Tips Maksimalkan Profit di Spot Market:**
+            1. Monitor harga harian via BAPANAS/pasar lokal
+            2. Jual bertahap (jangan sekaligus) untuk dapat harga terbaik
+            3. Sortir kualitas (grade A harga premium)
+            4. Jaga kualitas panen (petik pagi hari, handling hati-hati)
+            5. Diversifikasi buyer (pedagang, pasar, supermarket)
+            """)
+
     
     # Detailed breakdown
     with st.expander("🔍 Detail Risiko Hama/Penyakit"):
