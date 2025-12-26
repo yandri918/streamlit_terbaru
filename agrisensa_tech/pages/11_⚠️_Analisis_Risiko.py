@@ -33,7 +33,9 @@ CROP_DATABASE = {
         "water_need": "Tinggi",
         "capital_per_ha": 15000000,
         "yield_potential": 6500,  # kg/ha
-        "market_price": 5500  # Rp/kg
+        "market_price": 5500,  # Rp/kg
+        "price_volatility": 0.05,  # Stable (Government Controlled)
+        "climate_sensitivity": "El Nino" # Vulnerable to Drought
     },
     "🌽 Jagung": {
         "category": "Serelia",
@@ -45,7 +47,9 @@ CROP_DATABASE = {
         "water_need": "Sedang",
         "capital_per_ha": 12000000,
         "yield_potential": 8000,
-        "market_price": 4000
+        "market_price": 4000,
+        "price_volatility": 0.15,
+        "climate_sensitivity": "El Nino"
     },
     # Hortikultura - Sayuran
     "🌶️ Cabai Merah": {
@@ -58,7 +62,9 @@ CROP_DATABASE = {
         "water_need": "Tinggi",
         "capital_per_ha": 45000000,
         "yield_potential": 12000,
-        "market_price": 35000
+        "market_price": 35000,
+        "price_volatility": 0.50, # Highly Volatile
+        "climate_sensitivity": "La Nina" # Vulnerable to Rain/Fungal
     },
     "🍅 Tomat": {
         "category": "Hortikultura",
@@ -70,7 +76,9 @@ CROP_DATABASE = {
         "water_need": "Sedang",
         "capital_per_ha": 35000000,
         "yield_potential": 20000,
-        "market_price": 8000
+        "market_price": 8000,
+        "price_volatility": 0.30,
+        "climate_sensitivity": "La Nina"
     },
     "🥬 Sawi/Pakcoy": {
         "category": "Hortikultura",
@@ -106,7 +114,9 @@ CROP_DATABASE = {
         "water_need": "Sedang",
         "capital_per_ha": 75000000,
         "yield_potential": 12000,
-        "market_price": 35000
+        "market_price": 35000,
+        "price_volatility": 0.40,
+        "climate_sensitivity": "La Nina"
     },
     "🧄 Bawang Putih": {
         "category": "Hortikultura",
@@ -143,7 +153,9 @@ CROP_DATABASE = {
         "water_need": "Tinggi",
         "capital_per_ha": 150000000,
         "yield_potential": 15000,
-        "market_price": 50000
+        "market_price": 50000,
+        "price_volatility": 0.20,
+        "climate_sensitivity": "La Nina"
     },
     "🍉 Semangka": {
         "category": "Buah",
@@ -155,7 +167,9 @@ CROP_DATABASE = {
         "water_need": "Tinggi",
         "capital_per_ha": 35000000,
         "yield_potential": 30000,
-        "market_price": 4000
+        "market_price": 4000,
+        "price_volatility": 0.25,
+        "climate_sensitivity": "La Nina"
     },
     "🍈 Melon": {
         "category": "Buah",
@@ -167,7 +181,9 @@ CROP_DATABASE = {
         "water_need": "Tinggi",
         "capital_per_ha": 45000000,
         "yield_potential": 25000,
-        "market_price": 10000
+        "market_price": 10000,
+        "price_volatility": 0.25,
+        "climate_sensitivity": "La Nina"
     },
     "🍇 Anggur": {
         "category": "Buah",
@@ -304,6 +320,78 @@ def calculate_risk_score(crop_key, params):
     return scores
 
 
+
+def monte_carlo_advanced(base_scores, crop_key, crop_params, n_simulations=2000):
+    """
+    Advanced Monte Carlo Simulation (Value at Risk Model)
+    Simulates: Yield Risk, Price Risk (Market Beta), Climate Shocks (ENSO), Catastrophic Events (Puso)
+    Returns: ROI Distribution
+    """
+    np.random.seed(42)
+    crop_db = CROP_DATABASE[crop_key]
+    
+    # Base Parameters
+    yield_potential = crop_db['yield_potential']
+    base_price = crop_params['selling_price']
+    base_cost = crop_params['capital_per_ha']
+    
+    # Risk Factors
+    volatility = crop_db.get('price_volatility', 0.2)
+    climate_cond = crop_params.get('climate_condition', 'Normal')
+    climate_sens = crop_db.get('climate_sensitivity', 'None')
+    inflation_risk = crop_params.get('inflation_risk', 0.0) # 0.0 to 0.2
+    
+    roi_results = []
+    success_probs = []
+    
+    for _ in range(n_simulations):
+        # 1. Yield Simulation (Beta Distribution for confined 0-1 range)
+        # Base success prob from scoring
+        base_prob = sum(base_scores[k] * RISK_WEIGHTS[k] for k in RISK_WEIGHTS.keys())
+        
+        # Apply Climate Shock to Probability
+        if climate_cond == "El Nino" and climate_sens == "El Nino":
+            base_prob *= 0.75 # Significant drop for drought-sensitive crops
+        elif climate_cond == "La Nina" and climate_sens == "La Nina":
+            base_prob *= 0.70 # Higher risk for rain-sensitive crops (disease)
+            
+        # Add random variation to probability
+        sim_prob = np.random.beta(base_prob * 10, (1-base_prob) * 10)
+        
+        # 2. Catastrophic Event Check (Puso/Total Failure)
+        # Driven by Pest Control Score & Climate Mismatch
+        pest_score = base_scores.get('pest_control', 0.5)
+        catastrophic_chance = 0.02 # Base 2%
+        if pest_score < 0.4: catastrophic_chance += 0.05
+        if climate_cond != "Normal" and climate_cond == climate_sens: catastrophic_chance += 0.05
+        
+        is_puso = np.random.random() < catastrophic_chance
+        
+        if is_puso:
+            realized_yield = 0
+        else:
+            realized_yield = yield_potential * sim_prob
+            
+        # 3. Price Simulation (Log-Normal for financial markets)
+        # Volatility scales with input choice + intrinsic crop volatility
+        sim_price = np.random.lognormal(mean=np.log(base_price), sigma=volatility)
+        
+        # 4. Cost Simulation (Inflation Risk)
+        # Costs tend to go up, rarely down
+        sim_cost = base_cost * (1 + np.random.exponential(inflation_risk))
+        
+        # 5. Calculate Financials
+        revenue = realized_yield * sim_price * crop_params['area_ha']
+        total_cost = sim_cost * crop_params['area_ha']
+        
+        roi = ((revenue - total_cost) / total_cost) * 100 if total_cost > 0 else 0
+        
+        roi_results.append(roi)
+        success_probs.append(sim_prob)
+    
+    return np.array(roi_results), np.array(success_probs)
+
+
 def monte_carlo_simulation(base_scores, n_simulations=1000):
     """Run Monte Carlo simulation for risk distribution"""
     np.random.seed(42)
@@ -368,8 +456,25 @@ if 'risk_data' not in st.session_state:
 
 # ========== TAB 1: INPUT ==========
 with tab_input:
-    st.subheader("📝 Input Parameter Rencana Tanam")
+    st.subheader("📝 Input Parameter Rencana Tanam & Risiko Global")
     st.info("💡 Pilih komoditas dan masukkan parameter untuk analisis risiko komprehensif")
+    
+    # === NEW: CLIMATE & MACRO INPUTS ===
+    with st.expander("🌍 Parameter Makro (Iklim & Ekonomi)", expanded=True):
+        cm1, cm2 = st.columns(2)
+        with cm1:
+            climate_condition = st.selectbox(
+                "Status Iklim Global (ENSO)", 
+                ["Normal", "El Nino (Kering)", "La Nina (Basah)"],
+                help="El Nino meningkatkan risiko kekeringan. La Nina meningkatkan risiko banjir & penyakit jamur."
+            )
+        with cm2:
+            inflation_risk = st.select_slider(
+                "Risiko Inflasi Saprotan", 
+                options=[0.0, 0.05, 0.10, 0.20],
+                format_func=lambda x: {0.0: "Stabil", 0.05: "Rendah", 0.10: "Sedang", 0.20: "Tinggi (Krisis)"}[x],
+                help="Potensi kenaikan harga pupuk/pestisida selama musim tanam"
+            )
     
     # Crop selection
     crop_options = list(CROP_DATABASE.keys())
@@ -538,8 +643,12 @@ with tab_input:
         # Calculate weighted probability
         probability = sum(scores[k] * RISK_WEIGHTS[k] for k in RISK_WEIGHTS.keys())
         
-        # Monte Carlo simulation
-        monte_results = monte_carlo_simulation(scores)
+        # Monte Carlo simulation (ADVANCED)
+        # Update params with macro data
+        params['climate_condition'] = climate_condition.split(" ")[0] # Take first word
+        params['inflation_risk'] = inflation_risk
+        
+        roi_results, prob_results = monte_carlo_advanced(scores, selected_crop, params)
         
         # Save to session state
         st.session_state.risk_data = {
@@ -548,7 +657,8 @@ with tab_input:
             'params': params,
             'scores': scores,
             'probability': probability,
-            'monte_carlo': monte_results
+            'monte_carlo': prob_results, # Keep legacy name for compatibility but it's probabilities
+            'roi_results': roi_results # NEW: ROI Distribution
         }
         
         st.success("✅ Analisis selesai! Lihat hasil di tab **📊 Hasil Analisis**")
@@ -658,7 +768,54 @@ with tab_monte:
         st.warning("⚠️ Belum ada data. Input parameter terlebih dahulu.")
     else:
         data = st.session_state.risk_data
+        
+        # Check if advanced ROI data exists (backward compatibility)
+        if 'roi_results' in data:
+            roi_results = data['roi_results']
+            
+            # --- ROI HISTOGRAM (THE MAIN INSIGHT) ---
+            st.markdown("#### 💸 Distribusi Return on Investment (ROI)")
+            st.caption("Distribusi potensi keuntungan/kerugian berdasarkan 2000 simulasi faktor risiko (Iklim, Hama, Harga, Biaya).")
+            
+            fig_roi = go.Figure()
+            fig_roi.add_trace(go.Histogram(
+                x=roi_results,
+                nbinsx=50,
+                marker=dict(color=roi_results, colorscale='RdYlGn', cmin=-50, cmax=100),
+                opacity=0.8,
+                name='ROI Frequency'
+            ))
+            
+            # Key Lines
+            mean_roi = np.mean(roi_results)
+            var_95 = np.percentile(roi_results, 5) # Value at Risk (5% worst case)
+            
+            fig_roi.add_vline(x=0, line_width=2, line_color="black", annotation_text="BEP (0%)")
+            fig_roi.add_vline(x=mean_roi, line_dash="dash", line_color="blue", annotation_text=f"Mean: {mean_roi:.0f}%")
+            fig_roi.add_vline(x=var_95, line_dash="dot", line_color="red", annotation_text=f"VaR 95%: {var_95:.0f}%")
+            
+            fig_roi.update_layout(
+                xaxis_title="ROI (%)",
+                yaxis_title="Frekuensi",
+                shapes=[dict(type="rect", xref="x", yref="paper", x0=-100, x1=0, y0=0, y1=1, fillcolor="red", opacity=0.1, layer="below", line_width=0)]
+            )
+            st.plotly_chart(fig_roi, use_container_width=True)
+            
+            # --- METRICS ROW ---
+            m1, m2, m3, m4 = st.columns(4)
+            prob_loss = np.mean(roi_results < 0) * 100
+            
+            m1.metric("Probabilitas Rugi", f"{prob_loss:.1f}%", f"{'🚨 TINGGI' if prob_loss > 20 else '✅ AMAN'}")
+            m2.metric("Rata-rata ROI", f"{mean_roi:.0f}%")
+            m3.metric("Potensi Rugi Max (VaR 5%)", f"{var_95:.0f}%", "Skenario Terburuk")
+            m4.metric("Potensi Untung Max (Top 5%)", f"{np.percentile(roi_results, 95):.0f}%", "Skenario Terbaik")
+            
+            st.divider()
+            
+        # Legacy Probability Histogram (Auxiliary)
         monte_results = data['monte_carlo'] * 100  # Convert to percentage
+        
+        st.markdown("#### 🎲 Distribusi Skor Keberhasilan Teknis")
         
         # Distribution histogram
         fig_hist = go.Figure()
