@@ -13,25 +13,22 @@ def price_ticker():
         {"name": "🌽 Jagung Pipil", "price": "Rp 5.800", "trend": "stable"},
     ]
     
-    ticker_html = ""
+    ticker_items = []
     for p in prices:
         color = "#10b981" if p['trend'] == "up" else ("#ef4444" if p['trend'] == "down" else "#fbbf24")
-        icon = "&uarr;" if p['trend'] == "up" else ("&darr;" if p['trend'] == "down" else "&bull;")
+        icon = "↑" if p['trend'] == "up" else ("↓" if p['trend'] == "down" else "●")
         
-        # Simple HTML Span
-        ticker_html += f"""
-        <span style="margin-right: 40px; font-weight: 500;">
-            <span style="color: #94a3b8;">{p["name"]}</span> 
-            <span style="color: white; font-weight: bold;">{p["price"]}</span> 
-            <span style="color: {color}; font-weight: bold;">{icon}</span>
-        </span>
-        """
+        # Build ticker item
+        item = f'{p["name"]} {p["price"]} <span style="color: {color}; font-weight: bold;">{icon}</span>'
+        ticker_items.append(item)
+    
+    ticker_text = " &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; ".join(ticker_items)
     
     # Use Standard Marquee Tag (Foolproof)
     st.markdown(f"""
     <div style="background-color: #0f172a; padding: 10px; border-bottom: 2px solid #334155; margin-bottom: 20px; border-radius: 5px;">
-        <marquee scrollamount="10" style="color: white; font-family: sans-serif; font-size: 1.1rem;">
-            {ticker_html}
+        <marquee scrollamount="8" style="color: white; font-family: sans-serif; font-size: 1.05rem;">
+            {ticker_text}
         </marquee>
     </div>
     """, unsafe_allow_html=True)
