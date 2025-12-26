@@ -92,7 +92,9 @@ Gunakan **Slider Kalibrasi** di sebelah kiri untuk menyesuaikan deteksi dengan p
 """)
 
 # --- SIDEBAR CONTROLS ---
-st.sidebar.header("⚙️ Kalibrasi Deteksi")
+# --- SIDEBAR CONTROLS ---
+st.sidebar.header("⚙️ Kalibrasi Deteksi (v1.1)")
+st.sidebar.caption("Updated: Climate & Robustness")
 
 detect_mode = st.sidebar.selectbox("Target Deteksi:", ["🌶️ Cabai Merah (Red)", "🍅 Tomat (Orange/Red)", "🍋 Jeruk/Lemon (Yellow)", "🥬 Daun/Sayur (Green)"])
 
