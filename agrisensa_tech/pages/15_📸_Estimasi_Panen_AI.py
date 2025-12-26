@@ -124,6 +124,14 @@ min_area_val = st.sidebar.slider("Min Pixel Area (Size Filter)", 10, 500, 50, he
 min_circ_val = st.sidebar.slider("Min Circularity (Shape Filter)", 0.0, 1.0, 0.3, step=0.05, help="0.0=Semua, 1.0=Lingkaran Sempurna. Naikkan untuk membuang tangkai (garis).")
 erosion_val = st.sidebar.slider("Stem Removal Strength (Erosion)", 1, 9, 3, step=2, help="Kekuatan penghapusan garis tipis. Ganjil (1,3,5...). Semakin besar, tangkai semakin hilang tapi buah kecil bisa ikut hilang.")
 
+st.sidebar.divider()
+st.sidebar.subheader("🌤️ Skenario Iklim")
+climate_scenario = st.sidebar.selectbox(
+    "Prakiraan Cuaca Musim Depan:",
+    ["Normal / Ideal (Optimis)", "El Nino / Kekeringan (-20%)", "La Nina / Curah Hujan Tinggi (-15%)"],
+    help="AI akan mengoreksi target panen berdasarkan stres lingkungan."
+)
+
 # --- MAIN AREA ---
 col_in, col_out = st.columns(2)
 
@@ -176,12 +184,7 @@ if uploaded_file is not None:
         raw_yield_kg = (avg_fruit_per_tree * avg_weight * plant_pop) / 1000
         
         # --- STAGE 3: CLIMATE CORRECTION ---
-        st.markdown("#### 🌤️ Koreksi Iklim (Predictive)")
-        climate_scenario = st.selectbox(
-            "Prakiraan Cuaca Musim Depan:",
-            ["Normal / Ideal (Optimis)", "El Nino / Kekeringan (-20%)", "La Nina / Curah Hujan Tinggi (-15%)"],
-            help="AI akan mengoreksi target panen berdasarkan stres lingkungan."
-        )
+        # (Selector now in Sidebar)
         
         correction_factor = 0.0
         correction_desc = "Optimal"
