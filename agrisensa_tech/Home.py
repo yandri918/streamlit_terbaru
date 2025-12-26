@@ -2,39 +2,71 @@ import streamlit as st
 import sys
 import os
 
-# Direct Ticker Implementation - Streamlit Native
+# Import BAPANAS Service
+try:
+    from services.bapanas_service import BapanasService
+except ImportError:
+    # Fallback if import fails
+    BapanasService = None
+
+# Real-Time BAPANAS Ticker
 def price_ticker():
-    # Mock Data (Simulated Bapanas Feed)
-    prices = [
-        {"name": "🌶️ Cabai Merah", "price": "Rp 45.000", "trend": "up"},
-        {"name": "🧅 Bawang Merah", "price": "Rp 28.500", "trend": "down"},
-        {"name": "🍚 Beras Premium", "price": "Rp 14.200", "trend": "stable"},
-        {"name": "🐔 Daging Ayam", "price": "Rp 35.000", "trend": "up"},
-        {"name": "🌽 Jagung Pipil", "price": "Rp 5.800", "trend": "stable"},
-    ]
+    """Display real-time commodity prices from BAPANAS"""
     
-    # Build ticker text with colored arrows
-    ticker_parts = []
-    for p in prices:
-        if p['trend'] == "up":
-            ticker_parts.append(f"{p['name']} **{p['price']}** :green[↑]")
-        elif p['trend'] == "down":
-            ticker_parts.append(f"{p['name']} **{p['price']}** :red[↓]")
-        else:
-            ticker_parts.append(f"{p['name']} **{p['price']}** :orange[●]")
+    # Try to fetch real data
+    if BapanasService:
+        try:
+            service = BapanasService()
+            df = service.get_latest_prices(province_id=0)  # National average
+            
+            if df is not None and not df.empty:
+                # Get today's prices only
+                latest_df = df[df['date'] == df['date'].max()].copy()
+                
+                # Select top 5 commodities for ticker
+                top_commodities = latest_df.head(5)
+                
+                ticker_parts = []
+                for _, row in top_commodities.iterrows():
+                    commodity = row['commodity']
+                    price = row['price']
+                    
+                    # Format price
+                    price_str = f"Rp {price:,.0f}"
+                    
+                    # Simple trend indicator (can be enhanced with yesterday comparison)
+                    ticker_parts.append(f"{commodity} **{price_str}**")
+                
+                ticker_text = "   •   ".join(ticker_parts)
+                
+                # Display with BAPANAS branding
+                st.markdown(f"""
+                <div style="background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%); 
+                            padding: 12px 20px; 
+                            border-radius: 8px; 
+                            border-left: 4px solid #10b981;
+                            margin-bottom: 20px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <p style="color: #e2e8f0; margin: 0; font-size: 0.95rem; font-weight: 500;">
+                        📊 <strong>Harga Pangan Hari Ini (BAPANAS):</strong> {ticker_text}
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+                return
+        except Exception as e:
+            # Silent fail, show fallback
+            pass
     
-    ticker_text = "   •   ".join(ticker_parts)
-    
-    # Display with custom styling
-    st.markdown(f"""
+    # Fallback: Show static message if API fails
+    st.markdown("""
     <div style="background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%); 
                 padding: 12px 20px; 
                 border-radius: 8px; 
-                border-left: 4px solid #3b82f6;
+                border-left: 4px solid #fbbf24;
                 margin-bottom: 20px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <p style="color: #e2e8f0; margin: 0; font-size: 0.95rem; font-weight: 500;">
-            📊 <strong>Harga Komoditas Hari Ini:</strong> {ticker_text}
+            📊 <strong>Harga Pangan:</strong> Klik menu "Analisis Tren Harga" untuk data real-time BAPANAS
         </p>
     </div>
     """, unsafe_allow_html=True)
