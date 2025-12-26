@@ -23,11 +23,9 @@ def price_ticker():
                 # Get today's prices only
                 latest_df = df[df['date'] == df['date'].max()].copy()
                 
-                # Select top 5 commodities for ticker
-                top_commodities = latest_df.head(5)
-                
+                # Display ALL commodities from BAPANAS (instead of just top 5)
                 ticker_parts = []
-                for _, row in top_commodities.iterrows():
+                for _, row in latest_df.iterrows():
                     commodity = row['commodity']
                     price = row['price']
                     
