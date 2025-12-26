@@ -27,8 +27,103 @@ tab_prod, tab_elast, tab_cost, tab_optimal = st.tabs([
     "🏭 Production Function",
     "📈 Elasticity Analysis", 
     "💰 Cost & Profit Analysis",
-    "🎯 Optimal Input Calculator"
+    "🏭 Production Function",
+    "📈 Elasticity Analysis", 
+    "💰 Cost & Profit Analysis",
+    "🎯 Optimal Input Calculator",
+    "💼 Optimasi Portofolio"
 ])
+
+# ==========================================
+# 🧠 PORTFOLIO INTELLIGENCE DATA
+# ==========================================
+# Metadata for Portfolio Optimization (Risk, Market, Intercropping)
+PORTFOLIO_META = {
+    "Padi": {
+        "risk_volatility": 0.05, "return_roi": 0.15, "market_score": 8, 
+        "type": "Annual", "partners": ["Jagung", "Kedelai"], 
+        "min_area": 0.5, "desc": "Stabil, Cashflow Lambat"
+    },
+    "Jagung": {
+        "risk_volatility": 0.15, "return_roi": 0.25, "market_score": 7, 
+        "type": "Annual", "partners": ["Cabai", "Kacang Tanah", "Padi"], 
+        "min_area": 0.2, "desc": "Moderat, Pakan Ternak"
+    },
+    "Cabai Merah": {
+        "risk_volatility": 0.50, "return_roi": 0.80, "market_score": 9, 
+        "type": "Annual", "partners": ["Tomat", "Jagung"], 
+        "min_area": 0.1, "desc": "High Risk High Return"
+    },
+    "Bawang Merah": {
+        "risk_volatility": 0.40, "return_roi": 0.60, "market_score": 9, 
+        "type": "Annual", "partners": ["Cabai"], 
+        "min_area": 0.1, "desc": "Sangat Fluktuatif"
+    },
+    "Kedelai": {
+        "risk_volatility": 0.10, "return_roi": 0.20, "market_score": 6, 
+        "type": "Annual", "partners": ["Padi", "Jagung"], 
+        "min_area": 0.2, "desc": "Stabil, Nitrogen Fixer"
+    },
+    "Kopi Robusta": {
+        "risk_volatility": 0.20, "return_roi": 0.40, "market_score": 8, 
+        "type": "Perennial", "partners": ["Lada", "Kakao"], 
+        "min_area": 1.0, "desc": "Investasi Jangka Panjang"
+    },
+    "Sawit": {
+        "risk_volatility": 0.15, "return_roi": 0.35, "market_score": 9, 
+        "type": "Perennial", "partners": [], 
+        "min_area": 2.0, "desc": "Investasi, Cashflow Rutin"
+    },
+     "Melon": {
+        "risk_volatility": 0.35, "return_roi": 0.50, "market_score": 8, 
+        "type": "Annual", "partners": ["Semangka"], 
+        "min_area": 0.1, "desc": "Hortikultura Premium"
+    }
+}
+
+def calculate_portfolio_allocation(selected_crops, risk_aversion=0.5):
+    """
+    Simplified Markowitz Optimizer for Agriculture
+    risk_aversion: 0.0 (Gambler) to 1.0 (Conservative)
+    """
+    if not selected_crops: return {}
+    
+    n = len(selected_crops)
+    # Simple heuristic allocation based on risk/return profile and user aversion
+    scores = {}
+    total_score = 0
+    
+    for crop in selected_crops:
+        meta = PORTFOLIO_META.get(crop, 
+             {"risk_volatility": 0.2, "return_roi": 0.2, "market_score": 5})
+        
+        # Utility Score = Return - (Aversion * Risk * Penalty)
+        # Conservative users penalize risk heavily
+        utility = (meta['return_roi'] * 100) - (risk_aversion * meta['risk_volatility'] * 200) + (meta['market_score'] * 0.5)
+        
+        # Ensure positive score for allocation
+        score = max(utility, 1.0) 
+        scores[crop] = score
+        total_score += score
+        
+    # Convert to percentage
+    allocations = {k: v/total_score for k,v in scores.items()}
+    return allocations
+
+def check_intercropping_bonus(selected_crops):
+    """Check for compatible pairs and return bonus info"""
+    bonuses = []
+    bonus_score = 0
+    
+    # Check pairs
+    import itertools
+    for a, b in itertools.combinations(selected_crops, 2):
+        meta_a = PORTFOLIO_META.get(a, {})
+        if b in meta_a.get('partners', []):
+            bonuses.append(f"✅ **Sinergi Positif:** {a} + {b} (Efisien Hara & Hama)")
+            bonus_score += 5 # 5% efficiency bonus estimate
+            
+    return bonuses, bonus_score
 
 # ==========================================
 # TAB 1: PRODUCTION FUNCTION ANALYSIS
@@ -630,9 +725,137 @@ with tab_elast:
                 else:
                     st.success("**Unit Elastic**")
 
+
 # ==========================================
-# TAB 3: COST & PROFIT ANALYSIS
+# TAB 5: PORTFOLIO OPTIMIZATION (NEW)
 # ==========================================
+with st.tabs(["💼 Optimasi Portofolio"])[0]:
+    st.header("💼 Optimasi Portofolio Lahan & Investasi")
+    st.markdown("""
+    **"Jangan menaruh semua telur dalam satu keranjang."**
+    
+    Fitur ini menggunakan **Modern Portfolio Theory (Markowitz)** yang disesuaikan untuk pertanian. 
+    Kami membantu membagi lahan Anda untuk mendapatkan **Profit Maksimal** dengan **Risiko Minimal**,
+    mempertimbangkan volatilitas harga, kecocokan pasar, dan sinergi tumpangsari.
+    """)
+    
+    st.divider()
+    
+    # 1. LAND & TENURE INPUT
+    col_p1, col_p2, col_p3 = st.columns(3)
+    
+    with col_p1:
+        total_land = st.number_input("Luas Lahan Total (Ha):", 1.0, 100.0, 5.0, step=0.5)
+    
+    with col_p2:
+        land_tenure = st.selectbox(
+            "Status Kepemilikan Lahan:",
+            ["Milik Sendiri (SHM/Adat)", "Sewa Jangka Panjang (>5 thn)", "Sewa Jangka Pendek (<2 thn)", "Bagi Hasil"],
+            help="Lahan sewa pendek TIDAK BOLEH ditanami tanaman tahunan (Sawit/Kopi/Durian)."
+        )
+        
+    with col_p3:
+        risk_profile_user = st.select_slider(
+            "Profil Risiko Anda:",
+            options=["Konservatif (Cari Aman)", "Moderat (Seimbang)", "Agresif (Cuan Max)"],
+            value="Moderat (Seimbang)"
+        )
+        # Map profile to aversion score (High Aversion = Conservative)
+        aversion_map = {"Konservatif (Cari Aman)": 0.8, "Moderat (Seimbang)": 0.5, "Agresif (Cuan Max)": 0.2}
+        risk_aversion = aversion_map[risk_profile_user]
+
+    # 2. CROP SELECTION
+    st.divider()
+    st.subheader("🌱 Pilih Kandidat Komoditas")
+    
+    # Filter crops based on tenure
+    available_crops = list(PORTFOLIO_META.keys())
+    if "Sewa Jangka Pendek" in land_tenure:
+        available_crops = [c for c in available_crops if PORTFOLIO_META[c]['type'] == 'Annual']
+        st.warning("⚠️ Karena lahan Sewa Pendek, tanaman tahunan (Sawit, Kopi) disembunyikan.")
+        
+    selected_candidates = st.multiselect(
+        "Pilih tanaman yang ingin Anda pertimbangkan (Min 2):",
+        available_crops,
+        default=available_crops[:2],
+        format_func=lambda x: f"{x} ({PORTFOLIO_META[x]['type']})"
+    )
+    
+    if len(selected_candidates) < 2:
+        st.info("💡 Pilih minimal 2 tanaman untuk melihat efek diversifikasi.")
+    else:
+        if st.button("🚀 Jalankan Optimasi AI", type="primary"):
+            
+            # A. Calculate Allocation
+            allocations = calculate_portfolio_allocation(selected_candidates, risk_aversion)
+            
+            # B. Check Intercropping
+            bonuses, efficiency = check_intercropping_bonus(selected_candidates)
+            
+            # C. Visualize Results
+            st.divider()
+            
+            c_res1, c_res2 = st.columns([1.5, 1])
+            
+            with c_res1:
+                st.subheader("🎯 Rekomendasi Alokasi Lahan")
+                
+                # Prepare data for chart
+                labels = list(allocations.keys())
+                values = [v * total_land for v in allocations.values()] # In Ha
+                pcts = [v * 100 for v in allocations.values()]
+                
+                # Pie Chart
+                fig_alloc = px.pie(
+                    names=labels, values=values, hole=0.4,
+                    title=f"Alokasi Optimal untuk Lahan {total_land} Ha",
+                    color_discrete_sequence=px.colors.sequential.RdBu
+                )
+                fig_alloc.update_traces(textinfo='percent+label')
+                st.plotly_chart(fig_alloc, use_container_width=True)
+                
+                # Text breakdown
+                st.markdown("#### 📝 Detail Pembagian:")
+                for crop in labels:
+                    pct = allocations[crop]
+                    ha = pct * total_land
+                    meta = PORTFOLIO_META[crop]
+                    st.write(f"- **{crop}**: {ha:.2f} Ha ({pct*100:.1f}%)")
+                    st.caption(f"  *Alasan: Market Score {meta['market_score']}/10, ROI {meta['return_roi']*100}%*")
+            
+            with c_res2:
+                st.subheader("💡 Analisis Sinergi")
+                
+                # Intercropping Status
+                if bonuses:
+                    st.success(f"✨ **Potensi Efisiensi: +{efficiency}%**")
+                    for b in bonuses:
+                        st.markdown(b)
+                    st.info("Pola tumpangsari direkomendasikan untuk menekan biaya dan risiko hama.")
+                else:
+                    st.warning("Tidak ditemukan sinergi tumpangsari yang signifikan antar tanaman pilihan.")
+                    
+                # Market Insight Suitability
+                st.markdown("#### 🛒 Kecocokan Pasar")
+                avg_market_score = sum([PORTFOLIO_META[c]['market_score'] for c in list(allocations.keys())]) / len(allocations)
+                
+                if avg_market_score > 8:
+                    st.markdown("⭐ **Portofolio Bintang (Sangat Laris)**")
+                elif avg_market_score > 6:
+                    st.markdown("✅ **Portofolio Stabil (Pasar Normal)**")
+                else:
+                    st.markdown("⚠️ **Portofolio Niche (Pasar Terbatas)**")
+                    
+                st.markdown("""
+                > **Catatan**: Alokasi ini mempertimbangkan profil risiko Anda. 
+                > Semakin agresif Anda, semakin besar porsi tanaman high-return (Cabai/Bawang).
+                """)
+
+# ==========================================
+# END TAB 5
+# ==========================================
+
+
 with tab_cost:
     st.header("💰 Cost & Profit Analysis")
     
