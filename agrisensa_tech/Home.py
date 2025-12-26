@@ -2,7 +2,7 @@ import streamlit as st
 import sys
 import os
 
-# Direct Ticker Implementation (Fixes Import Issues)
+# Direct Ticker Implementation - Streamlit Native
 def price_ticker():
     # Mock Data (Simulated Bapanas Feed)
     prices = [
@@ -13,23 +13,29 @@ def price_ticker():
         {"name": "🌽 Jagung Pipil", "price": "Rp 5.800", "trend": "stable"},
     ]
     
-    ticker_items = []
+    # Build ticker text with colored arrows
+    ticker_parts = []
     for p in prices:
-        color = "#10b981" if p['trend'] == "up" else ("#ef4444" if p['trend'] == "down" else "#fbbf24")
-        icon = "↑" if p['trend'] == "up" else ("↓" if p['trend'] == "down" else "●")
-        
-        # Build ticker item
-        item = f'{p["name"]} {p["price"]} <span style="color: {color}; font-weight: bold;">{icon}</span>'
-        ticker_items.append(item)
+        if p['trend'] == "up":
+            ticker_parts.append(f"{p['name']} **{p['price']}** :green[↑]")
+        elif p['trend'] == "down":
+            ticker_parts.append(f"{p['name']} **{p['price']}** :red[↓]")
+        else:
+            ticker_parts.append(f"{p['name']} **{p['price']}** :orange[●]")
     
-    ticker_text = " &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; ".join(ticker_items)
+    ticker_text = "   •   ".join(ticker_parts)
     
-    # Use Standard Marquee Tag (Foolproof)
+    # Display with custom styling
     st.markdown(f"""
-    <div style="background-color: #0f172a; padding: 10px; border-bottom: 2px solid #334155; margin-bottom: 20px; border-radius: 5px;">
-        <marquee scrollamount="8" style="color: white; font-family: sans-serif; font-size: 1.05rem;">
-            {ticker_text}
-        </marquee>
+    <div style="background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%); 
+                padding: 12px 20px; 
+                border-radius: 8px; 
+                border-left: 4px solid #3b82f6;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <p style="color: #e2e8f0; margin: 0; font-size: 0.95rem; font-weight: 500;">
+            📊 <strong>Harga Komoditas Hari Ini:</strong> {ticker_text}
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
