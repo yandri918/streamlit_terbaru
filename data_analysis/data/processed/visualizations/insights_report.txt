@@ -1,0 +1,51 @@
+======================================================================
+AGRISENSA - SEASONAL PATTERN ANALYSIS REPORT
+======================================================================
+Generated: 2025-12-26 19:37:48
+Dataset: 9864 records from 2022 to 2024
+
+1. POLA HARGA MUSIMAN (Cabai Merah)
+----------------------------------------------------------------------
+   Transisi_Hujan      : Rp     92,116/kg
+   Kemarau             : Rp     83,910/kg
+   Hujan               : Rp     70,133/kg
+   Transisi_Kemarau    : Rp     61,047/kg
+
+   💡 INSIGHT:
+   - Harga tertinggi di musim Transisi (Sep-Okt) karena 'double trouble'
+   - Harga terendah di musim Hujan (banyak yang tanam)
+
+2. EFEK NATARU (Desember-Januari)
+----------------------------------------------------------------------
+   Non-Nataru : Rp     73,034/kg
+   Nataru     : Rp     89,068/kg (+22.0%)
+
+   💡 INSIGHT:
+   - Harga naik 22.0% saat Nataru karena demand tinggi
+   - Peluang profit maksimal jika panen di Desember-Januari
+
+3. REKOMENDASI WAKTU TANAM
+----------------------------------------------------------------------
+   Berdasarkan pola musim & harga:
+
+   ✅ OPTIMAL:
+      - Tanam APRIL → Panen JULI (Kemarau, harga tinggi)
+      - Tanam OKTOBER → Panen JANUARI (Nataru, harga puncak)
+
+   ⚠️ HINDARI:
+      - Tanam NOVEMBER → Panen FEBRUARI (Hujan, harga rendah)
+      - Tanam JUNI → Panen SEPTEMBER (Risiko gagal panen tinggi)
+
+4. RISK-RETURN MATRIX
+----------------------------------------------------------------------
+   Bulan Panen | Risk Level | Expected Price | Recommendation
+   ------------------------------------------------------------------
+   Januari     | Medium     | Rp 75.000      | ✅ GO (Nataru bonus)
+   Februari    | Low        | Rp 55.000      | ⚠️ Harga rendah
+   Juli        | Medium     | Rp 85.000      | ✅ GO (Kemarau)
+   Agustus     | High       | Rp 95.000      | ⚠️ Risiko hama tinggi
+   September   | Very High  | Rp 110.000     | ❌ Terlalu berisiko
+
+======================================================================
+END OF REPORT
+======================================================================
