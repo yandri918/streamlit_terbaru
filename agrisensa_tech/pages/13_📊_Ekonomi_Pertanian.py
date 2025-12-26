@@ -23,7 +23,6 @@ st.title("📊 Ekonomi Pertanian & Analisis Produksi")
 st.markdown("**Platform Analisis Ekonomi Pertanian: Production Functions, Elasticity, Cost-Benefit, dan Optimasi Input**")
 
 # Main tabs
-# Main tabs
 tab_prod, tab_elast, tab_cost, tab_optimal, tab_portfolio = st.tabs([
     "🏭 Production Function",
     "📈 Elasticity Analysis", 

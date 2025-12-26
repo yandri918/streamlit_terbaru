@@ -1078,12 +1078,76 @@ with tab_rekomendasi:
                             border-left: 5px solid {priority_color}; margin: 1rem 0;">
                     <h4 style="margin: 0; color: #1f2937;">{factor.replace('_', ' ').title()} (Skor: {score*100:.0f}%)</h4>
                     <p style="margin: 0.5rem 0;"><strong>Masalah:</strong> {rec['issue']}</p>
-                    <p style="margin: 0.5rem 0;"><strong>Aksi:</strong></p>
+                    <p style="margin: 0.5rem 0;"><strong>Rekomendasi Aksi:</strong></p>
                     <ul style="margin: 0;">
                         {''.join(f'<li>{a}</li>' for a in rec['actions'])}
                     </ul>
                 </div>
                 """, unsafe_allow_html=True)
+                
+            # === MITIGATION SIMULATOR ===
+            st.divider()
+            st.subheader("🛠️ Simulator Biaya & Dampak Mitigasi")
+            st.info("Centang tindakan di bawah ini untuk melihat estimasi biaya dan peningkatan peluang keberhasilan.")
+            
+            # 1. Define Cost & Impact for actions
+            mitigation_db = {
+                "npk_adequacy": {"action": "Aplikasi Pupuk Majemuk & Organik", "cost": 2500000, "impact": 0.25},
+                "ph_suitability": {"action": "Pengapuran (Dolomit/Kaptan)", "cost": 1500000, "impact": 0.30},
+                "temp_suitability": {"action": "Pemasangan Mulsa/Peneduh", "cost": 3000000, "impact": 0.15},
+                "water_availability": {"action": "Pompanisasi/Irigasi Tetes", "cost": 4500000, "impact": 0.35},
+                "pest_control": {"action": "Paket Pestisida Lengkap & IPM", "cost": 2000000, "impact": 0.30},
+                "experience": {"action": "Pendampingan Ahli/Penyuluh", "cost": 500000, "impact": 0.15},
+                "market_access": {"action": "Biaya Kemitraan/Logistik", "cost": 1000000, "impact": 0.20}
+            }
+            
+            selected_mitigations = []
+            total_mitigation_cost = 0
+            
+            # Only show relevant mitigations (where score < 0.8)
+            col_sim1, col_sim2 = st.columns([1.5, 1])
+            
+            with col_sim1:
+                st.markdown("#### 📋 Pilih Tindakan Perbaikan")
+                relevant_factors = [f for f in scores.keys() if scores[f] < 0.8 and f in mitigation_db]
+                
+                if not relevant_factors:
+                    st.success("🎉 Sebagian besar faktor sudah optimal, tidak banyak mitigasi diperlukan.")
+                
+                for factor in relevant_factors:
+                    item = mitigation_db[factor]
+                    cost_ha = item['cost'] * data['params']['area_ha']
+                    label = f"{item['action']} ({factor.replace('_',' ').title()})"
+                    
+                    if st.checkbox(label, key=f"d_mit_{factor}"):
+                        selected_mitigations.append((factor, item['impact']))
+                        total_mitigation_cost += cost_ha
+                        st.caption(f"   ➥ Biaya: Rp {cost_ha:,} | Impact: Skor +{item['impact']*100:.0f}%")
+
+            with col_sim2:
+                st.markdown("#### 💰 Estimasi & Hasil")
+                
+                # Recalculate Probability
+                new_scores = scores.copy()
+                for factor, impact in selected_mitigations:
+                    new_scores[factor] = min(new_scores[factor] + impact, 1.0)
+                
+                new_prob = sum(new_scores[k] * RISK_WEIGHTS[k] for k in RISK_WEIGHTS.keys())
+                prob_gain = new_prob - data['probability']
+                
+                st.metric("Estimasi Biaya Tambahan", f"Rp {total_mitigation_cost:,}")
+                st.metric("Probabilitas Baru", f"{new_prob*100:.1f}%", f"+{prob_gain*100:.1f}%")
+                
+                if prob_gain > 0:
+                    delta_revenue = (new_prob * crop_info["yield_potential"] * crop_info["market_price"] * data['params']['area_ha']) - \
+                                    (data['probability'] * crop_info["yield_potential"] * crop_info["market_price"] * data['params']['area_ha'])
+                    roi_mitigation = ((delta_revenue - total_mitigation_cost) / total_mitigation_cost) * 100 if total_mitigation_cost > 0 else 0
+                    
+                    st.caption(f"📈 Potensi kenaikan pendapatan: **Rp {delta_revenue:,.0f}**")
+                    if roi_mitigation > 0:
+                        st.success(f"💡 Mitigasi Layak! ROI: {roi_mitigation:.0f}%")
+                    else:
+                        st.warning(f"⚠️ Biaya mitigasi > Manfaat ({roi_mitigation:.0f}%)")
         else:
             st.success("✅ Semua faktor dalam kondisi baik (>60%)! Lanjutkan dengan rencana tanam Anda.")
         
