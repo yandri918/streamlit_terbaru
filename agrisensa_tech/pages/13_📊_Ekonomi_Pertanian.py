@@ -746,7 +746,7 @@ with tab_elast:
 # ==========================================
 # TAB 5: PORTFOLIO OPTIMIZATION (NEW)
 # ==========================================
-with st.tabs(["💼 Optimasi Portofolio"])[0]:
+with tab_portfolio:
     st.header("💼 Optimasi Portofolio Lahan & Investasi")
     st.markdown("""
     **"Jangan menaruh semua telur dalam satu keranjang."**
