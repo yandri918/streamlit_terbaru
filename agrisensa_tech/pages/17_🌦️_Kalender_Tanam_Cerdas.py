@@ -427,79 +427,184 @@ with tab1:
         **Dampak:** Harga bisa jatuh 20-40% karena oversupply di pasar.
         """)
     
-    # NEW FEATURE 2: ROI Calculator
-    with st.expander("💰 Kalkulator ROI & Kelayakan Usaha", expanded=False):
-        st.markdown("**Hitung estimasi keuntungan berdasarkan luas lahan Anda**")
+    
+    # NEW FEATURE 2: Multi-Month Comparison
+    with st.expander("� Perbandingan Multi-Bulan Tanam", expanded=False):
+        st.markdown("**Bandingkan beberapa bulan tanam untuk menemukan waktu optimal**")
         
-        area_input = st.number_input(
-            "Luas Lahan (hektar)",
-            min_value=0.1,
-            max_value=100.0,
-            value=1.0,
-            step=0.1,
-            help="Masukkan luas lahan yang akan ditanami cabai"
+        # Select months to compare
+        st.markdown("**Pilih bulan-bulan yang ingin dibandingkan:**")
+        
+        col_select1, col_select2, col_select3, col_select4 = st.columns(4)
+        
+        with col_select1:
+            month1 = st.selectbox("Bulan 1", range(1, 13), 
+                                 format_func=lambda x: datetime(2024, x, 1).strftime('%B'),
+                                 index=3, key="month1")  # Default April
+        
+        with col_select2:
+            month2 = st.selectbox("Bulan 2", range(1, 13), 
+                                 format_func=lambda x: datetime(2024, x, 1).strftime('%B'),
+                                 index=4, key="month2")  # Default May
+        
+        with col_select3:
+            month3 = st.selectbox("Bulan 3", range(1, 13), 
+                                 format_func=lambda x: datetime(2024, x, 1).strftime('%B'),
+                                 index=5, key="month3")  # Default June
+        
+        with col_select4:
+            month4 = st.selectbox("Bulan 4 (Optional)", [0] + list(range(1, 13)), 
+                                 format_func=lambda x: "None" if x == 0 else datetime(2024, x, 1).strftime('%B'),
+                                 index=0, key="month4")
+        
+        # Calculate for each month
+        comparison_months = [month1, month2, month3]
+        if month4 > 0:
+            comparison_months.append(month4)
+        
+        comparison_data = []
+        for m in comparison_months:
+            harvest_m = calculate_harvest_month(m, CROP_GROWING_DAYS[crop])
+            risk = get_risk_score(harvest_m)
+            price_pred = get_price_prediction(harvest_m)
+            score = calculate_planting_score(risk, price_pred['predicted'], harvest_m)
+            glut = get_supply_glut_warning(harvest_m)
+            contract = get_contract_farming_recommendation(price_pred['predicted'], harvest_m)
+            
+            comparison_data.append({
+                'Bulan Tanam': datetime(2024, m, 1).strftime('%B'),
+                'Bulan Panen': datetime(2024, harvest_m, 1).strftime('%B'),
+                'Score': score,
+                'Risiko (%)': risk,
+                'Harga (Rp/kg)': f"Rp {price_pred['predicted']:,.0f}",
+                'Supply Glut': glut['severity'] if glut else 'NONE',
+                'Contract Farming': 'YES' if contract['recommended'] else 'NO'
+            })
+        
+        # Display comparison table
+        st.markdown("### 📋 Tabel Perbandingan")
+        comparison_df = pd.DataFrame(comparison_data)
+        
+        # Style the dataframe
+        def highlight_best_score(row):
+            if row['Score'] == comparison_df['Score'].max():
+                return ['background-color: #90EE90'] * len(row)
+            return [''] * len(row)
+        
+        styled_df = comparison_df.style.apply(highlight_best_score, axis=1)
+        st.dataframe(styled_df, use_container_width=True, hide_index=True)
+        
+        st.caption("🟢 Highlight = Score tertinggi (paling optimal)")
+        
+        # Visual comparison
+        st.markdown("### 📊 Visualisasi Perbandingan")
+        
+        # Score comparison
+        fig_score = go.Figure()
+        
+        fig_score.add_trace(go.Bar(
+            x=[d['Bulan Tanam'] for d in comparison_data],
+            y=[d['Score'] for d in comparison_data],
+            name='Planting Score',
+            marker_color=['#90EE90' if d['Score'] == max([x['Score'] for x in comparison_data]) else '#4169E1' 
+                         for d in comparison_data],
+            text=[f"{d['Score']}/100" for d in comparison_data],
+            textposition='outside'
+        ))
+        
+        fig_score.update_layout(
+            title="Optimal Planting Score Comparison",
+            xaxis_title="Bulan Tanam",
+            yaxis_title="Score (0-100)",
+            height=400,
+            yaxis=dict(range=[0, 100])
         )
         
-        roi_data = calculate_roi(area_input, price['predicted'], harvest_month)
+        st.plotly_chart(fig_score, use_container_width=True)
         
-        st.markdown("### 📊 Analisis Finansial")
+        # Risk vs Price scatter
+        fig_scatter = go.Figure()
         
-        col_roi1, col_roi2, col_roi3 = st.columns(3)
+        for d in comparison_data:
+            # Extract numeric price
+            price_num = float(d['Harga (Rp/kg)'].replace('Rp ', '').replace(',', ''))
+            
+            # Color based on supply glut
+            if d['Supply Glut'] == 'HIGH':
+                color = 'red'
+                symbol = 'x'
+            elif d['Supply Glut'] == 'MEDIUM':
+                color = 'orange'
+                symbol = 'diamond'
+            else:
+                color = 'green'
+                symbol = 'circle'
+            
+            fig_scatter.add_trace(go.Scatter(
+                x=[d['Risiko (%)']],
+                y=[price_num],
+                mode='markers+text',
+                name=d['Bulan Tanam'],
+                marker=dict(size=20, color=color, symbol=symbol),
+                text=[d['Bulan Tanam']],
+                textposition='top center'
+            ))
         
-        with col_roi1:
-            st.metric("Total Biaya", f"Rp {roi_data['cost']/1e6:.1f} Jt")
-            st.caption(f"Rp 45 jt/ha × {area_input} ha")
+        fig_scatter.update_layout(
+            title="Risk vs Price Trade-off",
+            xaxis_title="Risiko Hama/Penyakit (%)",
+            yaxis_title="Prediksi Harga (Rp/kg)",
+            height=500,
+            showlegend=False
+        )
         
-        with col_roi2:
-            st.metric("Estimasi Revenue", f"Rp {roi_data['revenue']/1e6:.1f} Jt")
-            st.caption(f"{roi_data['yield_kg']:,.0f} kg × Rp {roi_data['price_per_kg']:,.0f}/kg")
+        # Add quadrants
+        fig_scatter.add_hline(y=35000, line_dash="dash", line_color="gray", annotation_text="Base Price")
+        fig_scatter.add_vline(x=60, line_dash="dash", line_color="gray", annotation_text="High Risk")
         
-        with col_roi3:
-            profit_color = "normal" if roi_data['profit'] > 0 else "inverse"
-            st.metric("Profit", f"Rp {roi_data['profit']/1e6:.1f} Jt", 
-                     f"ROI: {roi_data['roi_pct']:.1f}%",
-                     delta_color=profit_color)
+        st.plotly_chart(fig_scatter, use_container_width=True)
         
-        # Detailed breakdown
-        st.markdown("---")
-        st.markdown("**Detail Perhitungan:**")
+        st.caption("""
+        **Interpretasi:**
+        - 🟢 Hijau = No supply glut (aman)
+        - 🟠 Orange = Medium supply glut (hati-hati)
+        - 🔴 Merah = High supply glut (risiko harga jatuh!)
+        - **Ideal**: Kanan bawah (low risk, high price)
+        """)
         
-        breakdown_df = pd.DataFrame({
-            'Item': [
-                'Luas Lahan',
-                'Potensi Yield',
-                'Yield Adjusted (Risk)',
-                'Harga Jual',
-                'Total Revenue',
-                'Total Biaya Modal',
-                'Profit Bersih',
-                'ROI',
-                'Payback Period'
-            ],
-            'Nilai': [
-                f"{roi_data['area_ha']} ha",
-                f"12,000 kg/ha",
-                f"{roi_data['yield_kg']:,.0f} kg",
-                f"Rp {roi_data['price_per_kg']:,.0f}/kg",
-                f"Rp {roi_data['revenue']:,.0f}",
-                f"Rp {roi_data['cost']:,.0f}",
-                f"Rp {roi_data['profit']:,.0f}",
-                f"{roi_data['roi_pct']:.1f}%",
-                f"{roi_data['payback_months']:.1f} bulan" if roi_data['payback_months'] < 999 else "N/A"
-            ]
-        })
+        # Recommendations
+        st.markdown("### 💡 Rekomendasi Berdasarkan Perbandingan")
         
-        st.dataframe(breakdown_df, use_container_width=True, hide_index=True)
+        best_month = max(comparison_data, key=lambda x: x['Score'])
+        worst_month = min(comparison_data, key=lambda x: x['Score'])
         
-        # Profitability assessment
-        if roi_data['roi_pct'] > 50:
-            st.success("✅ **Sangat Menguntungkan** - ROI >50%, layak untuk dijalankan!")
-        elif roi_data['roi_pct'] > 20:
-            st.info("✅ **Menguntungkan** - ROI >20%, cukup baik untuk usaha pertanian")
-        elif roi_data['roi_pct'] > 0:
-            st.warning("⚠️ **Profit Tipis** - ROI rendah, pertimbangkan efisiensi biaya")
-        else:
-            st.error("❌ **Tidak Menguntungkan** - Prediksi rugi, pertimbangkan bulan tanam lain")
+        st.success(f"""
+        **✅ PALING DIREKOMENDASIKAN: {best_month['Bulan Tanam']}**
+        - Score: {best_month['Score']}/100
+        - Panen: {best_month['Bulan Panen']}
+        - Harga: {best_month['Harga (Rp/kg)']}
+        - Supply Glut: {best_month['Supply Glut']}
+        """)
+        
+        st.error(f"""
+        **❌ PALING TIDAK DIREKOMENDASIKAN: {worst_month['Bulan Tanam']}**
+        - Score: {worst_month['Score']}/100
+        - Panen: {worst_month['Bulan Panen']}
+        - Harga: {worst_month['Harga (Rp/kg)']}
+        - Supply Glut: {worst_month['Supply Glut']}
+        """)
+        
+        # Supply glut summary
+        high_glut_months = [d for d in comparison_data if d['Supply Glut'] == 'HIGH']
+        if high_glut_months:
+            st.warning(f"""
+            ⚠️ **PERINGATAN SUPPLY GLUT:**
+            
+            Bulan tanam berikut berisiko panen saat supply glut (harga bisa jatuh 20-40%):
+            {', '.join([d['Bulan Tanam'] for d in high_glut_months])}
+            
+            **Rekomendasi:** Pertimbangkan contract farming untuk bulan-bulan ini!
+            """)
     
     # NEW FEATURE 3: Contract Farming Recommendation
     contract_rec = get_contract_farming_recommendation(price['predicted'], harvest_month)
