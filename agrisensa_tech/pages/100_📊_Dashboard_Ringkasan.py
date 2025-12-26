@@ -70,14 +70,6 @@ if presentation_mode:
 if not presentation_mode:
     st.title("📊 Executive Summary Dashboard")
     st.markdown(f"**Welcome back, {user['name'] if user else 'Manager'}!** Here is the high-level overview of your agricultural portfolio.")
-    
-    # DEBUG: Help user troubleshoot why the menu is missing
-    if user:
-        if user.get('role') != 'superadmin':
-            st.info(f"ℹ️ **Info Akses**: Anda login sebagai **'{user.get('role')}'**. Fitur 'Mode Presentasi' hanya untuk **'superadmin'**.")
-        else:
-            st.caption(f"✅ Debug: Role terdeteksi sebagai **'{user.get('role')}'**. Menu sidebar harusnya muncul.")
-    
     st.markdown("---")
 
 # ==========================================
