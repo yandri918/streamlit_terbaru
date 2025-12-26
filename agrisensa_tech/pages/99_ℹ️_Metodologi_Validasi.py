@@ -18,7 +18,7 @@ Halaman ini mendokumentasikan logika, rumus matematika, dan sumber data yang dig
 """)
 
 # --- TAB SETUP ---
-tab1, tab2, tab3 = st.tabs(["🧪 Logika Hara (Agronomi)", "🧠 Kecerdasan Buatan (ML)", "⚖️ Sistem Keputusan (TOPSIS)"])
+tab1, tab2, tab3, tab4 = st.tabs(["🧪 Logika Hara (Agronomi)", "🧠 Kecerdasan Buatan (ML)", "⚖️ Sistem Keputusan (TOPSIS)", "📉 Risiko & Portofolio (Advanced)"])
 
 # === TAB 1: AGRONOMI ===
 with tab1:
@@ -126,6 +126,48 @@ with tab3:
     \text{Skor TOPSIS} = \frac{D_i^-}{D_i^+ + D_i^-}
     ''')
     st.caption("Dimana $D_i^-$ adalah jarak ke solusi terburuk dan $D_i^+$ adalah jarak ke solusi terbaik. Semakin mendekati 1, semakin sempurna.")
+
+# === TAB 4: RISK & PORTFOLIO ===
+with tab4:
+    st.header("4. Analisis Risiko & Optimasi Portofolio")
+    st.info("**Digunakan pada:** Analisis Risiko (Page 11) & Optimasi Portofolio (Page 13)")
+    
+    st.subheader("A. Monte Carlo Simulation (Value at Risk)")
+    st.markdown("""
+    Kami tidak menggunakan "rata-rata" sederhana untuk estimasi keuntungan, karena pertanian penuh ketidakpastian. 
+    Kami menggunakan **Monte Carlo Simulation** dengan 2.000+ iterasi untuk memodelkan ribuan skenario masa depan.
+    """)
+    
+    col_r1, col_r2 = st.columns(2)
+    
+    with col_r1:
+        st.markdown("**1. Model Harga (Price Risk)**")
+        st.latex(r"P_t = P_0 \cdot e^{(\mu - \frac{\sigma^2}{2})t + \sigma W_t}")
+        st.caption("Menggunakan Geometric Brownian Motion / Log-Normal Distribution karena harga tidak pernah negatif.")
+        
+    with col_r2:
+        st.markdown("**2. Model Kegagalan (Yield Risk)**")
+        st.latex(r"Yield_{risk} \sim Beta(\alpha, \beta)")
+        st.caption("Distribusi Beta digunakan untuk memodelkan probabilitas sukses (0-100%) berdasarkan skor risiko historis.")
+
+    st.subheader("B. Modern Portfolio Theory (Markowitz)")
+    st.markdown("""
+    Untuk diversifikasi lahan, kami mengadaptasi teori **Harry Markowitz (Nobel Prize 1990)** ke konteks pertanian.
+    Tujuannya adalah menemukan kombinasi tanaman yang memberikan **Return Maksimal** pada tingkat **Risiko Tertentu**.
+    """)
+    
+    st.latex(r'''
+    \text{Maximize: } E(R_p) = \sum w_i E(R_i)
+    ''')
+    st.latex(r'''
+    \text{Subject to Risk Constraints.}
+    ''')
+    
+    st.markdown("""
+    **Fitur Tambahan:**
+    - **Sinergi Tumpangsari**: Bonus skor efisiensi jika tanaman yang dipilih memiliki simbiosis mutualisme (misal: Nitrogen Fixer + Heavy Feeder).
+    - **Mitigation Simulator**: Menghitung ROI dari investasi mitigasi risiko (biaya vs kenaikan probabilitas sukses).
+    """)
 
 st.markdown("---")
 st.caption("© 2025 AgriSensa Artificial Intelligence System. Dokumen ini dibuat secara otomatis untuk menjamin auditabilitas sistem.")
