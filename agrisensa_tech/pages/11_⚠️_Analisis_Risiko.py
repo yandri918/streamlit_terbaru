@@ -297,70 +297,92 @@ PORTFOLIO_META = {
 # 🧠 SMART INTERCROPPING LAYOUTS (Pola Tanam)
 # ==========================================
 INTERCROPPING_PATTERNS = {
-    # FORMAT: (Crop A, Crop B) -> {Layout Name, Description, Efficiency Bonus}
-    # Main + Border (Pematang)
+    # FORMAT: (Crop A, Crop B) -> {Layout Name, Description, Efficiency Bonus, Reference}
+    
+    # 1. Main + Border (Pematang)
     frozenset(["Padi", "Kacang Panjang"]): {
         "layout": "Border Cropping (Tanaman Pematang)",
         "desc": "Padi di petakan utama, Kacang Panjang ditanam di pematang/galengan. Mengoptimalkan lahan pinggiran.",
-        "bonus": 10
+        "bonus": 10,
+        "ref": "Optimasi LUE (Land Use Efficiency)"
     },
     frozenset(["Padi", "Jagung"]): {
         "layout": "Border Cropping (Tanaman Pematang)",
-        "desc": "Padi di petakan utama, Jagung ditanam di pematang sebagai barrier angin/hama.",
-        "bonus": 8
+        "desc": "Padi di petakan utama, Jagung ditanam di pematang sebagai barrier angin & inang predator alami.",
+        "bonus": 8,
+        "ref": "Ecological Engineering (Refugia)"
     },
     
-    # Strip Cropping (Baris Berseling) - High Value + Companion
-    frozenset(["Cabai Merah", "Tomat"]): {
-        "layout": "Bedengan Selang-seling (1:1)",
-        "desc": "Bedengan Cabai diselingi Tomat. Mengurangi penyebaran virus spesifik karena jarak fisik antar spesies sama.",
-        "bonus": 5
-    },
+    # 2. Strip Cropping - Pest Control (Barrier)
     frozenset(["Cabai Merah", "Jagung"]): {
         "layout": "Barrier Cropping (Jagung Pagar)",
-        "desc": "5 Bedengan Cabai dikelilingi 2 baris Jagung. Jagung berfungsi sebagai tanaman perangkap (trap crop) hama kutu.",
-        "bonus": 15
+        "desc": "5 Bedengan Cabai dikelilingi 2 baris Jagung. Jagung menghalangi migrasi Kutu Kebul (Bemisia tabaci) vektor Virus Kuning.",
+        "bonus": 15,
+        "ref": "Krupke et al. (2017): Maize as barrier crop reduces virus incidence."
     },
     frozenset(["Cabai Merah", "Jagung Manis"]): {
         "layout": "Barrier Cropping (Jagung Pagar)",
-        "desc": "Jagung Manis sebagai pagar pelindung Cabai dari angin & hama kutu (Vektor Virus).",
-        "bonus": 15
+        "desc": "Jagung Manis sebagai pagar pelindung fisik Cabai dari angin & vektor virus. Meningkatkan populasi musuh alami.",
+        "bonus": 15,
+        "ref": "Integrated Pest Management (IPM) Strategy for Chili."
     },
     
-    # Synergy (Nitrogen Fixer)
+    # 3. Disease Control (Distance & Allelopathy)
+    frozenset(["Cabai Merah", "Tomat"]): {
+        "layout": "Bedengan Selang-seling (1:1)",
+        "desc": "Bedengan Cabai diselingi Tomat. Jarak fisik antar spesies sejenis mengurangi laju penyebaran penyakit jamur/bakteri.",
+        "bonus": 5,
+        "ref": "Spatial distantiation logic in Epidemiology."
+    },
+    frozenset(["Tomat", "Kobis"]): {
+        "layout": "Companion Mixed (Tumpang Sari Acak)",
+        "desc": "Aroma Tomat (alkaloid) dapat mengacaukan orientasi ngengat Plutella (hama utama Kobis).",
+        "bonus": 15,
+        "ref": "Chemical Ecology: Semiochemical diversity."
+    },
+    
+    # 4. Nematode Control (Bio-fumigation)
+    frozenset(["Cabai Merah", "Marigold"]): { # Hypothetical Marigold
+        "layout": "Trap Cropping",
+        "desc": "Akar Marigold (Tagetes) mengeluarkan alpha-terthienyl yang racun bagi Nematoda bengkak akar.",
+        "bonus": 20,
+        "ref": "Hooks et al. (2010): Tagetes spp. for nematode suppression."
+    },
+
+    # 5. Nitrogen Fixation Synergy
     frozenset(["Jagung", "Kedelai"]): {
         "layout": "Strip Intercropping (2:4)",
-        "desc": "2 Baris Jagung : 4 Baris Kedelai. Kedelai menyuplai Nitrogen alami untuk Jagung.",
-        "bonus": 12
+        "desc": "2 Baris Jagung : 4 Baris Kedelai. Transfer Nitrogen dari bakteri bintil akar Kedelai ke Jagung (efisiensi N s.d. 30%).",
+        "bonus": 12,
+        "ref": "Li et al. (2001): Fe facilitation & N transfer in Maize/Soybean."
     },
     frozenset(["Jagung", "Kacang Tanah"]): {
         "layout": "Strip Intercropping (2:4)",
         "desc": "2 Baris Jagung : 4 Baris Kacang Tanah. Efisiensi lahan kering & pemupukan N.",
-        "bonus": 12
+        "bonus": 12,
+        "ref": "Sustainable intensification for drylands."
     },
     
-    # Catch Crop (Tumpang Sela)
+    # 6. Agroforestry & Shade
     frozenset(["Kopi Robusta", "Lada"]): {
         "layout": "Sistem Tajar Hidup",
         "desc": "Lada merambat pada pohon pelindung Kopi. Efisiensi lahan vertikal.",
-        "bonus": 20
+        "bonus": 20,
+        "ref": "Multistrata Agroforestry Systems."
     },
     frozenset(["Kopi Robusta", "Kakao"]): {
         "layout": "Mixed Agroforestry",
         "desc": "Kopi dan Kakao dalam satu hamparan naungan. Diversifikasi risiko harga komoditas perkebunan.",
-        "bonus": 10
+        "bonus": 10,
+        "ref": "Economic Resilience Strategy."
     },
     
     # Horti Synergy
     frozenset(["Melon", "Jagung Manis"]): {
         "layout": "Windbreak System",
         "desc": "Jagung Manis ditanam di keliling lahan Melon untuk memecah angin & mengurangi spora jamur.",
-        "bonus": 10
-    },
-    frozenset(["Tomat", "Kobis"]): {
-        "layout": "Companion Mixed (Tumpang Sari Acak)",
-        "desc": "Aroma Tomat dapat mengusir ngengat perusak Kobis (Plutella). Tanam Tomat di antara bedengan Kobis.",
-        "bonus": 15
+        "bonus": 10,
+        "ref": "Microclimate manipulation."
     }
 }
 
@@ -372,11 +394,10 @@ def recommend_intercropping_layout(selected_crops):
     # Check pairs
     import itertools
     
-    # Handle single crop (no intercropping)
+    # Handle single crop
     if len(selected_crops) < 2:
         return [], 0
 
-    # Sort to ensure consistent pair checking if logic requires, but frozenset handles order
     for a, b in itertools.combinations(selected_crops, 2):
         pair_key = frozenset([a, b])
         
@@ -387,7 +408,8 @@ def recommend_intercropping_layout(selected_crops):
             <div style='background-color: #f0fdf4; border-left: 4px solid #16a34a; padding: 10px; margin-bottom: 10px; border-radius: 4px;'>
                 <strong style='color: #15803d;'>✅ Pola Tanam: {pattern['layout']}</strong><br>
                 <span style='font-size: 0.9em;'>{a} + {b}</span><br>
-                <i style='color: #4b5563;'>"{pattern['desc']}"</i>
+                <i style='color: #4b5563;'>"{pattern['desc']}"</i><br>
+                <span style='font-size: 0.75em; color: #6b7280;'>📚 Ref: {pattern.get('ref', 'General Agronomy')}</span>
             </div>
             """
             recommendations.append(rec_html)
@@ -405,9 +427,150 @@ def recommend_intercropping_layout(selected_crops):
                 </div>
                 """
                 recommendations.append(rec_html)
-                total_bonus_score += 5 # Generic bonus
+                total_bonus_score += 5 
             
     return recommendations, total_bonus_score
+
+# ... (Existing calculate_portfolio_allocation function) ...
+
+# ... (Inside Main App) ...
+
+    # 2. CROP SELECTION
+    st.divider()
+    st.subheader("🌱 Pilih Kandidat Komoditas")
+    
+    # LOGIC SYNC: Check session state from Tab 1
+    default_crops = []
+    analyzed_crop = st.session_state.get('risk_data', {}).get('crop')
+    
+    # Try to match analyzed crop to Portfolio keys
+    primary_crop = None
+    if analyzed_crop:
+        # Simple fuzzy match or direct lookup
+        for key in PORTFOLIO_META.keys():
+            if key in analyzed_crop or analyzed_crop in key:
+                primary_crop = key
+                break
+    
+    # If found, set as primary and find a partner
+    if primary_crop:
+        default_crops.append(primary_crop)
+        # Find best partner
+        partners = PORTFOLIO_META[primary_crop].get('partners', [])
+        if partners:
+            # Pick the one that exists in keys
+            valid_partners = [p for p in partners if p in PORTFOLIO_META]
+            if valid_partners:
+                default_crops.append(valid_partners[0])
+    
+    # Fallback defaults if logic failed
+    if len(default_crops) < 2:
+         available_crops = list(PORTFOLIO_META.keys())
+         # FIll with whatever provided originally or new defaults
+         remaining_needed = 2 - len(default_crops)
+         for c in available_crops:
+             if c not in default_crops:
+                 default_crops.append(c)
+                 if len(default_crops) >= 2: break
+
+    # Filter crops based on tenure
+    available_crops = list(PORTFOLIO_META.keys())
+    if "Sewa Jangka Pendek" in land_tenure:
+        available_crops = [c for c in available_crops if PORTFOLIO_META[c]['type'] == 'Annual']
+        st.warning("⚠️ Karena lahan Sewa Pendek, tanaman tahunan (Sawit, Kopi) disembunyikan.")
+        
+    # User selection with Smart Defaults
+    selected_candidates = st.multiselect(
+        "Pilih tanaman yang ingin Anda pertimbangkan (Min 2):",
+        available_crops,
+        default=default_crops if all(c in available_crops for c in default_crops) else available_crops[:2],
+        format_func=lambda x: f"{x} ({PORTFOLIO_META[x]['type']})"
+    )
+    
+    if len(selected_candidates) < 2:
+        st.info("💡 Pilih minimal 2 tanaman untuk melihat efek diversifikasi.")
+    else:
+        if st.button("🚀 Jalankan Optimasi Strategi", type="primary"):
+            
+             # A. Calculate Allocation
+            allocations = calculate_portfolio_allocation(selected_candidates, risk_aversion)
+            
+            # B. Check Intercropping Layouts
+            recommendations_html, efficiency = recommend_intercropping_layout(selected_candidates)
+            
+            # C. Persist Data for Dashboard (Page 100)
+            if 'dashboard_portfolio' not in st.session_state:
+                st.session_state['dashboard_portfolio'] = {}
+            
+            st.session_state['dashboard_portfolio'] = {
+                'total_land': total_land,
+                'allocations': allocations,
+                'risk_profile': risk_profile_user,
+                'tenure': land_tenure
+            }
+            
+            # D. Visualize Results
+            st.divider()
+            
+            c_res1, c_res2 = st.columns([1.5, 1])
+            
+            with c_res1:
+                st.subheader("🎯 Rekomendasi Alokasi Lahan")
+                
+                # Prepare data for chart
+                labels = list(allocations.keys())
+                values = [v * total_land for v in allocations.values()] # In Ha
+                pcts = [v * 100 for v in allocations.values()]
+                
+                # Pie Chart
+                import plotly.express as px
+                fig_alloc = px.pie(
+                    names=labels, values=values, hole=0.4,
+                    title=f"Alokasi Optimal untuk Lahan {total_land} Ha",
+                    color_discrete_sequence=px.colors.sequential.RdBu
+                )
+                fig_alloc.update_traces(textinfo='percent+label')
+                st.plotly_chart(fig_alloc, use_container_width=True)
+                
+                # Text breakdown
+                st.markdown("#### 📝 Detail Pembagian:")
+                for crop in labels:
+                    pct = allocations[crop]
+                    ha = pct * total_land
+                    meta = PORTFOLIO_META[crop]
+                    st.write(f"- **{crop}**: {ha:.2f} Ha ({pct*100:.1f}%)")
+                    st.caption(f"  *Alasan: Market Score {meta['market_score']}/10, ROI {meta['return_roi']*100}%*")
+            
+            with c_res2:
+                st.subheader("💡 Rekomendasi Pola Tanam (Layout)")
+                
+                # Intercropping Status
+                if recommendations_html:
+                    st.success(f"✨ **Efisiensi Lahan: +{efficiency}%**")
+                    for html in recommendations_html:
+                        st.markdown(html, unsafe_allow_html=True)
+                    st.info("Gunakan pola di atas untuk memaksimalkan hasil dalam satu hamparan lahan.")
+                else:
+                    st.warning("Belum ada rekomendasi pola tanam spesifik untuk kombinasi ini. Gunakan sistem bedengan terpisah.")
+                    
+                # Market Insight Suitability
+                st.markdown("#### 🛒 Kecocokan Pasar")
+                avg_market_score = sum([PORTFOLIO_META[c]['market_score'] for c in list(allocations.keys())]) / len(allocations)
+                
+                if avg_market_score > 8:
+                    st.markdown("⭐ **Portofolio Bintang (Sangat Laris)**")
+                elif avg_market_score > 6:
+                    st.markdown("✅ **Portofolio Stabil (Pasar Normal)**")
+                else:
+                    st.markdown("⚠️ **Portofolio Niche (Pasar Terbatas)**")
+                    
+                st.caption(f"Strategy Profile: {risk_profile_user}")
+
+# Footer
+# ==========================================
+# 📈 OPTIMIZATION LOGIC (Migrated from Page 13)
+# ==========================================
+def calculate_portfolio_allocation(selected_crops, risk_aversion=0.5):
     """
     Simplified Markowitz Optimizer for Agriculture
     risk_aversion: 0.0 (Gambler) to 1.0 (Conservative)
