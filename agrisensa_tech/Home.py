@@ -13,48 +13,27 @@ def price_ticker():
         {"name": "🌽 Jagung Pipil", "price": "Rp 5.800", "trend": "stable"},
     ]
     
-    ticker_items = []
+    ticker_html = ""
     for p in prices:
         color = "#10b981" if p['trend'] == "up" else ("#ef4444" if p['trend'] == "down" else "#fbbf24")
-        icon = "▲" if p['trend'] == "up" else ("▼" if p['trend'] == "down" else "●")
-        price_color = "#e2e8f0"
+        icon = "&uarr;" if p['trend'] == "up" else ("&darr;" if p['trend'] == "down" else "&bull;")
         
-        item_html = f'''
-        <span style="margin-right: 40px; font-family: monospace; font-size: 1.1em;">
+        # Simple HTML Span
+        ticker_html += f"""
+        <span style="margin-right: 40px; font-weight: 500;">
             <span style="color: #94a3b8;">{p["name"]}</span> 
-            <span style="color: {price_color}; font-weight: bold;">{p["price"]}</span> 
+            <span style="color: white; font-weight: bold;">{p["price"]}</span> 
             <span style="color: {color}; font-weight: bold;">{icon}</span>
         </span>
-        '''
-        ticker_items.append(item_html)
+        """
     
-    ticker_content = "".join(ticker_items)
-    
+    # Use Standard Marquee Tag (Foolproof)
     st.markdown(f"""
-    <div class="ticker-container" style="
-        background: #0f172a; 
-        border-bottom: 2px solid #334155;
-        overflow: hidden; 
-        white-space: nowrap;
-        position: relative;
-        padding: 8px 0;
-        margin-bottom: 20px;
-        border-radius: 4px;
-    ">
-        <div class="ticker-text" style="
-            display: inline-block; 
-            animation: marquee 20s linear infinite;
-        ">
-            {ticker_content} {ticker_content} {ticker_content}
-        </div>
+    <div style="background-color: #0f172a; padding: 10px; border-bottom: 2px solid #334155; margin-bottom: 20px; border-radius: 5px;">
+        <marquee scrollamount="10" style="color: white; font-family: sans-serif; font-size: 1.1rem;">
+            {ticker_html}
+        </marquee>
     </div>
-    
-    <style>
-        @keyframes marquee {{
-            0% {{ transform: translateX(0); }}
-            100% {{ transform: translateX(-50%); }} 
-        }}
-    </style>
     """, unsafe_allow_html=True)
 
 st.set_page_config(page_title="AgriSensa Tech", page_icon="🛰️", layout="wide")
