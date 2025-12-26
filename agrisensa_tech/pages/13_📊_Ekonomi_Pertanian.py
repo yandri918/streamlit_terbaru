@@ -17,6 +17,7 @@ st.set_page_config(page_title="Ekonomi Pertanian", page_icon="📊", layout="wid
 # ===== AUTHENTICATION CHECK =====
 user = require_auth()
 show_user_info_sidebar()
+st.sidebar.caption("Last Updated: v2.0 (Refactored)")
 # ================================
 
 st.title("📊 Ekonomi Pertanian & Analisis Produksi")
