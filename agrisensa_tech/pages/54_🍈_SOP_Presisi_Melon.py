@@ -33,7 +33,24 @@ st.markdown("""
 
 # --- SIDEBAR CONFIG ---
 st.sidebar.header("⚙️ Konfigurasi Kebun")
-n_plants = st.sidebar.number_input("Jumlah Tanaman", 100, 50000, 1000, step=100)
+
+input_mode = st.sidebar.radio("Mode Input:", ["🌱 Jumlah Tanaman", "🚜 Luas Lahan (Hektar)"])
+
+ha_value = 0.0
+
+if input_mode == "🌱 Jumlah Tanaman":
+    n_plants = st.sidebar.number_input("Jumlah Tanaman", 100, 100000, 1000, step=100)
+    ha_value = n_plants / 20000 # Estimate
+    area_desc = f"Estimasi Luas: {ha_value:.2f} Ha (Basis 20rb tan/ha)"
+else:
+    n_ha = st.sidebar.number_input("Luas Lahan (Ha)", 0.1, 1000.0, 25.0, step=0.1)
+    pop_per_ha = st.sidebar.number_input("Populasi per Ha", 15000, 30000, 20000, step=1000, help="Standard GH: 20.000 (Rapat)")
+    n_plants = int(n_ha * pop_per_ha)
+    ha_value = n_ha
+    area_desc = f"Total Tanaman: {n_plants:,.0f} btg"
+
+st.sidebar.caption(f"ℹ️ {area_desc}")
+
 var_name = st.sidebar.text_input("Varietas Melon", "Golden Aroma / Stella")
 start_date = st.sidebar.date_input("Tanggal Tanam (HST 0)")
 
@@ -106,7 +123,7 @@ with col2:
 
 with col3:
     st.markdown("#### 💰 Estimasi Panen")
-    est = service.calculate_needs(n_plants)
+    est = service.calculate_needs(n_plants, ha_value)
     
     st.metric("Target Yield (Ton)", f"{est['est_yield_ton']:.1f} Ton", "Standard MHI")
     st.metric("Potensi Omzet", f"Rp {est['est_gross_revenue']:,.0f}", "Asumsi Grade A 80%")

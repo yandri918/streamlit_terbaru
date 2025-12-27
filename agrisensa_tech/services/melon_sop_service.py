@@ -108,9 +108,10 @@ class MelonSopService:
         ]
     }
 
-    def calculate_needs(self, num_plants):
+    def calculate_needs(self, num_plants, ha_value=None):
         """
         Hitung total kebutuhan air & estimasi hasil untuk satu musim.
+        Jika ha_value diberikan, gunakan target yield pasti: 25 Ton/Ha.
         """
         total_water_liter = 0
         total_days = 70 # approx 70 days cycle
@@ -119,16 +120,18 @@ class MelonSopService:
         avg_water = 1.0 # liter/day average
         total_water_liter = num_plants * avg_water * total_days
         
-        # Target Yield 25 Ton/Ha
-        # Asumsi populasi 20.000 tanaman/ha (Jarak rapat) -> 1.25 kg/buah
-        # Atau populasi 15.000 tanaman/ha -> 1.6 kg/buah
-        
-        target_yield_ton = (num_plants * 1.8) / 1000 # Target 1.8 kg/buah (Premium)
+        # Target Yield Calculation
+        if ha_value and ha_value > 0:
+            # FORCE logic: 25 Ton per Hectare (MHI Standard)
+            target_yield_ton = ha_value * 25.0
+        else:
+            # Estimate based on per plant if Ha unknown (approx 1.25 kg/plant for 20k pop)
+            target_yield_ton = (num_plants * 1.5) / 1000 
         
         return {
             'total_water_m3': total_water_liter / 1000,
             'est_yield_ton': target_yield_ton,
-            'est_gross_revenue': target_yield_ton * 15000000 # Asumsi Rp 15rb/kg -> Rp 15jt/ton
+            'est_gross_revenue': target_yield_ton * 15000000 # Asumsi Rp 15rb/kg
         }
 
     def get_schedule_by_hst(self, hst):
