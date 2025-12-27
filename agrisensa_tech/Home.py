@@ -114,7 +114,7 @@ with c5:
     if st.button("📊 AI Intelligence Pro"): st.switch_page("pages/46_📊_AgriSensa_Intelligence_Pro.py")
 with c6:
     if st.button("🏠 Greenhouse & Hidroponik"): st.switch_page("pages/33_🏠_Greenhouse_Hidroponik.py")
-    if st.button("💧 Irigasi & Drainase"): st.switch_page("pages/32_💧_Irigasi_Drainase.py")
+    if st.button("🍈 SOP Presisi Melon (25 Ton)"): st.switch_page("pages/54_🍈_SOP_Presisi_Melon.py")
 
 st.markdown("---")
 st.markdown("### 🚜 Manajemen Aset & Infrastruktur")
