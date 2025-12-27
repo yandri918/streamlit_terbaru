@@ -266,6 +266,82 @@ with tab2:
         weather_data = weather_service.get_weather_forecast(lat, lon)
         
         if weather_data:
+            # === INTERACTIVE MAP ===
+            st.markdown("### 🗺️ Peta Lokasi & Cuaca Real-Time")
+            
+            try:
+                import folium
+                from streamlit_folium import st_folium
+                
+                # Create map centered on selected location
+                m = folium.Map(
+                    location=[lat, lon],
+                    zoom_start=10,
+                    tiles='OpenStreetMap'
+                )
+                
+                # Weather icon mapping
+                temp = weather_data['current_temp']
+                rain = weather_data['current_rain']
+                humidity = weather_data['current_humidity']
+                
+                # Determine marker color based on weather
+                if rain > 5:
+                    icon_color = 'blue'
+                    icon_icon = 'cloud-rain'
+                elif temp > 32:
+                    icon_color = 'red'
+                    icon_icon = 'sun'
+                elif humidity > 85:
+                    icon_color = 'lightblue'
+                    icon_icon = 'tint'
+                else:
+                    icon_color = 'green'
+                    icon_icon = 'leaf'
+                
+                # Create popup content
+                popup_html = f"""
+                <div style="font-family: Arial; width: 200px;">
+                    <h4 style="color: #0ea5e9; margin-bottom: 10px;">📍 {location}</h4>
+                    <hr style="margin: 5px 0;">
+                    <p><b>🌡️ Suhu:</b> {temp:.1f}°C</p>
+                    <p><b>💧 Kelembapan:</b> {humidity}%</p>
+                    <p><b>🌧️ Hujan:</b> {rain:.1f} mm/jam</p>
+                    <p><b>💨 Angin:</b> {weather_data['wind_speed']:.1f} km/jam</p>
+                    <hr style="margin: 5px 0;">
+                    <p style="font-size: 0.85em; color: #666;">
+                        Update: {datetime.now().strftime('%H:%M')}
+                    </p>
+                </div>
+                """
+                
+                # Add marker
+                folium.Marker(
+                    [lat, lon],
+                    popup=folium.Popup(popup_html, max_width=250),
+                    tooltip=f"{location} - {temp:.1f}°C",
+                    icon=folium.Icon(color=icon_color, icon=icon_icon, prefix='fa')
+                ).add_to(m)
+                
+                # Add circle to show farm area (example: 1km radius)
+                folium.Circle(
+                    [lat, lon],
+                    radius=1000,  # meters
+                    color='#0ea5e9',
+                    fill=True,
+                    fillColor='#0ea5e9',
+                    fillOpacity=0.2,
+                    popup='Area Kebun (1 km radius)'
+                ).add_to(m)
+                
+                # Display map
+                st_folium(m, width=700, height=400)
+                
+            except ImportError:
+                st.warning("📦 Install `folium` dan `streamlit-folium` untuk menampilkan peta interaktif.")
+                st.code("pip install folium streamlit-folium")
+            
+            # === 7-DAY FORECAST ===
             forecast_7day = weather_service.get_7day_forecast(weather_data)
             
             st.markdown("### 🌤️ Jadwal 7 Hari Ke Depan (Real-Time)")
