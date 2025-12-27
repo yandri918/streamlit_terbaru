@@ -39,13 +39,13 @@ with c2:
     with st.container():
         st.markdown("**📈 Analisis Tren Harga**")
         st.caption("Pantau tren harga dan volatilitas komoditas")
-        st.page_link("pages/6_📈_Analisis_Tren_Harga.py", label="Buka Module", icon="▶️", use_container_width=True)
+        st.page_link("pages/6_Analisis_Tren_Harga.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 with c3:
     with st.container():
         st.markdown("**📊 Dasbor Terpadu**")
         st.caption("Dashboard monitoring performa bisnis real-time")
-        st.page_link("pages/8_📊_Dasbor_Terpadu.py", label="Buka Module", icon="▶️", use_container_width=True)
+        st.page_link("pages/8_Dasbor_Terpadu.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 # Rantai Pasok & Produk
 st.markdown('<div class="section-header">🚚 Rantai Pasok & Produk</div>', unsafe_allow_html=True)
@@ -55,25 +55,25 @@ with c4:
     with st.container():
         st.markdown("**🚚 Rantai Pasok Live**")
         st.caption("Tracking produk farm to table")
-        st.page_link("pages/48_🚚_Rantai_Pasok_Live.py", label="Buka Module", icon="▶️", use_container_width=True)
+        st.page_link("pages/48_Rantai_Pasok_Live.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 with c5:
     with st.container():
         st.markdown("**🏷️ Traceability Produk**")
         st.caption("QR code & product passport")
-        st.page_link("pages/49_🏷️_Traceability_Produk.py", label="Buka Module", icon="▶️", use_container_width=True)
+        st.page_link("pages/49_Traceability_Produk.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 with c6:
     with st.container():
         st.markdown("**🌾 Database Panen**")
         st.caption("Data hasil panen lengkap")
-        st.page_link("pages/1_🌾_Database_Panen.py", label="Buka Module", icon="▶️", use_container_width=True)
+        st.page_link("pages/1_Database_Panen.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 with c7:
     with st.container():
         st.markdown("**🎯 Prediksi Hasil Panen**")
         st.caption("AI-powered yield prediction")
-        st.page_link("pages/7_🎯_Prediksi_Hasil_Panen.py", label="Buka Module", icon="▶️", use_container_width=True)
+        st.page_link("pages/7_Prediksi_Hasil_Panen.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 # Manajemen & SDM
 st.markdown('<div class="section-header">👥 Manajemen & SDM</div>', unsafe_allow_html=True)
@@ -83,19 +83,19 @@ with c8:
     with st.container():
         st.markdown("**📢 Ruang Kerja PPL**")
         st.caption("Workspace untuk Penyuluh Pertanian Lapangan")
-        st.page_link("pages/45_📢_Ruang_Kerja_PPL_Final.py", label="Buka Module", icon="▶️", use_container_width=True)
+        st.page_link("pages/45_Ruang_Kerja_PPL_Final.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 with c9:
     with st.container():
         st.markdown("**📋 Manajemen Proyek**")
         st.caption("Project management & task tracking")
-        st.page_link("pages/50_📋_Manajemen_Proyek_Pertanian.py", label="Buka Module", icon="▶️", use_container_width=True)
+        st.page_link("pages/50_Manajemen_Proyek_Pertanian.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 with c10:
     with st.container():
         st.markdown("**🎓 Kurikulum Pelatihan**")
         st.caption("Program pelatihan terstruktur")
-        st.page_link("pages/53_🎓_Kurikulum_Pelatihan.py", label="Buka Module", icon="▶️", use_container_width=True)
+        st.page_link("pages/53_Kurikulum_Pelatihan.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 # Footer
 st.markdown("---")
