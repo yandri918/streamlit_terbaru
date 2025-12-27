@@ -216,13 +216,13 @@ with tab1:
 with tab2:
     st.subheader("📅 Jadwal Irigasi Cerdas (7 Hari)")
     
-    st.info("""
-    💡 **Coming Soon**: Integrasi dengan BMKG/OpenWeatherMap API untuk forecast cuaca real-time.
+    st.success("""
+    ✅ **Terintegrasi dengan Open-Meteo API** - Prediksi cuaca real-time untuk optimasi irigasi!
     
-    Saat ini menampilkan simulasi jadwal irigasi berdasarkan kebutuhan tanaman.
+    Jadwal irigasi disesuaikan otomatis berdasarkan forecast hujan 7 hari ke depan.
     """)
     
-    col_s1, col_s2 = st.columns(2)
+    col_s1, col_s2, col_s3 = st.columns(3)
     
     with col_s1:
         crop_schedule = st.selectbox(
@@ -240,52 +240,131 @@ with tab2:
             help="Berapa hari sejak tanam"
         )
     
-    # Simulated weather data (in production, this would come from API)
-    st.markdown("### 🌤️ Jadwal 7 Hari Ke Depan")
+    with col_s3:
+        # Location selector for weather
+        location_presets = {
+            "Jakarta": (-6.2088, 106.8456),
+            "Bandung": (-6.9175, 107.6191),
+            "Surabaya": (-7.2575, 112.7521),
+            "Yogyakarta": (-7.7956, 110.3695),
+            "Bogor": (-6.5971, 106.8060)
+        }
+        location = st.selectbox("Lokasi Kebun", list(location_presets.keys()))
+        lat, lon = location_presets[location]
     
-    req = calc.CROP_WATER_REQUIREMENTS.get(crop_schedule)
-    daily_need = req['total_mm'] / req['duration_days']
-    
-    # Simulate 7 days
-    today = datetime.now()
-    weather_sim = [
-        {'rain': 2, 'weather': '🌤️ Berawan'},
-        {'rain': 15, 'weather': '🌧️ Hujan Lebat'},
-        {'rain': 0, 'weather': '☀️ Cerah'},
-        {'rain': 5, 'weather': '🌦️ Hujan Ringan'},
-        {'rain': 0, 'weather': '☀️ Cerah'},
-        {'rain': 8, 'weather': '🌧️ Hujan Sedang'},
-        {'rain': 3, 'weather': '🌤️ Berawan'}
-    ]
-    
-    for i, weather in enumerate(weather_sim):
-        date = today + timedelta(days=i)
-        day_name = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'][date.weekday()]
+    # Get real weather data
+    try:
+        # Import weather service from agrisensa_tech
+        import sys
+        tech_services_path = str(Path(__file__).parent.parent.parent / "agrisensa_tech" / "services")
+        if tech_services_path not in sys.path:
+            sys.path.insert(0, tech_services_path)
         
-        rain_mm = weather['rain']
-        need_irrigation = rain_mm < daily_need
-        irrigation_amount = max(0, daily_need - rain_mm)
+        from weather_service import WeatherService
         
-        if need_irrigation:
-            st.markdown(f"""
-            <div class="alert-irrigate">
-                <h4>{day_name}, {date.strftime('%d %b %Y')}</h4>
-                <p>{weather['weather']} | Hujan: {rain_mm}mm</p>
-                <p>💧 Kebutuhan: {daily_need:.1f}mm/hari</p>
-                <p><strong>⚠️ PERLU IRIGASI: {irrigation_amount:.1f}mm</strong></p>
-                <p><small>Alasan: Hujan tidak cukup ({rain_mm}mm < {daily_need:.1f}mm)</small></p>
-            </div>
-            """, unsafe_allow_html=True)
+        weather_service = WeatherService()
+        weather_data = weather_service.get_weather_forecast(lat, lon)
+        
+        if weather_data:
+            forecast_7day = weather_service.get_7day_forecast(weather_data)
+            
+            st.markdown("### 🌤️ Jadwal 7 Hari Ke Depan (Real-Time)")
+            
+            req = calc.CROP_WATER_REQUIREMENTS.get(crop_schedule)
+            daily_need = req['total_mm'] / req['duration_days']
+            
+            for day_forecast in forecast_7day:
+                date_obj = datetime.strptime(day_forecast['date'], '%Y-%m-%d')
+                day_name = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'][date_obj.weekday()]
+                
+                rain_mm = day_forecast['rain_mm']
+                temp_max = day_forecast['temp_max']
+                temp_min = day_forecast['temp_min']
+                
+                # Determine weather icon
+                if rain_mm > 10:
+                    weather_icon = "🌧️ Hujan Lebat"
+                elif rain_mm > 5:
+                    weather_icon = "🌦️ Hujan Sedang"
+                elif rain_mm > 0:
+                    weather_icon = "🌤️ Hujan Ringan"
+                else:
+                    weather_icon = "☀️ Cerah"
+                
+                need_irrigation = rain_mm < daily_need
+                irrigation_amount = max(0, daily_need - rain_mm)
+                
+                if need_irrigation:
+                    st.markdown(f"""
+                    <div class="alert-irrigate">
+                        <h4>{day_name}, {date_obj.strftime('%d %b %Y')}</h4>
+                        <p>{weather_icon} | Hujan: {rain_mm:.1f}mm | Suhu: {temp_min:.0f}-{temp_max:.0f}°C</p>
+                        <p>💧 Kebutuhan: {daily_need:.1f}mm/hari</p>
+                        <p><strong>⚠️ PERLU IRIGASI: {irrigation_amount:.1f}mm</strong></p>
+                        <p><small>Alasan: Hujan tidak cukup ({rain_mm:.1f}mm < {daily_need:.1f}mm)</small></p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div class="alert-no-irrigate">
+                        <h4>{day_name}, {date_obj.strftime('%d %b %Y')}</h4>
+                        <p>{weather_icon} | Hujan: {rain_mm:.1f}mm | Suhu: {temp_min:.0f}-{temp_max:.0f}°C</p>
+                        <p>💧 Kebutuhan: {daily_need:.1f}mm/hari</p>
+                        <p><strong>✅ TIDAK PERLU IRIGASI</strong></p>
+                        <p><small>Alasan: Hujan cukup ({rain_mm:.1f}mm ≥ {daily_need:.1f}mm)</small></p>
+                    </div>
+                    """, unsafe_allow_html=True)
         else:
-            st.markdown(f"""
-            <div class="alert-no-irrigate">
-                <h4>{day_name}, {date.strftime('%d %b %Y')}</h4>
-                <p>{weather['weather']} | Hujan: {rain_mm}mm</p>
-                <p>💧 Kebutuhan: {daily_need:.1f}mm/hari</p>
-                <p><strong>✅ TIDAK PERLU IRIGASI</strong></p>
-                <p><small>Alasan: Hujan cukup ({rain_mm}mm ≥ {daily_need:.1f}mm)</small></p>
-            </div>
-            """, unsafe_allow_html=True)
+            st.error("❌ Gagal mengambil data cuaca. Menampilkan simulasi...")
+            # Fallback to simulated data (original code)
+            st.markdown("### 🌤️ Jadwal 7 Hari Ke Depan (Simulasi)")
+            
+            req = calc.CROP_WATER_REQUIREMENTS.get(crop_schedule)
+            daily_need = req['total_mm'] / req['duration_days']
+            
+            today = datetime.now()
+            weather_sim = [
+                {'rain': 2, 'weather': '🌤️ Berawan'},
+                {'rain': 15, 'weather': '🌧️ Hujan Lebat'},
+                {'rain': 0, 'weather': '☀️ Cerah'},
+                {'rain': 5, 'weather': '🌦️ Hujan Ringan'},
+                {'rain': 0, 'weather': '☀️ Cerah'},
+                {'rain': 8, 'weather': '🌧️ Hujan Sedang'},
+                {'rain': 3, 'weather': '🌤️ Berawan'}
+            ]
+            
+            for i, weather in enumerate(weather_sim):
+                date = today + timedelta(days=i)
+                day_name = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'][date.weekday()]
+                
+                rain_mm = weather['rain']
+                need_irrigation = rain_mm < daily_need
+                irrigation_amount = max(0, daily_need - rain_mm)
+                
+                if need_irrigation:
+                    st.markdown(f"""
+                    <div class="alert-irrigate">
+                        <h4>{day_name}, {date.strftime('%d %b %Y')}</h4>
+                        <p>{weather['weather']} | Hujan: {rain_mm}mm</p>
+                        <p>💧 Kebutuhan: {daily_need:.1f}mm/hari</p>
+                        <p><strong>⚠️ PERLU IRIGASI: {irrigation_amount:.1f}mm</strong></p>
+                        <p><small>Alasan: Hujan tidak cukup ({rain_mm}mm < {daily_need:.1f}mm)</small></p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div class="alert-no-irrigate">
+                        <h4>{day_name}, {date.strftime('%d %b %Y')}</h4>
+                        <p>{weather['weather']} | Hujan: {rain_mm}mm</p>
+                        <p>💧 Kebutuhan: {daily_need:.1f}mm/hari</p>
+                        <p><strong>✅ TIDAK PERLU IRIGASI</strong></p>
+                        <p><small>Alasan: Hujan cukup ({rain_mm}mm ≥ {daily_need:.1f}mm)</small></p>
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+    except Exception as e:
+        st.error(f"❌ Error mengambil data cuaca: {str(e)}")
+        st.info("Menampilkan simulasi jadwal irigasi...")
     
     st.markdown("### 💡 Tips Irigasi")
     st.info("""
