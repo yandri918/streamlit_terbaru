@@ -29,12 +29,12 @@ class PrecisionSopService:
             }
         },
         'Padi Sawah (Modern)': {
-            'target_yield_ton_ha': 9.0, # Target PTT/IP400
-            'pop_per_ha': 160000, # Rumpun (Tajarwo)
-            'cycle_days': 100, # Genjah
+            'target_yield_ton_ha': 10.0, # Target Super Intensif (PTT+SRI)
+            'pop_per_ha': 160000, # Rumpun (Jajar Legowo 2:1)
+            'cycle_days': 105, # Varietas Unggul
             'price_per_kg': 6000, # GKP
             'phases': {
-                'vegetative': (0, 40), 'flowering': (41, 65), 'fruiting': (66, 85), 'ripening': (86, 100)
+                'vegetative': (0, 40), 'flowering': (41, 65), 'fruiting': (66, 90), 'ripening': (91, 105)
             }
         }
     }
@@ -65,52 +65,107 @@ class PrecisionSopService:
         }
     }
 
-    # 2. CABAI (Standard Intensif)
+    # 2. CABAI (Standard Intensif) - Enhanced
     CHILI_DATA = {
         'Fase 1: Vegetatif (HST 0-30)': {
-            'ec': 1.5, 'n': 150, 'p': 80, 'k': 100, 'ca': 100, 'water': 0.3,
-            'focus': 'Percabangan "Y"',
-            'tasks': ['Rempel tunas air di bawah cabang Y', 'Pasang ajir', 'Cek Kutu Kebul/Thrips (Virus)']
+            'ec': 1.5, 'n': 150, 'p': 80, 'k': 100, 'ca': 120, 'water': 0.3,
+            'focus': 'Percabangan "Y" Kuat',
+            'tasks': [
+                'Rempel tunas air di bawah cabang Y', 
+                'Pasang ajir/tali gawar awal', 
+                'Aplikasi NPK 16-16-16 (200 kg/ha)',
+                'Cek Kutu Kebul/Thrips (Vektor Virus)',
+                'Mulsa plastik hitam-perak'
+            ]
         },
         'Fase 2: Bunga & Buah Awal (HST 31-50)': {
-            'ec': 2.0, 'n': 120, 'p': 100, 'k': 200, 'ca': 150, 'water': 0.5,
-            'focus': 'Bunga Serempak & Kalsium',
-            'tasks': ['Spray Kalsium (Cegah rontok)', 'Pasang tali gawar', 'Monitor Lalat Buah (Trap)']
+            'ec': 2.0, 'n': 120, 'p': 100, 'k': 200, 'ca': 180, 'water': 0.5,
+            'focus': 'Bunga Serempak & Anti-Rontok',
+            'tasks': [
+                'Spray Kalsium Boron (2-3x/minggu)', 
+                'Pasang tali gawar vertikal', 
+                'Monitor Lalat Buah (Trap metil eugenol)',
+                'Aplikasi KNO3 (150 kg/ha)',
+                'Cek pH tanah (target 6.0-6.5)'
+            ]
         },
         'Fase 3: Pembesaran Buah (HST 51-80)': {
-            'ec': 2.5, 'n': 140, 'p': 80, 'k': 250, 'ca': 180, 'water': 0.8,
-            'focus': 'Bobot Buah & Dinding Tebal',
-            'tasks': ['Pupuk K tinggi (KNO3)', 'Pengendalian Patek (Antraknosa) saat hujan', 'Sanitasi gulma']
+            'ec': 2.5, 'n': 140, 'p': 80, 'k': 280, 'ca': 200, 'water': 0.8,
+            'focus': 'Bobot Buah & Ketebalan Dinding',
+            'tasks': [
+                'Pupuk K tinggi (KNO3 + KCL 250 kg/ha)', 
+                'Pengendalian Patek (Fungisida rotasi FRAC)',
+                'Sanitasi gulma & buah busuk',
+                'Irigasi tetes 2x/hari (pagi-sore)',
+                'Monitor EC larutan (2.0-2.5 mS/cm)'
+            ]
         },
         'Fase 4: Panen Raya (HST 81-120)': {
             'ec': 2.0, 'n': 100, 'p': 60, 'k': 200, 'ca': 150, 'water': 0.6,
-            'focus': 'Panen & Maintenance',
-            'tasks': ['Panen interval 3-4 hari', 'Sortasi buah busuk', 'Rotasi pestisida']
+            'focus': 'Panen Kontinyu & Maintenance',
+            'tasks': [
+                'Panen interval 3-4 hari (merah 80%)', 
+                'Sortasi buah busuk/cacat',
+                'Rotasi pestisida (hindari resistensi)',
+                'Pemupukan maintenance (NPK 15-15-15)',
+                'Cek nematoda akar (gejala layu)'
+            ]
         }
     }
 
-    # 3. PADI (Standard PTT/Modern)
-    # Note: Padi pakai istilah Kg/Ha pupuk tabur biasanya, dikonversi ke saran umum.
+    # 3. PADI (Target 10 Ton/Ha - Super Intensif)
     RICE_DATA = {
-        'Fase 1: Vegetatif/Anakan (HST 0-40)': {
-            'ec': 0.0, 'n': 120, 'p': 60, 'k': 60, 'ca': 0, 'water': 5.0, # Intermittent
-            'focus': 'Anakan Maksimal',
-            'tasks': ['Tanam sistem Jajar Legowo', 'Pupuk Urea & SP-36', 'Pengairan Macak-macak (0-10 HST)', 'Siangi gulma']
+        'Fase 1: Vegetatif/Anakan Maksimal (HST 0-40)': {
+            'ec': 0.0, 'n': 150, 'p': 90, 'k': 75, 'ca': 0, 'water': 5.0,
+            'focus': 'Anakan Produktif 25-30 btg/rumpun',
+            'tasks': [
+                'Tanam sistem Jajar Legowo 2:1 (25x12.5 cm)',
+                'Bibit muda (15-21 HSS), 1-2 btg/lubang',
+                'Pupuk dasar: Urea 100 kg + SP-36 150 kg + KCl 100 kg/ha',
+                'Pengairan macak-macak (0-10 HST) lalu genangan 2-3 cm',
+                'Penyiangan I (15-20 HST) + Aplikasi herbisida selektif',
+                'Pupuk susulan I (21 HST): Urea 100 kg + NPK Phonska 150 kg/ha',
+                'Monitor hama keong mas & penggerek batang'
+            ]
         },
         'Fase 2: Primordia/Bunting (HST 41-65)': {
-            'ec': 0.0, 'n': 60, 'p': 40, 'k': 100, 'ca': 0, 'water': 10.0, # Genang
-            'focus': 'Malai Panjang & Bernas',
-            'tasks': ['Pupuk KCL/NPK', 'Cek Hama Putih Palsu & Penggerek Batang', 'Jaga air tergenang 3cm']
+            'ec': 0.0, 'n': 75, 'p': 60, 'k': 125, 'ca': 0, 'water': 10.0,
+            'focus': 'Malai Panjang & Bulir Banyak',
+            'tasks': [
+                'Pupuk susulan II (42 HST): Urea 75 kg + KCl 75 kg/ha',
+                'Jaga air tergenang 5-7 cm (fase kritis)',
+                'Aplikasi ZPT (Giberelin) untuk perpanjangan malai',
+                'Cek hama: Penggerek batang, Wereng, Putih Palsu',
+                'Penyiangan II (40-45 HST)',
+                'Spray MKP 0-52-34 (2 kg/ha) saat primordia',
+                'Monitor kadar N daun (SPAD meter > 35)'
+            ]
         },
-        'Fase 3: Pengisian Bulir (HST 66-85)': {
-            'ec': 0.0, 'n': 0, 'p': 20, 'k': 60, 'ca': 0, 'water': 5.0,
-            'focus': 'Bobot Gabah (1000 butir)',
-            'tasks': ['Spray MKP (Daun Bendera Hijau)', 'Halau Burung', 'Cek Walang Sangit']
+        'Fase 3: Pengisian Bulir (HST 66-90)': {
+            'ec': 0.0, 'n': 0, 'p': 30, 'k': 75, 'ca': 0, 'water': 5.0,
+            'focus': 'Bobot 1000 Butir (>28 gram)',
+            'tasks': [
+                'Pupuk susulan III (70 HST): KCl 50 kg + MKP 2 kg/ha',
+                'Spray pupuk daun (P-K tinggi) 2x seminggu',
+                'Jaga daun bendera tetap hijau (fotosintesis maksimal)',
+                'Pengairan intermiten (3 hari kering, 1 hari basah)',
+                'Halau burung (pasang jaring/orang-orangan)',
+                'Cek Walang Sangit & Kepinding Tanah',
+                'Monitor kadar air gabah (panen 22-24%)'
+            ]
         },
-        'Fase 4: Pematangan (HST 86-100)': {
-            'ec': 0.0, 'n': 0, 'p': 0, 'k': 0, 'ca': 0, 'water': 0.0, # Keringkan
-            'focus': 'Kuning Jerami & Panen',
-            'tasks': ['Keringkan lahan (10 hari sebelum panen)', 'Siapkan alat panen']
+        'Fase 4: Pematangan & Panen (HST 91-105)': {
+            'ec': 0.0, 'n': 0, 'p': 0, 'k': 0, 'ca': 0, 'water': 0.0,
+            'focus': 'Kuning Jerami 90% & Panen Tepat Waktu',
+            'tasks': [
+                'Keringkan lahan total (10-14 hari sebelum panen)',
+                'Cek kematangan: 90% bulir kuning, kadar air 22-24%',
+                'Siapkan combine harvester / sabit bergerigi',
+                'Panen pagi hari (hindari kehilangan hasil)',
+                'Perontokan segera (max 24 jam pasca panen)',
+                'Pengeringan GKP hingga 14% (jemur/dryer)',
+                'Evaluasi: Hitung GKG, rendemen, losses'
+            ]
         }
     }
 
