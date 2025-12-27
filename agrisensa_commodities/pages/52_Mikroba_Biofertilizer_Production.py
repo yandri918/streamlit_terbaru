@@ -716,44 +716,273 @@ with tab_calc:
     
     with calc_tab1:
         st.subheader("💵 Production Cost Analysis")
+        st.info("📝 **Customize harga sesuai kondisi pasar lokal Anda**")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            product_type = st.selectbox("Product Type", [
-                "ROTAN_Bioactivator",
-                "POC_ROTAN_Premium",
-                "Trichoderma",
-                "PGPR"
-            ])
-        with col2:
-            volume = st.number_input("Production Volume (Liters/Kg)", 10, 10000, 100)
+        # Product selection
+        product_type = st.selectbox("Pilih Produk", [
+            "ROTAN_Bioactivator",
+            "POC_ROTAN_Premium",
+            "Trichoderma",
+            "PGPR"
+        ])
         
-        if st.button("Calculate Production Cost"):
-            cost_result = service.calculate_production_cost(product_type, volume)
+        # Get base data
+        product_data = service.COST_DATABASE[product_type]
+        
+        st.markdown("---")
+        st.markdown("### 🧾 Rincian Bahan Baku (Editable)")
+        st.caption(f"**Output per batch**: {product_data['output_volume']} L/kg | **Fermentasi**: {product_data['fermentation_days']} hari")
+        
+        # Create editable material list
+        materials_custom = {}
+        total_material_cost_per_batch = 0
+        
+        st.markdown("#### 📦 Bahan-bahan:")
+        
+        # Display materials in a table format with editable prices
+        for material, data in product_data['raw_materials'].items():
+            col1, col2, col3, col4 = st.columns([3, 1, 2, 2])
             
-            if cost_result:
-                col_r1, col_r2, col_r3 = st.columns(3)
-                with col_r1:
-                    st.metric("Total Cost", f"Rp {cost_result['total_cost']:,.0f}")
-                with col_r2:
-                    st.metric("Cost per Liter", f"Rp {cost_result['cost_per_liter']:,.0f}")
-                with col_r3:
-                    st.metric("Number of Batches", f"{cost_result['num_batches']:.1f}")
+            with col1:
+                st.write(f"**{material}**")
+            with col2:
+                qty = st.number_input(
+                    f"Qty",
+                    value=float(data['qty']),
+                    min_value=0.0,
+                    step=0.1,
+                    key=f"qty_{material}_{product_type}",
+                    label_visibility="collapsed"
+                )
+            with col3:
+                st.write(f"{data['unit']}")
+            with col4:
+                price = st.number_input(
+                    f"Harga (Rp)",
+                    value=data['price'],
+                    min_value=0,
+                    step=1000,
+                    key=f"price_{material}_{product_type}",
+                    label_visibility="collapsed"
+                )
+            
+            material_total = qty * price
+            total_material_cost_per_batch += material_total
+            materials_custom[material] = {
+                'qty': qty,
+                'unit': data['unit'],
+                'price': price,
+                'total': material_total
+            }
+        
+        st.markdown("---")
+        st.markdown("### 💰 Biaya Produksi Lainnya (Editable)")
+        
+        col_other1, col_other2 = st.columns(2)
+        
+        with col_other1:
+            labor_cost_per_batch = st.number_input(
+                "💼 Biaya Tenaga Kerja per Batch (Rp)",
+                value=50000,
+                min_value=0,
+                step=5000,
+                help="Biaya untuk 1 batch produksi"
+            )
+            
+            utilities_per_batch = st.number_input(
+                "⚡ Utilities per Batch (Rp)",
+                value=25000,
+                min_value=0,
+                step=5000,
+                help="Listrik, air, gas untuk 1 batch"
+            )
+        
+        with col_other2:
+            packaging_per_liter = st.number_input(
+                "📦 Packaging per Liter (Rp)",
+                value=2000,
+                min_value=0,
+                step=500,
+                help="Botol, label, box per liter"
+            )
+            
+            overhead_percent = st.number_input(
+                "🏢 Overhead (%)",
+                value=10.0,
+                min_value=0.0,
+                max_value=50.0,
+                step=1.0,
+                help="Sewa, administrasi, dll"
+            )
+        
+        st.markdown("---")
+        st.markdown("### 📊 Kalkulator Volume Produksi")
+        
+        col_vol1, col_vol2 = st.columns(2)
+        with col_vol1:
+            target_volume = st.number_input(
+                "Target Volume Produksi (Liter/Kg)",
+                min_value=10,
+                max_value=100000,
+                value=100,
+                step=10
+            )
+        with col_vol2:
+            num_batches = target_volume / product_data['output_volume']
+            st.metric("Jumlah Batch Diperlukan", f"{num_batches:.1f}")
+        
+        if st.button("🧮 Hitung Total Biaya Produksi", type="primary"):
+            # Calculate total costs
+            total_material_cost = total_material_cost_per_batch * num_batches
+            total_labor = labor_cost_per_batch * num_batches
+            total_utilities = utilities_per_batch * num_batches
+            total_packaging = packaging_per_liter * target_volume
+            
+            subtotal = total_material_cost + total_labor + total_utilities + total_packaging
+            overhead_cost = subtotal * (overhead_percent / 100)
+            grand_total = subtotal + overhead_cost
+            
+            cost_per_unit = grand_total / target_volume
+            
+            # Display results
+            st.success("✅ **Hasil Perhitungan**")
+            
+            # Summary metrics
+            col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+            with col_m1:
+                st.metric("Total Biaya", f"Rp {grand_total:,.0f}")
+            with col_m2:
+                st.metric("Biaya per Liter", f"Rp {cost_per_unit:,.0f}")
+            with col_m3:
+                st.metric("Volume Produksi", f"{target_volume} L")
+            with col_m4:
+                st.metric("Jumlah Batch", f"{num_batches:.1f}")
+            
+            st.markdown("---")
+            
+            # Detailed breakdown table
+            st.markdown("### 📋 Rincian Biaya Detail")
+            
+            breakdown_data = {
+                'Kategori': [
+                    '🥦 Bahan Baku',
+                    '💼 Tenaga Kerja',
+                    '⚡ Utilities',
+                    '📦 Packaging',
+                    '🏢 Overhead',
+                    '**TOTAL**'
+                ],
+                'Biaya (Rp)': [
+                    f"Rp {total_material_cost:,.0f}",
+                    f"Rp {total_labor:,.0f}",
+                    f"Rp {total_utilities:,.0f}",
+                    f"Rp {total_packaging:,.0f}",
+                    f"Rp {overhead_cost:,.0f}",
+                    f"**Rp {grand_total:,.0f}**"
+                ],
+                'Persentase': [
+                    f"{(total_material_cost/grand_total*100):.1f}%",
+                    f"{(total_labor/grand_total*100):.1f}%",
+                    f"{(total_utilities/grand_total*100):.1f}%",
+                    f"{(total_packaging/grand_total*100):.1f}%",
+                    f"{(overhead_cost/grand_total*100):.1f}%",
+                    "100%"
+                ]
+            }
+            
+            df_breakdown = pd.DataFrame(breakdown_data)
+            st.dataframe(df_breakdown, use_container_width=True, hide_index=True)
+            
+            st.markdown("---")
+            
+            # Material details table
+            with st.expander("📦 Detail Bahan Baku per Komponen"):
+                material_details = {
+                    'Bahan': [],
+                    'Qty': [],
+                    'Unit': [],
+                    'Harga Satuan': [],
+                    'Total per Batch': [],
+                    'Total Produksi': []
+                }
                 
-                # Breakdown chart
-                breakdown = {
-                    'Category': ['Raw Materials', 'Labor', 'Utilities', 'Packaging'],
+                for material, data in materials_custom.items():
+                    material_details['Bahan'].append(material)
+                    material_details['Qty'].append(f"{data['qty']:.2f}")
+                    material_details['Unit'].append(data['unit'])
+                    material_details['Harga Satuan'].append(f"Rp {data['price']:,.0f}")
+                    material_details['Total per Batch'].append(f"Rp {data['total']:,.0f}")
+                    material_details['Total Produksi'].append(f"Rp {data['total'] * num_batches:,.0f}")
+                
+                df_materials = pd.DataFrame(material_details)
+                st.dataframe(df_materials, use_container_width=True, hide_index=True)
+            
+            # Visualization
+            st.markdown("---")
+            st.markdown("### 📊 Visualisasi Breakdown Biaya")
+            
+            col_chart1, col_chart2 = st.columns(2)
+            
+            with col_chart1:
+                # Pie chart
+                pie_data = {
+                    'Category': ['Bahan Baku', 'Tenaga Kerja', 'Utilities', 'Packaging', 'Overhead'],
                     'Cost': [
-                        cost_result['raw_material_cost'],
-                        cost_result['labor_cost'],
-                        cost_result['utilities'],
-                        cost_result['packaging']
+                        total_material_cost,
+                        total_labor,
+                        total_utilities,
+                        total_packaging,
+                        overhead_cost
                     ]
                 }
                 
-                fig = px.pie(breakdown, values='Cost', names='Category', 
-                           title='Cost Breakdown')
-                st.plotly_chart(fig, use_container_width=True)
+                fig_pie = px.pie(
+                    pie_data,
+                    values='Cost',
+                    names='Category',
+                    title='Proporsi Biaya',
+                    color_discrete_sequence=px.colors.sequential.RdBu
+                )
+                st.plotly_chart(fig_pie, use_container_width=True)
+            
+            with col_chart2:
+                # Bar chart
+                fig_bar = px.bar(
+                    pie_data,
+                    x='Category',
+                    y='Cost',
+                    title='Breakdown Biaya per Kategori',
+                    labels={'Cost': 'Biaya (Rp)', 'Category': 'Kategori'},
+                    color='Cost',
+                    color_continuous_scale='Blues'
+                )
+                fig_bar.update_layout(showlegend=False)
+                st.plotly_chart(fig_bar, use_container_width=True)
+            
+            # Pricing recommendation
+            st.markdown("---")
+            st.markdown("### 💡 Rekomendasi Harga Jual")
+            
+            col_price1, col_price2, col_price3 = st.columns(3)
+            
+            with col_price1:
+                st.info("**Margin 30%**")
+                selling_price_30 = cost_per_unit * 1.3
+                st.metric("Harga Jual", f"Rp {selling_price_30:,.0f}/L")
+                st.caption("Untuk pasar kompetitif")
+            
+            with col_price2:
+                st.success("**Margin 50%**")
+                selling_price_50 = cost_per_unit * 1.5
+                st.metric("Harga Jual", f"Rp {selling_price_50:,.0f}/L")
+                st.caption("Standar industri")
+            
+            with col_price3:
+                st.warning("**Margin 100%**")
+                selling_price_100 = cost_per_unit * 2.0
+                st.metric("Harga Jual", f"Rp {selling_price_100:,.0f}/L")
+                st.caption("Premium/Retail")
+
     
     with calc_tab2:
         st.subheader("📊 ROI Analysis")
