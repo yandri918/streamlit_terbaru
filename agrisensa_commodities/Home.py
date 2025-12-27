@@ -34,7 +34,11 @@ with cols2[0]:
     
 with cols2[1]:
     st.markdown('<div class="card"><h3>🍄 Jamur</h3><p>Budidaya jamur tiram dan kuping profesional.</p></div>', unsafe_allow_html=True)
-    if st.button("Buka Modul Jamur"): st.switch_page("pages/51_🍄_Budidaya_Jamur_Profesional.py")
+    if st.button("Buka Modul Jamur"): st.switch_page("pages/51_Budidaya_Jamur_Profesional.py")
+
+with cols2[2]:
+    st.markdown('<div class="card"><h3>🦠 Mikroba & Biofertilizer</h3><p>Produksi pupuk hayati dan agen biokontrol.</p></div>', unsafe_allow_html=True)
+    if st.button("Buka Modul Mikroba"): st.switch_page("pages/52_Mikroba_Biofertilizer_Production.py")
 
 st.markdown("---")
 st.info("💡 Aplikasi ini adalah bagian dari ekosistem AgriSensa.")
