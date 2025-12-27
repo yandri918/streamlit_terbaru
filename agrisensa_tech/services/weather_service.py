@@ -75,3 +75,72 @@ class WeatherService:
             return "⚠️ WASPADA: Risiko hujan tinggi dalam 3 hari kedepan."
         else:
             return "✅ AMAN: Kondisi cuaca mendukung untuk aktivitas tanam."
+    
+    def get_7day_forecast(self, weather_data):
+        """Extract and format 7-day forecast from daily data."""
+        if not weather_data or 'raw_daily' not in weather_data:
+            return []
+        
+        daily = weather_data['raw_daily']
+        forecast = []
+        
+        for i in range(min(7, len(daily.get('time', [])))):
+            forecast.append({
+                'date': daily['time'][i],
+                'temp_max': daily['temperature_2m_max'][i],
+                'temp_min': daily['temperature_2m_min'][i],
+                'rain_mm': daily['rain_sum'][i],
+                'rain_prob': daily['precipitation_probability_max'][i],
+                'weather_code': daily['weather_code'][i]
+            })
+        
+        return forecast
+    
+    def get_agricultural_alerts(self, weather_data):
+        """Generate smart alerts based on weather conditions."""
+        alerts = []
+        
+        if not weather_data:
+            return alerts
+        
+        # Current rain alert
+        if weather_data['current_rain'] > 5:
+            alerts.append({
+                'type': 'warning',
+                'icon': '🌧️',
+                'title': 'Hujan Lebat Saat Ini',
+                'message': f"Intensitas: {weather_data['current_rain']:.1f} mm/jam",
+                'action': 'Tunda penyemprotan & pemupukan daun. Cek drainase.'
+            })
+        
+        # High temperature alert
+        if weather_data['current_temp'] > 33:
+            alerts.append({
+                'type': 'caution',
+                'icon': '☀️',
+                'title': 'Suhu Tinggi',
+                'message': f"Suhu: {weather_data['current_temp']:.1f}°C",
+                'action': 'Tingkatkan frekuensi irigasi. Pertimbangkan naungan.'
+            })
+        
+        # High humidity (disease risk)
+        if weather_data['current_humidity'] > 85:
+            alerts.append({
+                'type': 'info',
+                'icon': '💧',
+                'title': 'Kelembapan Tinggi',
+                'message': f"Kelembapan: {weather_data['current_humidity']}%",
+                'action': 'Risiko penyakit jamur meningkat. Siapkan fungisida preventif.'
+            })
+        
+        # Wind speed alert
+        if weather_data['wind_speed'] > 20:
+            alerts.append({
+                'type': 'warning',
+                'icon': '💨',
+                'title': 'Angin Kencang',
+                'message': f"Kecepatan angin: {weather_data['wind_speed']:.1f} km/jam",
+                'action': 'Periksa struktur greenhouse & ajir tanaman.'
+            })
+        
+        return alerts
