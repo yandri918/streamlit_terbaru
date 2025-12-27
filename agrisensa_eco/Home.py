@@ -51,6 +51,11 @@ if st.button("🔄 Sistem Pertanian Terpadu (Zero Waste)", use_container_width=T
     st.switch_page("pages/60_🔄_Integrated_Farming_System.py")
 st.caption("Simulator Maggot, Cacing, Kompos & Integrasi Ternak-Tani")
 
+st.markdown("### 🥗 Crop Planning Optimizer")
+if st.button("🥗 Rekomendasi Proporsi Tanaman", use_container_width=True):
+    st.switch_page("pages/61_🥗_Crop_Planning_Optimizer.py")
+st.caption("Optimasi Tanam Sayur: Hidroponik vs Tanah | Pribadi vs Pasar")
+
 st.markdown("### 🍓 Agrowisata & Rekomendasi")
 c5, c6 = st.columns(2)
 with c5:
