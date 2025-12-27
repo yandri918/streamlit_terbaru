@@ -550,28 +550,109 @@ with tab7:
             key="cost_servings"
         )
     
-    # Calculate cost
-    cost_result = JamuCalculatorService.calculate_cost(cost_condition, cost_servings)
+    # Get formula to know ingredients
+    formula = JamuCalculatorService.get_formula_by_condition(cost_condition)
+    calculation = JamuCalculatorService.calculate_ingredients(cost_condition, cost_servings)
     
-    if cost_result:
+    if calculation:
+        st.markdown("### 💵 Edit Harga Bahan (Rp per 100 gram)")
+        st.info("💡 **Sesuaikan harga sesuai pasar lokal Anda**")
+        
+        # Default prices
+        default_prices = {
+            "Daun Salam": 5000,
+            "Sambiloto": 15000,
+            "Kayu Manis": 25000,
+            "Temulawak": 8000,
+            "Kunyit": 6000,
+            "Jahe Merah": 12000,
+            "Jahe": 10000,
+            "Kencur": 10000,
+            "Seledri": 8000,
+            "Bawang Putih": 15000,
+            "Daun Sirsak": 10000,
+            "Daun Jombang": 12000,
+            "Beras": 3000,
+            "Asam Jawa": 8000,
+            "Gula Aren": 20000,
+            "Madu": 50000,
+            "Daun Mint": 15000,
+            "Mengkudu": 5000,
+            "Daun Sembung": 10000,
+            "Jeruk Nipis": 10000,
+            "Serai": 7000,
+            "Daun Jati Belanda": 12000
+        }
+        
+        # Create editable inputs for each ingredient
+        custom_prices = {}
+        
+        # Get unique ingredients from calculation
+        ingredients_list = list(calculation["ingredients"].keys())
+        
+        # Create columns for input fields
+        num_cols = 3
+        cols = st.columns(num_cols)
+        
+        for idx, ingredient in enumerate(ingredients_list):
+            # Extract base ingredient name
+            base_name = ingredient.split("(")[0].strip()
+            
+            # Find matching default price
+            default_price = 10000  # fallback
+            for price_key, price_value in default_prices.items():
+                if price_key in base_name:
+                    default_price = price_value
+                    break
+            
+            # Create input in appropriate column
+            with cols[idx % num_cols]:
+                custom_prices[ingredient] = st.number_input(
+                    f"{base_name}:",
+                    min_value=0,
+                    value=default_price,
+                    step=1000,
+                    key=f"price_{idx}",
+                    help=f"Harga per 100 gram"
+                )
+        
+        # Recalculate with custom prices
+        total_cost = 0
+        cost_breakdown = {}
+        
+        for ingredient, amount_grams in calculation["ingredients"].items():
+            price_per_100g = custom_prices[ingredient]
+            item_cost = (amount_grams / 100) * price_per_100g
+            
+            cost_breakdown[ingredient] = {
+                "amount_grams": amount_grams,
+                "price_per_100g": price_per_100g,
+                "total_cost": item_cost
+            }
+            total_cost += item_cost
+        
+        cost_per_day = total_cost / cost_servings if cost_servings > 0 else 0
+        
         # Display summary metrics
+        st.markdown("### 📊 Hasil Perhitungan (Berdasarkan Harga Custom)")
+        
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Total Biaya", f"Rp {cost_result['total_cost']:,.0f}")
+            st.metric("Total Biaya", f"Rp {total_cost:,.0f}")
         with col2:
-            st.metric("Biaya per Hari", f"Rp {cost_result['cost_per_day']:,.0f}")
+            st.metric("Biaya per Hari", f"Rp {cost_per_day:,.0f}")
         with col3:
-            st.metric("Biaya per Bulan", f"Rp {cost_result['cost_per_day'] * 30:,.0f}")
+            st.metric("Biaya per Bulan", f"Rp {cost_per_day * 30:,.0f}")
         with col4:
-            commercial_price = cost_result['cost_per_day'] * 5  # Estimate 5x markup
+            commercial_price = cost_per_day * 5  # Estimate 5x markup
             st.metric("Harga Komersial (est.)", f"Rp {commercial_price:,.0f}/hari")
         
         # Detailed breakdown
         st.markdown("### 📋 Rincian Biaya per Bahan")
         
         breakdown_data = []
-        for ingredient, details in cost_result['cost_breakdown'].items():
+        for ingredient, details in cost_breakdown.items():
             breakdown_data.append({
                 "Bahan": ingredient,
                 "Jumlah (gram)": details['amount_grams'],
@@ -587,7 +668,7 @@ with tab7:
             df_breakdown,
             values='Total (Rp)',
             names='Bahan',
-            title=f'Distribusi Biaya {cost_condition}'
+            title=f'Distribusi Biaya {cost_condition} (Custom Prices)'
         )
         st.plotly_chart(fig, use_container_width=True)
         
@@ -595,9 +676,9 @@ with tab7:
         st.markdown("### 💵 Perbandingan: Homemade vs Komersial")
         
         comparison_data = pd.DataFrame({
-            "Jenis": ["Jamu Homemade", "Jamu Komersial (Sachet)", "Suplemen Herbal (Kapsul)"],
+            "Jenis": ["Jamu Homemade (Custom)", "Jamu Komersial (Sachet)", "Suplemen Herbal (Kapsul)"],
             "Biaya per Hari (Rp)": [
-                cost_result['cost_per_day'],
+                cost_per_day,
                 15000,  # Estimate
                 25000   # Estimate
             ]
@@ -613,12 +694,21 @@ with tab7:
         )
         st.plotly_chart(fig_comparison, use_container_width=True)
         
-        st.success(f"""
-        **💡 Penghematan:**
-        - Jamu homemade: **Rp {cost_result['cost_per_day']:,.0f}/hari**
-        - Jamu komersial: **Rp 15,000/hari** (estimasi)
-        - **Hemat: Rp {15000 - cost_result['cost_per_day']:,.0f}/hari** atau **Rp {(15000 - cost_result['cost_per_day']) * 30:,.0f}/bulan**
-        """)
+        savings = 15000 - cost_per_day
+        if savings > 0:
+            st.success(f"""
+            **💡 Penghematan:**
+            - Jamu homemade: **Rp {cost_per_day:,.0f}/hari**
+            - Jamu komersial: **Rp 15,000/hari** (estimasi)
+            - **Hemat: Rp {savings:,.0f}/hari** atau **Rp {savings * 30:,.0f}/bulan**
+            """)
+        else:
+            st.info(f"""
+            **💡 Informasi:**
+            - Jamu homemade: **Rp {cost_per_day:,.0f}/hari**
+            - Jamu komersial: **Rp 15,000/hari** (estimasi)
+            - Dengan harga bahan premium, biaya homemade bisa lebih tinggi namun kualitas terjamin
+            """)
 
 # Footer
 st.markdown("---")
