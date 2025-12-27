@@ -48,5 +48,13 @@ with cols2[3]: # New module for Tanaman Obat & Herbal
         st.caption("High-value medicinal plants - Export market")
         st.page_link("pages/64_Tanaman_Obat_Herbal.py", label="Buka Module", icon="▶️", use_container_width=True)
 
+# Row 3: New modules
+cols3 = st.columns(3)
+with cols3[0]:
+    with st.container():
+        st.markdown("**🍵 Kalkulator Jamu Saintifik**")
+        st.caption("Evidence-based traditional herbal medicine calculator")
+        st.page_link("pages/65_Kalkulator_Jamu_Saintifik.py", label="Buka Module", icon="▶️", use_container_width=True)
+
 st.markdown("---")
 st.info("💡 Aplikasi ini adalah bagian dari ekosistem AgriSensa.")
