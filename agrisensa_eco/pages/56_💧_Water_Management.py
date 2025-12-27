@@ -248,19 +248,16 @@ with tab2:
             "Surabaya": (-7.2575, 112.7521),
             "Yogyakarta": (-7.7956, 110.3695),
             "Bogor": (-6.5971, 106.8060),
-            "Custom (Klik Peta)": None
+            "Custom (Input Manual)": None
         }
         location = st.selectbox("Lokasi Kebun", list(location_presets.keys()))
         
         # Initialize coordinates
-        if location == "Custom (Klik Peta)":
-            # Use session state to store clicked coordinates
-            if 'custom_lat' not in st.session_state:
-                st.session_state.custom_lat = -6.2088
-                st.session_state.custom_lon = 106.8456
-            lat = st.session_state.custom_lat
-            lon = st.session_state.custom_lon
-            st.caption(f"📍 Koordinat: {lat:.4f}, {lon:.4f}")
+        if location == "Custom (Input Manual)":
+            st.caption("📍 Masukkan koordinat lokasi Anda:")
+            lat = st.number_input("Latitude", -90.0, 90.0, -6.2088, step=0.0001, format="%.4f", key="custom_lat_input")
+            lon = st.number_input("Longitude", -180.0, 180.0, 106.8456, step=0.0001, format="%.4f", key="custom_lon_input")
+            st.caption(f"💡 Tip: Cari koordinat di [Google Maps](https://www.google.com/maps)")
         else:
             lat, lon = location_presets[location]
     
@@ -346,37 +343,8 @@ with tab2:
                     popup='Area Kebun (1 km radius)'
                 ).add_to(m)
                 
-                # Add instruction for custom mode
-                if location == "Custom (Klik Peta)":
-                    st.info("💡 **Klik di mana saja pada peta** untuk memilih lokasi baru. Data cuaca akan diupdate otomatis.")
-                
-                # Display map with click event capture
-                map_data = st_folium(
-                    m, 
-                    width=700, 
-                    height=400, 
-                    key="weather_map",
-                    returned_objects=["last_clicked"]
-                )
-                
-                # Handle map clicks - check if there's a new click
-                if map_data and map_data.get('last_clicked') and location == "Custom (Klik Peta)":
-                    clicked_lat = map_data['last_clicked']['lat']
-                    clicked_lon = map_data['last_clicked']['lng']
-                    
-                    # Check if coordinates actually changed
-                    if (abs(clicked_lat - st.session_state.custom_lat) > 0.0001 or 
-                        abs(clicked_lon - st.session_state.custom_lon) > 0.0001):
-                        
-                        # Update session state
-                        st.session_state.custom_lat = clicked_lat
-                        st.session_state.custom_lon = clicked_lon
-                        
-                        # Show success message
-                        st.success(f"✅ Lokasi diupdate: {clicked_lat:.4f}, {clicked_lon:.4f}")
-                        
-                        # Auto-rerun to fetch new weather data
-                        st.rerun()
+                # Display map
+                st_folium(m, width=700, height=400)
                 
             except ImportError:
                 st.warning("📦 Install `folium` dan `streamlit-folium` untuk menampilkan peta interaktif.")
