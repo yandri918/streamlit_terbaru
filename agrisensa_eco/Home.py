@@ -24,9 +24,16 @@ with c2:
     if st.button("♻️ Pengolahan Sampah"): st.switch_page("pages/54_♻️_Pengolahan_Sampah_Terpadu.py")
     if st.button("🧴 Pembuatan Pupuk Organik"): st.switch_page("pages/43_🧴_Pembuatan_Pupuk_Organik.py")
 
-st.markdown("### 🍓 Agrowisata & Rekomendasi")
+st.markdown("### 💰 Keberlanjutan & Sumber Daya")
 c3, c4 = st.columns(2)
 with c3:
-    if st.button("🍓 Agrowisata Petik"): st.switch_page("pages/52_🍓_Agrowisata_Petik_Langsung.py")
+    if st.button("💰 Carbon Credit Marketplace"): st.switch_page("pages/55_💰_Carbon_Credit.py")
 with c4:
+    if st.button("💧 Smart Water Management"): st.switch_page("pages/56_💧_Water_Management.py")
+
+st.markdown("### 🍓 Agrowisata & Rekomendasi")
+c5, c6 = st.columns(2)
+with c5:
+    if st.button("🍓 Agrowisata Petik"): st.switch_page("pages/52_🍓_Agrowisata_Petik_Langsung.py")
+with c6:
     if st.button("🌱 Rekomendasi Tanaman"): st.switch_page("pages/9_🌱_Rekomendasi_Tanaman.py")
