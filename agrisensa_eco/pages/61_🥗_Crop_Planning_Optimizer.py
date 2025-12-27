@@ -57,7 +57,11 @@ area_input = st.sidebar.number_input("Luas Lahan Efektif (m²)", min_value=1.0, 
 
 # 4. Pilihan Tanaman
 available_crops = list(calc.VEGETABLE_DB.keys())
-default_selection = ['Pakcoy', 'Selada', 'Kangkung'] if goal_key == 'personal' else ['Selada', 'Pakcoy', 'Kale']
+# Ensure defaults exist in available_crops to prevent StreamlitAPIException
+default_personal = [c for c in ['Pakcoy', 'Selada (Lettuce)', 'Kangkung'] if c in available_crops]
+default_market = [c for c in ['Selada (Lettuce)', 'Pakcoy', 'Kale'] if c in available_crops]
+
+default_selection = default_personal if goal_key == 'personal' else default_market
 selected_crops = st.sidebar.multiselect("Pilih Jenis Tanaman (Min. 2)", options=available_crops, default=default_selection)
 
 if st.sidebar.button("🚀 Buat Rencana Tanam", type="primary"):
