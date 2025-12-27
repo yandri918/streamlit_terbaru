@@ -36,6 +36,11 @@ if st.button("🌱 Sustainability Toolkit", use_container_width=True):
     st.switch_page("pages/57_🌱_Sustainability_Toolkit.py")
 st.caption("Regenerative Agriculture | Climate Adaptation | Circular Economy")
 
+st.markdown("### 🌍 Advanced Sustainability")
+if st.button("🌍 Advanced Sustainability Features", use_container_width=True):
+    st.switch_page("pages/58_🌍_Advanced_Sustainability.py")
+st.caption("Ecosystem Services | Precision Conservation | Indigenous Knowledge | ESG Reporting")
+
 st.markdown("### 🍓 Agrowisata & Rekomendasi")
 c5, c6 = st.columns(2)
 with c5:
