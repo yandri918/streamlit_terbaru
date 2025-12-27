@@ -346,20 +346,37 @@ with tab2:
                     popup='Area Kebun (1 km radius)'
                 ).add_to(m)
                 
-                # Display map
-                map_data = st_folium(m, width=700, height=400, key="weather_map")
+                # Add instruction for custom mode
+                if location == "Custom (Klik Peta)":
+                    st.info("💡 **Klik di mana saja pada peta** untuk memilih lokasi baru. Data cuaca akan diupdate otomatis.")
                 
-                # Handle map clicks
-                if map_data and map_data.get('last_clicked'):
+                # Display map with click event capture
+                map_data = st_folium(
+                    m, 
+                    width=700, 
+                    height=400, 
+                    key="weather_map",
+                    returned_objects=["last_clicked"]
+                )
+                
+                # Handle map clicks - check if there's a new click
+                if map_data and map_data.get('last_clicked') and location == "Custom (Klik Peta)":
                     clicked_lat = map_data['last_clicked']['lat']
                     clicked_lon = map_data['last_clicked']['lng']
                     
-                    # Update session state if in Custom mode
-                    if location == "Custom (Klik Peta)":
+                    # Check if coordinates actually changed
+                    if (abs(clicked_lat - st.session_state.custom_lat) > 0.0001 or 
+                        abs(clicked_lon - st.session_state.custom_lon) > 0.0001):
+                        
+                        # Update session state
                         st.session_state.custom_lat = clicked_lat
                         st.session_state.custom_lon = clicked_lon
+                        
+                        # Show success message
                         st.success(f"✅ Lokasi diupdate: {clicked_lat:.4f}, {clicked_lon:.4f}")
-                        st.info("🔄 Refresh halaman untuk melihat data cuaca lokasi baru.")
+                        
+                        # Auto-rerun to fetch new weather data
+                        st.rerun()
                 
             except ImportError:
                 st.warning("📦 Install `folium` dan `streamlit-folium` untuk menampilkan peta interaktif.")
