@@ -718,13 +718,50 @@ with tab_calc:
         st.subheader("💵 Production Cost Analysis")
         st.info("📝 **Customize harga sesuai kondisi pasar lokal Anda**")
         
-        # Product selection
-        product_type = st.selectbox("Pilih Produk", [
-            "ROTAN_Bioactivator",
-            "POC_ROTAN_Premium",
-            "Trichoderma",
-            "PGPR"
-        ])
+        # Product selection with categories
+        st.markdown("#### 🎯 Pilih Produk")
+        
+        product_categories = {
+            "🐮 ROTAN & POC": [
+                "ROTAN_Bioactivator",
+                "POC_ROTAN_Premium",
+                "POC_Rumen_Kambing",
+                "POC_Urine_Kelinci"
+            ],
+            "🦠 MOL (Mikro Organisme Lokal)": [
+                "MOL_Sayuran",
+                "MOL_Buah",
+                "MOL_Rebung_Bambu",
+                "MOL_Bonggol_Pisang",
+                "MOL_Keong_Mas"
+            ],
+            "🍄 Biocontrol Fungi": [
+                "Trichoderma",
+                "Beauveria_bassiana",
+                "Metarhizium_anisopliae"
+            ],
+            "🌱 PGPR & N-Fixers": [
+                "PGPR_Liquid",
+                "PGPR_Carrier",
+                "Azotobacter"
+            ]
+        }
+        
+        # Flatten for selectbox
+        all_products = []
+        product_labels = {}
+        for category, products in product_categories.items():
+            for product in products:
+                label = f"{category} → {product.replace('_', ' ')}"
+                all_products.append(product)
+                product_labels[label] = product
+        
+        selected_label = st.selectbox(
+            "Pilih Produk",
+            list(product_labels.keys()),
+            label_visibility="collapsed"
+        )
+        product_type = product_labels[selected_label]
         
         # Get base data
         product_data = service.COST_DATABASE[product_type]

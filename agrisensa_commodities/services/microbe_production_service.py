@@ -38,23 +38,130 @@ class MicrobeProductionService:
             'output_volume': 15,  # Liter
             'fermentation_days': 12
         },
+        'POC_Rumen_Kambing': {
+            'raw_materials': {
+                'Air Bersih': {'qty': 5, 'unit': 'L', 'price': 0},
+                'Gula Kelapa': {'qty': 1, 'unit': 'kg', 'price': 20000},
+                'Kecambah (Tauge)': {'qty': 1, 'unit': 'kg', 'price': 8000},
+                'Dedak': {'qty': 2, 'unit': 'kg', 'price': 3000},
+                'Susu Murni': {'qty': 1, 'unit': 'L', 'price': 15000},
+                'Rumen Kambing': {'qty': 0.3, 'unit': 'kg', 'price': 5000}
+            },
+            'output_volume': 7,
+            'fermentation_days': 5
+        },
+        'POC_Urine_Kelinci': {
+            'raw_materials': {
+                'Urine Kelinci': {'qty': 10, 'unit': 'L', 'price': 3000},
+                'EM4/MOL': {'qty': 0.2, 'unit': 'L', 'price': 25000},
+                'Molase': {'qty': 0.2, 'unit': 'L', 'price': 15000},
+                'Air Kelapa': {'qty': 1, 'unit': 'L', 'price': 5000}
+            },
+            'output_volume': 11,
+            'fermentation_days': 10
+        },
+        'MOL_Sayuran': {
+            'raw_materials': {
+                'Sayuran Beragam': {'qty': 3, 'unit': 'kg', 'price': 5000},
+                'Gula Merah': {'qty': 0.5, 'unit': 'kg', 'price': 15000},
+                'Garam': {'qty': 0.15, 'unit': 'kg', 'price': 5000},
+                'Air Leri': {'qty': 3, 'unit': 'L', 'price': 0},
+                'Air Kelapa': {'qty': 2, 'unit': 'L', 'price': 5000}
+            },
+            'output_volume': 5,
+            'fermentation_days': 14
+        },
+        'MOL_Buah': {
+            'raw_materials': {
+                'Buah Matang': {'qty': 2, 'unit': 'kg', 'price': 8000},
+                'Gula Merah': {'qty': 0.5, 'unit': 'kg', 'price': 15000},
+                'Air Kelapa': {'qty': 5, 'unit': 'L', 'price': 5000}
+            },
+            'output_volume': 6,
+            'fermentation_days': 14
+        },
+        'MOL_Rebung_Bambu': {
+            'raw_materials': {
+                'Rebung Bambu': {'qty': 1, 'unit': 'kg', 'price': 10000},
+                'Air Leri': {'qty': 5, 'unit': 'L', 'price': 0},
+                'Gula Merah': {'qty': 0.5, 'unit': 'kg', 'price': 15000}
+            },
+            'output_volume': 5,
+            'fermentation_days': 15
+        },
+        'MOL_Bonggol_Pisang': {
+            'raw_materials': {
+                'Bonggol Pisang': {'qty': 1, 'unit': 'kg', 'price': 2000},
+                'Gula Merah': {'qty': 0.05, 'unit': 'kg', 'price': 15000},
+                'Air Leri': {'qty': 5, 'unit': 'L', 'price': 0}
+            },
+            'output_volume': 5,
+            'fermentation_days': 14
+        },
+        'MOL_Keong_Mas': {
+            'raw_materials': {
+                'Keong Mas Hidup': {'qty': 1, 'unit': 'kg', 'price': 5000},
+                'Buah Maja': {'qty': 0.5, 'unit': 'buah', 'price': 10000},
+                'Air Kelapa': {'qty': 5, 'unit': 'L', 'price': 5000}
+            },
+            'output_volume': 5,
+            'fermentation_days': 15
+        },
         'Trichoderma': {
             'raw_materials': {
-                'Rice Bran': {'qty': 1, 'unit': 'kg', 'price': 3000},
-                'Corn Meal': {'qty': 0.5, 'unit': 'kg', 'price': 5000},
+                'Rice Bran (Dedak)': {'qty': 1.4, 'unit': 'kg', 'price': 3000},
+                'Corn Meal': {'qty': 0.4, 'unit': 'kg', 'price': 5000},
+                'Sawdust': {'qty': 0.2, 'unit': 'kg', 'price': 1000},
                 'Starter Culture': {'qty': 0.1, 'unit': 'L', 'price': 50000}
             },
             'output_volume': 2,  # kg (solid)
             'fermentation_days': 10
         },
-        'PGPR': {
+        'Beauveria_bassiana': {
+            'raw_materials': {
+                'Beras Putih': {'qty': 1, 'unit': 'kg', 'price': 12000},
+                'Air': {'qty': 1.2, 'unit': 'L', 'price': 0},
+                'Starter Culture': {'qty': 0.05, 'unit': 'L', 'price': 75000}
+            },
+            'output_volume': 1.5,  # kg
+            'fermentation_days': 18
+        },
+        'Metarhizium_anisopliae': {
+            'raw_materials': {
+                'Beras/Jagung': {'qty': 1, 'unit': 'kg', 'price': 12000},
+                'Air': {'qty': 1.2, 'unit': 'L', 'price': 0},
+                'Starter Culture': {'qty': 0.05, 'unit': 'L', 'price': 75000}
+            },
+            'output_volume': 1.5,  # kg
+            'fermentation_days': 20
+        },
+        'PGPR_Liquid': {
             'raw_materials': {
                 'Nutrient Broth': {'qty': 0.5, 'unit': 'kg', 'price': 100000},
-                'Carrier (Peat)': {'qty': 1, 'unit': 'kg', 'price': 10000},
+                'Yeast Extract': {'qty': 0.1, 'unit': 'kg', 'price': 150000},
+                'Starter Culture': {'qty': 0.1, 'unit': 'L', 'price': 75000}
+            },
+            'output_volume': 5,  # L (liquid)
+            'fermentation_days': 3
+        },
+        'PGPR_Carrier': {
+            'raw_materials': {
+                'Nutrient Broth': {'qty': 0.5, 'unit': 'kg', 'price': 100000},
+                'Carrier (Peat/Biochar)': {'qty': 1, 'unit': 'kg', 'price': 10000},
                 'Starter Culture': {'qty': 0.1, 'unit': 'L', 'price': 75000}
             },
             'output_volume': 2,  # kg
             'fermentation_days': 7
+        },
+        'Azotobacter': {
+            'raw_materials': {
+                'Ashby Medium': {'qty': 0.3, 'unit': 'kg', 'price': 120000},
+                'Molase': {'qty': 0.5, 'unit': 'L', 'price': 15000},
+                'Carrier (Peat)': {'qty': 1, 'unit': 'kg', 'price': 10000},
+                'Starter Culture': {'qty': 0.1, 'unit': 'L', 'price': 60000}
+            },
+            'output_volume': 2,  # kg
+            'fermentation_days': 5
         }
     }
     
