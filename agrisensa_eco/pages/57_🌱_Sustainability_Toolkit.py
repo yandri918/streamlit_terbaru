@@ -293,28 +293,128 @@ with tab3:
             else:
                 method = None
         
-        if method and st.button("💰 Hitung Nilai", type="primary"):
-            result = circular_calc.calculate_waste_valorization(waste_type, waste_amount, method)
+        # Editable price section
+        if method:
+            st.markdown("### ⚙️ Parameter Harga (Editable)")
             
-            if 'error' not in result:
-                st.markdown("---")
+            # Get default values
+            waste_options = circular_calc.WASTE_VALORIZATION.get(waste_type, {})
+            method_data = waste_options.get(method, {})
+            
+            col_p1, col_p2 = st.columns(2)
+            
+            with col_p1:
+                if 'yield_pct' in method_data:
+                    yield_pct = st.number_input(
+                        "Yield (%)", 
+                        10, 100, 
+                        method_data['yield_pct'], 
+                        5,
+                        help="Persentase output dari input limbah"
+                    )
+                elif 'yield_m3_per_kg' in method_data:
+                    yield_m3 = st.number_input(
+                        "Yield (m³/kg)", 
+                        0.1, 1.0, 
+                        method_data['yield_m3_per_kg'], 
+                        0.05,
+                        help="Volume biogas per kg limbah"
+                    )
+            
+            with col_p2:
+                if 'value_per_kg' in method_data:
+                    price_per_kg = st.number_input(
+                        "Harga Jual (Rp/kg)", 
+                        100, 100000, 
+                        method_data['value_per_kg'], 
+                        100,
+                        help="Harga jual produk per kilogram"
+                    )
+                elif 'value_per_m3' in method_data:
+                    price_per_m3 = st.number_input(
+                        "Harga Biogas (Rp/m³)", 
+                        1000, 10000, 
+                        method_data['value_per_m3'], 
+                        500,
+                        help="Harga biogas per meter kubik"
+                    )
+        
+        if method and st.button("💰 Hitung Nilai", type="primary"):
+            # Manual calculation with editable values
+            st.markdown("---")
+            st.markdown("### 📊 Hasil Perhitungan")
+            
+            if 'yield_pct' in method_data:
+                # Calculate with editable values
+                output_kg = waste_amount * (yield_pct / 100)
+                value = output_kg * price_per_kg
+                value_per_kg_waste = value / waste_amount if waste_amount > 0 else 0
                 
+                # Show breakdown
+                st.markdown("### 🔢 Breakdown Perhitungan")
+                st.code(f"""
+Input Limbah:        {waste_amount:,.0f} kg
+Yield:               {yield_pct}%
+Output Produk:       {waste_amount:,.0f} kg × {yield_pct}% = {output_kg:,.2f} kg
+
+Harga Jual:          Rp {price_per_kg:,.0f}/kg
+Nilai Total:         {output_kg:,.2f} kg × Rp {price_per_kg:,.0f} = Rp {value:,.0f}
+
+Nilai per kg Limbah: Rp {value:,.0f} / {waste_amount:,.0f} kg = Rp {value_per_kg_waste:,.0f}/kg
+                """)
+                
+                # Metrics
                 col_v1, col_v2, col_v3 = st.columns(3)
                 
                 with col_v1:
-                    if 'output_kg' in result:
-                        st.metric("Output", f"{result['output_kg']:,.0f} kg")
-                    elif 'output_m3' in result:
-                        st.metric("Output", f"{result['output_m3']:,.0f} m³")
+                    st.metric("Output", f"{output_kg:,.0f} kg", f"{yield_pct}% dari input")
                 
                 with col_v2:
-                    st.metric("Nilai Total", f"Rp {result['value']:,.0f}")
+                    st.metric("Nilai Total", f"Rp {value:,.0f}", f"@ Rp {price_per_kg:,.0f}/kg")
                 
                 with col_v3:
-                    if 'value_per_kg_waste' in result:
-                        st.metric("Nilai/kg Limbah", f"Rp {result['value_per_kg_waste']:,.0f}")
-                    elif 'kwh_equivalent' in result:
-                        st.metric("Energi", f"{result['kwh_equivalent']:,.0f} kWh")
+                    st.metric("Nilai/kg Limbah", f"Rp {value_per_kg_waste:,.0f}", "Profit margin")
+                
+            elif 'yield_m3_per_kg' in method_data:
+                # Biogas calculation
+                output_m3 = waste_amount * yield_m3
+                value = output_m3 * price_per_m3
+                kwh_equivalent = output_m3 * 2.5  # 1 m³ biogas ≈ 2.5 kWh
+                
+                # Show breakdown
+                st.markdown("### 🔢 Breakdown Perhitungan")
+                st.code(f"""
+Input Limbah:        {waste_amount:,.0f} kg
+Yield Biogas:        {yield_m3} m³/kg
+Output Biogas:       {waste_amount:,.0f} kg × {yield_m3} m³/kg = {output_m3:,.2f} m³
+
+Harga Biogas:        Rp {price_per_m3:,.0f}/m³
+Nilai Total:         {output_m3:,.2f} m³ × Rp {price_per_m3:,.0f} = Rp {value:,.0f}
+
+Energi Setara:       {output_m3:,.2f} m³ × 2.5 kWh/m³ = {kwh_equivalent:,.2f} kWh
+                """)
+                
+                # Metrics
+                col_v1, col_v2, col_v3 = st.columns(3)
+                
+                with col_v1:
+                    st.metric("Output Biogas", f"{output_m3:,.0f} m³", f"{yield_m3} m³/kg")
+                
+                with col_v2:
+                    st.metric("Nilai Total", f"Rp {value:,.0f}", f"@ Rp {price_per_m3:,.0f}/m³")
+                
+                with col_v3:
+                    st.metric("Energi", f"{kwh_equivalent:,.0f} kWh", "Setara listrik")
+            
+            # Additional info
+            st.markdown("### 💡 Tips Optimasi")
+            st.info(f"""
+            **Cara Meningkatkan Nilai:**
+            - Tingkatkan yield dengan proses yang lebih baik
+            - Cari pembeli dengan harga lebih tinggi
+            - Diversifikasi produk dari limbah yang sama
+            - Pertimbangkan value chain lebih panjang (processing lanjutan)
+            """)
     
     with subtab2:
         st.markdown("### 🔥 Biogas Production Calculator")
