@@ -460,45 +460,203 @@ Energi Setara:       {output_m3:,.2f} m³ × 2.5 kWh/m³ = {kwh_equivalent:,.2f}
     with subtab3:
         st.markdown("### 🍂 Composting Time Estimator")
         
-        col_c1, col_c2 = st.columns(2)
+        # Material database with C:N ratios
+        COMPOST_MATERIALS = {
+            'Bahan Hijau (Nitrogen Tinggi)': {
+                'Rumput Segar': {'cn_ratio': 15, 'moisture': 80},
+                'Sisa Sayuran': {'cn_ratio': 12, 'moisture': 85},
+                'Kotoran Ayam': {'cn_ratio': 10, 'moisture': 75},
+                'Kotoran Sapi': {'cn_ratio': 18, 'moisture': 80},
+                'Ampas Kopi': {'cn_ratio': 20, 'moisture': 70}
+            },
+            'Bahan Coklat (Carbon Tinggi)': {
+                'Jerami Padi': {'cn_ratio': 80, 'moisture': 15},
+                'Daun Kering': {'cn_ratio': 60, 'moisture': 10},
+                'Serbuk Gergaji': {'cn_ratio': 500, 'moisture': 20},
+                'Sekam Padi': {'cn_ratio': 120, 'moisture': 12},
+                'Kertas/Kardus': {'cn_ratio': 170, 'moisture': 5}
+            }
+        }
         
-        with col_c1:
-            material = st.text_input("Jenis Material", "Campuran")
-            cn_ratio = st.number_input("C:N Ratio", 10, 50, 28, 1)
+        st.markdown("### 📝 Input Komposisi Bahan")
+        st.info("💡 Tip: Campuran ideal = 1 bagian bahan hijau : 2-3 bagian bahan coklat")
         
-        with col_c2:
-            moisture = st.slider("Kelembaban (%)", 30, 80, 55)
-            turning = st.selectbox("Frekuensi Pembalikan", [
-                "daily", "every_2_days", "weekly", "biweekly", "monthly"
-            ], format_func=lambda x: {
-                "daily": "Harian",
-                "every_2_days": "2 Hari Sekali",
-                "weekly": "Mingguan",
-                "biweekly": "2 Minggu Sekali",
-                "monthly": "Bulanan"
-            }[x])
+        # Initialize session state for materials
+        if 'compost_materials' not in st.session_state:
+            st.session_state.compost_materials = []
         
-        if st.button("⏱️ Estimasi Waktu", type="primary"):
-            result = circular_calc.calculate_composting_time(material, cn_ratio, moisture, turning)
+        # Add material form
+        with st.expander("➕ Tambah Bahan Kompos", expanded=True):
+            col_add1, col_add2, col_add3 = st.columns(3)
+            
+            with col_add1:
+                category = st.selectbox("Kategori", list(COMPOST_MATERIALS.keys()), key="cat_select")
+            
+            with col_add2:
+                material_name = st.selectbox("Nama Bahan", list(COMPOST_MATERIALS[category].keys()), key="mat_select")
+            
+            with col_add3:
+                amount_kg = st.number_input("Jumlah (kg)", 1, 1000, 10, 1, key="amount_input")
+            
+            if st.button("➕ Tambahkan Bahan"):
+                material_data = COMPOST_MATERIALS[category][material_name]
+                st.session_state.compost_materials.append({
+                    'name': material_name,
+                    'category': category,
+                    'amount_kg': amount_kg,
+                    'cn_ratio': material_data['cn_ratio'],
+                    'moisture': material_data['moisture']
+                })
+                st.success(f"✅ Ditambahkan: {amount_kg} kg {material_name}")
+                st.rerun()
+        
+        # Display current materials
+        if st.session_state.compost_materials:
+            st.markdown("### 📋 Komposisi Campuran")
+            
+            # Create DataFrame
+            import pandas as pd
+            df = pd.DataFrame(st.session_state.compost_materials)
+            
+            # Calculate totals
+            total_weight = df['amount_kg'].sum()
+            df['proportion_%'] = (df['amount_kg'] / total_weight * 100).round(1)
+            
+            # Display table
+            st.dataframe(
+                df[['name', 'category', 'amount_kg', 'proportion_%', 'cn_ratio', 'moisture']],
+                use_container_width=True,
+                hide_index=True
+            )
+            
+            # Clear button
+            if st.button("🗑️ Hapus Semua Bahan"):
+                st.session_state.compost_materials = []
+                st.rerun()
+            
+            # Calculate weighted average C:N ratio
+            weighted_cn = sum(m['cn_ratio'] * m['amount_kg'] for m in st.session_state.compost_materials) / total_weight
+            weighted_moisture = sum(m['moisture'] * m['amount_kg'] for m in st.session_state.compost_materials) / total_weight
             
             st.markdown("---")
+            st.markdown("### ⚙️ Parameter Komposting")
             
-            col_t1, col_t2 = st.columns(2)
+            col_p1, col_p2 = st.columns(2)
             
-            with col_t1:
-                st.metric("Estimasi Waktu", f"{result['estimated_days']} hari")
-                st.metric("", f"({result['estimated_weeks']} minggu)")
+            with col_p1:
+                st.metric("C:N Ratio Campuran", f"{weighted_cn:.1f}:1")
+                st.metric("Kelembaban Rata-rata", f"{weighted_moisture:.0f}%")
             
-            with col_t2:
-                st.info(f"""
-                **Kondisi Optimal:**
-                - C:N Ratio: {result['optimal_cn_ratio']}
-                - Kelembaban: {result['optimal_moisture']}
+            with col_p2:
+                # Adjustable parameters
+                moisture_adjust = st.slider(
+                    "Kelembaban Target (%)", 
+                    30, 80, 
+                    int(weighted_moisture),
+                    help="Sesuaikan dengan menambah/kurangi air"
+                )
+                
+                turning = st.selectbox("Frekuensi Pembalikan", [
+                    "daily", "every_2_days", "weekly", "biweekly", "monthly"
+                ], format_func=lambda x: {
+                    "daily": "Harian",
+                    "every_2_days": "2 Hari Sekali",
+                    "weekly": "Mingguan",
+                    "biweekly": "2 Minggu Sekali",
+                    "monthly": "Bulanan"
+                }[x])
+            
+            # Calculate button
+            if st.button("⏱️ Estimasi Waktu Komposting", type="primary"):
+                result = circular_calc.calculate_composting_time(
+                    "Campuran", 
+                    weighted_cn, 
+                    moisture_adjust, 
+                    turning
+                )
+                
+                st.markdown("---")
+                st.markdown("### 📊 Hasil Estimasi")
+                
+                col_r1, col_r2, col_r3 = st.columns(3)
+                
+                with col_r1:
+                    st.metric("Estimasi Waktu", f"{result['estimated_days']} hari")
+                    st.caption(f"({result['estimated_weeks']} minggu)")
+                
+                with col_r2:
+                    st.metric("Total Bahan", f"{total_weight} kg")
+                    
+                    # Estimate output (60-70% of input)
+                    output_estimate = total_weight * 0.65
+                    st.metric("Estimasi Output", f"{output_estimate:.0f} kg")
+                
+                with col_r3:
+                    # C:N ratio status
+                    if 25 <= weighted_cn <= 30:
+                        cn_status = "🟢 Optimal"
+                    elif 20 <= weighted_cn < 25 or 30 < weighted_cn <= 35:
+                        cn_status = "🟡 Cukup Baik"
+                    else:
+                        cn_status = "🔴 Perlu Penyesuaian"
+                    
+                    st.metric("Status C:N Ratio", cn_status)
+                    st.caption(f"Optimal: 25-30:1")
+                
+                # Breakdown by category
+                st.markdown("### 📈 Komposisi Campuran")
+                
+                green_total = sum(m['amount_kg'] for m in st.session_state.compost_materials if 'Hijau' in m['category'])
+                brown_total = sum(m['amount_kg'] for m in st.session_state.compost_materials if 'Coklat' in m['category'])
+                
+                col_b1, col_b2 = st.columns(2)
+                
+                with col_b1:
+                    st.success(f"""
+                    **🟢 Bahan Hijau (N-tinggi)**
+                    - Total: {green_total} kg ({green_total/total_weight*100:.0f}%)
+                    - Fungsi: Sumber nitrogen, mempercepat dekomposisi
+                    """)
+                
+                with col_b2:
+                    st.warning(f"""
+                    **🟤 Bahan Coklat (C-tinggi)**
+                    - Total: {brown_total} kg ({brown_total/total_weight*100:.0f}%)
+                    - Fungsi: Sumber karbon, struktur aerasi
+                    """)
+                
+                # Recommendations
+                st.markdown("### 💡 Rekomendasi")
+                
+                for rec in result['recommendations']:
+                    st.info(f"✅ {rec}")
+                
+                # Additional tips based on composition
+                if green_total / total_weight > 0.4:
+                    st.warning("⚠️ Terlalu banyak bahan hijau. Tambahkan bahan coklat untuk menghindari bau dan meningkatkan aerasi.")
+                elif brown_total / total_weight > 0.8:
+                    st.warning("⚠️ Terlalu banyak bahan coklat. Tambahkan bahan hijau untuk mempercepat dekomposisi.")
+                else:
+                    st.success("✅ Komposisi campuran sudah baik!")
+        
+        else:
+            st.info("👆 Mulai dengan menambahkan bahan kompos di atas")
+            
+            # Show example composition
+            with st.expander("📚 Contoh Komposisi Kompos"):
+                st.markdown("""
+                **Kompos Standar (100 kg):**
+                - Rumput Segar: 20 kg
+                - Sisa Sayuran: 10 kg
+                - Kotoran Sapi: 20 kg
+                - Jerami Padi: 30 kg
+                - Daun Kering: 20 kg
+                
+                **Hasil:**
+                - C:N Ratio: ~28:1 (Optimal)
+                - Waktu: 45-60 hari
+                - Output: ~65 kg kompos matang
                 """)
-            
-            st.markdown("### Rekomendasi")
-            for rec in result['recommendations']:
-                st.success(f"✅ {rec}")
 
 
 # Footer
