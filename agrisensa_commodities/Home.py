@@ -36,9 +36,17 @@ with cols2[1]:
     st.markdown('<div class="card"><h3>🍄 Jamur</h3><p>Budidaya jamur tiram dan kuping profesional.</p></div>', unsafe_allow_html=True)
     if st.button("Buka Modul Jamur"): st.switch_page("pages/51_Budidaya_Jamur_Profesional.py")
 
-with cols2[2]:
-    st.markdown('<div class="card"><h3>🦠 Mikroba & Biofertilizer</h3><p>Produksi pupuk hayati dan agen biokontrol.</p></div>', unsafe_allow_html=True)
-    if st.button("Buka Modul Mikroba"): st.switch_page("pages/52_Mikroba_Biofertilizer_Production.py")
+with cols2[2]: # Updated content for Mikroba & Biofertilizer
+    with st.container():
+        st.markdown("**🦠 Mikroba & Biofertilizer**")
+        st.caption("Produksi pupuk hayati & biocontrol")
+        st.page_link("pages/52_Mikroba_Biofertilizer_Production.py", label="Buka Module", icon="▶️", use_container_width=True)
+
+with cols2[3]: # New module for Tanaman Obat & Herbal
+    with st.container():
+        st.markdown("**🌿 Tanaman Obat & Herbal**")
+        st.caption("High-value medicinal plants - Export market")
+        st.page_link("pages/64_Tanaman_Obat_Herbal.py", label="Buka Module", icon="▶️", use_container_width=True)
 
 st.markdown("---")
 st.info("💡 Aplikasi ini adalah bagian dari ekosistem AgriSensa.")
