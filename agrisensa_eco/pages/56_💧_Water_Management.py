@@ -247,10 +247,22 @@ with tab2:
             "Bandung": (-6.9175, 107.6191),
             "Surabaya": (-7.2575, 112.7521),
             "Yogyakarta": (-7.7956, 110.3695),
-            "Bogor": (-6.5971, 106.8060)
+            "Bogor": (-6.5971, 106.8060),
+            "Custom (Klik Peta)": None
         }
         location = st.selectbox("Lokasi Kebun", list(location_presets.keys()))
-        lat, lon = location_presets[location]
+        
+        # Initialize coordinates
+        if location == "Custom (Klik Peta)":
+            # Use session state to store clicked coordinates
+            if 'custom_lat' not in st.session_state:
+                st.session_state.custom_lat = -6.2088
+                st.session_state.custom_lon = 106.8456
+            lat = st.session_state.custom_lat
+            lon = st.session_state.custom_lon
+            st.caption(f"📍 Koordinat: {lat:.4f}, {lon:.4f}")
+        else:
+            lat, lon = location_presets[location]
     
     # Get real weather data
     try:
@@ -335,7 +347,19 @@ with tab2:
                 ).add_to(m)
                 
                 # Display map
-                st_folium(m, width=700, height=400)
+                map_data = st_folium(m, width=700, height=400, key="weather_map")
+                
+                # Handle map clicks
+                if map_data and map_data.get('last_clicked'):
+                    clicked_lat = map_data['last_clicked']['lat']
+                    clicked_lon = map_data['last_clicked']['lng']
+                    
+                    # Update session state if in Custom mode
+                    if location == "Custom (Klik Peta)":
+                        st.session_state.custom_lat = clicked_lat
+                        st.session_state.custom_lon = clicked_lon
+                        st.success(f"✅ Lokasi diupdate: {clicked_lat:.4f}, {clicked_lon:.4f}")
+                        st.info("🔄 Refresh halaman untuk melihat data cuaca lokasi baru.")
                 
             except ImportError:
                 st.warning("📦 Install `folium` dan `streamlit-folium` untuk menampilkan peta interaktif.")
