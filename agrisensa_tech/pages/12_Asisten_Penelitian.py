@@ -20,13 +20,13 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 # Stats Imports
 from scipy import stats
 
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(page_title="Asisten Penelitian v2.1", page_icon="🔬", layout="wide")
 
 # ===== AUTHENTICATION CHECK =====
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 # ================================
 
 

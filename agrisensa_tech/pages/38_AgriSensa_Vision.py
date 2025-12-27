@@ -4,13 +4,13 @@ import numpy as np
 import plotly.express as px
 from PIL import Image
 
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(page_title="AgriSensa Vision", page_icon="🛸", layout="wide")
 
 # ===== AUTHENTICATION CHECK =====
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 # ================================
 
 

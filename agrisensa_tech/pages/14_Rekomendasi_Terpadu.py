@@ -11,13 +11,13 @@ import cv2
 from datetime import datetime
 
 # Auth Imports (Preserved)
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(page_title="Dasbor Rekomendasi Terpadu", page_icon="🎯", layout="wide")
 
 # ===== AUTHENTICATION =====
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 
 # ==========================================
 # 🧠 LOGIC ENGINE (Models & Algorithms)

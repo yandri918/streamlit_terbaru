@@ -23,9 +23,9 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 # Authentication
-from utils.auth import require_auth, show_user_info_sidebar
-user = require_auth()
-show_user_info_sidebar()
+# from utils.auth import require_auth, show_user_info_sidebar
+# user = require_auth()
+# show_user_info_sidebar()
 
 # Page config
 st.set_page_config(page_title="Kalender Tanam Cerdas", page_icon="🌦️", layout="wide")

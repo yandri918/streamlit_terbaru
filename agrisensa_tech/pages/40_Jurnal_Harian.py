@@ -7,13 +7,13 @@ from datetime import datetime, timedelta
 import os
 import json
 
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(page_title="Control Room & Jurnal Harian", page_icon="📓", layout="wide")
 
 # ===== AUTHENTICATION CHECK =====
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 # ================================
 
 

@@ -7,13 +7,13 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(page_title="Kalkulator Potensi Panen Padi", page_icon="🌾", layout="wide")
 
 # ===== AUTHENTICATION CHECK =====
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 # ================================
 
 

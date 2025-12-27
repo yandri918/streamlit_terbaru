@@ -4,13 +4,13 @@ import cv2
 import numpy as np
 import io
 from PIL import Image
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(page_title="Estimasi Panen AI", page_icon="📸", layout="wide")
 
 # Auth
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 
 # ==========================================
 # 🧠 COMPUTER VISION LOGIC (OpenCV)

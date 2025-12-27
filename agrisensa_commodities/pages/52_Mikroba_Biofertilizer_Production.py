@@ -12,7 +12,7 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 from services.microbe_production_service import MicrobeProductionService
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(
     page_title="Mikroba & Biofertilizer Production",
@@ -20,8 +20,8 @@ st.set_page_config(
     layout="wide"
 )
 
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 
 # Initialize service
 service = MicrobeProductionService()

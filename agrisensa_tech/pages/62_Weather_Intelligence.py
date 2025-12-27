@@ -11,7 +11,7 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 from services.weather_service import WeatherService
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(
     page_title="Weather Intelligence",
@@ -19,8 +19,8 @@ st.set_page_config(
     layout="wide"
 )
 
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 
 service = WeatherService()
 

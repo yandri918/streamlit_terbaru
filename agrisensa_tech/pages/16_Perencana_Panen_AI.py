@@ -15,7 +15,7 @@ import sys
 import os
 
 # Add updated path logic
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 # Add parent directory to path for imports (required for Streamlit Cloud)
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,8 +32,8 @@ from utils.bapanas_constants import PROVINCE_MAPPING # for location mapping
 st.set_page_config(page_title="AI Harvest Planner Pro", page_icon="🎯", layout="wide")
 
 # ===== AUTHENTICATION CHECK =====
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 # ================================
 
 

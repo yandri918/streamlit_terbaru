@@ -9,7 +9,7 @@ parent_dir = str(Path(__file__).parent.parent)
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(
     page_title="SOP Documentation Center",
@@ -17,8 +17,8 @@ st.set_page_config(
     layout="wide"
 )
 
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 
 # Custom CSS
 st.markdown("""

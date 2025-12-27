@@ -9,7 +9,7 @@ import qrcode
 from datetime import datetime, timedelta
 
 # --- CONFIG & DATA PATHS ---
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 DATA_DIR = "data"
 WASTE_LOG_FILE = os.path.join(DATA_DIR, "waste_log.csv")
@@ -53,8 +53,8 @@ st.set_page_config(
 )
 
 # ===== AUTHENTICATION CHECK =====
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 # ================================
 
 

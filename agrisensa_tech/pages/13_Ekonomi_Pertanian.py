@@ -10,13 +10,13 @@ import plotly.express as px
 from sklearn.linear_model import LinearRegression
 from scipy.optimize import minimize
 
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(page_title="Ekonomi Pertanian", page_icon="📊", layout="wide")
 
 # ===== AUTHENTICATION CHECK =====
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 st.sidebar.caption("Last Updated: v2.0 (Refactored)")
 # ================================
 

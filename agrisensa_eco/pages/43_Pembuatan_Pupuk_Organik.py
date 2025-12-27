@@ -1,6 +1,6 @@
 import streamlit as st
 
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 st.set_page_config(
     page_title="Pembuatan Pupuk Organik - AgriSensa",
@@ -9,8 +9,8 @@ st.set_page_config(
 )
 
 # ===== AUTHENTICATION CHECK =====
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 # ================================
 
 

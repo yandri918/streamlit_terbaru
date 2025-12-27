@@ -2,14 +2,14 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from utils.auth import require_auth, show_user_info_sidebar
+# from utils.auth import require_auth, show_user_info_sidebar
 
 # Page Config
 st.set_page_config(page_title="Executive Dashboard", page_icon="📊", layout="wide")
 
 # Auth
-user = require_auth()
-show_user_info_sidebar()
+# user = require_auth()
+# show_user_info_sidebar()
 
 # ==========================================
 # 🔐 SUPER ADMIN FEATURES
