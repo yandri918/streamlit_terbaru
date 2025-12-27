@@ -63,7 +63,7 @@ with tab1:
     
     st.info("""
     💡 **IPM 2.0** menggunakan AI untuk identifikasi hama dan rekomendasi pengendalian organik prioritas.
-    Kurangi ketergantungan pestisida kimia hingga 70%!
+    Database hama telah disinkronisasi dengan **Heatmap Risiko Hama/Penyakit** (Hortikultura & Padi).
     """)
     
     # AI Pest Identification
@@ -81,7 +81,7 @@ with tab1:
         
         # Simulated pest selection (in production, this would be AI output)
         st.markdown("**Atau Pilih Manual:**")
-        pest_name = st.selectbox("Pilih Hama", list(calc.PEST_DATABASE.keys()))
+        pest_name = st.selectbox("Pilih jenis OPT untuk ditampilkan:", list(calc.PEST_DATABASE.keys()))
     
     with col_p2:
         if st.button("🔬 Identifikasi Hama", type="primary"):

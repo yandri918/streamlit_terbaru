@@ -6,77 +6,178 @@ Integrated Pest Management 2.0, Seed Saving, and Farm Design
 class IPMSeedLandscapeCalculator:
     """Calculator for IPM, seed saving, and landscape planning"""
     
-    # Common pests database (for AI identification simulation)
+    # Common pests database (Matching Heatmap Risk Data)
     PEST_DATABASE = {
-        'Wereng Coklat': {
-            'scientific_name': 'Nilaparvata lugens',
-            'crops_affected': ['Padi'],
-            'damage_type': 'Penghisap cairan tanaman',
-            'symptoms': 'Daun menguning, tanaman kerdil, hopperburn',
+        # --- HORTIKULTURA ---
+        'Thrips': {
+            'scientific_name': 'Thrips parvispinus',
+            'crops_affected': ['Cabai', 'Bawang', 'Bunga'],
+            'damage_type': 'Penghisap cairan, vektor virus',
+            'symptoms': 'Bercak perak pada daun bawah, daun mengeriting ke atas, bunga rontok',
             'organic_control': [
-                'Predator alami: Laba-laba, kepik',
-                'Varietas tahan wereng',
-                'Pengaturan jarak tanam',
-                'Hindari pemupukan N berlebihan'
+                'Perangkap likat biru (blue sticky trap)',
+                'Predator: Orius bugs, Amblyseius',
+                'Pestisida nabati: Tembakau, bawang putih',
+                'Mulsa perak untuk memantulkan cahaya'
             ],
-            'chemical_control': 'Imidakloprid, Buprofezin (last resort)',
-            'prevention': 'Rotasi varietas, sanitasi lahan'
+            'chemical_control': 'Spinosad, Abamectin (Gunakan rotasi bahan aktif)',
+            'prevention': 'Sanitasi gulma, tumpang sari dengan bunga refugia'
+        },
+        'Kutu Kebul': {
+            'scientific_name': 'Bemisia tabaci',
+            'crops_affected': ['Cabai', 'Tomat', 'Terung'],
+            'damage_type': 'Penghisap cairan, vektor virus Gemini (Kuning)',
+            'symptoms': 'Daun menguning, kotoran embun madu (jelaga hitam)',
+            'organic_control': [
+                'Perangkap kuning (yellow sticky trap)',
+                'Cendawan entomopatogen: Verticillium lecanii',
+                'Minyak nimba (neem oil)',
+                'Sabun kalium'
+            ],
+            'chemical_control': 'Imidakloprid, Asetamiprid (Sistemik)',
+            'prevention': 'Barrier crop (jagung), varietas tahan virus'
+        },
+        'Tungau (Mites)': {
+            'scientific_name': 'Polyphagotarsonemus latus / Tetranychus',
+            'crops_affected': ['Cabai', 'Tomat', 'Jeruk'],
+            'damage_type': 'Penghisap sel epidermis',
+            'symptoms': 'Daun melengkung ke bawah (seperti sendok terbalik), permukaan bawah mengkilap tembaga',
+            'organic_control': [
+                'Predator: Phytoseiulus',
+                'Belerang (Sulfur/Wettable Sulfur)',
+                'Penyemprotan air bertekanan',
+                'Minyak hortikultura'
+            ],
+            'chemical_control': 'Akarisida (Abamectin, Pyridaben)',
+            'prevention': 'Hindari kekeringan ekstrem, irigasi sprinler'
         },
         'Ulat Grayak': {
             'scientific_name': 'Spodoptera litura',
-            'crops_affected': ['Cabai', 'Tomat', 'Kedelai'],
-            'damage_type': 'Pemakan daun',
-            'symptoms': 'Lubang pada daun, kotoran hitam',
+            'crops_affected': ['Cabai', 'Bawang', 'Kedelai'],
+            'damage_type': 'Defoliator (pemakan daun) & buah',
+            'symptoms': 'Lubang pada daun, buah berlubang, kotoran hitam',
             'organic_control': [
+                'Perangkap feromon seks (Exi)',
                 'Bacillus thuringiensis (Bt)',
-                'Predator: Trichogramma wasps',
-                'Pestisida nabati: ekstrak nimba',
-                'Hand picking larva'
+                'Virus NPV (Spodoptera litura NPV)',
+                'Pengumpulan telur/larva manual'
             ],
-            'chemical_control': 'Klorpirifos, Profenofos (last resort)',
-            'prevention': 'Perangkap feromon, crop rotation'
+            'chemical_control': 'Emamektin benzoat, Klorantraniliprol',
+            'prevention': 'Rotasi tanaman, pasang lampu perangkap'
         },
-        'Kutu Daun': {
-            'scientific_name': 'Aphis spp.',
-            'crops_affected': ['Cabai', 'Tomat', 'Sayuran'],
-            'damage_type': 'Penghisap cairan, vektor virus',
-            'symptoms': 'Daun keriting, embun madu, semut',
+        'Lalat Buah': {
+            'scientific_name': 'Bactrocera spp.',
+            'crops_affected': ['Cabai', 'Mangga', 'Jambu'],
+            'damage_type': 'Larva memakan daging buah',
+            'symptoms': 'Titik bekas tusukan pada buah, buah busuk basah dan rontok',
             'organic_control': [
-                'Predator: Ladybug, lacewing',
-                'Semprotan air kuat',
-                'Sabun insektisida',
-                'Minyak nimba'
+                'Perangkap atraktan (Metil Eugenol)',
+                'Pembungkusan buah',
+                'Sanitasi buah jatuh (kubur dalam tanah)',
+                'Ekstrak selasih'
             ],
-            'chemical_control': 'Imidakloprid (last resort)',
-            'prevention': 'Tanaman refugia, mulsa reflektif'
+            'chemical_control': 'Umpan protein beracun',
+            'prevention': 'Kumpulkan dan musnahkan buah yang jatuh'
         },
-        'Penggerek Batang': {
-            'scientific_name': 'Ostrinia furnacalis',
-            'crops_affected': ['Jagung'],
-            'damage_type': 'Penggerek batang dan tongkol',
-            'symptoms': 'Lubang pada batang, patah batang, tongkol rusak',
+        'Jamur (Fusarium)': {
+            'scientific_name': 'Fusarium oxysporum',
+            'crops_affected': ['Cabai', 'Tomat', 'Pisang'],
+            'damage_type': 'Penyumbatan pembuluh xilem',
+            'symptoms': 'Layu mendadak di siang hari, segar di pagi hari, akhirnya mati. Batang dipotong ada cincin coklat',
             'organic_control': [
-                'Trichogramma parasitoid',
-                'Bacillus thuringiensis (Bt)',
-                'Potong dan musnahkan tanaman terserang',
-                'Tanam varietas tahan'
+                'Trichoderma spp. (aplikasi di tanah)',
+                'PGPR (Plant Growth Promoting Rhizobacteria)',
+                'Kompos matang',
+                'Biofungisida Gliocladium'
             ],
-            'chemical_control': 'Karbofuran granul (last resort)',
-            'prevention': 'Sanitasi, tanam serempak, rotasi tanaman'
+            'chemical_control': 'Fungisida berbahan aktif Benomyl (Koret)',
+            'prevention': 'Drainase baik, naikkan pH tanah, varietas tahan'
         },
-        'Trips': {
-            'scientific_name': 'Thrips spp.',
-            'crops_affected': ['Cabai', 'Bawang', 'Bunga'],
-            'damage_type': 'Penghisap cairan, vektor virus',
-            'symptoms': 'Bercak perak pada daun, daun menggulung',
+        'Patek (Antraknosa)': {
+            'scientific_name': 'Colletotrichum spp.',
+            'crops_affected': ['Cabai', 'Mangga', 'Pepaya'],
+            'damage_type': 'Infeksi buah dan daun',
+            'symptoms': 'Bercak melingkar cekung warna oranye/hitam pada buah (patek)',
             'organic_control': [
-                'Perangkap biru lengket',
-                'Predator: Orius bugs',
-                'Minyak nimba',
-                'Mulsa reflektif'
+                'Pangkas bagian sakit',
+                'Ekstrak lengkuas/kunyit',
+                'Agen hayati: yeast antagonis',
+                'Pengurangan kelembaban'
             ],
-            'chemical_control': 'Spinosad, Abamectin',
-            'prevention': 'Sanitasi gulma, tanaman perangkap'
+            'chemical_control': 'Fungisida Azoxystrobin, Difenokonazol',
+            'prevention': 'Jarak tanam lebar, pemakaian mulsa, kalsium cukup'
+        },
+        'Layu Bakteri': {
+            'scientific_name': 'Ralstonia solanacearum',
+            'crops_affected': ['Cabai', 'Tomat', 'Kentang'],
+            'damage_type': 'Bakteri menyumbat vaskuler',
+            'symptoms': 'Layu permanen cepat, jika batang dipotong dan dicelup air keluar ooze (cairan putih susu)',
+            'organic_control': [
+                'Bakterisida biologi (Streptomyces, Pseudomonas fluorescens)',
+                'Grafting dengan batang bawah tahan (Terung pipit)',
+                'Arang sekam',
+                'Rotasi dengan jagung/padi'
+            ],
+            'chemical_control': 'Bakterisida tembaga (Coppercide), Antibiotik pertanian',
+            'prevention': 'Hindari genangan air, sterilisasi alat tani'
+        },
+        
+        # --- PADI ---
+        'Wereng Coklat': {
+            'scientific_name': 'Nilaparvata lugens',
+            'crops_affected': ['Padi'],
+            'damage_type': 'Penghisap cairan batang',
+            'symptoms': 'Tanaman menguning dan kering (hopperburn), kerdil rumput/hampa',
+            'organic_control': [
+                'Musuh alami: Laba-laba, Paederus, Cyrtorhinus',
+                'Jamur patogen: Beauveria bassiana, Metarhizium',
+                'Tanam serempak',
+                'Pengeringan lahan berkala (intermittent irrigation)'
+            ],
+            'chemical_control': 'Insektisida selektif (Pymetrozine, Buprofezin)',
+            'prevention': 'Hindari pupuk N berlebih, varietas tahan (Inpari)'
+        },
+        'Blast (Padi)': {
+            'scientific_name': 'Pyricularia oryzae',
+            'crops_affected': ['Padi'],
+            'damage_type': 'Jamur penyerang daun dan leher malai',
+            'symptoms': 'Bercak belah ketupat pada daun, leher malai busuk (patah leher)',
+            'organic_control': [
+                'Corynebacterium',
+                'Ekstrak daun sirih',
+                'Pseudomonas fluorescens',
+                'Silika (abu sekam)'
+            ],
+            'chemical_control': 'Fungisida Isoprotiolane, Tricyclazole',
+            'prevention': 'Jangan tanam terlalu rapat, kurangi Urea'
+        },
+        'Hawar Daun (Kresek)': {
+            'scientific_name': 'Xanthomonas oryzae',
+            'crops_affected': ['Padi'],
+            'damage_type': 'Bakteri daun',
+            'symptoms': 'Garis basah pada tepi daun, daun mengering seperti terbakar',
+            'organic_control': [
+                'Paenibacillus polymyxa',
+                'Ekstrak biji pinang',
+                'Jarak tanam legowo',
+                'Pupuk K cukup'
+            ],
+            'chemical_control': 'Bakterisida tembaga oksida',
+            'prevention': 'Sanitasi jerami sakit, hindari pemotongan pucuk bibit'
+        },
+        'Keong Mas': {
+            'scientific_name': 'Pomacea canaliculata',
+            'crops_affected': ['Padi (fase muda)'],
+            'damage_type': 'Pemakan rumpun muda',
+            'symptoms': 'Rumpun padi hilang/terpotong, ada telur pink',
+            'organic_control': [
+                'Pungut manual telur dan keong',
+                'Bebek/Itik gembala',
+                'Umpan daun pepaya/talas',
+                'Saringan pada saluran air masuk'
+            ],
+            'chemical_control': 'Moluskisida (Niklosamida)',
+            'prevention': 'Tanam pindah (umur bibit >21 hari), parit keliling'
         }
     }
     
