@@ -41,6 +41,11 @@ if st.button("🌍 Advanced Sustainability Features", use_container_width=True):
     st.switch_page("pages/58_🌍_Advanced_Sustainability.py")
 st.caption("Ecosystem Services | Precision Conservation | Indigenous Knowledge | ESG Reporting")
 
+st.markdown("### 🌾 IPM, Seed & Landscape")
+if st.button("🌾 IPM 2.0, Seed Saving & Landscape Planning", use_container_width=True):
+    st.switch_page("pages/59_🌾_IPM_Seed_Landscape.py")
+st.caption("AI Pest Identification | Seed Network | Farm Design")
+
 st.markdown("### 🍓 Agrowisata & Rekomendasi")
 c5, c6 = st.columns(2)
 with c5:
