@@ -31,6 +31,11 @@ with c3:
 with c4:
     if st.button("💧 Smart Water Management"): st.switch_page("pages/56_💧_Water_Management.py")
 
+st.markdown("### 🌱 Toolkit Keberlanjutan")
+if st.button("🌱 Sustainability Toolkit", use_container_width=True): 
+    st.switch_page("pages/57_🌱_Sustainability_Toolkit.py")
+st.caption("Regenerative Agriculture | Climate Adaptation | Circular Economy")
+
 st.markdown("### 🍓 Agrowisata & Rekomendasi")
 c5, c6 = st.columns(2)
 with c5:
