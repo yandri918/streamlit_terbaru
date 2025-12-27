@@ -112,7 +112,7 @@ with c4:
 with c5:
     if st.button("🛰️ Drone Command Center"): st.switch_page("pages/50_🛰️_AgriDrone_Command_Center.py")
     if st.button("📊 AI Intelligence Pro"): st.switch_page("pages/46_📊_AgriSensa_Intelligence_Pro.py")
-    if st.button("🌦️ Weather Intelligence"): st.switch_page("pages/62_🌦️_Weather_Intelligence.py")
+    if st.button("🌦️ Weather Intelligence"): st.switch_page("pages/62_Weather_Intelligence.py")
 with c6:
     if st.button("🏠 Greenhouse & Hidroponik"): st.switch_page("pages/33_🏠_Greenhouse_Hidroponik.py")
     if st.button("🎯 SOP Presisi Komoditas"): st.switch_page("pages/54_🎯_SOP_Presisi_Komoditas.py")
