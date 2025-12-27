@@ -117,4 +117,14 @@ with c6:
     if st.button("💧 Irigasi & Drainase"): st.switch_page("pages/32_💧_Irigasi_Drainase.py")
 
 st.markdown("---")
-if st.button("🚜 Mekanisasi Pertanian"): st.switch_page("pages/41_🚜_Mekanisasi_Pertanian.py")
+st.markdown("### 🚜 Manajemen Aset & Infrastruktur")
+
+c_m1, c_m2, c_m3 = st.columns(3)
+with c_m1:
+    if st.button("🚜 Manajemen Alsintan"): st.switch_page("pages/41_🚜_Mekanisasi_Pertanian.py")
+with c_m2:
+    if st.button("🛡️ Desain Biosecurity"): st.switch_page("pages/60_🛡️_Biosecurity_Design.py")
+    st.caption("RAB Anteroom & SOP")
+with c_m3:
+    if st.button("📦 Packhouse & QC"): st.switch_page("pages/61_📦_Packhouse_Design.py")
+    st.caption("Grading & Labeling Layout")
