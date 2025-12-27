@@ -598,30 +598,175 @@ with tab6:
         with col4:
             st.metric("ROI", f"{roi_data['roi_percent']:.1f}%")
         
-        # Detailed breakdown
-        st.markdown("### 💵 Rincian Biaya Investasi")
+        # Detailed breakdown with EDITABLE components
+        st.markdown("### 💵 Rincian Biaya Investasi (Editable)")
+        
+        st.info("💡 **Sesuaikan harga per komponen sesuai kondisi lokal Anda**")
         
         costs = INVESTMENT_COSTS[calc_species]
+        
+        # Create editable inputs for each cost component
+        st.markdown("#### 📝 Edit Komponen Biaya:")
+        
+        col1, col2 = st.columns(2)
+        
+        edited_costs = {}
+        
+        with col1:
+            edited_costs["land_prep"] = st.number_input(
+                "Persiapan Lahan (Rp):",
+                min_value=0,
+                value=costs["land_prep"],
+                step=100000,
+                key="edit_land_prep"
+            )
+            
+            edited_costs["seeds"] = st.number_input(
+                "Bibit/Benih (Rp):",
+                min_value=0,
+                value=costs["seeds"],
+                step=1000000,
+                key="edit_seeds"
+            )
+            
+            edited_costs["fertilizer_organic"] = st.number_input(
+                "Pupuk Organik (Rp):",
+                min_value=0,
+                value=costs["fertilizer_organic"],
+                step=500000,
+                key="edit_fert_org"
+            )
+            
+            edited_costs["fertilizer_chemical"] = st.number_input(
+                "Pupuk Kimia (Rp):",
+                min_value=0,
+                value=costs["fertilizer_chemical"],
+                step=500000,
+                key="edit_fert_chem"
+            )
+            
+            edited_costs["pesticide"] = st.number_input(
+                "Pestisida/Biocontrol (Rp):",
+                min_value=0,
+                value=costs["pesticide"],
+                step=100000,
+                key="edit_pesticide"
+            )
+        
+        with col2:
+            edited_costs["labor"] = st.number_input(
+                "Tenaga Kerja (Rp):",
+                min_value=0,
+                value=costs["labor"],
+                step=1000000,
+                key="edit_labor"
+            )
+            
+            edited_costs["irrigation"] = st.number_input(
+                "Irigasi (Rp):",
+                min_value=0,
+                value=costs["irrigation"],
+                step=100000,
+                key="edit_irrigation"
+            )
+            
+            edited_costs["drying"] = st.number_input(
+                "Pengeringan (Rp):",
+                min_value=0,
+                value=costs["drying"],
+                step=500000,
+                key="edit_drying"
+            )
+            
+            edited_costs["packaging"] = st.number_input(
+                "Packaging (Rp):",
+                min_value=0,
+                value=costs["packaging"],
+                step=100000,
+                key="edit_packaging"
+            )
+            
+            edited_costs["certification"] = st.number_input(
+                "Sertifikasi (Rp):",
+                min_value=0,
+                value=costs["certification"],
+                step=1000000,
+                key="edit_certification"
+            )
+        
+        # Calculate new total
+        edited_total = sum(edited_costs.values())
+        edited_costs["total"] = edited_total
+        
+        # Display summary table
+        st.markdown("#### 📊 Ringkasan Biaya (Berdasarkan Input Anda):")
+        
         cost_items = []
-        for key, value in costs.items():
+        for key, value in edited_costs.items():
             if key != "total":
                 cost_items.append({
                     "Komponen": key.replace("_", " ").title(),
-                    "Biaya (Rp)": value * area_ha,
-                    "Persentase": f"{(value/costs['total']*100):.1f}%"
+                    "Biaya per Ha (Rp)": value,
+                    "Total (Rp)": value * area_ha,
+                    "Persentase": f"{(value/edited_total*100):.1f}%"
                 })
         
         df_costs = pd.DataFrame(cost_items)
         st.dataframe(df_costs, use_container_width=True, hide_index=True)
         
-        # Pie chart
+        # Show total
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Investasi (per Ha)", f"Rp {edited_total:,.0f}")
+        with col2:
+            st.metric("Total Investasi ({:.1f} Ha)".format(area_ha), f"Rp {edited_total * area_ha:,.0f}")
+        with col3:
+            # Recalculate ROI with edited costs
+            edited_investment = edited_total * area_ha
+            edited_profit = roi_data['revenue'] - edited_investment
+            edited_roi = (edited_profit / edited_investment * 100) if edited_investment > 0 else 0
+            st.metric("ROI (Updated)", f"{edited_roi:.1f}%")
+        
+        # Pie chart with edited costs
         fig = px.pie(
             df_costs,
-            values='Biaya (Rp)',
+            values='Biaya per Ha (Rp)',
             names='Komponen',
-            title='Distribusi Biaya Investasi'
+            title='Distribusi Biaya Investasi (Customized)'
         )
         st.plotly_chart(fig, use_container_width=True)
+        
+        # Bar chart comparison: Default vs Edited
+        comparison_data = pd.DataFrame({
+            "Komponen": [item["Komponen"] for item in cost_items],
+            "Default (Rp)": [costs[key] for key in edited_costs.keys() if key != "total"],
+            "Custom (Rp)": [edited_costs[key] for key in edited_costs.keys() if key != "total"]
+        })
+        
+        fig_comparison = go.Figure()
+        fig_comparison.add_trace(go.Bar(
+            name='Default',
+            x=comparison_data['Komponen'],
+            y=comparison_data['Default (Rp)'],
+            marker_color='lightblue'
+        ))
+        fig_comparison.add_trace(go.Bar(
+            name='Custom',
+            x=comparison_data['Komponen'],
+            y=comparison_data['Custom (Rp)'],
+            marker_color='green'
+        ))
+        
+        fig_comparison.update_layout(
+            title='Perbandingan: Biaya Default vs Custom',
+            xaxis_title='Komponen',
+            yaxis_title='Biaya (Rp)',
+            barmode='group',
+            height=400
+        )
+        
+        st.plotly_chart(fig_comparison, use_container_width=True)
+
         
         # Revenue breakdown
         st.markdown("### 💰 Proyeksi Revenue")
