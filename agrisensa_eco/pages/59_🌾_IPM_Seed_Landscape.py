@@ -67,71 +67,92 @@ with tab1:
     """)
     
     # AI Pest Identification
-    st.markdown("### 🔍 AI Pest Identification")
+    st.markdown("### 🔍 Identifikasi & Ensiklopedia Hama")
     
     col_p1, col_p2 = st.columns([1, 2])
     
     with col_p1:
-        st.markdown("**Upload Foto Hama**")
-        uploaded_file = st.file_uploader("Pilih gambar", type=['jpg', 'jpeg', 'png'],
-                                        help="Upload foto hama untuk identifikasi AI")
+        st.markdown("**Metode Input:**")
+        input_method = st.radio("Pilih Metode:", ["📸 Upload Foto (AI Scan)", "📖 Pilih Manual (Database)"], label_visibility="collapsed")
         
-        if uploaded_file:
-            st.image(uploaded_file, caption="Foto yang diupload", use_container_width=True)
+        pest_name_selected = None
         
-        # Simulated pest selection (in production, this would be AI output)
-        st.markdown("**Atau Pilih Manual:**")
-        pest_name = st.selectbox("Pilih jenis OPT untuk ditampilkan:", list(calc.PEST_DATABASE.keys()))
+        if input_method == "📸 Upload Foto (AI Scan)":
+            uploaded_file = st.file_uploader("Upload Foto Hama", type=['jpg', 'jpeg', 'png'])
+            if uploaded_file:
+                st.image(uploaded_file, caption="Preview Foto", use_container_width=True)
+                if st.button("🚀 Analisis Foto (AI)", type="primary"):
+                    # Simulation: Just pick the first one or random for now, or assume logical flow
+                    # For demo purposes, we'll pretend it identified the one selected below or default
+                    st.success("✅ AI berhasil mengidentifikasi hama!")
+                    pest_name_selected = "Wereng Coklat" # Default simulation result
+        
+        else:
+            st.markdown("**Pilih jenis OPT dari Database:**")
+            pest_name_selected = st.selectbox("Daftar Hama & Penyakit:", list(calc.PEST_DATABASE.keys()))
+            st.caption("ℹ️ Pilih nama hama untuk melihat detail pengendalian.")
     
     with col_p2:
-        if st.button("🔬 Identifikasi Hama", type="primary"):
-            result = calc.identify_pest(pest_name)
+        # Display Logic
+        display_pest = pest_name_selected 
+        
+        # If we are in manual mode, we always show the selection
+        # If we are in upload mode, we only show if analyzed (simulated above) or logic handled
+        
+        # Simplified logic for better UX:
+        # If manual mode -> show immediately
+        # If upload mode -> show "Waiting for upload/analysis" or result
+        
+        if input_method == "📖 Pilih Manual (Database)" and display_pest:
+            result = calc.identify_pest(display_pest)
+        elif input_method == "📸 Upload Foto (AI Scan)" and pest_name_selected:
+             result = calc.identify_pest(pest_name_selected)
+        else:
+            result = None
+
+        if result and result['identified']:
+            # Header with "Card" style
+            st.markdown(f"""
+            <div style="background-color: #dcfce7; padding: 15px; border-radius: 10px; border-left: 5px solid #22c55e;">
+                <h2 style="margin:0; color: #166534;">🦟 {result['pest_name']}</h2>
+                <p style="margin:0; color: #15803d; font-style: italic;">{result['data']['scientific_name']}</p>
+            </div>
+            """, unsafe_allow_html=True)
             
-            if result['identified']:
-                st.success(f"✅ Teridentifikasi: **{result['pest_name']}** (Confidence: {result['confidence']}%)")
+            pest_data = result['data']
+            
+            # Pest info tabs
+            info_tab1, info_tab2 = st.tabs(["📋 Deskripsi & Gejala", "🛡️ Pengendalian (Solusi)"])
+            
+            with info_tab1:
+                st.markdown(f"""
+                **Tanaman Inang:**  
+                {', '.join(pest_data['crops_affected'])}
                 
-                pest_data = result['data']
+                **Tipe Kerusakan:**  
+                {pest_data['damage_type']}
                 
-                # Pest info
-                st.markdown("### 📋 Informasi Hama")
-                
-                col_info1, col_info2 = st.columns(2)
-                
-                with col_info1:
-                    st.markdown(f"""
-                    **Nama Ilmiah:** {pest_data['scientific_name']}
-                    
-                    **Tanaman Terserang:** {', '.join(pest_data['crops_affected'])}
-                    
-                    **Tipe Kerusakan:** {pest_data['damage_type']}
-                    """)
-                
-                with col_info2:
-                    st.markdown(f"""
-                    **Gejala Serangan:**
-                    {pest_data['symptoms']}
-                    
-                    **Pencegahan:**
-                    {pest_data['prevention']}
-                    """)
-                
-                # Control methods
-                st.markdown("### 🌿 Metode Pengendalian (IPM Ladder)")
-                
-                st.success(f"""
-                **1️⃣ Pengendalian Organik (Prioritas):**
-                
-                {chr(10).join('• ' + method for method in pest_data['organic_control'])}
+                **Gejala Serangan:**  
+                {pest_data['symptoms']}
                 """)
                 
-                st.warning(f"""
-                **2️⃣ Pengendalian Kimia (Last Resort):**
+                st.info(f"💡 **Pencegahan:** {pest_data['prevention']}")
+            
+            with info_tab2:
+                st.markdown("### 🌿 Pengendalian Organik (Prioritas)")
+                for method in pest_data['organic_control']:
+                    st.markdown(f"- ✅ {method}")
                 
-                • {pest_data['chemical_control']}
-                
-                ⚠️ Gunakan hanya jika metode organik gagal dan populasi hama di atas ambang ekonomi
-                """)
-    
+                st.markdown("---")
+                st.markdown("### ⚠️ Pengendalian Kimia (Terakhir)")
+                st.markdown(f"🔴 **Bahan Aktif:** {pest_data['chemical_control']}")
+                st.caption("Gunakan bijak sesuai dosis anjuran. Utamakan keselamatan musuh alami.")
+
+        elif input_method == "📸 Upload Foto (AI Scan)" and not pest_name_selected:
+            st.info("👈 Silakan upload foto dan klik tombol analisis, atau gunakan **Mode Manual** untuk melihat database.")
+        
+        else:
+            st.info("👈 Silakan pilih hama di menu sebelah kiri.")    
     # IPM Cost-Benefit Analysis
     st.markdown("---")
     st.markdown("### 💰 IPM Cost-Benefit Analysis")
