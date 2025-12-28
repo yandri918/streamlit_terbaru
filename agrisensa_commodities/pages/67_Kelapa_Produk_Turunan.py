@@ -1077,21 +1077,20 @@ with tabs[3]:
             "Kategori": "Processed"
         })
         
-        # 7. Gula Semut (calculated from coconuts, not from user input)
-        # Assume: 1000 coconuts = ~7 trees producing for 180 days
-        # Average: 150 coconuts/tree/year, so 1000 coconuts ≈ 6.67 trees for 1 year
-        # For fair comparison, calculate based on equivalent tree-days
-        trees_for_comparison = comparison_coconuts / 150  # ~6.67 trees
-        gula_comparison_result = CoconutProductsService.calculate_coconut_sugar_production(
-            int(trees_for_comparison), 3, 1.2, "Gula Semut", 180
-        )
-        gula_revenue = gula_comparison_result['sugar_production'] * price_gula_semut  # Use custom price
-        products_comparison.append({
-            "Produk": "Gula Semut",
-            "Produksi": f"{gula_comparison_result['sugar_production']:.0f} kg",
-            "Revenue (Rp)": gula_revenue,
-            "Kategori": "Premium"
-        })
+        # Note: Gula semut NOT included in this comparison
+        # Reason: Sugar comes from nira (sap tapping), not from coconut meat
+        # Different production method - cannot be compared apple-to-apple with meat-based products
+        
+        st.warning("""
+        ⚠️ **Catatan Penting:** 
+        
+        Gula kelapa **tidak termasuk** dalam perbandingan ini karena:
+        - Gula kelapa dibuat dari **nira (sadapan mayang)**, bukan dari daging kelapa
+        - Produk lain (VCO, Santan, Kelapa Parut) dibuat dari **daging kelapa**
+        - Baseline berbeda: 1000 butir kelapa vs sadapan berkelanjutan
+        
+        Untuk analisis gula kelapa, gunakan **kalkulator gula kelapa** di atas yang berbasis jumlah pohon dan periode sadapan.
+        """)
         
         # Create comparison dataframe
         df_comparison = pd.DataFrame(products_comparison)
