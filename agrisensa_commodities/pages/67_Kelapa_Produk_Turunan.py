@@ -494,7 +494,7 @@ with tabs[2]:
                 values='Nilai',
                 names='Komponen',
                 title='Komposisi Biaya Produksi',
-                color_discrete_sequence=px.colors.sequential.Browns
+                color_discrete_sequence=['#8B4513', '#D2691E', '#CD853F', '#DEB887', '#F5DEB3']
             )
             st.plotly_chart(fig_cost, use_container_width=True)
         
