@@ -283,69 +283,69 @@ with tabs[2]:
             ["Domestik", "Export"]
         )
     
-    if st.button("🧮 Hitung Produksi VCO", type="primary"):
-        # Editable cost components
-        with st.expander("⚙️ Edit Komponen Biaya (Opsional)", expanded=False):
-            st.markdown("**Sesuaikan harga sesuai kondisi lokal Anda:**")
-            
-            col_edit1, col_edit2 = st.columns(2)
-            
-            with col_edit1:
-                coconut_price = st.number_input(
-                    "Harga Kelapa (Rp/butir):",
-                    min_value=1000,
-                    max_value=10000,
-                    value=3000,
-                    step=100,
-                    key="vco_coconut_price"
-                )
-                
-                labor_cost_per_liter = st.number_input(
-                    "Biaya Tenaga Kerja (Rp/liter):",
-                    min_value=10000,
-                    max_value=100000,
-                    value=30000,
-                    step=5000,
-                    key="vco_labor"
-                )
-                
-                packaging_cost_per_liter = st.number_input(
-                    "Biaya Packaging (Rp/liter):",
-                    min_value=5000,
-                    max_value=50000,
-                    value=15000,
-                    step=1000,
-                    key="vco_packaging"
-                )
-            
-            with col_edit2:
-                utility_cost_per_liter = st.number_input(
-                    "Biaya Utilitas (listrik, gas) (Rp/liter):",
-                    min_value=5000,
-                    max_value=50000,
-                    value=10000,
-                    step=1000,
-                    key="vco_utility"
-                )
-                
-                overhead_percent = st.slider(
-                    "Overhead & Lain-lain (%):",
-                    min_value=0,
-                    max_value=30,
-                    value=10,
-                    key="vco_overhead"
-                )
-                
-                selling_price_domestic = st.number_input(
-                    "Harga Jual Domestik (Rp/liter):",
-                    min_value=100000,
-                    max_value=500000,
-                    value=PRODUCT_PRICES["VCO"]["domestic"],
-                    step=10000,
-                    key="vco_price_dom"
-                )
+    # Editable cost components (OUTSIDE button condition to prevent refresh)
+    with st.expander("⚙️ Edit Komponen Biaya (Opsional)", expanded=False):
+        st.markdown("**Sesuaikan harga sesuai kondisi lokal Anda:**")
         
-        # Calculate with custom or default values
+        col_edit1, col_edit2 = st.columns(2)
+        
+        with col_edit1:
+            coconut_price = st.number_input(
+                "Harga Kelapa (Rp/butir):",
+                min_value=1000,
+                max_value=10000,
+                value=3000,
+                step=100,
+                key="vco_coconut_price"
+            )
+            
+            labor_cost_per_liter = st.number_input(
+                "Biaya Tenaga Kerja (Rp/liter):",
+                min_value=10000,
+                max_value=100000,
+                value=30000,
+                step=5000,
+                key="vco_labor"
+            )
+            
+            packaging_cost_per_liter = st.number_input(
+                "Biaya Packaging (Rp/liter):",
+                min_value=5000,
+                max_value=50000,
+                value=15000,
+                step=1000,
+                key="vco_packaging"
+            )
+        
+        with col_edit2:
+            utility_cost_per_liter = st.number_input(
+                "Biaya Utilitas (listrik, gas) (Rp/liter):",
+                min_value=5000,
+                max_value=50000,
+                value=10000,
+                step=1000,
+                key="vco_utility"
+            )
+            
+            overhead_percent = st.slider(
+                "Overhead & Lain-lain (%):",
+                min_value=0,
+                max_value=30,
+                value=10,
+                key="vco_overhead"
+            )
+            
+            selling_price_domestic = st.number_input(
+                "Harga Jual Domestik (Rp/liter):",
+                min_value=100000,
+                max_value=500000,
+                value=PRODUCT_PRICES["VCO"]["domestic"],
+                step=10000,
+                key="vco_price_dom"
+            )
+    
+    if st.button("🧮 Hitung Produksi VCO", type="primary"):
+        # Calculate with custom values
         result = CoconutProductsService.calculate_vco_production(num_coconuts, vco_method)
         
         # Recalculate with editable values
@@ -613,90 +613,90 @@ with tabs[3]:
         step=30
     )
     
-    if st.button("🧮 Hitung Produksi Gula", type="primary"):
-        # Editable cost components
-        with st.expander("⚙️ Edit Komponen Biaya (Opsional)", expanded=False):
-            st.markdown("**Sesuaikan harga sesuai kondisi lokal Anda:**")
-            
-            col_edit1, col_edit2 = st.columns(2)
-            
-            with col_edit1:
-                tapping_cost_per_tree = st.number_input(
-                    "Biaya Penyadapan per Pohon per Hari (Rp):",
-                    min_value=2000,
-                    max_value=20000,
-                    value=5000,
-                    step=500,
-                    key="sugar_tapping_cost"
-                )
-                
-                processing_cost_per_kg = st.number_input(
-                    "Biaya Processing per kg/liter (Rp):",
-                    min_value=5000,
-                    max_value=30000,
-                    value=10000,
-                    step=1000,
-                    key="sugar_processing"
-                )
-                
-                packaging_cost_per_unit = st.number_input(
-                    "Biaya Packaging per unit (Rp):",
-                    min_value=2000,
-                    max_value=15000,
-                    value=5000,
-                    step=500,
-                    key="sugar_packaging"
-                )
-            
-            with col_edit2:
-                overhead_percent_sugar = st.slider(
-                    "Overhead & Lain-lain (%):",
-                    min_value=0,
-                    max_value=30,
-                    value=10,
-                    key="sugar_overhead"
-                )
-                
-                # Product-specific selling prices
-                st.markdown("**Harga Jual (Domestik):**")
-                
-                if sugar_product == "Gula Cetak":
-                    selling_price = st.number_input(
-                        "Harga Gula Cetak (Rp/kg):",
-                        min_value=15000,
-                        max_value=60000,
-                        value=25000,
-                        step=1000,
-                        key="price_cetak"
-                    )
-                elif sugar_product == "Gula Semut":
-                    selling_price = st.number_input(
-                        "Harga Gula Semut (Rp/kg):",
-                        min_value=25000,
-                        max_value=80000,
-                        value=35000,
-                        step=1000,
-                        key="price_semut"
-                    )
-                elif sugar_product == "Gula Cair":
-                    selling_price = st.number_input(
-                        "Harga Gula Cair (Rp/liter):",
-                        min_value=30000,
-                        max_value=100000,
-                        value=40000,
-                        step=1000,
-                        key="price_cair"
-                    )
-                else:  # Nektar Kelapa
-                    selling_price = st.number_input(
-                        "Harga Nektar Kelapa (Rp/liter):",
-                        min_value=50000,
-                        max_value=150000,
-                        value=65000,
-                        step=1000,
-                        key="price_nektar"
-                    )
+    # Editable cost components (OUTSIDE button condition to prevent refresh)
+    with st.expander("⚙️ Edit Komponen Biaya (Opsional)", expanded=False):
+        st.markdown("**Sesuaikan harga sesuai kondisi lokal Anda:**")
         
+        col_edit1, col_edit2 = st.columns(2)
+        
+        with col_edit1:
+            tapping_cost_per_tree = st.number_input(
+                "Biaya Penyadapan per Pohon per Hari (Rp):",
+                min_value=2000,
+                max_value=20000,
+                value=5000,
+                step=500,
+                key="sugar_tapping_cost"
+            )
+            
+            processing_cost_per_kg = st.number_input(
+                "Biaya Processing per kg/liter (Rp):",
+                min_value=5000,
+                max_value=30000,
+                value=10000,
+                step=1000,
+                key="sugar_processing"
+            )
+            
+            packaging_cost_per_unit = st.number_input(
+                "Biaya Packaging per unit (Rp):",
+                min_value=2000,
+                max_value=15000,
+                value=5000,
+                step=500,
+                key="sugar_packaging"
+            )
+        
+        with col_edit2:
+            overhead_percent_sugar = st.slider(
+                "Overhead & Lain-lain (%):",
+                min_value=0,
+                max_value=30,
+                value=10,
+                key="sugar_overhead"
+            )
+            
+            # Product-specific selling prices
+            st.markdown("**Harga Jual (Domestik):**")
+            
+            if sugar_product == "Gula Cetak":
+                selling_price = st.number_input(
+                    "Harga Gula Cetak (Rp/kg):",
+                    min_value=15000,
+                    max_value=60000,
+                    value=25000,
+                    step=1000,
+                    key="price_cetak"
+                )
+            elif sugar_product == "Gula Semut":
+                selling_price = st.number_input(
+                    "Harga Gula Semut (Rp/kg):",
+                    min_value=25000,
+                    max_value=80000,
+                    value=35000,
+                    step=1000,
+                    key="price_semut"
+                )
+            elif sugar_product == "Gula Cair":
+                selling_price = st.number_input(
+                    "Harga Gula Cair (Rp/liter):",
+                    min_value=30000,
+                    max_value=100000,
+                    value=40000,
+                    step=1000,
+                    key="price_cair"
+                )
+            else:  # Nektar Kelapa
+                selling_price = st.number_input(
+                    "Harga Nektar Kelapa (Rp/liter):",
+                    min_value=50000,
+                    max_value=150000,
+                    value=65000,
+                    step=1000,
+                    key="price_nektar"
+                )
+    
+    if st.button("🧮 Hitung Produksi Gula", type="primary"):
         # Calculate with custom values
         result = CoconutProductsService.calculate_coconut_sugar_production(
             num_trees_sugar, tapped_inflorescence, nira_per_day, sugar_product, production_days
