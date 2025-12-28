@@ -933,6 +933,81 @@ with tabs[3]:
         st.markdown("### 📊 Perbandingan Semua Produk Kelapa")
         st.info("💡 **Bandingkan profitabilitas berbagai produk kelapa dari 1000 butir**")
         
+        # Editable prices for comparison
+        with st.expander("⚙️ Edit Harga Produk (Opsional)", expanded=False):
+            st.markdown("**Sesuaikan harga jual sesuai pasar lokal Anda:**")
+            
+            col_price1, col_price2, col_price3 = st.columns(3)
+            
+            with col_price1:
+                price_kopra = st.number_input(
+                    "Harga Kopra (Rp/kg):",
+                    min_value=5000,
+                    max_value=20000,
+                    value=10000,
+                    step=500,
+                    key="comp_price_kopra"
+                )
+                
+                price_vco = st.number_input(
+                    "Harga VCO (Rp/liter):",
+                    min_value=100000,
+                    max_value=400000,
+                    value=200000,
+                    step=10000,
+                    key="comp_price_vco"
+                )
+                
+                price_santan_kental = st.number_input(
+                    "Harga Santan Kental (Rp/liter):",
+                    min_value=10000,
+                    max_value=30000,
+                    value=15000,
+                    step=1000,
+                    key="comp_price_santan_kental"
+                )
+            
+            with col_price2:
+                price_santan_kemasan = st.number_input(
+                    "Harga Santan Kemasan (Rp/liter):",
+                    min_value=15000,
+                    max_value=40000,
+                    value=20000,
+                    step=1000,
+                    key="comp_price_santan_kemasan"
+                )
+                
+                price_parut_segar = st.number_input(
+                    "Harga Kelapa Parut Segar (Rp/kg):",
+                    min_value=8000,
+                    max_value=25000,
+                    value=12000,
+                    step=1000,
+                    key="comp_price_parut_segar"
+                )
+                
+                price_parut_frozen = st.number_input(
+                    "Harga Kelapa Parut Frozen (Rp/kg):",
+                    min_value=12000,
+                    max_value=35000,
+                    value=18000,
+                    step=1000,
+                    key="comp_price_parut_frozen"
+                )
+            
+            with col_price3:
+                price_gula_semut = st.number_input(
+                    "Harga Gula Semut (Rp/kg):",
+                    min_value=25000,
+                    max_value=80000,
+                    value=35000,
+                    step=1000,
+                    key="comp_price_gula_semut"
+                )
+                
+                st.markdown("**💡 Tips:**")
+                st.caption("Sesuaikan harga dengan kondisi pasar lokal untuk analisis yang lebih akurat")
+        
         # Calculate all products from 1000 coconuts
         comparison_coconuts = 1000
         
@@ -944,7 +1019,7 @@ with tabs[3]:
         
         # 1. Kopra (baseline)
         copra_kg = comparison_coconuts * 0.45
-        copra_revenue = copra_kg * 10000
+        copra_revenue = copra_kg * price_kopra  # Use custom price
         products_comparison.append({
             "Produk": "Kopra",
             "Produksi": f"{copra_kg:.0f} kg",
@@ -954,54 +1029,60 @@ with tabs[3]:
         
         # 2. VCO
         vco_result = CoconutProductsService.calculate_vco_production(comparison_coconuts, "Fermentasi")
+        vco_revenue = vco_result['vco_liters'] * price_vco  # Use custom price
         products_comparison.append({
             "Produk": "VCO",
             "Produksi": f"{vco_result['vco_liters']:.0f} liter",
-            "Revenue (Rp)": vco_result['revenue'],
+            "Revenue (Rp)": vco_revenue,
             "Kategori": "Premium"
         })
         
         # 3. Santan Kental
         santan_result = CoconutProductsService.calculate_santan_kelapa_parut(comparison_coconuts, "Santan Kental")
+        santan_revenue = santan_result['production'] * price_santan_kental  # Use custom price
         products_comparison.append({
             "Produk": "Santan Kental",
             "Produksi": f"{santan_result['production']:.0f} liter",
-            "Revenue (Rp)": santan_result['revenue'],
+            "Revenue (Rp)": santan_revenue,
             "Kategori": "Fresh"
         })
         
         # 4. Santan Kemasan
         santan_kemasan_result = CoconutProductsService.calculate_santan_kelapa_parut(comparison_coconuts, "Santan Kemasan (UHT/Pasteurisasi)")
+        santan_kemasan_revenue = santan_kemasan_result['production'] * price_santan_kemasan  # Use custom price
         products_comparison.append({
             "Produk": "Santan Kemasan",
             "Produksi": f"{santan_kemasan_result['production']:.0f} liter",
-            "Revenue (Rp)": santan_kemasan_result['revenue'],
+            "Revenue (Rp)": santan_kemasan_revenue,
             "Kategori": "Processed"
         })
         
         # 5. Kelapa Parut Segar
         parut_result = CoconutProductsService.calculate_santan_kelapa_parut(comparison_coconuts, "Kelapa Parut Segar")
+        parut_revenue = parut_result['production'] * price_parut_segar  # Use custom price
         products_comparison.append({
             "Produk": "Kelapa Parut Segar",
             "Produksi": f"{parut_result['production']:.0f} kg",
-            "Revenue (Rp)": parut_result['revenue'],
+            "Revenue (Rp)": parut_revenue,
             "Kategori": "Fresh"
         })
         
         # 6. Kelapa Parut Frozen
         parut_frozen_result = CoconutProductsService.calculate_santan_kelapa_parut(comparison_coconuts, "Kelapa Parut Frozen")
+        parut_frozen_revenue = parut_frozen_result['production'] * price_parut_frozen  # Use custom price
         products_comparison.append({
             "Produk": "Kelapa Parut Frozen",
             "Produksi": f"{parut_frozen_result['production']:.0f} kg",
-            "Revenue (Rp)": parut_frozen_result['revenue'],
+            "Revenue (Rp)": parut_frozen_revenue,
             "Kategori": "Processed"
         })
         
-        # 7. Gula Semut (example)
+        # 7. Gula Semut (from current calculation)
+        gula_revenue = sugar_production * price_gula_semut  # Use custom price
         products_comparison.append({
             "Produk": "Gula Semut",
             "Produksi": f"{sugar_production:.0f} {unit}",
-            "Revenue (Rp)": revenue,
+            "Revenue (Rp)": gula_revenue,
             "Kategori": "Premium"
         })
         
