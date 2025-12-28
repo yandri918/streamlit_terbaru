@@ -568,6 +568,61 @@ class CoconutProductsService:
         }
     
     @staticmethod
+    def calculate_coco_fiber_peat(num_coconuts, product_type="Brown Fiber"):
+        """
+        Calculate coco fiber or peat production
+        
+        Args:
+            num_coconuts: Number of coconuts
+            product_type: Type of product (Fiber/Peat)
+            
+        Returns:
+            dict with production details
+        """
+        product_data = COCO_FIBER_PEAT.get(product_type, COCO_FIBER_PEAT["Brown Fiber"])
+        
+        # Average husk weight per coconut: 400g
+        avg_husk_per_coconut = 0.4  # kg
+        
+        # Calculate production based on rendemen
+        rendemen_str = product_data["rendemen_from_husk"].replace("%", "")
+        rendemen_range = rendemen_str.split("-")
+        rendemen_avg = (float(rendemen_range[0]) + float(rendemen_range[1])) / 2 / 100
+        
+        production_kg = num_coconuts * avg_husk_per_coconut * rendemen_avg
+        
+        # Calculate costs
+        coconut_cost = num_coconuts * 3000  # Rp 3000/butir
+        
+        if "Fiber" in product_type:
+            processing_cost_per_kg = 2000  # Rp 2000/kg for fiber
+            if "White" in product_type:
+                processing_cost_per_kg = 3000  # Higher for white fiber
+        else:  # Coco Peat
+            processing_cost_per_kg = 1500  # Rp 1500/kg for peat
+        
+        total_cost = coconut_cost + (production_kg * processing_cost_per_kg)
+        
+        # Revenue
+        price = product_data["price_domestic"]
+        revenue = production_kg * price
+        profit = revenue - total_cost
+        
+        return {
+            "product_type": product_type,
+            "num_coconuts": num_coconuts,
+            "production_kg": round(production_kg, 1),
+            "rendemen": product_data["rendemen_from_husk"],
+            "total_cost": total_cost,
+            "revenue": revenue,
+            "profit": profit,
+            "profit_margin": round((profit / revenue * 100), 1) if revenue > 0 else 0,
+            "price_per_kg": price,
+            "quality_grade": product_data.get("quality_grade", "Standard"),
+            "applications": product_data["applications"]
+        }
+    
+    @staticmethod
     def calculate_multi_product_roi(num_trees, products_selected, intercrop=None):
         """
         Calculate ROI for multiple coconut products
