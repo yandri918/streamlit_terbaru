@@ -211,6 +211,10 @@ PRODUCT_PRICES = {
     "Gula Semut": {"domestic": 35000, "export": 50000, "unit": "kg"},
     "Gula Cair": {"domestic": 40000, "export": 60000, "unit": "liter"},
     "Nektar Kelapa": {"domestic": 65000, "export": 100000, "unit": "liter"},
+    "Santan Kental": {"domestic": 15000, "export": 25000, "unit": "liter"},
+    "Santan Kemasan": {"domestic": 20000, "export": 30000, "unit": "liter"},
+    "Kelapa Parut": {"domestic": 12000, "export": 18000, "unit": "kg"},
+    "Kelapa Parut Frozen": {"domestic": 18000, "export": 25000, "unit": "kg"},
     "Coco Fiber Brown": {"domestic": 4000, "export": 5000, "unit": "kg"},
     "Coco Fiber White": {"domestic": 6000, "export": 8000, "unit": "kg"},
     "Coco Peat": {"domestic": 2000, "export": 3000, "unit": "kg"},
@@ -219,6 +223,50 @@ PRODUCT_PRICES = {
     "Copra": {"domestic": 10000, "export": 12000, "unit": "kg"},
     "Kakao": {"domestic": 35000, "export": 45000, "unit": "kg"},
     "Kopi": {"domestic": 25000, "export": 35000, "unit": "kg"}
+}
+
+# ===== SANTAN & KELAPA PARUT DATA =====
+SANTAN_KELAPA_PARUT = {
+    "Santan Kental": {
+        "rendemen": "30-35%",  # dari berat kelapa
+        "process_time_hours": "2-3",
+        "shelf_life_days": 2,  # fresh
+        "shelf_life_frozen_months": 3,
+        "price_domestic": 15000,
+        "price_export": 25000,
+        "market": "Rumah tangga, katering, industri makanan",
+        "packaging": "Plastik, botol, frozen pack"
+    },
+    
+    "Santan Kemasan (UHT/Pasteurisasi)": {
+        "rendemen": "30-35%",
+        "process_time_hours": "3-4",
+        "shelf_life_months": 12,
+        "price_domestic": 20000,
+        "price_export": 30000,
+        "market": "Retail, export, industri",
+        "packaging": "Tetra pak, kaleng, botol"
+    },
+    
+    "Kelapa Parut Segar": {
+        "rendemen": "40-45%",  # dari berat kelapa
+        "process_time_hours": "1-2",
+        "shelf_life_days": 1,
+        "price_domestic": 12000,
+        "price_export": 18000,
+        "market": "Pasar tradisional, katering",
+        "packaging": "Plastik"
+    },
+    
+    "Kelapa Parut Frozen": {
+        "rendemen": "40-45%",
+        "process_time_hours": "2-3",
+        "shelf_life_months": 6,
+        "price_domestic": 18000,
+        "price_export": 25000,
+        "market": "Retail modern, export, industri",
+        "packaging": "Vacuum pack, frozen bag"
+    }
 }
 
 # ===== SCIENTIFIC REFERENCES =====

@@ -890,6 +890,169 @@ with tabs[3]:
             st.success(f"✅ **{sugar_product} menghasilkan {increase_percent:.1f}% lebih tinggi dari Kopra!**")
         else:
             st.warning(f"⚠️ **Kopra masih lebih menguntungkan {abs(increase_percent):.1f}%**")
+        
+        # Comprehensive product comparison
+        st.markdown("### 📊 Perbandingan Semua Produk Kelapa")
+        st.info("💡 **Bandingkan profitabilitas berbagai produk kelapa dari 1000 butir**")
+        
+        # Calculate all products from 1000 coconuts
+        comparison_coconuts = 1000
+        
+        # Import service for santan calculation
+        from services.coconut_products_service import CoconutProductsService, SANTAN_KELAPA_PARUT
+        
+        # Calculate each product
+        products_comparison = []
+        
+        # 1. Kopra (baseline)
+        copra_kg = comparison_coconuts * 0.45
+        copra_revenue = copra_kg * 10000
+        products_comparison.append({
+            "Produk": "Kopra",
+            "Produksi": f"{copra_kg:.0f} kg",
+            "Revenue (Rp)": copra_revenue,
+            "Kategori": "Tradisional"
+        })
+        
+        # 2. VCO
+        vco_result = CoconutProductsService.calculate_vco_production(comparison_coconuts, "Fermentasi")
+        products_comparison.append({
+            "Produk": "VCO",
+            "Produksi": f"{vco_result['vco_liters']:.0f} liter",
+            "Revenue (Rp)": vco_result['revenue'],
+            "Kategori": "Premium"
+        })
+        
+        # 3. Santan Kental
+        santan_result = CoconutProductsService.calculate_santan_kelapa_parut(comparison_coconuts, "Santan Kental")
+        products_comparison.append({
+            "Produk": "Santan Kental",
+            "Produksi": f"{santan_result['production']:.0f} liter",
+            "Revenue (Rp)": santan_result['revenue'],
+            "Kategori": "Fresh"
+        })
+        
+        # 4. Santan Kemasan
+        santan_kemasan_result = CoconutProductsService.calculate_santan_kelapa_parut(comparison_coconuts, "Santan Kemasan (UHT/Pasteurisasi)")
+        products_comparison.append({
+            "Produk": "Santan Kemasan",
+            "Produksi": f"{santan_kemasan_result['production']:.0f} liter",
+            "Revenue (Rp)": santan_kemasan_result['revenue'],
+            "Kategori": "Processed"
+        })
+        
+        # 5. Kelapa Parut Segar
+        parut_result = CoconutProductsService.calculate_santan_kelapa_parut(comparison_coconuts, "Kelapa Parut Segar")
+        products_comparison.append({
+            "Produk": "Kelapa Parut Segar",
+            "Produksi": f"{parut_result['production']:.0f} kg",
+            "Revenue (Rp)": parut_result['revenue'],
+            "Kategori": "Fresh"
+        })
+        
+        # 6. Kelapa Parut Frozen
+        parut_frozen_result = CoconutProductsService.calculate_santan_kelapa_parut(comparison_coconuts, "Kelapa Parut Frozen")
+        products_comparison.append({
+            "Produk": "Kelapa Parut Frozen",
+            "Produksi": f"{parut_frozen_result['production']:.0f} kg",
+            "Revenue (Rp)": parut_frozen_result['revenue'],
+            "Kategori": "Processed"
+        })
+        
+        # 7. Gula Semut (example)
+        products_comparison.append({
+            "Produk": "Gula Semut",
+            "Produksi": f"{sugar_production:.0f} {unit}",
+            "Revenue (Rp)": revenue,
+            "Kategori": "Premium"
+        })
+        
+        # Create comparison dataframe
+        df_comparison = pd.DataFrame(products_comparison)
+        
+        # Display table
+        st.dataframe(
+            df_comparison,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Revenue (Rp)": st.column_config.NumberColumn(
+                    "Revenue (Rp)",
+                    format="Rp %d"
+                )
+            }
+        )
+        
+        # Visualization
+        col_comp1, col_comp2 = st.columns(2)
+        
+        with col_comp1:
+            # Bar chart comparison
+            fig_comp = px.bar(
+                df_comparison,
+                x='Produk',
+                y='Revenue (Rp)',
+                color='Kategori',
+                title=f'Perbandingan Revenue dari {comparison_coconuts} Butir Kelapa',
+                color_discrete_map={
+                    'Tradisional': '#8B4513',
+                    'Fresh': '#D2691E',
+                    'Processed': '#CD853F',
+                    'Premium': '#FFD700'
+                },
+                text_auto='.2s'
+            )
+            fig_comp.update_traces(textposition='outside')
+            fig_comp.update_layout(xaxis_tickangle=-45)
+            st.plotly_chart(fig_comp, use_container_width=True)
+        
+        with col_comp2:
+            # Pie chart by category
+            category_revenue = df_comparison.groupby('Kategori')['Revenue (Rp)'].sum().reset_index()
+            fig_cat = px.pie(
+                category_revenue,
+                values='Revenue (Rp)',
+                names='Kategori',
+                title='Distribusi Revenue per Kategori',
+                color='Kategori',
+                color_discrete_map={
+                    'Tradisional': '#8B4513',
+                    'Fresh': '#D2691E',
+                    'Processed': '#CD853F',
+                    'Premium': '#FFD700'
+                }
+            )
+            st.plotly_chart(fig_cat, use_container_width=True)
+        
+        # Key insights
+        st.markdown("### 💡 Insight Bisnis")
+        
+        max_revenue_product = df_comparison.loc[df_comparison['Revenue (Rp)'].idxmax()]
+        min_revenue_product = df_comparison.loc[df_comparison['Revenue (Rp)'].idxmin()]
+        
+        col_insight1, col_insight2, col_insight3 = st.columns(3)
+        
+        with col_insight1:
+            st.metric(
+                "Produk Tertinggi",
+                max_revenue_product['Produk'],
+                f"Rp {max_revenue_product['Revenue (Rp)']:,.0f}"
+            )
+        
+        with col_insight2:
+            st.metric(
+                "Produk Terendah",
+                min_revenue_product['Produk'],
+                f"Rp {min_revenue_product['Revenue (Rp)']:,.0f}"
+            )
+        
+        with col_insight3:
+            increase_vs_copra = ((max_revenue_product['Revenue (Rp)'] - copra_revenue) / copra_revenue * 100)
+            st.metric(
+                "Peningkatan vs Kopra",
+                f"{increase_vs_copra:.1f}%",
+                "Potensi profit"
+            )
 
 # Continue with remaining tabs (5-9) - Due to length, I'll create abbreviated versions
 # Tabs 5-9 would follow similar pattern with interactive calculators and visualizations
