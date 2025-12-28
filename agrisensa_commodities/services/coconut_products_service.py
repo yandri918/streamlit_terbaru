@@ -672,6 +672,76 @@ class CoconutProductsService:
         }
     
     @staticmethod
+    def calculate_charcoal(num_coconuts, product_type="Charcoal (Drum Method)"):
+        """
+        Calculate charcoal or activated carbon production
+        
+        Args:
+            num_coconuts: Number of coconuts
+            product_type: Type of product (Charcoal/Activated Carbon)
+            
+        Returns:
+            dict with production details
+        """
+        product_data = CHARCOAL_ACTIVATED_CARBON.get(product_type, CHARCOAL_ACTIVATED_CARBON["Charcoal (Drum Method)"])
+        
+        # Average shell weight per coconut: 200g
+        avg_shell_per_coconut = 0.2  # kg
+        
+        if "Activated" in product_type:
+            # For activated carbon: first make charcoal, then activate
+            # Use average charcoal rendemen: 30%
+            charcoal_kg = num_coconuts * avg_shell_per_coconut * 0.30
+            
+            # Then activate charcoal
+            rendemen_str = product_data["rendemen_from_charcoal"].replace("%", "")
+            rendemen_range = rendemen_str.split("-")
+            rendemen_avg = (float(rendemen_range[0]) + float(rendemen_range[1])) / 2 / 100
+            
+            production_kg = charcoal_kg * rendemen_avg
+        else:
+            # Direct charcoal production
+            rendemen_str = product_data["rendemen_from_shell"].replace("%", "")
+            rendemen_range = rendemen_str.split("-")
+            rendemen_avg = (float(rendemen_range[0]) + float(rendemen_range[1])) / 2 / 100
+            
+            production_kg = num_coconuts * avg_shell_per_coconut * rendemen_avg
+        
+        # Calculate costs
+        # Shell is waste from copra/VCO, assume Rp 300/butir
+        shell_cost_per_coconut = 300
+        coconut_cost = num_coconuts * shell_cost_per_coconut
+        
+        if "Activated" in product_type:
+            processing_cost_per_kg = 20000  # High cost for activation
+        elif "Kiln" in product_type:
+            processing_cost_per_kg = 5000
+        else:  # Drum
+            processing_cost_per_kg = 3000
+        
+        total_cost = coconut_cost + (production_kg * processing_cost_per_kg)
+        
+        # Revenue
+        price = product_data["price_domestic"]
+        revenue = production_kg * price
+        profit = revenue - total_cost
+        
+        return {
+            "product_type": product_type,
+            "num_coconuts": num_coconuts,
+            "production_kg": round(production_kg, 1),
+            "rendemen": product_data.get("rendemen_from_shell", product_data.get("rendemen_from_charcoal", "N/A")),
+            "total_cost": total_cost,
+            "revenue": revenue,
+            "profit": profit,
+            "profit_margin": round((profit / revenue * 100), 1) if revenue > 0 else 0,
+            "price_per_kg": price,
+            "fixed_carbon": product_data.get("fixed_carbon_min", "N/A"),
+            "applications": product_data["applications"],
+            "investment": product_data["investment"]
+        }
+    
+    @staticmethod
     def calculate_multi_product_roi(num_trees, products_selected, intercrop=None):
         """
         Calculate ROI for multiple coconut products
