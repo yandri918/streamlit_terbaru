@@ -463,6 +463,70 @@ class CoconutProductsService:
         }
     
     @staticmethod
+    def calculate_santan_kelapa_parut(num_coconuts, product_type="Santan Kental"):
+        """
+        Calculate santan or kelapa parut production
+        
+        Args:
+            num_coconuts: Number of coconuts
+            product_type: Type of product (Santan/Kelapa Parut)
+            
+        Returns:
+            dict with production details
+        """
+        product_data = SANTAN_KELAPA_PARUT.get(product_type, SANTAN_KELAPA_PARUT["Santan Kental"])
+        
+        # Average coconut weight: 1.5 kg
+        # Daging kelapa: ~400g per butir
+        avg_meat_per_coconut = 0.4  # kg
+        
+        # Calculate production based on rendemen
+        rendemen_range = product_data["rendemen"].split("-")
+        rendemen_avg = (float(rendemen_range[0]) + float(rendemen_range[1])) / 2 / 100
+        
+        if "Santan" in product_type:
+            production_kg = num_coconuts * avg_meat_per_coconut * rendemen_avg
+            unit = "liter"
+            production = production_kg  # 1 kg santan ≈ 1 liter
+        else:  # Kelapa Parut
+            production = num_coconuts * avg_meat_per_coconut * rendemen_avg
+            unit = "kg"
+        
+        # Calculate costs
+        coconut_cost = num_coconuts * 3000  # Rp 3000/butir
+        
+        if "Santan" in product_type:
+            processing_cost_per_unit = 5000  # Rp 5000/liter
+            if "Kemasan" in product_type:
+                processing_cost_per_unit = 8000  # Higher for UHT/packaging
+        else:  # Kelapa Parut
+            processing_cost_per_unit = 3000  # Rp 3000/kg
+            if "Frozen" in product_type:
+                processing_cost_per_unit = 5000  # Higher for freezing
+        
+        total_cost = coconut_cost + (production * processing_cost_per_unit)
+        
+        # Revenue
+        price = product_data["price_domestic"]
+        revenue = production * price
+        profit = revenue - total_cost
+        
+        return {
+            "product_type": product_type,
+            "num_coconuts": num_coconuts,
+            "production": round(production, 1),
+            "unit": unit,
+            "rendemen": product_data["rendemen"],
+            "total_cost": total_cost,
+            "revenue": revenue,
+            "profit": profit,
+            "profit_margin": round((profit / revenue * 100), 1) if revenue > 0 else 0,
+            "price_per_unit": price,
+            "shelf_life": product_data.get("shelf_life_days", product_data.get("shelf_life_months", 0)),
+            "market": product_data["market"]
+        }
+    
+    @staticmethod
     def calculate_multi_product_roi(num_trees, products_selected, intercrop=None):
         """
         Calculate ROI for multiple coconut products
