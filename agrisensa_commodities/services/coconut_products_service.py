@@ -355,6 +355,83 @@ CHARCOAL_ACTIVATED_CARBON = {
     }
 }
 
+# ===== EXPORT MARKETS & CERTIFICATION =====
+EXPORT_MARKETS = {
+    "USA": {
+        "main_products": ["VCO", "Activated Carbon", "Coco Peat"],
+        "market_size": "USD 500M+ annually",
+        "price_premium": "20-30% above domestic",
+        "certifications_required": ["USDA Organic", "FDA Registration", "Non-GMO"],
+        "key_buyers": ["Whole Foods", "Trader Joe's", "Amazon"],
+        "import_duty": "0-5%",
+        "shipping_time": "25-35 days"
+    },
+    
+    "European Union": {
+        "main_products": ["VCO", "Coconut Sugar", "Coco Fiber"],
+        "market_size": "EUR 400M+ annually",
+        "price_premium": "25-35% above domestic",
+        "certifications_required": ["EU Organic", "Fair Trade", "HACCP"],
+        "key_buyers": ["Alnatura", "Bio Company", "Carrefour Bio"],
+        "import_duty": "0-12.8%",
+        "shipping_time": "30-40 days"
+    },
+    
+    "Middle East": {
+        "main_products": ["VCO", "Coconut Sugar", "Charcoal"],
+        "market_size": "USD 200M+ annually",
+        "price_premium": "15-25% above domestic",
+        "certifications_required": ["Halal", "GCC Standardization"],
+        "key_buyers": ["Lulu Hypermarket", "Carrefour ME", "Spinneys"],
+        "import_duty": "5-10%",
+        "shipping_time": "15-20 days"
+    },
+    
+    "Asia (Japan, Korea, Singapore)": {
+        "main_products": ["VCO", "Activated Carbon", "Premium Charcoal"],
+        "market_size": "USD 300M+ annually",
+        "price_premium": "30-40% above domestic",
+        "certifications_required": ["JAS Organic (Japan)", "ISO 22000", "Halal"],
+        "key_buyers": ["Aeon", "Muji", "FairPrice"],
+        "import_duty": "0-15%",
+        "shipping_time": "7-14 days"
+    }
+}
+
+CERTIFICATIONS = {
+    "Organic (USDA/EU)": {
+        "cost": "Rp 50-100 juta/tahun",
+        "validity": "1 year",
+        "requirements": "No synthetic pesticides, 3-year transition period, audit trail",
+        "benefits": "30-50% price premium, access to premium markets",
+        "certification_body": "IFOAM, Control Union, Ecocert"
+    },
+    
+    "Halal": {
+        "cost": "Rp 10-30 juta/tahun",
+        "validity": "2 years",
+        "requirements": "No haram ingredients, separate production line, Muslim auditor",
+        "benefits": "Access to Middle East & Muslim markets (1.8B consumers)",
+        "certification_body": "MUI, JAKIM, Halal International"
+    },
+    
+    "Fair Trade": {
+        "cost": "Rp 30-60 juta/tahun",
+        "validity": "3 years",
+        "requirements": "Fair wages, no child labor, community development",
+        "benefits": "20-30% price premium, stable long-term contracts",
+        "certification_body": "Fairtrade International, Fair Trade USA"
+    },
+    
+    "ISO 22000 (Food Safety)": {
+        "cost": "Rp 40-80 juta/tahun",
+        "validity": "3 years",
+        "requirements": "HACCP, GMP, documented food safety system",
+        "benefits": "Required for major retailers, reduced liability",
+        "certification_body": "SGS, TUV, Bureau Veritas"
+    }
+}
+
 # ===== SCIENTIFIC REFERENCES =====
 SCIENTIFIC_REFERENCES = {
     "Cultivation & Breeding": [

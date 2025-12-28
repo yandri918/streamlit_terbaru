@@ -1832,7 +1832,241 @@ with tabs[6]:
 
 with tabs[7]:
     st.markdown("## 🌍 Market Linkage & Export")
-    st.info("Export markets and certification requirements - Full guide available")
+    
+    st.info("💡 **Panduan lengkap pasar ekspor dan sertifikasi untuk produk kelapa Indonesia**")
+    
+    # Export markets overview
+    st.markdown("### 🌎 Pasar Ekspor Utama")
+    
+    from services.coconut_products_service import EXPORT_MARKETS, CERTIFICATIONS
+    
+    # Market cards
+    for market_name, market_data in EXPORT_MARKETS.items():
+        with st.expander(f"🌍 **{market_name}** - {market_data['market_size']}", expanded=False):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown(f"""
+                **Produk Utama:**
+                {', '.join(market_data['main_products'])}
+                
+                **Price Premium:**
+                {market_data['price_premium']}
+                
+                **Import Duty:**
+                {market_data['import_duty']}
+                
+                **Shipping Time:**
+                {market_data['shipping_time']}
+                """)
+            
+            with col2:
+                st.markdown(f"""
+                **Sertifikasi Wajib:**
+                """)
+                for cert in market_data['certifications_required']:
+                    st.markdown(f"- ✅ {cert}")
+                
+                st.markdown(f"""
+                **Key Buyers:**
+                """)
+                for buyer in market_data['key_buyers']:
+                    st.markdown(f"- 🏪 {buyer}")
+    
+    st.markdown("---")
+    
+    # Certifications
+    st.markdown("### 📜 Sertifikasi Ekspor")
+    
+    cert_comparison = []
+    for cert_name, cert_data in CERTIFICATIONS.items():
+        cert_comparison.append({
+            "Sertifikasi": cert_name,
+            "Biaya/Tahun": cert_data['cost'],
+            "Validity": cert_data['validity'],
+            "Price Premium": cert_data['benefits'].split(',')[0] if 'premium' in cert_data['benefits'].lower() else "Market access",
+            "Certification Body": cert_data['certification_body']
+        })
+    
+    df_cert = pd.DataFrame(cert_comparison)
+    st.dataframe(df_cert, use_container_width=True, hide_index=True)
+    
+    # Detailed certification info
+    st.markdown("### 📋 Detail Sertifikasi")
+    
+    selected_cert = st.selectbox(
+        "Pilih Sertifikasi untuk Detail:",
+        list(CERTIFICATIONS.keys())
+    )
+    
+    cert_detail = CERTIFICATIONS[selected_cert]
+    
+    col_cert1, col_cert2 = st.columns(2)
+    
+    with col_cert1:
+        st.markdown(f"""
+        **💰 Biaya:** {cert_detail['cost']}
+        
+        **⏱️ Validity:** {cert_detail['validity']}
+        
+        **🏢 Certification Body:**
+        {cert_detail['certification_body']}
+        """)
+    
+    with col_cert2:
+        st.markdown(f"""
+        **📋 Requirements:**
+        {cert_detail['requirements']}
+        
+        **✨ Benefits:**
+        {cert_detail['benefits']}
+        """)
+    
+    st.markdown("---")
+    
+    # Export procedure
+    st.markdown("### 📦 Prosedur Ekspor")
+    
+    st.markdown("""
+    #### Langkah-langkah Ekspor Produk Kelapa:
+    
+    **1. Persiapan Dokumen**
+    - ✅ NPWP & NIB (Nomor Induk Berusaha)
+    - ✅ Sertifikat produk (Organic, Halal, dll)
+    - ✅ Certificate of Origin (SKA)
+    - ✅ Phytosanitary Certificate (untuk produk organik)
+    - ✅ Health Certificate
+    
+    **2. Registrasi Eksportir**
+    - 📝 Daftar di OSS (Online Single Submission)
+    - 📝 Dapatkan API (Angka Pengenal Importir)
+    - 📝 Registrasi di Customs (Bea Cukai)
+    
+    **3. Packing & Labeling**
+    - 📦 Sesuai standar negara tujuan
+    - 🏷️ Label: Ingredients, nutrition facts, allergen info
+    - 🏷️ Barcode (EAN-13 untuk EU, UPC untuk USA)
+    - 📏 Net weight, country of origin
+    
+    **4. Shipping & Logistics**
+    - 🚢 Pilih forwarder/shipping line
+    - 📄 Bill of Lading (B/L)
+    - 📄 Packing List
+    - 📄 Commercial Invoice
+    - 💰 Letter of Credit (L/C) atau payment terms
+    
+    **5. Customs Clearance**
+    - 🛃 PEB (Pemberitahuan Ekspor Barang)
+    - 🛃 Pemeriksaan fisik (jika diperlukan)
+    - 🛃 Export duty payment (jika ada)
+    - ✅ Release dari Bea Cukai
+    """)
+    
+    st.markdown("---")
+    
+    # Export calculator
+    st.markdown("### 🧮 Kalkulator Biaya Ekspor")
+    
+    col_exp1, col_exp2, col_exp3 = st.columns(3)
+    
+    with col_exp1:
+        product_weight = st.number_input(
+            "Berat Produk (kg):",
+            min_value=100,
+            max_value=50000,
+            value=1000,
+            step=100
+        )
+    
+    with col_exp2:
+        destination = st.selectbox(
+            "Negara Tujuan:",
+            list(EXPORT_MARKETS.keys())
+        )
+    
+    with col_exp3:
+        product_value = st.number_input(
+            "Nilai Produk (USD):",
+            min_value=1000,
+            max_value=1000000,
+            value=10000,
+            step=1000
+        )
+    
+    if st.button("💰 Hitung Biaya Ekspor", type="primary"):
+        # Calculate export costs
+        shipping_cost_per_kg = 3  # USD per kg (average)
+        insurance_rate = 0.005  # 0.5% of value
+        documentation_fee = 200  # USD flat
+        
+        # Get import duty from market data
+        duty_str = EXPORT_MARKETS[destination]['import_duty']
+        duty_rate = float(duty_str.split('-')[0].replace('%', '')) / 100
+        
+        shipping_cost = product_weight * shipping_cost_per_kg
+        insurance = product_value * insurance_rate
+        import_duty = product_value * duty_rate
+        total_cost = shipping_cost + insurance + documentation_fee + import_duty
+        
+        landed_cost = product_value + total_cost
+        cost_percentage = (total_cost / product_value * 100)
+        
+        st.markdown("### 📊 Breakdown Biaya Ekspor")
+        
+        col_res1, col_res2, col_res3, col_res4 = st.columns(4)
+        
+        with col_res1:
+            st.metric("Shipping", f"${shipping_cost:,.0f}")
+            st.caption(f"${shipping_cost_per_kg}/kg")
+        
+        with col_res2:
+            st.metric("Insurance", f"${insurance:,.0f}")
+            st.caption(f"{insurance_rate*100}% of value")
+        
+        with col_res3:
+            st.metric("Import Duty", f"${import_duty:,.0f}")
+            st.caption(f"{duty_rate*100}% rate")
+        
+        with col_res4:
+            st.metric("Total Cost", f"${total_cost:,.0f}")
+            st.caption(f"{cost_percentage:.1f}% of value")
+        
+        # Summary
+        st.markdown("### 💼 Summary")
+        
+        summary_data = {
+            "Item": [
+                "Product Value (FOB)",
+                "Shipping Cost",
+                "Insurance",
+                "Documentation",
+                "Import Duty",
+                "Total Export Cost",
+                "Landed Cost (CIF)"
+            ],
+            "Amount (USD)": [
+                f"${product_value:,.0f}",
+                f"${shipping_cost:,.0f}",
+                f"${insurance:,.0f}",
+                f"${documentation_fee:,.0f}",
+                f"${import_duty:,.0f}",
+                f"${total_cost:,.0f}",
+                f"${landed_cost:,.0f}"
+            ]
+        }
+        
+        df_summary = pd.DataFrame(summary_data)
+        st.dataframe(df_summary, use_container_width=True, hide_index=True)
+        
+        # Price premium info
+        premium_str = EXPORT_MARKETS[destination]['price_premium']
+        st.success(f"""
+        ✨ **Price Premium di {destination}:** {premium_str}
+        
+        Dengan premium 25%, harga jual bisa mencapai: **${product_value * 1.25:,.0f}**
+        
+        Profit potensial: **${(product_value * 1.25) - landed_cost:,.0f}**
+        """)
 
 with tabs[8]:
     st.markdown("## 📚 Referensi Ilmiah")
