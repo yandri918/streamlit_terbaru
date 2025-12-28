@@ -551,6 +551,44 @@ with tabs[3]:
     
     st.success("✅ **Gula kelapa: Low GI (35), Premium price 2-3x gula tebu**")
     
+    # Quick comparison section at top
+    st.markdown("### 🎯 Perbandingan Cepat: Semua Produk Kelapa")
+    
+    col_quick1, col_quick2, col_quick3 = st.columns(3)
+    
+    with col_quick1:
+        st.markdown("""
+        <div class="product-card">
+            <h4>🟤 Tradisional</h4>
+            <p><strong>Kopra:</strong> Rp 10k/kg</p>
+            <p>Baseline, paling mudah</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_quick2:
+        st.markdown("""
+        <div class="product-card">
+            <h4>🟠 Fresh Products</h4>
+            <p><strong>Santan Kental:</strong> Rp 15k/liter</p>
+            <p><strong>Kelapa Parut:</strong> Rp 12k/kg</p>
+            <p>Shelf life: 1-2 hari</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_quick3:
+        st.markdown("""
+        <div class="product-card">
+            <h4>🟨 Premium</h4>
+            <p><strong>VCO:</strong> Rp 200k/liter</p>
+            <p><strong>Gula Semut:</strong> Rp 35k/kg</p>
+            <p>Highest profit margin</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.info("💡 **Scroll ke bawah untuk melihat perbandingan detail 7 produk kelapa!**")
+    
+    st.markdown("---")
+    
     # Product comparison
     st.markdown("### 🍬 Jenis Produk Gula Kelapa")
     
