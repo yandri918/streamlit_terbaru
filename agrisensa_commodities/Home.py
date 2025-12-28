@@ -27,7 +27,7 @@ with cols[2]:
     st.markdown('<div class="card"><h3>🌾 Padi</h3><p>Kalkulator potensi panen padi dan teknik budidaya.</p></div>', unsafe_allow_html=True)
     if st.button("Buka Modul Padi"): st.switch_page("pages/24_🌾_Kalkulator_Potensi_Panen_Padi.py")
 
-cols2 = st.columns(3)
+cols2 = st.columns(4)
 with cols2[0]:
     st.markdown('<div class="card"><h3>🌴 Kelapa Sawit</h3><p>Manajemen perkebunan kelapa sawit live.</p></div>', unsafe_allow_html=True)
     if st.button("Buka Modul Sawit"): st.switch_page("pages/47_🌴_Manajemen_Sawit_Live.py")
