@@ -336,3 +336,343 @@ class ExportReadinessService:
             "message": message,
             "recommendations": recommendations
         }
+
+# Horticulture Export Specific Data
+HORTICULTURE_EXPORT = {
+    "Mangga Harum Manis": {
+        "export_grade": "Grade A (>250g/buah)",
+        "price_domestic": 15000,  # Rp/kg
+        "price_export": 45000,  # Rp/kg
+        "premium": "200%",
+        "main_markets": ["Japan", "Korea", "Middle East"],
+        "certifications_required": ["GAP", "Phytosanitary"],
+        "shelf_life": "14-21 days (cold storage)",
+        "packaging": "Carton 5kg, individual wrapping",
+        "cold_chain": "10-13°C",
+        "rejection_rate": "5-10%",
+        "export_costs": {
+            "sorting_grading": 2000,  # Rp/kg
+            "packaging": 3000,
+            "cold_storage": 1500,
+            "phytosanitary": 500,
+            "shipping": 8000,
+            "insurance": 500,
+            "documentation": 300
+        }
+    },
+    
+    "Pisang Cavendish": {
+        "export_grade": "Grade A (18-22cm)",
+        "price_domestic": 12000,
+        "price_export": 28000,
+        "premium": "133%",
+        "main_markets": ["China", "Japan", "Middle East"],
+        "certifications_required": ["GlobalGAP", "Phytosanitary"],
+        "shelf_life": "30-40 days (controlled atmosphere)",
+        "packaging": "Carton 13kg",
+        "cold_chain": "13-14°C",
+        "rejection_rate": "8-12%",
+        "export_costs": {
+            "sorting_grading": 1500,
+            "packaging": 2500,
+            "cold_storage": 2000,
+            "phytosanitary": 500,
+            "shipping": 6000,
+            "insurance": 400,
+            "documentation": 300
+        }
+    },
+    
+    "Cabai Merah Keriting": {
+        "export_grade": "Grade A (>12cm, merah sempurna)",
+        "price_domestic": 25000,
+        "price_export": 65000,
+        "premium": "160%",
+        "main_markets": ["Singapore", "Malaysia", "Thailand"],
+        "certifications_required": ["GAP", "Pesticide residue test"],
+        "shelf_life": "7-10 days (cold storage)",
+        "packaging": "Plastic crate 5kg",
+        "cold_chain": "7-10°C",
+        "rejection_rate": "10-15%",
+        "export_costs": {
+            "sorting_grading": 3000,
+            "packaging": 2000,
+            "cold_storage": 2500,
+            "phytosanitary": 600,
+            "shipping": 5000,
+            "insurance": 600,
+            "documentation": 300
+        }
+    },
+    
+    "Tomat Cherry": {
+        "export_grade": "Grade A (uniform size, no blemish)",
+        "price_domestic": 30000,
+        "price_export": 80000,
+        "premium": "167%",
+        "main_markets": ["Singapore", "Hong Kong", "Japan"],
+        "certifications_required": ["GlobalGAP", "Organic (premium)"],
+        "shelf_life": "10-14 days (cold storage)",
+        "packaging": "Plastic punnet 250g",
+        "cold_chain": "10-12°C",
+        "rejection_rate": "12-18%",
+        "export_costs": {
+            "sorting_grading": 4000,
+            "packaging": 5000,
+            "cold_storage": 3000,
+            "phytosanitary": 700,
+            "shipping": 7000,
+            "insurance": 800,
+            "documentation": 300
+        }
+    },
+    
+    # ===== REMPAH-REMPAH (SPICES) =====
+    "Jahe Merah": {
+        "export_grade": "Grade A (fresh, >150g/rhizome)",
+        "price_domestic": 35000,  # Rp/kg
+        "price_export": 95000,  # Rp/kg
+        "premium": "171%",
+        "main_markets": ["China", "USA", "Europe", "Middle East"],
+        "certifications_required": ["GAP", "Organic (premium)", "Pesticide residue test"],
+        "shelf_life": "30-45 days (cold storage)",
+        "packaging": "Carton 10kg, ventilated",
+        "cold_chain": "13-15°C, 90% humidity",
+        "rejection_rate": "8-12%",
+        "export_costs": {
+            "sorting_grading": 3500,  # Rp/kg
+            "packaging": 2500,
+            "cold_storage": 2000,
+            "phytosanitary": 600,
+            "shipping": 7000,
+            "insurance": 700,
+            "documentation": 300
+        }
+    },
+    
+    "Kunyit (Turmeric)": {
+        "export_grade": "Grade A (bright yellow, >8% curcumin)",
+        "price_domestic": 25000,
+        "price_export": 75000,
+        "premium": "200%",
+        "main_markets": ["India", "USA", "Europe", "Japan"],
+        "certifications_required": ["GAP", "Organic", "Curcumin content test"],
+        "shelf_life": "60-90 days (dried)",
+        "packaging": "Jute bags 25kg or carton 10kg",
+        "cold_chain": "Ambient (dry, <25°C)",
+        "rejection_rate": "10-15%",
+        "export_costs": {
+            "sorting_grading": 3000,
+            "packaging": 2000,
+            "cold_storage": 1000,
+            "phytosanitary": 500,
+            "shipping": 6000,
+            "insurance": 600,
+            "documentation": 300
+        }
+    },
+    
+    "Lada Hitam (Black Pepper)": {
+        "export_grade": "Grade A (>500g/L bulk density, 3% piperine)",
+        "price_domestic": 80000,
+        "price_export": 180000,
+        "premium": "125%",
+        "main_markets": ["USA", "Europe", "Middle East", "Singapore"],
+        "certifications_required": ["GAP", "HACCP", "Pesticide residue test"],
+        "shelf_life": "12-24 months (dried)",
+        "packaging": "Jute bags 50kg or vacuum pack",
+        "cold_chain": "Ambient (dry, <20°C)",
+        "rejection_rate": "5-8%",
+        "export_costs": {
+            "sorting_grading": 4000,
+            "packaging": 3000,
+            "cold_storage": 800,
+            "phytosanitary": 500,
+            "shipping": 8000,
+            "insurance": 1000,
+            "documentation": 300
+        }
+    },
+    
+    "Vanili (Vanilla Pods)": {
+        "export_grade": "Grade A (>16cm, 25-30% moisture, gourmet)",
+        "price_domestic": 800000,
+        "price_export": 2500000,
+        "premium": "213%",
+        "main_markets": ["France", "USA", "Germany", "Japan"],
+        "certifications_required": ["Organic", "Fair Trade", "Origin certification"],
+        "shelf_life": "24-36 months (vacuum sealed)",
+        "packaging": "Vacuum sealed, individual wrapping",
+        "cold_chain": "15-20°C, 60-70% humidity",
+        "rejection_rate": "12-18%",
+        "export_costs": {
+            "sorting_grading": 50000,  # High labor cost
+            "packaging": 30000,  # Premium packaging
+            "cold_storage": 10000,
+            "phytosanitary": 1000,
+            "shipping": 15000,
+            "insurance": 5000,  # High value
+            "documentation": 500
+        }
+    }
+}
+
+class ExportReadinessService:
+    """Service for export readiness assessment and guidance"""
+    
+    @staticmethod
+    def calculate_certification_cost(certifications_selected):
+        """Calculate total certification cost"""
+        total_cost = 0
+        details = []
+        
+        for cert_name in certifications_selected:
+            cert_data = CERTIFICATIONS.get(cert_name, {})
+            cost_str = cert_data.get("cost", "Rp 0")
+            
+            # Parse cost range (e.g., "Rp 20-40 juta")
+            cost_parts = cost_str.replace("Rp ", "").replace(" juta/tahun", "").split("-")
+            avg_cost = (int(cost_parts[0]) + int(cost_parts[1])) / 2 * 1000000 if len(cost_parts) == 2 else 0
+            
+            total_cost += avg_cost
+            details.append({
+                "certification": cert_name,
+                "cost": avg_cost,
+                "validity": cert_data.get("validity", "N/A")
+            })
+        
+        return {
+            "total_cost": total_cost,
+            "details": details,
+            "annual_cost": total_cost  # Most certs are annual
+        }
+    
+    @staticmethod
+    def calculate_horticulture_export(product_name, volume_kg):
+        """
+        Calculate export profitability for horticulture products
+        
+        Args:
+            product_name: Name of horticulture product
+            volume_kg: Export volume in kg
+            
+        Returns:
+            dict with detailed cost breakdown and profit analysis
+        """
+        product_data = HORTICULTURE_EXPORT.get(product_name, HORTICULTURE_EXPORT["Mangga Harum Manis"])
+        
+        # Calculate costs
+        costs = product_data["export_costs"]
+        
+        cost_sorting = volume_kg * costs["sorting_grading"]
+        cost_packaging = volume_kg * costs["packaging"]
+        cost_cold_storage = volume_kg * costs["cold_storage"]
+        cost_phytosanitary = volume_kg * costs["phytosanitary"]
+        cost_shipping = volume_kg * costs["shipping"]
+        cost_insurance = volume_kg * costs["insurance"]
+        cost_documentation = volume_kg * costs["documentation"]
+        
+        # Product cost (farm gate price)
+        cost_product = volume_kg * product_data["price_domestic"]
+        
+        # Rejection/wastage
+        rejection_rate = float(product_data["rejection_rate"].split("-")[0]) / 100
+        saleable_volume = volume_kg * (1 - rejection_rate)
+        
+        # Total costs
+        total_export_costs = (cost_sorting + cost_packaging + cost_cold_storage + 
+                             cost_phytosanitary + cost_shipping + cost_insurance + 
+                             cost_documentation)
+        total_cost = cost_product + total_export_costs
+        
+        # Revenue
+        revenue = saleable_volume * product_data["price_export"]
+        
+        # Profit
+        profit = revenue - total_cost
+        profit_margin = (profit / revenue * 100) if revenue > 0 else 0
+        
+        return {
+            "product_name": product_name,
+            "volume_kg": volume_kg,
+            "saleable_volume": saleable_volume,
+            "rejection_rate": product_data["rejection_rate"],
+            "export_grade": product_data["export_grade"],
+            "price_domestic": product_data["price_domestic"],
+            "price_export": product_data["price_export"],
+            "premium": product_data["premium"],
+            "main_markets": product_data["main_markets"],
+            "certifications_required": product_data["certifications_required"],
+            "cold_chain": product_data["cold_chain"],
+            "shelf_life": product_data["shelf_life"],
+            "cost_breakdown": {
+                "product_cost": cost_product,
+                "sorting_grading": cost_sorting,
+                "packaging": cost_packaging,
+                "cold_storage": cost_cold_storage,
+                "phytosanitary": cost_phytosanitary,
+                "shipping": cost_shipping,
+                "insurance": cost_insurance,
+                "documentation": cost_documentation,
+                "total_export_costs": total_export_costs,
+                "total_cost": total_cost
+            },
+            "revenue": revenue,
+            "profit": profit,
+            "profit_margin": round(profit_margin, 1),
+            "roi": round((profit / total_cost * 100), 1) if total_cost > 0 else 0
+        }
+    
+    @staticmethod
+    def assess_readiness(commodity, has_gap, has_organic, has_haccp, has_documentation):
+        """Assess export readiness score"""
+        score = 0
+        recommendations = []
+        
+        # Certification score (40%)
+        if has_gap:
+            score += 15
+        else:
+            recommendations.append("✅ Dapatkan sertifikasi GAP untuk akses pasar internasional")
+        
+        if has_organic:
+            score += 15
+        else:
+            recommendations.append("✅ Sertifikasi Organic untuk premium price 30-50%")
+        
+        if has_haccp:
+            score += 10
+        else:
+            recommendations.append("✅ HACCP diperlukan untuk produk olahan")
+        
+        # Documentation score (30%)
+        if has_documentation:
+            score += 30
+        else:
+            recommendations.append("✅ Lengkapi dokumen ekspor (NIB, API, SKA)")
+        
+        # Commodity-specific (30%)
+        if commodity in ["Hortikultura", "Buah", "Sayuran"]:
+            score += 30
+            recommendations.append("✅ Komoditas Anda memiliki demand tinggi di pasar export")
+        else:
+            score += 15
+            recommendations.append("✅ Pertimbangkan value-added processing untuk premium price")
+        
+        # Readiness level
+        if score >= 80:
+            level = "READY"
+            message = "🎉 Anda siap untuk ekspor!"
+        elif score >= 60:
+            level = "ALMOST READY"
+            message = "⚠️ Beberapa perbaikan diperlukan"
+        else:
+            level = "NOT READY"
+            message = "❌ Perlu persiapan lebih lanjut"
+        
+        return {
+            "score": score,
+            "level": level,
+            "message": message,
+            "recommendations": recommendations
+        }
