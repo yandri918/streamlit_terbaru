@@ -284,42 +284,266 @@ with tabs[2]:
         )
     
     if st.button("🧮 Hitung Produksi VCO", type="primary"):
+        # Editable cost components
+        with st.expander("⚙️ Edit Komponen Biaya (Opsional)", expanded=False):
+            st.markdown("**Sesuaikan harga sesuai kondisi lokal Anda:**")
+            
+            col_edit1, col_edit2 = st.columns(2)
+            
+            with col_edit1:
+                coconut_price = st.number_input(
+                    "Harga Kelapa (Rp/butir):",
+                    min_value=1000,
+                    max_value=10000,
+                    value=3000,
+                    step=100,
+                    key="vco_coconut_price"
+                )
+                
+                labor_cost_per_liter = st.number_input(
+                    "Biaya Tenaga Kerja (Rp/liter):",
+                    min_value=10000,
+                    max_value=100000,
+                    value=30000,
+                    step=5000,
+                    key="vco_labor"
+                )
+                
+                packaging_cost_per_liter = st.number_input(
+                    "Biaya Packaging (Rp/liter):",
+                    min_value=5000,
+                    max_value=50000,
+                    value=15000,
+                    step=1000,
+                    key="vco_packaging"
+                )
+            
+            with col_edit2:
+                utility_cost_per_liter = st.number_input(
+                    "Biaya Utilitas (listrik, gas) (Rp/liter):",
+                    min_value=5000,
+                    max_value=50000,
+                    value=10000,
+                    step=1000,
+                    key="vco_utility"
+                )
+                
+                overhead_percent = st.slider(
+                    "Overhead & Lain-lain (%):",
+                    min_value=0,
+                    max_value=30,
+                    value=10,
+                    key="vco_overhead"
+                )
+                
+                selling_price_domestic = st.number_input(
+                    "Harga Jual Domestik (Rp/liter):",
+                    min_value=100000,
+                    max_value=500000,
+                    value=PRODUCT_PRICES["VCO"]["domestic"],
+                    step=10000,
+                    key="vco_price_dom"
+                )
+        
+        # Calculate with custom or default values
         result = CoconutProductsService.calculate_vco_production(num_coconuts, vco_method)
         
-        # Update price based on market
-        if market_type == "Export":
-            result['price_per_liter'] = PRODUCT_PRICES["VCO"]["export"]
-            result['revenue'] = result['vco_liters'] * result['price_per_liter']
-            result['profit'] = result['revenue'] - result['total_cost']
-            result['profit_margin'] = round((result['profit'] / result['revenue'] * 100), 1)
+        # Recalculate with editable values
+        vco_liters = result['vco_liters']
         
-        # Display results
+        # Detailed cost breakdown
+        cost_coconut = num_coconuts * coconut_price
+        cost_labor = vco_liters * labor_cost_per_liter
+        cost_packaging = vco_liters * packaging_cost_per_liter
+        cost_utility = vco_liters * utility_cost_per_liter
+        subtotal_cost = cost_coconut + cost_labor + cost_packaging + cost_utility
+        cost_overhead = subtotal_cost * (overhead_percent / 100)
+        total_cost = subtotal_cost + cost_overhead
+        
+        # Revenue calculation
+        if market_type == "Export":
+            price_per_liter = PRODUCT_PRICES["VCO"]["export"]
+        else:
+            price_per_liter = selling_price_domestic
+        
+        revenue = vco_liters * price_per_liter
+        profit = revenue - total_cost
+        profit_margin = round((profit / revenue * 100), 1) if revenue > 0 else 0
+        
+        # Display summary metrics
+        st.markdown("### 📊 Ringkasan Hasil")
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Produksi VCO", f"{result['vco_liters']:.1f} liter")
+            st.metric("Produksi VCO", f"{vco_liters:.1f} liter")
+            st.caption(f"Rendemen: {result['rendemen_percent']}%")
         with col2:
-            st.metric("Total Biaya", f"Rp {result['total_cost']:,.0f}")
+            st.metric("Total Biaya", f"Rp {total_cost:,.0f}")
+            st.caption(f"Biaya/liter: Rp {total_cost/vco_liters:,.0f}")
         with col3:
-            st.metric("Revenue", f"Rp {result['revenue']:,.0f}")
+            st.metric("Revenue", f"Rp {revenue:,.0f}")
+            st.caption(f"Harga: Rp {price_per_liter:,}/liter")
         with col4:
-            st.metric("Profit", f"Rp {result['profit']:,.0f}", delta=f"{result['profit_margin']}%")
+            st.metric("Profit", f"Rp {profit:,.0f}", delta=f"{profit_margin}%")
+            st.caption("Margin keuntungan")
         
-        # Breakdown
-        st.markdown("### 📊 Rincian Biaya & Revenue")
+        # Detailed breakdown table
+        st.markdown("### 📋 Rincian Biaya & Revenue (Detail)")
         
-        breakdown_data = pd.DataFrame({
-            "Item": ["Bahan Baku (Kelapa)", "Biaya Processing", "Total Biaya", "Revenue", "Profit"],
-            "Nilai (Rp)": [
-                num_coconuts * 3000,
-                result['total_cost'] - (num_coconuts * 3000),
-                result['total_cost'],
-                result['revenue'],
-                result['profit']
+        # Create detailed breakdown
+        breakdown_data = {
+            "Kategori": [
+                "BIAYA BAHAN BAKU",
+                "  - Kelapa",
+                "BIAYA PRODUKSI",
+                "  - Tenaga Kerja",
+                "  - Packaging (botol, label)",
+                "  - Utilitas (listrik, gas, air)",
+                "BIAYA OVERHEAD",
+                f"  - Overhead & Lain-lain ({overhead_percent}%)",
+                "TOTAL BIAYA",
+                "",
+                "REVENUE",
+                "  - Penjualan VCO",
+                "TOTAL REVENUE",
+                "",
+                "PROFIT BERSIH"
+            ],
+            "Kuantitas": [
+                "",
+                f"{num_coconuts:,} butir",
+                "",
+                f"{vco_liters:.1f} liter",
+                f"{vco_liters:.1f} liter",
+                f"{vco_liters:.1f} liter",
+                "",
+                "",
+                "",
+                "",
+                "",
+                f"{vco_liters:.1f} liter",
+                "",
+                "",
+                ""
+            ],
+            "Harga Satuan (Rp)": [
+                "",
+                f"{coconut_price:,}",
+                "",
+                f"{labor_cost_per_liter:,}",
+                f"{packaging_cost_per_liter:,}",
+                f"{utility_cost_per_liter:,}",
+                "",
+                "",
+                "",
+                "",
+                "",
+                f"{price_per_liter:,}",
+                "",
+                "",
+                ""
+            ],
+            "Total (Rp)": [
+                "",
+                f"{cost_coconut:,.0f}",
+                "",
+                f"{cost_labor:,.0f}",
+                f"{cost_packaging:,.0f}",
+                f"{cost_utility:,.0f}",
+                "",
+                f"{cost_overhead:,.0f}",
+                f"{total_cost:,.0f}",
+                "",
+                "",
+                f"{revenue:,.0f}",
+                f"{revenue:,.0f}",
+                "",
+                f"{profit:,.0f}"
             ]
+        }
+        
+        df_breakdown = pd.DataFrame(breakdown_data)
+        
+        # Style the dataframe
+        st.dataframe(
+            df_breakdown,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Kategori": st.column_config.TextColumn("Kategori", width="medium"),
+                "Kuantitas": st.column_config.TextColumn("Kuantitas", width="small"),
+                "Harga Satuan (Rp)": st.column_config.TextColumn("Harga Satuan", width="small"),
+                "Total (Rp)": st.column_config.TextColumn("Total", width="medium")
+            }
+        )
+        
+        # Visual breakdown
+        st.markdown("### 📊 Visualisasi Biaya")
+        
+        col_viz1, col_viz2 = st.columns(2)
+        
+        with col_viz1:
+            # Cost breakdown pie chart
+            cost_breakdown_df = pd.DataFrame({
+                "Komponen": ["Bahan Baku", "Tenaga Kerja", "Packaging", "Utilitas", "Overhead"],
+                "Nilai": [cost_coconut, cost_labor, cost_packaging, cost_utility, cost_overhead]
+            })
+            
+            fig_cost = px.pie(
+                cost_breakdown_df,
+                values='Nilai',
+                names='Komponen',
+                title='Komposisi Biaya Produksi',
+                color_discrete_sequence=px.colors.sequential.Browns
+            )
+            st.plotly_chart(fig_cost, use_container_width=True)
+        
+        with col_viz2:
+            # Profit comparison
+            profit_df = pd.DataFrame({
+                "Item": ["Total Biaya", "Revenue", "Profit"],
+                "Nilai (Rp)": [total_cost, revenue, profit]
+            })
+            
+            fig_profit = px.bar(
+                profit_df,
+                x='Item',
+                y='Nilai (Rp)',
+                title='Perbandingan Biaya, Revenue & Profit',
+                color='Item',
+                color_discrete_sequence=['red', 'blue', 'green']
+            )
+            st.plotly_chart(fig_profit, use_container_width=True)
+        
+        # Sensitivity analysis
+        st.markdown("### 📈 Analisis Sensitivitas")
+        st.info("💡 **Lihat bagaimana perubahan harga jual mempengaruhi profit**")
+        
+        price_range = np.arange(price_per_liter * 0.7, price_per_liter * 1.3, price_per_liter * 0.05)
+        profits = [(p * vco_liters - total_cost) for p in price_range]
+        
+        sensitivity_df = pd.DataFrame({
+            "Harga Jual (Rp/liter)": price_range,
+            "Profit (Rp)": profits
         })
         
-        st.dataframe(breakdown_data, use_container_width=True, hide_index=True)
+        fig_sensitivity = px.line(
+            sensitivity_df,
+            x='Harga Jual (Rp/liter)',
+            y='Profit (Rp)',
+            title='Sensitivitas Profit terhadap Harga Jual',
+            markers=True
+        )
+        
+        # Add break-even line
+        fig_sensitivity.add_hline(
+            y=0,
+            line_dash="dash",
+            line_color="red",
+            annotation_text="Break-even"
+        )
+        
+        st.plotly_chart(fig_sensitivity, use_container_width=True)
 
 # ===== TAB 4: GULA KELAPA =====
 with tabs[3]:
