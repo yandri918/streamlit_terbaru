@@ -1184,7 +1184,282 @@ with tabs[3]:
 
 with tabs[4]:
     st.markdown("## 🧵 Coco Fiber & Coco Peat")
-    st.info("Fiber & Peat production guide - Full implementation available")
+    
+    st.info("💡 **Sabut kelapa menghasilkan 2 produk: Fiber (serat) dan Peat (debu sabut)**")
+    
+    # Product overview
+    st.markdown("### 📦 Jenis Produk")
+    
+    col_prod1, col_prod2, col_prod3 = st.columns(3)
+    
+    with col_prod1:
+        st.markdown("""
+        <div class="product-card">
+            <h4>🟤 Brown Fiber</h4>
+            <p><strong>Rendemen:</strong> 30-35%</p>
+            <p><strong>Harga:</strong> Rp 4k-5k/kg</p>
+            <p><strong>Aplikasi:</strong> Kasur, sikat, tali</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_prod2:
+        st.markdown("""
+        <div class="product-card">
+            <h4>⚪ White Fiber</h4>
+            <p><strong>Rendemen:</strong> 25-30%</p>
+            <p><strong>Harga:</strong> Rp 6k-8k/kg</p>
+            <p><strong>Aplikasi:</strong> Premium upholstery</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_prod3:
+        st.markdown("""
+        <div class="product-card">
+            <h4>🟫 Coco Peat</h4>
+            <p><strong>Rendemen:</strong> 40-45%</p>
+            <p><strong>Harga:</strong> Rp 2k-3k/kg</p>
+            <p><strong>Aplikasi:</strong> Media tanam</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Quality standards
+    st.markdown("### 📋 Standar Kualitas")
+    
+    from services.coconut_products_service import COCO_FIBER_PEAT
+    
+    quality_data = []
+    for product, data in COCO_FIBER_PEAT.items():
+        quality_data.append({
+            "Produk": product,
+            "Grade": data.get("quality_grade", "-"),
+            "Moisture Max": data.get("moisture_max", "-"),
+            "Impurity Max": data.get("impurity_max", "-"),
+            "Harga Domestik": f"Rp {data['price_domestic']:,}/kg",
+            "Harga Export": f"Rp {data['price_export']:,}/kg"
+        })
+    
+    df_quality = pd.DataFrame(quality_data)
+    st.dataframe(df_quality, use_container_width=True, hide_index=True)
+    
+    # Calculator
+    st.markdown("### 🧮 Kalkulator Produksi")
+    
+    col_calc1, col_calc2 = st.columns(2)
+    
+    with col_calc1:
+        num_coconuts_fiber = st.number_input(
+            "Jumlah Kelapa:",
+            min_value=100,
+            max_value=50000,
+            value=1000,
+            step=100,
+            key="fiber_coconuts"
+        )
+    
+    with col_calc2:
+        fiber_product = st.selectbox(
+            "Jenis Produk:",
+            ["Brown Fiber", "White Fiber", "Coco Peat (Cocopeat)"],
+            key="fiber_product"
+        )
+    
+    # Editable costs
+    with st.expander("⚙️ Edit Komponen Biaya (Opsional)", expanded=False):
+        st.markdown("**Sesuaikan harga sesuai kondisi lokal:**")
+        
+        col_edit1, col_edit2 = st.columns(2)
+        
+        with col_edit1:
+            coconut_price_fiber = st.number_input(
+                "Harga Kelapa (Rp/butir):",
+                min_value=1000,
+                max_value=10000,
+                value=3000,
+                step=100,
+                key="fiber_coconut_price"
+            )
+            
+            if "Fiber" in fiber_product:
+                processing_cost_fiber = st.number_input(
+                    "Biaya Processing (Rp/kg):",
+                    min_value=1000,
+                    max_value=10000,
+                    value=3000 if "White" in fiber_product else 2000,
+                    step=500,
+                    key="fiber_processing"
+                )
+            else:
+                processing_cost_fiber = st.number_input(
+                    "Biaya Processing (Rp/kg):",
+                    min_value=1000,
+                    max_value=5000,
+                    value=1500,
+                    step=500,
+                    key="peat_processing"
+                )
+        
+        with col_edit2:
+            if fiber_product == "Brown Fiber":
+                selling_price_fiber = st.number_input(
+                    "Harga Jual (Rp/kg):",
+                    min_value=3000,
+                    max_value=10000,
+                    value=4000,
+                    step=500,
+                    key="price_brown"
+                )
+            elif fiber_product == "White Fiber":
+                selling_price_fiber = st.number_input(
+                    "Harga Jual (Rp/kg):",
+                    min_value=4000,
+                    max_value=15000,
+                    value=6000,
+                    step=500,
+                    key="price_white"
+                )
+            else:  # Coco Peat
+                selling_price_fiber = st.number_input(
+                    "Harga Jual (Rp/kg):",
+                    min_value=1500,
+                    max_value=5000,
+                    value=2000,
+                    step=500,
+                    key="price_peat"
+                )
+    
+    if st.button("🧮 Hitung Produksi Fiber/Peat", type="primary"):
+        from services.coconut_products_service import CoconutProductsService
+        
+        result = CoconutProductsService.calculate_coco_fiber_peat(num_coconuts_fiber, fiber_product)
+        
+        # Recalculate with custom values
+        production_kg = result['production_kg']
+        cost_coconut = num_coconuts_fiber * coconut_price_fiber
+        cost_processing = production_kg * processing_cost_fiber
+        total_cost = cost_coconut + cost_processing
+        revenue = production_kg * selling_price_fiber
+        profit = revenue - total_cost
+        profit_margin = round((profit / revenue * 100), 1) if revenue > 0 else 0
+        
+        # Display results
+        st.markdown("### 📊 Ringkasan Hasil")
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Produksi", f"{production_kg:.1f} kg")
+            st.caption(f"Rendemen: {result['rendemen']}")
+        with col2:
+            st.metric("Total Biaya", f"Rp {total_cost:,.0f}")
+            st.caption(f"Biaya/kg: Rp {total_cost/production_kg:,.0f}")
+        with col3:
+            st.metric("Revenue", f"Rp {revenue:,.0f}")
+            st.caption(f"Harga: Rp {selling_price_fiber:,}/kg")
+        with col4:
+            st.metric("Profit", f"Rp {profit:,.0f}", delta=f"{profit_margin}%")
+            st.caption("Margin keuntungan")
+        
+        # Detailed breakdown
+        st.markdown("### 📋 Rincian Biaya & Revenue")
+        
+        breakdown_data = {
+            "Kategori": [
+                "BIAYA BAHAN BAKU",
+                "  - Kelapa (sabut)",
+                "BIAYA PRODUKSI",
+                "  - Processing (defibering, cleaning)",
+                "TOTAL BIAYA",
+                "",
+                "REVENUE",
+                f"  - Penjualan {fiber_product}",
+                "TOTAL REVENUE",
+                "",
+                "PROFIT BERSIH"
+            ],
+            "Kuantitas": [
+                "",
+                f"{num_coconuts_fiber:,} butir",
+                "",
+                f"{production_kg:.1f} kg",
+                "",
+                "",
+                "",
+                f"{production_kg:.1f} kg",
+                "",
+                "",
+                ""
+            ],
+            "Harga Satuan (Rp)": [
+                "",
+                f"{coconut_price_fiber:,}",
+                "",
+                f"{processing_cost_fiber:,}",
+                "",
+                "",
+                "",
+                f"{selling_price_fiber:,}",
+                "",
+                "",
+                ""
+            ],
+            "Total (Rp)": [
+                "",
+                f"{cost_coconut:,.0f}",
+                "",
+                f"{cost_processing:,.0f}",
+                f"{total_cost:,.0f}",
+                "",
+                "",
+                f"{revenue:,.0f}",
+                f"{revenue:,.0f}",
+                "",
+                f"{profit:,.0f}"
+            ]
+        }
+        
+        df_breakdown = pd.DataFrame(breakdown_data)
+        st.dataframe(df_breakdown, use_container_width=True, hide_index=True)
+        
+        # Visualizations
+        col_viz1, col_viz2 = st.columns(2)
+        
+        with col_viz1:
+            # Cost breakdown
+            cost_df = pd.DataFrame({
+                "Komponen": ["Bahan Baku", "Processing"],
+                "Nilai": [cost_coconut, cost_processing]
+            })
+            
+            fig_cost = px.pie(
+                cost_df,
+                values='Nilai',
+                names='Komponen',
+                title='Komposisi Biaya',
+                color_discrete_sequence=['#8B4513', '#D2691E']
+            )
+            st.plotly_chart(fig_cost, use_container_width=True)
+        
+        with col_viz2:
+            # Profit comparison
+            profit_df = pd.DataFrame({
+                "Item": ["Biaya", "Revenue", "Profit"],
+                "Nilai (Rp)": [total_cost, revenue, profit]
+            })
+            
+            fig_profit = px.bar(
+                profit_df,
+                x='Item',
+                y='Nilai (Rp)',
+                title='Perbandingan Biaya, Revenue & Profit',
+                color='Item',
+                color_discrete_sequence=['red', 'blue', 'green']
+            )
+            st.plotly_chart(fig_profit, use_container_width=True)
+        
+        # Applications info
+        st.markdown("### 🎯 Aplikasi Produk")
+        st.success(f"**{fiber_product}:** {result['applications']}")
 
 with tabs[5]:
     st.markdown("## 🔥 Coconut Shell Charcoal")

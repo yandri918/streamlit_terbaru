@@ -269,6 +269,46 @@ SANTAN_KELAPA_PARUT = {
     }
 }
 
+# ===== COCO FIBER & PEAT DATA =====
+COCO_FIBER_PEAT = {
+    "Brown Fiber": {
+        "rendemen_from_husk": "30-35%",  # from husk weight
+        "quality_grade": "Standard",
+        "length_mm": "150-300",
+        "moisture_max": "15%",
+        "impurity_max": "5%",
+        "price_domestic": 4000,
+        "price_export": 5000,
+        "applications": "Mattresses, brushes, ropes, geotextiles",
+        "processing_time_hours": "24-48"
+    },
+    
+    "White Fiber": {
+        "rendemen_from_husk": "25-30%",
+        "quality_grade": "Premium",
+        "length_mm": "200-350",
+        "moisture_max": "12%",
+        "impurity_max": "3%",
+        "price_domestic": 6000,
+        "price_export": 8000,
+        "applications": "Premium mattresses, upholstery, horticulture",
+        "processing_time_hours": "48-72"
+    },
+    
+    "Coco Peat (Cocopeat)": {
+        "rendemen_from_husk": "40-45%",
+        "bulk_density": "60-80 kg/m³",
+        "ph": "5.5-6.5",
+        "ec_max": "0.5 mS/cm",
+        "moisture_max": "20%",
+        "price_domestic": 2000,
+        "price_export": 3000,
+        "applications": "Growing media, soil amendment, hydroponics",
+        "processing_time_hours": "12-24",
+        "compression_ratio": "5:1"  # compressed vs loose
+    }
+}
+
 # ===== SCIENTIFIC REFERENCES =====
 SCIENTIFIC_REFERENCES = {
     "Cultivation & Breeding": [
