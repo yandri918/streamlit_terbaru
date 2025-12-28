@@ -1077,11 +1077,18 @@ with tabs[3]:
             "Kategori": "Processed"
         })
         
-        # 7. Gula Semut (from current calculation)
-        gula_revenue = sugar_production * price_gula_semut  # Use custom price
+        # 7. Gula Semut (calculated from coconuts, not from user input)
+        # Assume: 1000 coconuts = ~7 trees producing for 180 days
+        # Average: 150 coconuts/tree/year, so 1000 coconuts ≈ 6.67 trees for 1 year
+        # For fair comparison, calculate based on equivalent tree-days
+        trees_for_comparison = comparison_coconuts / 150  # ~6.67 trees
+        gula_comparison_result = CoconutProductsService.calculate_coconut_sugar_production(
+            int(trees_for_comparison), 3, 1.2, "Gula Semut", 180
+        )
+        gula_revenue = gula_comparison_result['sugar_production'] * price_gula_semut  # Use custom price
         products_comparison.append({
             "Produk": "Gula Semut",
-            "Produksi": f"{sugar_production:.0f} {unit}",
+            "Produksi": f"{gula_comparison_result['sugar_production']:.0f} kg",
             "Revenue (Rp)": gula_revenue,
             "Kategori": "Premium"
         })
