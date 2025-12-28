@@ -614,43 +614,282 @@ with tabs[3]:
     )
     
     if st.button("🧮 Hitung Produksi Gula", type="primary"):
+        # Editable cost components
+        with st.expander("⚙️ Edit Komponen Biaya (Opsional)", expanded=False):
+            st.markdown("**Sesuaikan harga sesuai kondisi lokal Anda:**")
+            
+            col_edit1, col_edit2 = st.columns(2)
+            
+            with col_edit1:
+                tapping_cost_per_tree = st.number_input(
+                    "Biaya Penyadapan per Pohon per Hari (Rp):",
+                    min_value=2000,
+                    max_value=20000,
+                    value=5000,
+                    step=500,
+                    key="sugar_tapping_cost"
+                )
+                
+                processing_cost_per_kg = st.number_input(
+                    "Biaya Processing per kg/liter (Rp):",
+                    min_value=5000,
+                    max_value=30000,
+                    value=10000,
+                    step=1000,
+                    key="sugar_processing"
+                )
+                
+                packaging_cost_per_unit = st.number_input(
+                    "Biaya Packaging per unit (Rp):",
+                    min_value=2000,
+                    max_value=15000,
+                    value=5000,
+                    step=500,
+                    key="sugar_packaging"
+                )
+            
+            with col_edit2:
+                overhead_percent_sugar = st.slider(
+                    "Overhead & Lain-lain (%):",
+                    min_value=0,
+                    max_value=30,
+                    value=10,
+                    key="sugar_overhead"
+                )
+                
+                # Product-specific selling prices
+                st.markdown("**Harga Jual (Domestik):**")
+                
+                if sugar_product == "Gula Cetak":
+                    selling_price = st.number_input(
+                        "Harga Gula Cetak (Rp/kg):",
+                        min_value=15000,
+                        max_value=60000,
+                        value=25000,
+                        step=1000,
+                        key="price_cetak"
+                    )
+                elif sugar_product == "Gula Semut":
+                    selling_price = st.number_input(
+                        "Harga Gula Semut (Rp/kg):",
+                        min_value=25000,
+                        max_value=80000,
+                        value=35000,
+                        step=1000,
+                        key="price_semut"
+                    )
+                elif sugar_product == "Gula Cair":
+                    selling_price = st.number_input(
+                        "Harga Gula Cair (Rp/liter):",
+                        min_value=30000,
+                        max_value=100000,
+                        value=40000,
+                        step=1000,
+                        key="price_cair"
+                    )
+                else:  # Nektar Kelapa
+                    selling_price = st.number_input(
+                        "Harga Nektar Kelapa (Rp/liter):",
+                        min_value=50000,
+                        max_value=150000,
+                        value=65000,
+                        step=1000,
+                        key="price_nektar"
+                    )
+        
+        # Calculate with custom values
         result = CoconutProductsService.calculate_coconut_sugar_production(
             num_trees_sugar, tapped_inflorescence, nira_per_day, sugar_product, production_days
         )
         
-        # Display results
+        # Recalculate with editable values
+        daily_nira = result['daily_nira_liters']
+        monthly_nira = result['monthly_nira_liters']
+        sugar_production = result['sugar_production']
+        unit = result['unit']
+        
+        # Detailed cost breakdown
+        cost_tapping = num_trees_sugar * tapping_cost_per_tree * production_days
+        cost_processing = sugar_production * processing_cost_per_kg
+        cost_packaging = sugar_production * packaging_cost_per_unit
+        subtotal_cost = cost_tapping + cost_processing + cost_packaging
+        cost_overhead = subtotal_cost * (overhead_percent_sugar / 100)
+        total_cost = subtotal_cost + cost_overhead
+        
+        # Revenue
+        revenue = sugar_production * selling_price
+        profit = revenue - total_cost
+        profit_margin = round((profit / revenue * 100), 1) if revenue > 0 else 0
+        
+        # Display summary metrics
+        st.markdown("### 📊 Ringkasan Hasil")
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Nira/Hari", f"{result['daily_nira_liters']:.1f} liter")
+            st.metric("Nira/Hari", f"{daily_nira:.1f} liter")
+            st.caption(f"Total: {monthly_nira:.1f} liter")
         with col2:
-            st.metric("Produksi Gula", f"{result['sugar_production']:.1f} {result['unit']}")
+            st.metric("Produksi Gula", f"{sugar_production:.1f} {unit}")
+            st.caption(f"Periode: {production_days} hari")
         with col3:
-            st.metric("Revenue", f"Rp {result['revenue']:,.0f}")
+            st.metric("Revenue", f"Rp {revenue:,.0f}")
+            st.caption(f"Harga: Rp {selling_price:,}/{unit}")
         with col4:
-            st.metric("Profit", f"Rp {result['profit']:,.0f}", delta=f"{result['profit_margin']}%")
+            st.metric("Profit", f"Rp {profit:,.0f}", delta=f"{profit_margin}%")
+            st.caption("Margin keuntungan")
+        
+        # Detailed breakdown table
+        st.markdown("### 📋 Rincian Biaya & Revenue (Detail)")
+        
+        breakdown_data = {
+            "Kategori": [
+                "BIAYA OPERASIONAL",
+                "  - Penyadapan Nira",
+                "BIAYA PRODUKSI",
+                "  - Processing (masak, kristalisasi)",
+                "  - Packaging (kemasan, label)",
+                "BIAYA OVERHEAD",
+                f"  - Overhead & Lain-lain ({overhead_percent_sugar}%)",
+                "TOTAL BIAYA",
+                "",
+                "REVENUE",
+                f"  - Penjualan {sugar_product}",
+                "TOTAL REVENUE",
+                "",
+                "PROFIT BERSIH"
+            ],
+            "Kuantitas": [
+                "",
+                f"{num_trees_sugar} pohon x {production_days} hari",
+                "",
+                f"{sugar_production:.1f} {unit}",
+                f"{sugar_production:.1f} {unit}",
+                "",
+                "",
+                "",
+                "",
+                "",
+                f"{sugar_production:.1f} {unit}",
+                "",
+                "",
+                ""
+            ],
+            "Harga Satuan (Rp)": [
+                "",
+                f"{tapping_cost_per_tree:,}/pohon/hari",
+                "",
+                f"{processing_cost_per_kg:,}/{unit}",
+                f"{packaging_cost_per_unit:,}/{unit}",
+                "",
+                "",
+                "",
+                "",
+                "",
+                f"{selling_price:,}/{unit}",
+                "",
+                "",
+                ""
+            ],
+            "Total (Rp)": [
+                "",
+                f"{cost_tapping:,.0f}",
+                "",
+                f"{cost_processing:,.0f}",
+                f"{cost_packaging:,.0f}",
+                "",
+                f"{cost_overhead:,.0f}",
+                f"{total_cost:,.0f}",
+                "",
+                "",
+                f"{revenue:,.0f}",
+                f"{revenue:,.0f}",
+                "",
+                f"{profit:,.0f}"
+            ]
+        }
+        
+        df_breakdown = pd.DataFrame(breakdown_data)
+        st.dataframe(
+            df_breakdown,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Kategori": st.column_config.TextColumn("Kategori", width="medium"),
+                "Kuantitas": st.column_config.TextColumn("Kuantitas", width="medium"),
+                "Harga Satuan (Rp)": st.column_config.TextColumn("Harga Satuan", width="small"),
+                "Total (Rp)": st.column_config.TextColumn("Total", width="medium")
+            }
+        )
+        
+        # Visual breakdown
+        st.markdown("### 📊 Visualisasi Biaya & Revenue")
+        
+        col_viz1, col_viz2 = st.columns(2)
+        
+        with col_viz1:
+            # Cost breakdown pie chart
+            cost_breakdown_df = pd.DataFrame({
+                "Komponen": ["Penyadapan", "Processing", "Packaging", "Overhead"],
+                "Nilai": [cost_tapping, cost_processing, cost_packaging, cost_overhead]
+            })
+            
+            fig_cost = px.pie(
+                cost_breakdown_df,
+                values='Nilai',
+                names='Komponen',
+                title='Komposisi Biaya Produksi',
+                color_discrete_sequence=['#8B4513', '#D2691E', '#CD853F', '#DEB887']
+            )
+            st.plotly_chart(fig_cost, use_container_width=True)
+        
+        with col_viz2:
+            # Profit comparison
+            profit_df = pd.DataFrame({
+                "Item": ["Total Biaya", "Revenue", "Profit"],
+                "Nilai (Rp)": [total_cost, revenue, profit]
+            })
+            
+            fig_profit = px.bar(
+                profit_df,
+                x='Item',
+                y='Nilai (Rp)',
+                title='Perbandingan Biaya, Revenue & Profit',
+                color='Item',
+                color_discrete_sequence=['red', 'blue', 'green']
+            )
+            st.plotly_chart(fig_profit, use_container_width=True)
         
         # Comparison with Copra
         st.markdown("### 📊 Perbandingan: Gula Kelapa vs Kopra")
         
-        copra_revenue_per_tree = 500000  # Estimate
-        sugar_revenue_per_tree = result['revenue'] / num_trees_sugar
+        copra_revenue_per_tree = 500000  # Estimate annual
+        sugar_revenue_per_tree_annual = (revenue / num_trees_sugar) * (365 / production_days)
         
         comparison_df = pd.DataFrame({
             "Produk": ["Kopra", sugar_product],
-            "Revenue/Pohon/Tahun (Rp)": [copra_revenue_per_tree, sugar_revenue_per_tree * 2]  # x2 for annual
+            "Revenue/Pohon/Tahun (Rp)": [copra_revenue_per_tree, sugar_revenue_per_tree_annual]
         })
         
-        fig = px.bar(
+        fig_comparison = px.bar(
             comparison_df,
             x='Produk',
             y='Revenue/Pohon/Tahun (Rp)',
-            title='Perbandingan Revenue per Pohon',
+            title='Perbandingan Revenue per Pohon (Tahunan)',
             color='Produk',
-            color_discrete_sequence=['brown', 'gold']
+            color_discrete_sequence=['brown', 'gold'],
+            text_auto='.0f'
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        fig_comparison.update_traces(textposition='outside')
+        st.plotly_chart(fig_comparison, use_container_width=True)
+        
+        # Profitability analysis
+        increase_percent = ((sugar_revenue_per_tree_annual - copra_revenue_per_tree) / copra_revenue_per_tree * 100)
+        
+        if increase_percent > 0:
+            st.success(f"✅ **{sugar_product} menghasilkan {increase_percent:.1f}% lebih tinggi dari Kopra!**")
+        else:
+            st.warning(f"⚠️ **Kopra masih lebih menguntungkan {abs(increase_percent):.1f}%**")
 
 # Continue with remaining tabs (5-9) - Due to length, I'll create abbreviated versions
 # Tabs 5-9 would follow similar pattern with interactive calculators and visualizations
