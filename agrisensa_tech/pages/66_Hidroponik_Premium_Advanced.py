@@ -493,7 +493,8 @@ with tabs[3]:
             "🌡️ Temperature (°C):",
             min_value=15,
             max_value=35,
-            value=24
+            value=24,
+            key="vpd_temp"
         )
     
     with col2:
@@ -537,7 +538,8 @@ with tabs[3]:
             "⏰ Light Hours per Day:",
             min_value=8,
             max_value=18,
-            value=14
+            value=14,
+            key="dli_hours"
         )
     
     dli_result = HydroponicsPremiumService.calculate_dli(ppfd, light_hours)
@@ -693,14 +695,14 @@ with tabs[7]:
     col1, col2 = st.columns(2)
     
     with col1:
-        temp_disease = st.slider("🌡️ Temperature (°C):", 15, 35, 24)
-        humidity_disease = st.slider("💧 Humidity (%):", 30, 100, 70)
+        temp_disease = st.slider("🌡️ Temperature (°C):", 15, 35, 24, key="disease_temp")
+        humidity_disease = st.slider("💧 Humidity (%):", 30, 100, 70, key="disease_humidity")
     
     with col2:
-        water_temp_disease = st.slider("💧 Water Temp (°C):", 18, 32, 23)
-        do_disease = st.slider("🫧 Dissolved Oxygen (mg/L):", 3.0, 10.0, 7.0, 0.1)
+        water_temp_disease = st.slider("💧 Water Temp (°C):", 18, 32, 23, key="disease_water_temp")
+        do_disease = st.slider("🫧 Dissolved Oxygen (mg/L):", 3.0, 10.0, 7.0, 0.1, key="disease_do")
     
-    ec_disease = st.slider("⚡ EC (mS/cm):", 0.5, 4.0, 1.5, 0.1)
+    ec_disease = st.slider("⚡ EC (mS/cm):", 0.5, 4.0, 1.5, 0.1, key="disease_ec")
     
     if st.button("🔬 Analyze Disease Risk"):
         risk_result = HydroponicsPremiumService.diagnose_disease_risk(
