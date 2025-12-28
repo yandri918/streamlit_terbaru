@@ -592,7 +592,10 @@ class CoconutProductsService:
         production_kg = num_coconuts * avg_husk_per_coconut * rendemen_avg
         
         # Calculate costs
-        coconut_cost = num_coconuts * 3000  # Rp 3000/butir
+        # Note: Husk is usually FREE or very cheap (waste from copra/VCO industry)
+        # Assuming husk cost: Rp 500/butir (or free if from own production)
+        husk_cost_per_coconut = 500  # Rp 500/butir for husk only (not whole coconut!)
+        coconut_cost = num_coconuts * husk_cost_per_coconut
         
         if "Fiber" in product_type:
             processing_cost_per_kg = 2000  # Rp 2000/kg for fiber

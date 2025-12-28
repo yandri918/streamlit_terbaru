@@ -1273,12 +1273,13 @@ with tabs[4]:
         
         with col_edit1:
             coconut_price_fiber = st.number_input(
-                "Harga Kelapa (Rp/butir):",
-                min_value=1000,
-                max_value=10000,
-                value=3000,
+                "Harga Sabut Kelapa (Rp/butir):",
+                min_value=0,
+                max_value=2000,
+                value=500,
                 step=100,
-                key="fiber_coconut_price"
+                key="fiber_coconut_price",
+                help="Sabut biasanya limbah dari industri kopra/VCO. Harga Rp 0-500/butir"
             )
             
             if "Fiber" in fiber_product:
