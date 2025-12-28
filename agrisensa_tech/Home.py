@@ -115,6 +115,8 @@ with c5:
     if st.button("🌦️ Weather Intelligence"): st.switch_page("pages/62_Weather_Intelligence.py")
 with c6:
     if st.button("🏠 Greenhouse & Hidroponik"): st.switch_page("pages/33_Greenhouse_Hidroponik.py")
+    if st.button("🌱 Premium Hidroponik AI"): st.switch_page("pages/66_Hidroponik_Premium_Advanced.py")
+    st.caption("AI-Powered | IoT Ready | 10x Advanced")
     if st.button("🎯 SOP Presisi Komoditas"): st.switch_page("pages/54_SOP_Presisi_Komoditas.py")
     if st.button("📚 SOP Documentation Center"): st.switch_page("pages/63_SOP_Documentation_Center.py")
 
