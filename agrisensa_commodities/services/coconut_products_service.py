@@ -481,7 +481,8 @@ class CoconutProductsService:
         avg_meat_per_coconut = 0.4  # kg
         
         # Calculate production based on rendemen
-        rendemen_range = product_data["rendemen"].split("-")
+        rendemen_str = product_data["rendemen"].replace("%", "")  # Remove % symbol
+        rendemen_range = rendemen_str.split("-")
         rendemen_avg = (float(rendemen_range[0]) + float(rendemen_range[1])) / 2 / 100
         
         if "Santan" in product_type:
