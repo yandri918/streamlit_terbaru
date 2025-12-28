@@ -309,6 +309,52 @@ COCO_FIBER_PEAT = {
     }
 }
 
+# ===== CHARCOAL & ACTIVATED CARBON DATA =====
+CHARCOAL_ACTIVATED_CARBON = {
+    "Charcoal (Drum Method)": {
+        "rendemen_from_shell": "25-30%",  # from shell weight
+        "production_method": "Drum kiln (low-tech)",
+        "carbonization_temp": "400-500°C",
+        "time_hours": "6-8",
+        "fixed_carbon_min": "70%",
+        "ash_max": "5%",
+        "moisture_max": "8%",
+        "price_domestic": 10000,
+        "price_export": 15000,
+        "applications": "BBQ, cooking fuel, shisha",
+        "investment": "Rp 5-10 juta"
+    },
+    
+    "Charcoal (Kiln Method)": {
+        "rendemen_from_shell": "28-33%",
+        "production_method": "Brick kiln (medium-tech)",
+        "carbonization_temp": "450-550°C",
+        "time_hours": "8-12",
+        "fixed_carbon_min": "75%",
+        "ash_max": "4%",
+        "moisture_max": "6%",
+        "price_domestic": 12000,
+        "price_export": 18000,
+        "applications": "Premium BBQ, industrial fuel",
+        "investment": "Rp 20-50 juta"
+    },
+    
+    "Activated Carbon": {
+        "rendemen_from_charcoal": "40-50%",  # from charcoal weight
+        "activation_method": "Steam activation",
+        "activation_temp": "800-1000°C",
+        "time_hours": "2-4",
+        "iodine_number_min": "800 mg/g",
+        "surface_area": "800-1200 m²/g",
+        "ash_max": "5%",
+        "moisture_max": "5%",
+        "price_domestic": 35000,
+        "price_export": 50000,
+        "applications": "Water purification, air filter, gold recovery",
+        "investment": "Rp 100-500 juta"
+    }
+}
+
 # ===== SCIENTIFIC REFERENCES =====
 SCIENTIFIC_REFERENCES = {
     "Cultivation & Breeding": [

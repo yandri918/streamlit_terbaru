@@ -1463,8 +1463,300 @@ with tabs[4]:
         st.success(f"**{fiber_product}:** {result['applications']}")
 
 with tabs[5]:
-    st.markdown("## 🔥 Coconut Shell Charcoal")
-    st.info("Charcoal & Activated Carbon production - Full implementation available")
+    st.markdown("## 🔥 Coconut Shell Charcoal & Activated Carbon")
+    
+    st.info("💡 **Tempurung kelapa menghasilkan charcoal premium dan activated carbon bernilai tinggi**")
+    
+    # Product overview
+    st.markdown("### 🔥 Jenis Produk")
+    
+    col_prod1, col_prod2, col_prod3 = st.columns(3)
+    
+    with col_prod1:
+        st.markdown("""
+        <div class="product-card">
+            <h4>🔥 Charcoal (Drum)</h4>
+            <p><strong>Rendemen:</strong> 25-30%</p>
+            <p><strong>Harga:</strong> Rp 10k-15k/kg</p>
+            <p><strong>Investasi:</strong> Rp 5-10 juta</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_prod2:
+        st.markdown("""
+        <div class="product-card">
+            <h4>🔥 Charcoal (Kiln)</h4>
+            <p><strong>Rendemen:</strong> 28-33%</p>
+            <p><strong>Harga:</strong> Rp 12k-18k/kg</p>
+            <p><strong>Investasi:</strong> Rp 20-50 juta</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_prod3:
+        st.markdown("""
+        <div class="product-card">
+            <h4>⚫ Activated Carbon</h4>
+            <p><strong>Rendemen:</strong> 40-50% (dari charcoal)</p>
+            <p><strong>Harga:</strong> Rp 35k-50k/kg</p>
+            <p><strong>Investasi:</strong> Rp 100-500 juta</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Quality standards
+    st.markdown("### 📋 Standar Kualitas")
+    
+    from services.coconut_products_service import CHARCOAL_ACTIVATED_CARBON
+    
+    quality_data = []
+    for product, data in CHARCOAL_ACTIVATED_CARBON.items():
+        quality_data.append({
+            "Produk": product,
+            "Fixed Carbon": data.get("fixed_carbon_min", data.get("iodine_number_min", "-")),
+            "Ash Max": data.get("ash_max", "-"),
+            "Moisture Max": data.get("moisture_max", "-"),
+            "Harga Domestik": f"Rp {data['price_domestic']:,}/kg",
+            "Harga Export": f"Rp {data['price_export']:,}/kg"
+        })
+    
+    df_quality = pd.DataFrame(quality_data)
+    st.dataframe(df_quality, use_container_width=True, hide_index=True)
+    
+    # Calculator
+    st.markdown("### 🧮 Kalkulator Produksi")
+    
+    col_calc1, col_calc2 = st.columns(2)
+    
+    with col_calc1:
+        num_coconuts_charcoal = st.number_input(
+            "Jumlah Kelapa:",
+            min_value=100,
+            max_value=50000,
+            value=1000,
+            step=100,
+            key="charcoal_coconuts"
+        )
+    
+    with col_calc2:
+        charcoal_product = st.selectbox(
+            "Jenis Produk:",
+            ["Charcoal (Drum Method)", "Charcoal (Kiln Method)", "Activated Carbon"],
+            key="charcoal_product"
+        )
+    
+    # Editable costs
+    with st.expander("⚙️ Edit Komponen Biaya (Opsional)", expanded=False):
+        st.markdown("**Sesuaikan harga sesuai kondisi lokal:**")
+        
+        col_edit1, col_edit2 = st.columns(2)
+        
+        with col_edit1:
+            shell_price_charcoal = st.number_input(
+                "Harga Tempurung (Rp/butir):",
+                min_value=0,
+                max_value=1000,
+                value=300,
+                step=50,
+                key="charcoal_shell_price",
+                help="Tempurung biasanya limbah dari kopra. Harga Rp 0-500/butir"
+            )
+            
+            if "Activated" in charcoal_product:
+                processing_cost_charcoal = st.number_input(
+                    "Biaya Processing (Rp/kg):",
+                    min_value=10000,
+                    max_value=50000,
+                    value=20000,
+                    step=1000,
+                    key="activated_processing"
+                )
+            elif "Kiln" in charcoal_product:
+                processing_cost_charcoal = st.number_input(
+                    "Biaya Processing (Rp/kg):",
+                    min_value=3000,
+                    max_value=15000,
+                    value=5000,
+                    step=500,
+                    key="kiln_processing"
+                )
+            else:
+                processing_cost_charcoal = st.number_input(
+                    "Biaya Processing (Rp/kg):",
+                    min_value=2000,
+                    max_value=10000,
+                    value=3000,
+                    step=500,
+                    key="drum_processing"
+                )
+        
+        with col_edit2:
+            if charcoal_product == "Charcoal (Drum Method)":
+                selling_price_charcoal = st.number_input(
+                    "Harga Jual (Rp/kg):",
+                    min_value=8000,
+                    max_value=20000,
+                    value=10000,
+                    step=1000,
+                    key="price_drum"
+                )
+            elif charcoal_product == "Charcoal (Kiln Method)":
+                selling_price_charcoal = st.number_input(
+                    "Harga Jual (Rp/kg):",
+                    min_value=10000,
+                    max_value=25000,
+                    value=12000,
+                    step=1000,
+                    key="price_kiln"
+                )
+            else:  # Activated Carbon
+                selling_price_charcoal = st.number_input(
+                    "Harga Jual (Rp/kg):",
+                    min_value=25000,
+                    max_value=80000,
+                    value=35000,
+                    step=5000,
+                    key="price_activated"
+                )
+    
+    if st.button("🧮 Hitung Produksi Charcoal", type="primary"):
+        from services.coconut_products_service import CoconutProductsService
+        
+        result = CoconutProductsService.calculate_charcoal(num_coconuts_charcoal, charcoal_product)
+        
+        # Recalculate with custom values
+        production_kg = result['production_kg']
+        cost_shell = num_coconuts_charcoal * shell_price_charcoal
+        cost_processing = production_kg * processing_cost_charcoal
+        total_cost = cost_shell + cost_processing
+        revenue = production_kg * selling_price_charcoal
+        profit = revenue - total_cost
+        profit_margin = round((profit / revenue * 100), 1) if revenue > 0 else 0
+        
+        # Display results
+        st.markdown("### 📊 Ringkasan Hasil")
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Produksi", f"{production_kg:.1f} kg")
+            st.caption(f"Rendemen: {result['rendemen']}")
+        with col2:
+            st.metric("Total Biaya", f"Rp {total_cost:,.0f}")
+            st.caption(f"Biaya/kg: Rp {total_cost/production_kg:,.0f}")
+        with col3:
+            st.metric("Revenue", f"Rp {revenue:,.0f}")
+            st.caption(f"Harga: Rp {selling_price_charcoal:,}/kg")
+        with col4:
+            st.metric("Profit", f"Rp {profit:,.0f}", delta=f"{profit_margin}%")
+            st.caption("Margin keuntungan")
+        
+        # Detailed breakdown
+        st.markdown("### 📋 Rincian Biaya & Revenue")
+        
+        breakdown_data = {
+            "Kategori": [
+                "BIAYA BAHAN BAKU",
+                "  - Tempurung kelapa",
+                "BIAYA PRODUKSI",
+                "  - Processing (carbonization/activation)",
+                "TOTAL BIAYA",
+                "",
+                "REVENUE",
+                f"  - Penjualan {charcoal_product}",
+                "TOTAL REVENUE",
+                "",
+                "PROFIT BERSIH"
+            ],
+            "Kuantitas": [
+                "",
+                f"{num_coconuts_charcoal:,} butir",
+                "",
+                f"{production_kg:.1f} kg",
+                "",
+                "",
+                "",
+                f"{production_kg:.1f} kg",
+                "",
+                "",
+                ""
+            ],
+            "Harga Satuan (Rp)": [
+                "",
+                f"{shell_price_charcoal:,}",
+                "",
+                f"{processing_cost_charcoal:,}",
+                "",
+                "",
+                "",
+                f"{selling_price_charcoal:,}",
+                "",
+                "",
+                ""
+            ],
+            "Total (Rp)": [
+                "",
+                f"{cost_shell:,.0f}",
+                "",
+                f"{cost_processing:,.0f}",
+                f"{total_cost:,.0f}",
+                "",
+                "",
+                f"{revenue:,.0f}",
+                f"{revenue:,.0f}",
+                "",
+                f"{profit:,.0f}"
+            ]
+        }
+        
+        df_breakdown = pd.DataFrame(breakdown_data)
+        st.dataframe(df_breakdown, use_container_width=True, hide_index=True)
+        
+        # Visualizations
+        col_viz1, col_viz2 = st.columns(2)
+        
+        with col_viz1:
+            # Cost breakdown
+            cost_df = pd.DataFrame({
+                "Komponen": ["Bahan Baku", "Processing"],
+                "Nilai": [cost_shell, cost_processing]
+            })
+            
+            fig_cost = px.pie(
+                cost_df,
+                values='Nilai',
+                names='Komponen',
+                title='Komposisi Biaya',
+                color_discrete_sequence=['#8B4513', '#D2691E']
+            )
+            st.plotly_chart(fig_cost, use_container_width=True)
+        
+        with col_viz2:
+            # Profit comparison
+            profit_df = pd.DataFrame({
+                "Item": ["Biaya", "Revenue", "Profit"],
+                "Nilai (Rp)": [total_cost, revenue, profit]
+            })
+            
+            fig_profit = px.bar(
+                profit_df,
+                x='Item',
+                y='Nilai (Rp)',
+                title='Perbandingan Biaya, Revenue & Profit',
+                color='Item',
+                color_discrete_sequence=['red', 'blue', 'green']
+            )
+            st.plotly_chart(fig_profit, use_container_width=True)
+        
+        # Applications & Investment info
+        col_info1, col_info2 = st.columns(2)
+        
+        with col_info1:
+            st.markdown("### 🎯 Aplikasi Produk")
+            st.success(f"**{charcoal_product}:** {result['applications']}")
+        
+        with col_info2:
+            st.markdown("### 💰 Investasi")
+            st.info(f"**{charcoal_product}:** {result['investment']}")
 
 with tabs[6]:
     st.markdown("## 💰 Kalkulator ROI Multi-Produk")
