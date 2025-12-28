@@ -396,13 +396,30 @@ class JamuCalculatorService:
             adjusted_amount = base_amount * weight_factor * age_factor * servings
             adjusted_ingredients[ingredient] = round(adjusted_amount, 1)
         
+        # Adjust preparation instructions for multiple servings
+        preparation = formula["preparation"]
+        # Extract water volumes and multiply by servings
+        import re
+        water_match = re.search(r'(\d+)\s*ml\s*air', preparation)
+        if water_match:
+            base_water = int(water_match.group(1))
+            adjusted_water = base_water * servings
+            preparation = preparation.replace(f"{base_water} ml air", f"{adjusted_water} ml air")
+        
+        # Also adjust the resulting volume
+        result_match = re.search(r'tersisa\s*(\d+)\s*ml', preparation)
+        if result_match:
+            base_result = int(result_match.group(1))
+            adjusted_result = base_result * servings
+            preparation = preparation.replace(f"tersisa {base_result} ml", f"tersisa {adjusted_result} ml")
+        
         return {
             "condition": condition,
             "servings": servings,
             "body_weight": body_weight,
             "age_group": age_group,
             "ingredients": adjusted_ingredients,
-            "preparation": formula["preparation"],
+            "preparation": preparation,
             "dosage": formula["dosage"],
             "duration": formula["duration"],
             "clinical_evidence": formula["clinical_evidence"],
