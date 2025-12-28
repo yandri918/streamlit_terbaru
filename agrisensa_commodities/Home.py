@@ -57,5 +57,11 @@ with cols3[0]:
         st.caption("Evidence-based traditional herbal medicine calculator")
         st.page_link("pages/65_Kalkulator_Jamu_Saintifik.py", label="Buka Module", icon="▶️", use_container_width=True)
 
+with cols3[1]:
+    with st.container():
+        st.markdown("**🥥 Kelapa & Produk Turunan**")
+        st.caption("VCO, Gula Kelapa, Fiber, Peat, Charcoal - Diversifikasi")
+        st.page_link("pages/67_Kelapa_Produk_Turunan.py", label="Buka Module", icon="▶️", use_container_width=True)
+
 st.markdown("---")
 st.info("💡 Aplikasi ini adalah bagian dari ekosistem AgriSensa.")
