@@ -39,6 +39,14 @@ from services.fertilizer_calculator import (
     calculate_organic_chemical_mix
 )
 
+from services.weather_service import (
+    get_simulated_weather,
+    get_7day_forecast,
+    check_fertilization_timing,
+    get_method_specific_recommendations,
+    get_seasonal_tips
+)
+
 # Page config
 st.set_page_config(
     page_title="Kalkulator Pupuk Tanaman Keras & Buah",
@@ -176,13 +184,14 @@ if st.session_state.calculation_done and st.session_state.phase_req:
     
     # ========== TAB 1: REKOMENDASI DASAR ==========
     
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "📋 Rekomendasi Dasar",
         "🔸 Metode Tugal (Padat)",
         "💧 Metode Kocor (Larutan)",
         "💨 Metode Semprot (Foliar)",
         "🌿 Organik + Kimia",
-        "📊 Jadwal & Biaya"
+        "📊 Jadwal & Biaya",
+        "🌦️ Weather & Timing"
     ])
     
     with tab1:
@@ -1949,6 +1958,166 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             st.info(f"💡 ROI cukup baik. Optimasi pemupukan dapat meningkatkan hasil.")
         else:
             st.warning(f"⚠️ ROI rendah. Pertimbangkan efisiensi pemupukan atau peningkatan harga jual.")
+    
+    # ========== TAB 7: WEATHER & TIMING ==========
+    
+    with tab7:
+        st.header("🌦️ Weather Integration & Fertilization Timing")
+        
+        st.info("""
+        **Fitur Demo:** Data cuaca disimulasikan untuk demonstrasi.
+        Untuk produksi, dapat diintegrasikan dengan API cuaca real-time (OpenWeatherMap, BMKG).
+        """)
+        
+        # Get weather data
+        current_weather = get_simulated_weather("Indonesia")
+        forecast = get_7day_forecast("Indonesia")
+        
+        # ===== CURRENT WEATHER =====
+        st.subheader("🌡️ Kondisi Cuaca Saat Ini")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric(
+                "Kondisi",
+                current_weather['condition'],
+                delta=None,
+                help=f"Icon: {current_weather['icon']}"
+            )
+            st.markdown(f"<h1 style='text-align: center;'>{current_weather['icon']}</h1>", unsafe_allow_html=True)
+        
+        with col2:
+            st.metric("Suhu", f"{current_weather['temperature']}°C")
+            st.metric("Kelembaban", f"{current_weather['humidity']}%")
+        
+        with col3:
+            st.metric("Curah Hujan", f"{current_weather['rainfall']} mm")
+            st.metric("Kecepatan Angin", f"{current_weather['wind_speed']} km/h")
+        
+        with col4:
+            # Fertilization timing check
+            is_safe, recommendation, reasons = check_fertilization_timing(current_weather, forecast)
+            
+            if is_safe:
+                st.success("Status Pemupukan")
+                st.markdown(f"### {recommendation}")
+            else:
+                st.error("Status Pemupukan")
+                st.markdown(f"### {recommendation}")
+        
+        # Reasons
+        st.markdown("**Analisis:**")
+        for reason in reasons:
+            st.markdown(f"- {reason}")
+        
+        st.markdown("---")
+        
+        # ===== 7-DAY FORECAST =====
+        st.subheader("📅 Prakiraan 7 Hari")
+        
+        # Create forecast dataframe
+        forecast_data = []
+        for day in forecast:
+            forecast_data.append({
+                "Hari": day['day_name'][:3],  # Short name
+                "Tanggal": day['date'].strftime("%d/%m"),
+                "Suhu Min": day['temp_min'],
+                "Suhu Max": day['temp_max'],
+                "Hujan (mm)": day['rainfall'],
+                "Prob. Hujan (%)": day['rain_probability'],
+                "Kondisi": day['condition']
+            })
+        
+        forecast_df = pd.DataFrame(forecast_data)
+        st.dataframe(forecast_df, use_container_width=True, hide_index=True)
+        
+        # Rainfall chart
+        fig_rain = go.Figure()
+        
+        fig_rain.add_trace(go.Bar(
+            x=[f"{d['day_name'][:3]}\n{d['date'].strftime('%d/%m')}" for d in forecast],
+            y=[d['rainfall'] for d in forecast],
+            name='Curah Hujan',
+            marker_color=['#FF6B6B' if d['rainfall'] > 20 else '#4ECDC4' if d['rainfall'] > 5 else '#95E1D3' for d in forecast],
+            text=[f"{d['rainfall']}mm" for d in forecast],
+            textposition='outside'
+        ))
+        
+        fig_rain.update_layout(
+            title="Prakiraan Curah Hujan 7 Hari",
+            xaxis_title="Hari",
+            yaxis_title="Curah Hujan (mm)",
+            height=400,
+            showlegend=False
+        )
+        
+        st.plotly_chart(fig_rain, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # ===== METHOD-SPECIFIC RECOMMENDATIONS =====
+        st.subheader("🎯 Rekomendasi per Metode Aplikasi")
+        
+        method_recs = get_method_specific_recommendations(current_weather, forecast)
+        
+        method_tabs = st.tabs(["🔸 Tugal", "💧 Kocor", "💨 Semprot", "🌿 Organik"])
+        
+        for i, (method_name, method_tab) in enumerate(zip(
+            ["Tugal", "Kocor", "Semprot", "Organik"],
+            method_tabs
+        )):
+            with method_tab:
+                rec = method_recs[method_name]
+                
+                if rec['safe']:
+                    st.success(f"**{rec['recommendation']}** untuk metode {method_name}")
+                else:
+                    st.error(f"**{rec['recommendation']}** untuk metode {method_name}")
+                
+                st.markdown("**Catatan:**")
+                for note in rec['notes']:
+                    st.markdown(f"- {note}")
+        
+        st.markdown("---")
+        
+        # ===== SEASONAL TIPS =====
+        st.subheader("🌍 Tips Musiman")
+        
+        current_month = datetime.now().month
+        seasonal_tips = get_seasonal_tips(current_month)
+        
+        for tip in seasonal_tips:
+            st.info(tip)
+        
+        st.markdown("---")
+        
+        # ===== BEST PRACTICES =====
+        st.subheader("💡 Best Practices Berdasarkan Cuaca")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**✅ Kondisi Ideal:**")
+            st.success("""
+            - Cerah atau berawan ringan
+            - Tidak ada hujan 24 jam sebelumnya
+            - Tidak ada prediksi hujan 4-6 jam ke depan
+            - Suhu 25-30°C (pagi/sore)
+            - Angin tenang (<15 km/h untuk semprot)
+            - Tanah lembab tapi tidak becek
+            """)
+        
+        with col2:
+            st.markdown("**❌ Hindari Pemupukan:**")
+            st.error("""
+            - Saat hujan atau segera setelah hujan lebat
+            - Prediksi hujan dalam 4 jam (untuk semprot)
+            - Suhu >35°C (siang terik)
+            - Angin kencang (>20 km/h)
+            - Tanah terlalu kering atau terlalu basah
+            - Tanaman dalam kondisi stress
+            """)
 
 # ========== FOOTER: SCIENTIFIC REFERENCES ==========
 
