@@ -163,3 +163,143 @@ def get_ph_status(ph_value):
         return 'slightly_alkaline'
     else:
         return 'alkaline'
+
+
+def calculate_lime_requirement(current_ph, target_ph, area_ha=1.0, soil_type='medium'):
+    """
+    Calculate lime (CaCO3 or Dolomite) requirement to raise pH
+    
+    Parameters:
+    - current_ph: Current soil pH
+    - target_ph: Target pH (usually 6.0-6.5 for most crops)
+    - area_ha: Area in hectares
+    - soil_type: 'light' (sandy), 'medium' (loam), 'heavy' (clay)
+    
+    Returns:
+    - dict with lime requirements and recommendations
+    """
+    
+    if current_ph >= target_ph:
+        return {
+            'needed': False,
+            'message': f"pH sudah ideal ({current_ph:.1f}). Tidak perlu pengapuran."
+        }
+    
+    # pH difference
+    ph_diff = target_ph - current_ph
+    
+    # Base lime requirement (ton CaCO3/ha per 0.1 pH unit increase)
+    # Based on soil type
+    LIME_RATES = {
+        'light': 0.15,   # Sandy soil - less buffering capacity
+        'medium': 0.25,  # Loam soil - medium buffering
+        'heavy': 0.35    # Clay soil - high buffering capacity
+    }
+    
+    rate = LIME_RATES.get(soil_type, 0.25)
+    
+    # Calculate lime requirement
+    lime_caco3_ton_per_ha = (ph_diff / 0.1) * rate
+    lime_total_ton = lime_caco3_ton_per_ha * area_ha
+    
+    # Dolomite has ~95% neutralizing value vs CaCO3 (100%)
+    # So need slightly more dolomite
+    dolomite_ton_per_ha = lime_caco3_ton_per_ha * 1.05
+    dolomite_total_ton = dolomite_ton_per_ha * area_ha
+    
+    # Cost estimation (Rp/ton)
+    LIME_PRICES = {
+        'caco3': 500000,      # CaCO3 (Kalsit)
+        'dolomite': 450000    # Dolomite (CaMg(CO3)2)
+    }
+    
+    cost_caco3 = lime_total_ton * LIME_PRICES['caco3']
+    cost_dolomite = dolomite_total_ton * LIME_PRICES['dolomite']
+    
+    # Application recommendation
+    if lime_total_ton <= 0.5:
+        application = "Aplikasi ringan - 1x aplikasi"
+        timing = "2-4 minggu sebelum tanam/pemupukan"
+    elif lime_total_ton <= 1.5:
+        application = "Aplikasi sedang - 1-2x aplikasi"
+        timing = "4-6 minggu sebelum tanam, split jika >1 ton/ha"
+    else:
+        application = "Aplikasi berat - 2-3x aplikasi (split)"
+        timing = "6-8 minggu sebelum tanam, split dalam 2-3 aplikasi"
+    
+    # Recommendation based on soil and crop
+    if soil_type == 'heavy':
+        recommended_type = "Dolomite (mengandung Mg, baik untuk tanah liat)"
+    else:
+        recommended_type = "CaCO3 atau Dolomite (pilih yang tersedia)"
+    
+    return {
+        'needed': True,
+        'current_ph': current_ph,
+        'target_ph': target_ph,
+        'ph_increase': ph_diff,
+        'soil_type': soil_type,
+        'area_ha': area_ha,
+        
+        # CaCO3 requirements
+        'caco3_ton_per_ha': round(lime_caco3_ton_per_ha, 2),
+        'caco3_total_ton': round(lime_total_ton, 2),
+        'caco3_cost': round(cost_caco3, 0),
+        
+        # Dolomite requirements
+        'dolomite_ton_per_ha': round(dolomite_ton_per_ha, 2),
+        'dolomite_total_ton': round(dolomite_total_ton, 2),
+        'dolomite_cost': round(cost_dolomite, 0),
+        
+        # Recommendations
+        'recommended_type': recommended_type,
+        'application_method': application,
+        'timing': timing,
+        'notes': [
+            "Aplikasikan kapur 2-8 minggu sebelum pemupukan",
+            "Campur merata dengan tanah (bajak/cangkul)",
+            "Hindari aplikasi bersamaan dengan pupuk N (Urea)",
+            "Monitoring pH setelah 2-3 bulan aplikasi",
+            "Pengapuran ulang setiap 2-3 tahun jika diperlukan"
+        ]
+    }
+
+
+def format_lime_recommendation(lime_data):
+    """Format lime calculation results into readable text"""
+    if not lime_data['needed']:
+        return lime_data['message']
+    
+    text = f"""
+**🧪 Rekomendasi Pengapuran**
+
+**Status pH:**
+- pH Saat Ini: {lime_data['current_ph']:.1f}
+- pH Target: {lime_data['target_ph']:.1f}
+- Kenaikan Diperlukan: {lime_data['ph_increase']:.1f} unit
+
+**Kebutuhan Kapur ({lime_data['area_ha']:.2f} ha):**
+
+**Opsi 1: CaCO3 (Kalsit)**
+- Dosis: {lime_data['caco3_ton_per_ha']:.2f} ton/ha
+- Total: {lime_data['caco3_total_ton']:.2f} ton
+- Biaya: Rp {lime_data['caco3_cost']:,.0f}
+
+**Opsi 2: Dolomite (CaMg(CO3)2)** ⭐ Recommended
+- Dosis: {lime_data['dolomite_ton_per_ha']:.2f} ton/ha
+- Total: {lime_data['dolomite_total_ton']:.2f} ton
+- Biaya: Rp {lime_data['dolomite_cost']:,.0f}
+
+**Rekomendasi:**
+- Jenis: {lime_data['recommended_type']}
+- Aplikasi: {lime_data['application_method']}
+- Waktu: {lime_data['timing']}
+
+**Catatan Penting:**
+"""
+    
+    for note in lime_data['notes']:
+        text += f"\n- {note}"
+    
+    return text
+

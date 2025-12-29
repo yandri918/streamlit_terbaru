@@ -57,6 +57,13 @@ from services.map_service import (
     DEFAULT_LOCATIONS
 )
 
+from services.soil_adjustment_service import (
+    adjust_npk_for_soil_test,
+    get_soil_status_message,
+    calculate_lime_requirement,
+    format_lime_recommendation
+)
+
 # Page config
 st.set_page_config(
     page_title="Kalkulator Pupuk Tanaman Keras & Buah",
