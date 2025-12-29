@@ -213,10 +213,10 @@ with st.sidebar:
                     "pH Tanah",
                     min_value=3.0,
                     max_value=9.0,
-                    value=st.session_state.get('soil_ph', 0.0),
+                    value=st.session_state.get('soil_ph', 6.5),
                     step=0.1,
                     format="%.1f",
-                    help="pH tanah (3.0-9.0). 0 = tidak ada data",
+                    help="pH tanah (3.0-9.0). Default 6.5 = netral",
                     key="soil_ph_input"
                 )
                 
