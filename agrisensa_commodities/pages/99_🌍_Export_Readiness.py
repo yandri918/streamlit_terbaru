@@ -518,8 +518,118 @@ with tabs[7]:
         # Cost breakdown
         st.markdown("### 💰 Cost Breakdown")
         
+        # Initialize session state for editable costs if not exists
+        if 'custom_costs' not in st.session_state:
+            st.session_state.custom_costs = {}
+        
         costs = result['cost_breakdown']
         
+        # Toggle for editing mode
+        col_toggle1, col_toggle2 = st.columns([3, 1])
+        with col_toggle1:
+            st.info("💡 **Customize cost components below to match your actual expenses**")
+        with col_toggle2:
+            edit_mode = st.checkbox("✏️ Edit Costs", value=False, key="edit_cost_mode")
+        
+        # Create editable cost inputs
+        if edit_mode:
+            st.markdown("#### 📝 Editable Cost Components (Rp per kg)")
+            
+            col_cost1, col_cost2 = st.columns(2)
+            
+            with col_cost1:
+                # Initialize or get custom values
+                key_prefix = f"{product_name}_{volume_kg}"
+                
+                custom_product_cost = st.number_input(
+                    "🌾 Product Cost (Farm Gate) - Rp/kg",
+                    min_value=0,
+                    value=int(result['price_domestic']),
+                    step=1000,
+                    key=f"product_cost_{key_prefix}"
+                )
+                
+                custom_sorting = st.number_input(
+                    "🔍 Sorting & Grading - Rp/kg",
+                    min_value=0,
+                    value=int(costs['sorting_grading'] / volume_kg),
+                    step=100,
+                    key=f"sorting_{key_prefix}"
+                )
+                
+                custom_packaging = st.number_input(
+                    "📦 Packaging - Rp/kg",
+                    min_value=0,
+                    value=int(costs['packaging'] / volume_kg),
+                    step=100,
+                    key=f"packaging_{key_prefix}"
+                )
+                
+                custom_cold_storage = st.number_input(
+                    "❄️ Cold Storage - Rp/kg",
+                    min_value=0,
+                    value=int(costs['cold_storage'] / volume_kg),
+                    step=100,
+                    key=f"cold_storage_{key_prefix}"
+                )
+            
+            with col_cost2:
+                custom_phytosanitary = st.number_input(
+                    "🌱 Phytosanitary Certificate - Rp/kg",
+                    min_value=0,
+                    value=int(costs['phytosanitary'] / volume_kg),
+                    step=50,
+                    key=f"phyto_{key_prefix}"
+                )
+                
+                custom_shipping = st.number_input(
+                    "🚢 Shipping - Rp/kg",
+                    min_value=0,
+                    value=int(costs['shipping'] / volume_kg),
+                    step=100,
+                    key=f"shipping_{key_prefix}"
+                )
+                
+                custom_insurance = st.number_input(
+                    "🛡️ Insurance - Rp/kg",
+                    min_value=0,
+                    value=int(costs['insurance'] / volume_kg),
+                    step=50,
+                    key=f"insurance_{key_prefix}"
+                )
+                
+                custom_documentation = st.number_input(
+                    "📄 Documentation - Rp/kg",
+                    min_value=0,
+                    value=int(costs['documentation'] / volume_kg),
+                    step=50,
+                    key=f"documentation_{key_prefix}"
+                )
+            
+            # Recalculate with custom costs
+            costs['product_cost'] = custom_product_cost * volume_kg
+            costs['sorting_grading'] = custom_sorting * volume_kg
+            costs['packaging'] = custom_packaging * volume_kg
+            costs['cold_storage'] = custom_cold_storage * volume_kg
+            costs['phytosanitary'] = custom_phytosanitary * volume_kg
+            costs['shipping'] = custom_shipping * volume_kg
+            costs['insurance'] = custom_insurance * volume_kg
+            costs['documentation'] = custom_documentation * volume_kg
+            
+            costs['total_export_costs'] = (costs['sorting_grading'] + costs['packaging'] + 
+                                          costs['cold_storage'] + costs['phytosanitary'] + 
+                                          costs['shipping'] + costs['insurance'] + costs['documentation'])
+            costs['total_cost'] = costs['product_cost'] + costs['total_export_costs']
+            
+            # Recalculate profit with custom costs
+            result['revenue'] = result['saleable_volume'] * result['price_export']
+            result['profit'] = result['revenue'] - costs['total_cost']
+            result['profit_margin'] = round((result['profit'] / result['revenue'] * 100), 1) if result['revenue'] > 0 else 0
+            result['roi'] = round((result['profit'] / costs['total_cost'] * 100), 1) if costs['total_cost'] > 0 else 0
+            
+            st.success("✅ Costs updated! See recalculated profitability below.")
+        
+        # Display cost breakdown table
         cost_data = pd.DataFrame({
             "Cost Component": [
                 "Product Cost (Farm Gate)",
