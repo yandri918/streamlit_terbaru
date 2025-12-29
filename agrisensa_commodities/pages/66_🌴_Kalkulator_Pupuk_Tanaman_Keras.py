@@ -296,8 +296,50 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         Pupuk ditaburkan melingkar di bawah tajuk (radius 1-2 meter dari batang).
         """)
         
-        # Calculate for single fertilizer mix
+        # Editable prices section
+        with st.expander("⚙️ Edit Harga Pupuk (Opsional)", expanded=False):
+            st.markdown("**Sesuaikan harga pupuk sesuai harga lokal Anda:**")
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                urea_price = st.number_input(
+                    "Harga Urea (Rp/kg)",
+                    min_value=1000,
+                    max_value=10000,
+                    value=FERTILIZER_CONTENT['Urea']['price_per_kg'],
+                    step=100,
+                    key="urea_price_tugal"
+                )
+            
+            with col2:
+                sp36_price = st.number_input(
+                    "Harga SP-36 (Rp/kg)",
+                    min_value=1000,
+                    max_value=10000,
+                    value=FERTILIZER_CONTENT['SP-36']['price_per_kg'],
+                    step=100,
+                    key="sp36_price_tugal"
+                )
+            
+            with col3:
+                kcl_price = st.number_input(
+                    "Harga KCl (Rp/kg)",
+                    min_value=1000,
+                    max_value=10000,
+                    value=FERTILIZER_CONTENT['KCl']['price_per_kg'],
+                    step=100,
+                    key="kcl_price_tugal"
+                )
+        
+        # Calculate for single fertilizer mix with custom prices
         single_mix = calculate_single_fertilizer_mix(phase_req['npk_total'])
+        
+        # Recalculate costs with custom prices
+        urea_cost_custom = single_mix['urea_kg'] * urea_price
+        sp36_cost_custom = single_mix['sp36_kg'] * sp36_price
+        kcl_cost_custom = single_mix['kcl_kg'] * kcl_price
+        total_cost_custom = urea_cost_custom + sp36_cost_custom + kcl_cost_custom
         
         st.subheader("💊 Rekomendasi Pupuk Tunggal (Ekonomis)")
         
@@ -308,7 +350,8 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             ### Urea (46% N)
             - **Total/Tahun:** {single_mix['urea_kg']:.2f} kg
             - **Karung (50kg):** {single_mix['urea_kg']/50:.1f} karung
-            - **Biaya:** Rp {single_mix['urea_cost']:,.0f}
+            - **Harga:** Rp {urea_price:,.0f}/kg
+            - **Biaya:** Rp {urea_cost_custom:,.0f}
             """)
         
         with col2:
@@ -316,7 +359,8 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             ### SP-36 (36% P)
             - **Total/Tahun:** {single_mix['sp36_kg']:.2f} kg
             - **Karung (50kg):** {single_mix['sp36_kg']/50:.1f} karung
-            - **Biaya:** Rp {single_mix['sp36_cost']:,.0f}
+            - **Harga:** Rp {sp36_price:,.0f}/kg
+            - **Biaya:** Rp {sp36_cost_custom:,.0f}
             """)
         
         with col3:
@@ -324,10 +368,11 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             ### KCl (60% K)
             - **Total/Tahun:** {single_mix['kcl_kg']:.2f} kg
             - **Karung (50kg):** {single_mix['kcl_kg']/50:.1f} karung
-            - **Biaya:** Rp {single_mix['kcl_cost']:,.0f}
+            - **Harga:** Rp {kcl_price:,.0f}/kg
+            - **Biaya:** Rp {kcl_cost_custom:,.0f}
             """)
         
-        st.success(f"💰 **Total Biaya Pupuk Tunggal:** Rp {single_mix['total_cost']:,.0f}")
+        st.success(f"💰 **Total Biaya Pupuk Tunggal:** Rp {total_cost_custom:,.0f}")
         
         st.markdown("---")
         
