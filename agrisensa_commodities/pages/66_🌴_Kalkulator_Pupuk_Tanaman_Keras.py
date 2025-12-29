@@ -264,6 +264,35 @@ with st.sidebar:
         
         st.divider()
         
+        # ===== LIME PRICES =====
+        st.subheader("💰 Harga Kapur")
+        
+        col_price1, col_price2 = st.columns(2)
+        
+        with col_price1:
+            price_caco3 = st.number_input(
+                "CaCO3 (Rp/ton)",
+                min_value=100000,
+                max_value=2000000,
+                value=st.session_state.get('price_caco3', 500000),
+                step=50000,
+                help="Harga CaCO3 (Kalsit) per ton",
+                key="price_caco3_input"
+            )
+        
+        with col_price2:
+            price_dolomite = st.number_input(
+                "Dolomite (Rp/ton)",
+                min_value=100000,
+                max_value=2000000,
+                value=st.session_state.get('price_dolomite', 450000),
+                step=50000,
+                help="Harga Dolomite per ton",
+                key="price_dolomite_input"
+            )
+        
+        st.divider()
+        
         # Calculate button - updates session state
         if st.button("🔍 Hitung Kebutuhan Pupuk", type="primary", use_container_width=True):
             # Store inputs in session state
@@ -277,6 +306,10 @@ with st.sidebar:
             st.session_state.soil_p = soil_p
             st.session_state.soil_k = soil_k
             st.session_state.soil_ph = soil_ph
+            
+            # Store lime prices
+            st.session_state.price_caco3 = price_caco3
+            st.session_state.price_dolomite = price_dolomite
             
             # Calculate and store results
             phase_req = calculate_phase_requirements(crop_name, tree_age, num_trees)
@@ -400,7 +433,11 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         if soil_ph < target_ph:
             st.markdown("---")
             st.subheader("🧪 Rekomendasi Pengapuran")
-            lime_req = calculate_lime_requirement(soil_ph, target_ph, estimated_area, 'medium')
+            lime_req = calculate_lime_requirement(
+                soil_ph, target_ph, estimated_area, 'medium',
+                price_caco3=st.session_state.get('price_caco3', 500000),
+                price_dolomite=st.session_state.get('price_dolomite', 450000)
+            )
             
             if lime_req['needed']:
                 col1, col2 = st.columns(2)
