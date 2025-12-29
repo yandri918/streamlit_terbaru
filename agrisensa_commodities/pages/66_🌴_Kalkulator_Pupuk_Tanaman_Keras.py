@@ -1982,31 +1982,129 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         # ===== LOCATION PICKER =====
         st.subheader("📍 Pilih Lokasi Kebun")
         
+        # Initialize session state for coordinates if not exists
+        if 'farm_lat' not in st.session_state:
+            st.session_state.farm_lat = -2.5
+        if 'farm_lon' not in st.session_state:
+            st.session_state.farm_lon = 118.0
+        
+        # Predefined locations
+        location_option = st.selectbox(
+            "Pilih Kota Terdekat:",
+            ["Custom"] + list(DEFAULT_LOCATIONS.keys()),
+            help="Pilih kota terdekat atau gunakan Custom untuk input manual/klik peta"
+        )
+        
+        if location_option != "Custom":
+            # Predefined location selected
+            coords = get_location_from_name(location_option)
+            st.session_state.farm_lat = coords[0]
+            st.session_state.farm_lon = coords[1]
+        
         col1, col2 = st.columns([1, 1])
         
         with col1:
-            # Predefined locations
-            location_option = st.selectbox(
-                "Pilih Kota Terdekat:",
-                ["Custom"] + list(DEFAULT_LOCATIONS.keys()),
-                help="Pilih kota terdekat atau gunakan Custom untuk input manual"
+            if location_option == "Custom":
+                st.markdown("**🗺️ Klik peta untuk memilih lokasi:**")
+                
+                # Create location picker map
+                picker_map = create_location_picker_map(
+                    center_lat=st.session_state.farm_lat,
+                    center_lon=st.session_state.farm_lon,
+                    zoom=5
+                )
+                
+                # Add current marker
+                import folium
+                folium.Marker(
+                    location=[st.session_state.farm_lat, st.session_state.farm_lon],
+                    popup="Lokasi Terpilih",
+                    tooltip="Klik peta untuk memilih lokasi baru",
+                    icon=folium.Icon(color='red', icon='map-marker', prefix='fa')
+                ).add_to(picker_map)
+                
+                # Render map and capture clicks
+                try:
+                    from streamlit_folium import st_folium
+                    map_data = st_folium(
+                        picker_map, 
+                        height=300, 
+                        width=None, 
+                        returned_objects=["last_clicked"],
+                        key="location_picker_map"
+                    )
+                    
+                    # Check if map was clicked
+                    if map_data and map_data.get("last_clicked"):
+                        clicked_lat = map_data["last_clicked"]["lat"]
+                        clicked_lon = map_data["last_clicked"]["lng"]
+                        
+                        # Show clicked coordinates
+                        st.info(f"📍 Lokasi diklik: Lat {clicked_lat:.4f}, Lon {clicked_lon:.4f}")
+                        
+                        # Button to confirm location
+                        if st.button("✅ Gunakan Lokasi Ini", type="primary"):
+                            st.session_state.farm_lat = clicked_lat
+                            st.session_state.farm_lon = clicked_lon
+                            st.success("Lokasi berhasil diupdate!")
+                            st.rerun()
+                    
+                except ImportError:
+                    st.warning("⚠️ Install streamlit-folium untuk peta interaktif")
+            
+            # Manual input (always show for both modes)
+            st.markdown("**📝 Atau Input Manual:**")
+            
+            new_lat = st.number_input(
+                "Latitude", 
+                value=st.session_state.farm_lat, 
+                min_value=-11.0, 
+                max_value=6.0, 
+                step=0.01, 
+                format="%.4f",
+                key="lat_input",
+                disabled=(location_option != "Custom")
+            )
+            new_lon = st.number_input(
+                "Longitude", 
+                value=st.session_state.farm_lon, 
+                min_value=95.0, 
+                max_value=141.0, 
+                step=0.01, 
+                format="%.4f",
+                key="lon_input",
+                disabled=(location_option != "Custom")
             )
             
+            # Update button for manual input
             if location_option == "Custom":
-                latitude = st.number_input("Latitude", value=-2.5, min_value=-11.0, max_value=6.0, step=0.01, format="%.4f")
-                longitude = st.number_input("Longitude", value=118.0, min_value=95.0, max_value=141.0, step=0.01, format="%.4f")
-            else:
-                coords = get_location_from_name(location_option)
-                latitude = st.number_input("Latitude", value=coords[0], min_value=-11.0, max_value=6.0, step=0.01, format="%.4f")
-                longitude = st.number_input("Longitude", value=coords[1], min_value=95.0, max_value=141.0, step=0.01, format="%.4f")
+                if new_lat != st.session_state.farm_lat or new_lon != st.session_state.farm_lon:
+                    if st.button("🔄 Update Koordinat Manual"):
+                        st.session_state.farm_lat = new_lat
+                        st.session_state.farm_lon = new_lon
+                        st.success("Koordinat berhasil diupdate!")
+                        st.rerun()
         
         with col2:
             st.markdown("**💡 Tips:**")
             st.markdown("""
-            - Gunakan Google Maps untuk mendapatkan koordinat kebun Anda
-            - Klik kanan pada lokasi → pilih koordinat
-            - Atau pilih kota terdekat dari dropdown
+            **Custom Mode:**
+            1. Klik peta untuk pilih lokasi
+            2. Klik tombol "Gunakan Lokasi Ini"
+            3. Atau input koordinat manual
+            
+            **Predefined:**
+            - Pilih kota dari dropdown
+            - Koordinat otomatis terisi
+            
+            **Google Maps:**
+            - Klik kanan → koordinat
+            - Copy paste ke input manual
             """)
+        
+        # Use current session state values
+        latitude = st.session_state.farm_lat
+        longitude = st.session_state.farm_lon
         
         # Get weather data (real API with fallback)
         st.markdown("---")
