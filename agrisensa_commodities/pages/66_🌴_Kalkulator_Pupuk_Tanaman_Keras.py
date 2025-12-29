@@ -2156,34 +2156,6 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         
         st.markdown("---")
         
-        # ===== INTERACTIVE MAP =====
-        st.subheader("🗺️ Peta Lokasi Kebun")
-        
-        # Create farm map with weather data
-        farm_map = create_farm_map_with_weather(
-            latitude=latitude,
-            longitude=longitude,
-            farm_name=f"Kebun {crop_name}",
-            weather_data=current_weather,
-            zoom=13
-        )
-        
-        # Render map
-        st.markdown(f"""
-        **Lokasi:** Lat {latitude:.4f}, Lon {longitude:.4f}  
-        **Data Source:** {current_weather.get('source', 'Unknown')}
-        """)
-        
-        # Display map using streamlit-folium
-        try:
-            from streamlit_folium import st_folium
-            st_folium(farm_map, height=400, width=None)
-        except ImportError:
-            st.warning("⚠️ Install streamlit-folium untuk menampilkan peta interaktif: `pip install streamlit-folium`")
-            st.info(f"Koordinat kebun: {latitude:.4f}, {longitude:.4f}")
-        
-        st.markdown("---")
-        
         # ===== 7-DAY FORECAST =====
         st.subheader("📅 Prakiraan 7 Hari")
         
