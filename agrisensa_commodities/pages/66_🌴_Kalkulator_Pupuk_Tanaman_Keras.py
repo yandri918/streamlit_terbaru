@@ -1698,11 +1698,12 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             "Keterangan": "Paling praktis"
         })
         
-        # 3. Organic + Chemical
+        # 3. Organic + Chemical (recalculate with 30% organic ratio)
+        org_chem_calc = calculate_organic_chemical_mix(phase_req['npk_total'], 0.30)
         cost_data.append({
             "Strategi": "Organik 30% + Kimia 70%",
-            "Total Biaya (Rp)": org_chem_mix['total_cost'],
-            "Biaya per Pohon (Rp)": org_chem_mix['total_cost'] / num_trees,
+            "Total Biaya (Rp)": org_chem_calc['total_cost'],
+            "Biaya per Pohon (Rp)": org_chem_calc['total_cost'] / num_trees,
             "Keterangan": "Terbaik jangka panjang"
         })
         
