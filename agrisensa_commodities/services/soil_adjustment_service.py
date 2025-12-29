@@ -165,7 +165,8 @@ def get_ph_status(ph_value):
         return 'alkaline'
 
 
-def calculate_lime_requirement(current_ph, target_ph, area_ha=1.0, soil_type='medium'):
+def calculate_lime_requirement(current_ph, target_ph, area_ha=1.0, soil_type='medium', 
+                               price_caco3=500000, price_dolomite=450000):
     """
     Calculate lime (CaCO3 or Dolomite) requirement to raise pH
     
@@ -174,6 +175,8 @@ def calculate_lime_requirement(current_ph, target_ph, area_ha=1.0, soil_type='me
     - target_ph: Target pH (usually 6.0-6.5 for most crops)
     - area_ha: Area in hectares
     - soil_type: 'light' (sandy), 'medium' (loam), 'heavy' (clay)
+    - price_caco3: Price of CaCO3 per ton (Rp)
+    - price_dolomite: Price of Dolomite per ton (Rp)
     
     Returns:
     - dict with lime requirements and recommendations
@@ -207,14 +210,9 @@ def calculate_lime_requirement(current_ph, target_ph, area_ha=1.0, soil_type='me
     dolomite_ton_per_ha = lime_caco3_ton_per_ha * 1.05
     dolomite_total_ton = dolomite_ton_per_ha * area_ha
     
-    # Cost estimation (Rp/ton)
-    LIME_PRICES = {
-        'caco3': 500000,      # CaCO3 (Kalsit)
-        'dolomite': 450000    # Dolomite (CaMg(CO3)2)
-    }
-    
-    cost_caco3 = lime_total_ton * LIME_PRICES['caco3']
-    cost_dolomite = dolomite_total_ton * LIME_PRICES['dolomite']
+    # Cost calculation using custom prices
+    cost_caco3 = lime_total_ton * price_caco3
+    cost_dolomite = dolomite_total_ton * price_dolomite
     
     # Application recommendation
     if lime_total_ton <= 0.5:
