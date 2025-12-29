@@ -440,22 +440,53 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             )
             
             if lime_req['needed']:
-                col1, col2 = st.columns(2)
+                # Calculate totals in kg
+                dolomite_total_kg = lime_req['dolomite_total_ton'] * 1000
+                caco3_total_kg = lime_req['caco3_total_ton'] * 1000
+                
+                st.info(f"📐 **Luas Lahan:** {lime_req['area_ha']:.3f} ha (~{num_trees} pohon)")
+                
+                col1, col2, col3 = st.columns(3)
+                
                 with col1:
                     st.metric("pH Saat Ini", f"{lime_req['current_ph']:.1f}", 
                              delta=f"Target: {lime_req['target_ph']:.1f}")
-                with col2:
-                    st.metric("Dolomite", f"Rp {lime_req['dolomite_cost']:,.0f}",
-                             help=f"{lime_req['dolomite_total_ton']:.2f} ton")
                 
-                with st.expander("📋 Detail Pengapuran"):
+                with col2:
+                    st.metric("Kebutuhan Dolomite", f"{dolomite_total_kg:.0f} kg",
+                             help=f"Untuk {lime_req['area_ha']:.3f} ha")
+                
+                with col3:
+                    st.metric("Biaya Dolomite", f"Rp {lime_req['dolomite_cost']:,.0f}",
+                             help=f"@ Rp {st.session_state.get('price_dolomite', 450000):,.0f}/ton")
+                
+                with st.expander("📋 Detail Lengkap Pengapuran"):
                     st.markdown(f"""
-                    **Dolomite (Recommended):** {lime_req['dolomite_ton_per_ha']:.2f} ton/ha  
-                    **CaCO3:** {lime_req['caco3_ton_per_ha']:.2f} ton/ha  
-                    **Waktu:** {lime_req['timing']}  
-                    **Metode:** {lime_req['application_method']}
+                    **💎 Rekomendasi: Dolomite (CaMg(CO3)2)** ⭐
                     
-                    ⚠️ Aplikasikan 2-8 minggu sebelum pemupukan!
+                    **Untuk Lahan Anda ({lime_req['area_ha']:.3f} ha):**
+                    - Total Dibutuhkan: **{dolomite_total_kg:.0f} kg** ({lime_req['dolomite_total_ton']:.3f} ton)
+                    - Biaya: Rp {lime_req['dolomite_cost']:,.0f}
+                    - Keunggulan: Mengandung Mg (baik untuk tanaman)
+                    
+                    **Alternatif: CaCO3 (Kalsit)**
+                    - Total Dibutuhkan: **{caco3_total_kg:.0f} kg** ({lime_req['caco3_total_ton']:.3f} ton)
+                    - Biaya: Rp {lime_req['caco3_cost']:,.0f}
+                    
+                    **📊 Dosis Standar (per hektar):**
+                    - Dolomite: {lime_req['dolomite_ton_per_ha']:.2f} ton/ha ({lime_req['dolomite_ton_per_ha']*1000:.0f} kg/ha)
+                    - CaCO3: {lime_req['caco3_ton_per_ha']:.2f} ton/ha ({lime_req['caco3_ton_per_ha']*1000:.0f} kg/ha)
+                    
+                    **📅 Cara Aplikasi:**
+                    - Waktu: {lime_req['timing']}  
+                    - Metode: {lime_req['application_method']}
+                    - Aplikasikan 2-8 minggu SEBELUM pemupukan
+                    
+                    **💡 Tips Praktis:**
+                    - Untuk lahan kecil (<100 kg), beli per karung (25-50 kg)
+                    - Campur merata dengan tanah di sekitar pohon
+                    - JANGAN dicampur dengan pupuk Urea
+                    - Monitor pH setelah 2-3 bulan
                     """)
         
         st.markdown("---")
