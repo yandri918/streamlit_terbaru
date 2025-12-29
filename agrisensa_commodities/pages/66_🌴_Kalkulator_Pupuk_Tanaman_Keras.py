@@ -1390,8 +1390,264 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         
         st.info("""
         **Kombinasi Organik + Kimia** memberikan manfaat jangka panjang:
+        - **Organik:** Memperbaiki struktur tanah, meningkatkan mikroba, retensi air
+        - **Kimia:** Nutrisi cepat tersedia untuk tanaman
+        """)
         
-        st.subheader("📊 Perhitungan Kombinasi")
+        st.markdown("### ⚙️ Atur Rasio Organik vs Kimia")
+        
+        # Interactive slider for organic ratio
+        organic_ratio = st.slider(
+            "Persentase Pupuk Organik (%)",
+            min_value=10,
+            max_value=70,
+            value=30,
+            step=5,
+            help="Rasio rekomendasi: 30% Organik + 70% Kimia. Sesuaikan dengan kebutuhan dan budget Anda."
+        )
+        
+        chemical_ratio = 100 - organic_ratio
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("🌿 Organik", f"{organic_ratio}%", help="Untuk kesehatan tanah jangka panjang")
+        with col2:
+            st.metric("⚗️ Kimia", f"{chemical_ratio}%", help="Untuk nutrisi cepat tersedia")
+        
+        st.markdown("---")
+        
+        # Calculate NPK split
+        npk_organic = {
+            "N": phase_req['npk_total']['N'] * (organic_ratio / 100),
+            "P": phase_req['npk_total']['P'] * (organic_ratio / 100),
+            "K": phase_req['npk_total']['K'] * (organic_ratio / 100)
+        }
+        
+        npk_chemical = {
+            "N": phase_req['npk_total']['N'] * (chemical_ratio / 100),
+            "P": phase_req['npk_total']['P'] * (chemical_ratio / 100),
+            "K": phase_req['npk_total']['K'] * (chemical_ratio / 100)
+        }
+        
+        # ===== ORGANIC FERTILIZER SELECTION =====
+        st.subheader("🌿 Pilih Jenis Pupuk Organik")
+        
+        # Available organic fertilizers
+        organic_options = {
+            "Pupuk Kandang Sapi": {"N": 1.5, "P": 1.0, "K": 1.5, "default_price": 800},
+            "Pupuk Kandang Kambing": {"N": 2.5, "P": 1.5, "K": 2.0, "default_price": 1200},
+            "Pupuk Kandang Ayam": {"N": 3.0, "P": 2.5, "K": 2.0, "default_price": 1500},
+            "Kompos": {"N": 1.0, "P": 0.5, "K": 1.0, "default_price": 500},
+            "Vermikompos (Kascing)": {"N": 2.0, "P": 1.5, "K": 1.5, "default_price": 2000},
+            "Bokashi": {"N": 1.5, "P": 1.0, "K": 1.2, "default_price": 1000},
+            "Guano": {"N": 10.0, "P": 8.0, "K": 2.0, "default_price": 5000}
+        }
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            organic_type = st.selectbox(
+                "Jenis Pupuk Organik",
+                options=list(organic_options.keys()),
+                help="Pilih jenis pupuk organik sesuai ketersediaan lokal"
+            )
+        
+        with col2:
+            organic_price = st.number_input(
+                f"Harga {organic_type} (Rp/kg)",
+                min_value=100,
+                max_value=20000,
+                value=organic_options[organic_type]['default_price'],
+                step=100,
+                help="Sesuaikan dengan harga lokal di daerah Anda"
+            )
+        
+        # Show NPK content of selected organic
+        organic_npk = organic_options[organic_type]
+        st.info(f"""
+        **Kandungan {organic_type}:**
+        - Nitrogen (N): {organic_npk['N']}%
+        - Fosfor (P): {organic_npk['P']}%
+        - Kalium (K): {organic_npk['K']}%
+        """)
+        
+        # Calculate organic fertilizer amount needed
+        n_from_organic = npk_organic['N'] / (organic_npk['N'] / 100)
+        p_from_organic = npk_organic['P'] / (organic_npk['P'] / 100)
+        k_from_organic = npk_organic['K'] / (organic_npk['K'] / 100)
+        
+        # Use maximum (limiting nutrient)
+        organic_kg_needed = max(n_from_organic, p_from_organic, k_from_organic)
+        organic_cost = organic_kg_needed * organic_price
+        
+        st.success(f"""
+        **Kebutuhan {organic_type}:**
+        - **{organic_kg_needed:.1f} kg** per tahun untuk {num_trees} pohon
+        - **{organic_kg_needed/num_trees:.2f} kg** per pohon per tahun
+        - **Biaya:** Rp {organic_cost:,.0f}/tahun
+        """)
+        
+        st.markdown("---")
+        
+        # ===== CHEMICAL FERTILIZER OPTIONS =====
+        st.subheader("⚗️ Pilih Strategi Pupuk Kimia")
+        
+        chemical_tabs = st.tabs(["💊 Pupuk Tunggal", "🔷 Pupuk Majemuk", "🔄 Kombinasi"])
+        
+        # Option 1: Single fertilizers
+        with chemical_tabs[0]:
+            st.markdown("**Pupuk Tunggal (Urea + SP-36 + KCl)**")
+            
+            chemical_single = calculate_single_fertilizer_mix(npk_chemical)
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                urea_price_org = st.number_input("Harga Urea (Rp/kg)", value=2500, step=100, key="urea_org")
+            with col2:
+                sp36_price_org = st.number_input("Harga SP-36 (Rp/kg)", value=3000, step=100, key="sp36_org")
+            with col3:
+                kcl_price_org = st.number_input("Harga KCl (Rp/kg)", value=4000, step=100, key="kcl_org")
+            
+            chemical_single_cost = (
+                chemical_single['urea_kg'] * urea_price_org +
+                chemical_single['sp36_kg'] * sp36_price_org +
+                chemical_single['kcl_kg'] * kcl_price_org
+            )
+            
+            st.info(f"""
+            **Kebutuhan Pupuk Tunggal:**
+            - Urea: {chemical_single['urea_kg']:.1f} kg (Rp {chemical_single['urea_kg'] * urea_price_org:,.0f})
+            - SP-36: {chemical_single['sp36_kg']:.1f} kg (Rp {chemical_single['sp36_kg'] * sp36_price_org:,.0f})
+            - KCl: {chemical_single['kcl_kg']:.1f} kg (Rp {chemical_single['kcl_kg'] * kcl_price_org:,.0f})
+            
+            **Total Kimia:** Rp {chemical_single_cost:,.0f}/tahun
+            **Total Organik + Kimia:** Rp {organic_cost + chemical_single_cost:,.0f}/tahun
+            **Biaya per Pohon:** Rp {(organic_cost + chemical_single_cost)/num_trees:,.0f}/tahun
+            """)
+        
+        # Option 2: Compound fertilizers
+        with chemical_tabs[1]:
+            st.markdown("**Pupuk Majemuk (NPK)**")
+            
+            compound_choice_org = st.selectbox(
+                "Pilih Jenis NPK",
+                ["NPK 15-15-15", "NPK 16-16-16", "NPK 12-12-17+2MgO"],
+                key="compound_org"
+            )
+            
+            compound_price_org = st.number_input(
+                f"Harga {compound_choice_org} (Rp/kg)",
+                min_value=1000,
+                max_value=20000,
+                value=FERTILIZER_CONTENT[compound_choice_org]['price_per_kg'],
+                step=100,
+                key="compound_price_org"
+            )
+            
+            chemical_compound = calculate_compound_fertilizer(npk_chemical, compound_choice_org)
+            chemical_compound_cost = chemical_compound['total_kg'] * compound_price_org
+            
+            st.info(f"""
+            **Kebutuhan {compound_choice_org}:**
+            - **{chemical_compound['total_kg']:.1f} kg** per tahun
+            - **Biaya Kimia:** Rp {chemical_compound_cost:,.0f}/tahun
+            
+            **Total Organik + Kimia:** Rp {organic_cost + chemical_compound_cost:,.0f}/tahun
+            **Biaya per Pohon:** Rp {(organic_cost + chemical_compound_cost)/num_trees:,.0f}/tahun
+            """)
+        
+        # Option 3: Combination
+        with chemical_tabs[2]:
+            st.markdown("**Kombinasi NPK + Tunggal**")
+            
+            st.info("""
+            Strategi: Gunakan NPK sebagai base, tambah pupuk tunggal untuk nutrisi yang kurang.
+            Ini lebih praktis daripada full tunggal, tapi lebih ekonomis daripada full majemuk.
+            """)
+            
+            # Use 70% NPK + 30% single for chemical portion
+            npk_base_kg = calculate_compound_fertilizer(npk_chemical, "NPK 15-15-15")['total_kg'] * 0.7
+            npk_base_cost = npk_base_kg * FERTILIZER_CONTENT["NPK 15-15-15"]['price_per_kg']
+            
+            # Remaining 30% from single
+            npk_supplement = {k: v * 0.3 for k, v in npk_chemical.items()}
+            single_supplement = calculate_single_fertilizer_mix(npk_supplement)
+            single_supplement_cost = (
+                single_supplement['urea_kg'] * 2500 +
+                single_supplement['sp36_kg'] * 3000 +
+                single_supplement['kcl_kg'] * 4000
+            )
+            
+            chemical_combo_cost = npk_base_cost + single_supplement_cost
+            
+            st.info(f"""
+            **Kebutuhan Kombinasi:**
+            - NPK 15-15-15: {npk_base_kg:.1f} kg (Rp {npk_base_cost:,.0f})
+            - Urea: {single_supplement['urea_kg']:.1f} kg
+            - SP-36: {single_supplement['sp36_kg']:.1f} kg
+            - KCl: {single_supplement['kcl_kg']:.1f} kg
+            - Suplemen: Rp {single_supplement_cost:,.0f}
+            
+            **Total Kimia:** Rp {chemical_combo_cost:,.0f}/tahun
+            **Total Organik + Kimia:** Rp {organic_cost + chemical_combo_cost:,.0f}/tahun
+            **Biaya per Pohon:** Rp {(organic_cost + chemical_combo_cost)/num_trees:,.0f}/tahun
+            """)
+        
+        st.markdown("---")
+        
+        # ===== BENEFITS & APPLICATION SCHEDULE =====
+        st.subheader("📅 Jadwal Aplikasi & Manfaat")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**🌿 Aplikasi Pupuk Organik:**")
+            st.success(f"""
+            - **Frekuensi:** 2-3x per tahun
+            - **Waktu:** Awal musim hujan & pertengahan tahun
+            - **Dosis:** {organic_kg_needed/num_trees/2:.1f} kg per pohon per aplikasi
+            - **Cara:** Taburkan melingkar di bawah tajuk, aduk dengan tanah
+            """)
+        
+        with col2:
+            st.markdown("**⚗️ Aplikasi Pupuk Kimia:**")
+            st.info(f"""
+            - **Frekuensi:** {phase_req['application_frequency']}x per tahun
+            - **Waktu:** Sesuai fase pertumbuhan
+            - **Metode:** Tugal, Kocor, atau Semprot
+            - **Lihat:** Tab Tugal/Kocor/Semprot untuk detail
+            """)
+        
+        st.markdown("---")
+        
+        st.subheader("💡 Manfaat Kombinasi Organik + Kimia")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.success("""
+            **Jangka Pendek:**
+            - Nutrisi cepat tersedia (kimia)
+            - Pertumbuhan optimal
+            - Produksi meningkat
+            """)
+        
+        with col2:
+            st.info("""
+            **Jangka Menengah:**
+            - Struktur tanah membaik
+            - Retensi air meningkat
+            - pH tanah stabil
+            """)
+        
+        with col3:
+            st.warning("""
+            **Jangka Panjang:**
+            - Kesuburan tanah terjaga
+            - Mikroba tanah aktif
+            - Berkelanjutan & ramah lingkungan
+            """)
+
         
         col1, col2 = st.columns(2)
         
