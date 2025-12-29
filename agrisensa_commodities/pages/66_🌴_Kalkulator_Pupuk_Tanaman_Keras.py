@@ -1042,12 +1042,46 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         # Display results
         st.subheader("🧪 Perhitungan Larutan")
         
-        # Safety indicator
+        # Safety indicator with recommendation
         if kocor_solution['is_safe']:
             st.success(f"✅ Konsentrasi AMAN: {kocor_solution['concentration_percent']:.2f}% (Batas: {kocor_solution['safe_concentration']}%)")
         else:
             st.error(f"⚠️ Konsentrasi TERLALU TINGGI: {kocor_solution['concentration_percent']:.2f}% (Batas: {kocor_solution['safe_concentration']}%)")
-            st.warning("Kurangi dosis pupuk atau tingkatkan volume air untuk keamanan!")
+            
+            # Calculate safe volume recommendation
+            fertilizer_per_app_g = kocor_solution['fertilizer_per_app_g']
+            safe_conc = kocor_solution['safe_concentration']
+            
+            # Formula: fertilizer_g / (safe_conc * 10) = minimum water liters
+            min_water_liters = fertilizer_per_app_g / (safe_conc * 10)
+            recommended_per_tree = min_water_liters / num_trees
+            
+            st.warning(f"""
+            **💡 Rekomendasi Aman:**
+            
+            Untuk mencapai konsentrasi {safe_conc}% (aman), Anda membutuhkan:
+            - **Minimum {min_water_liters:.0f} liter air** untuk {num_trees} pohon
+            - **{recommended_per_tree:.1f} liter per pohon** (saat ini: {liters_per_tree}L)
+            
+            **Pilihan:**
+            1. ✅ **Tingkatkan volume air** menjadi {min_water_liters:.0f}L total
+            2. ✅ **Kurangi dosis pupuk** per aplikasi
+            3. ✅ **Tingkatkan frekuensi** aplikasi (bagi dosis lebih banyak)
+            """)
+            
+            # Show safe mixing instructions
+            st.info(f"""
+            **📝 Instruksi Pencampuran Aman:**
+            
+            **Opsi 1 - Gunakan Volume Air yang Lebih Banyak:**
+            1. Siapkan {fertilizer_per_app_g:.0f} gram {fertilizer_for_kocor}
+            2. Larutkan dalam **{min_water_liters:.0f} liter air**
+            3. Siram **{recommended_per_tree:.1f} liter per pohon**
+            4. Konsentrasi: {safe_conc}% (AMAN!)
+            
+            **Opsi 2 - Bagi Menjadi Beberapa Aplikasi:**
+            Jika volume {min_water_liters:.0f}L terlalu banyak, bagi menjadi 2-3 kali aplikasi dengan interval 1-2 minggu.
+            """)
         
         col1, col2, col3 = st.columns(3)
         
@@ -1123,12 +1157,37 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         # Display results
         st.subheader("🧪 Perhitungan Larutan Semprot")
         
-        # Safety indicator
+        # Safety indicator with recommendation
         if semprot_solution['is_safe']:
             st.success(f"✅ Konsentrasi AMAN: {semprot_solution['recommended_concentration']:.2f}% (Batas: {semprot_solution['safe_concentration']}%)")
         else:
             st.error(f"⚠️ BAHAYA LEAF BURN! Konsentrasi diturunkan ke {semprot_solution['recommended_concentration']:.2f}%")
             st.warning(semprot_solution['warning'])
+            
+            # Calculate safe volume recommendation
+            # Note: For semprot, we already auto-adjust to safe concentration
+            # But show what the original calculation would need
+            original_fert_g = (semprot_solution['concentration_percent'] * semprot_solution['total_spray_volume_L'] * 10)
+            safe_conc = semprot_solution['safe_concentration']
+            
+            # Minimum spray volume needed for original fertilizer amount at safe concentration
+            min_spray_volume = original_fert_g / (safe_conc * 10)
+            min_volume_per_ha = min_spray_volume / estimated_area
+            
+            st.info(f"""
+            **💡 Rekomendasi Aman:**
+            
+            Sistem otomatis menurunkan dosis pupuk untuk keamanan daun.
+            
+            **Alternatif - Jika ingin gunakan dosis penuh:**
+            - **Minimum {min_spray_volume:.0f} liter** volume semprot total
+            - **{min_volume_per_ha:.0f} liter per hektar** (saat ini: {spray_volume_ha}L/ha)
+            
+            **Rekomendasi Terbaik:**
+            ✅ Gunakan dosis yang sudah disesuaikan ({semprot_solution['fertilizer_needed_g']:.0f}g)
+            ✅ Volume semprot tetap {spray_volume_ha}L/ha
+            ✅ Konsentrasi aman {safe_conc}% - tidak akan bakar daun!
+            """)
         
         col1, col2, col3 = st.columns(3)
         
