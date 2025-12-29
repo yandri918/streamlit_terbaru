@@ -1848,8 +1848,6 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         st.markdown("---")
         
         # Cost comparison
-        
-        # Cost comparison
         st.subheader("💰 Perbandingan Biaya Metode Pemupukan")
         
         # Calculate costs for different strategies
