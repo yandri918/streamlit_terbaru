@@ -786,6 +786,221 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             - **Pupuk Custom Pilihan Anda:** Rp {total_custom_cost:,.0f}
             - **Selisih:** Rp {abs(total_custom_cost - total_cost_custom):,.0f} ({'+' if total_custom_cost > total_cost_custom else '-'}{abs((total_custom_cost - total_cost_custom)/total_cost_custom*100):.1f}%)
             """)
+        
+        st.markdown("---")
+        
+        # Combination: Compound + Single fertilizers
+        st.subheader("🔄 Kombinasi Pupuk Majemuk + Tunggal")
+        
+        with st.expander("⚙️ Gunakan NPK Majemuk + Pupuk Tunggal untuk Kekurangan", expanded=False):
+            st.markdown("""
+            **Strategi Kombinasi:**
+            Gunakan pupuk majemuk (NPK) sebagai base, lalu tambahkan pupuk tunggal untuk nutrisi yang masih kurang.
+            Ini lebih praktis daripada full pupuk tunggal, tapi lebih ekonomis daripada full majemuk.
+            """)
+            
+            # Get NPK requirements
+            npk_needed = phase_req['npk_total']
+            
+            # Step 1: Choose compound fertilizer
+            st.markdown("### 1️⃣ Pilih Pupuk Majemuk (Base)")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                compound_type = st.selectbox(
+                    "Jenis NPK Majemuk",
+                    options=["NPK 15-15-15", "NPK 16-16-16", "NPK 12-12-17+2MgO"],
+                    key="compound_combo"
+                )
+            
+            with col2:
+                compound_price = st.number_input(
+                    f"Harga {compound_type} (Rp/kg)",
+                    min_value=1000,
+                    max_value=20000,
+                    value=FERTILIZER_CONTENT[compound_type]['price_per_kg'],
+                    step=100,
+                    key="compound_price_combo"
+                )
+            
+            # Show NPK content
+            compound_npk = FERTILIZER_CONTENT[compound_type]
+            st.info(f"📊 Kandungan: N={compound_npk['N']}%, P={compound_npk['P']}%, K={compound_npk['K']}%")
+            
+            # Calculate compound fertilizer amount (based on limiting nutrient)
+            n_from_compound = npk_needed.get('N', 0) / (compound_npk['N'] / 100)
+            p_from_compound = npk_needed.get('P', 0) / (compound_npk['P'] / 100)
+            k_from_compound = npk_needed.get('K', 0) / (compound_npk['K'] / 100)
+            
+            # Use the maximum (limiting nutrient)
+            compound_kg = max(n_from_compound, p_from_compound, k_from_compound)
+            
+            # Calculate NPK provided by compound
+            n_provided = compound_kg * (compound_npk['N'] / 100)
+            p_provided = compound_kg * (compound_npk['P'] / 100)
+            k_provided = compound_kg * (compound_npk['K'] / 100)
+            
+            # Calculate remaining needs
+            n_remaining = max(0, npk_needed.get('N', 0) - n_provided)
+            p_remaining = max(0, npk_needed.get('P', 0) - p_provided)
+            k_remaining = max(0, npk_needed.get('K', 0) - k_provided)
+            
+            compound_cost = compound_kg * compound_price
+            
+            st.success(f"✅ Kebutuhan {compound_type}: **{compound_kg:.2f} kg** (Rp {compound_cost:,.0f})")
+            
+            # Show what's provided and what's remaining
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric(
+                    "N dari NPK",
+                    f"{n_provided:.2f} kg",
+                    delta=f"{n_remaining:.2f} kg kurang" if n_remaining > 0 else "✓ Cukup",
+                    delta_color="inverse" if n_remaining > 0 else "normal"
+                )
+            
+            with col2:
+                st.metric(
+                    "P dari NPK",
+                    f"{p_provided:.2f} kg",
+                    delta=f"{p_remaining:.2f} kg kurang" if p_remaining > 0 else "✓ Cukup",
+                    delta_color="inverse" if p_remaining > 0 else "normal"
+                )
+            
+            with col3:
+                st.metric(
+                    "K dari NPK",
+                    f"{k_provided:.2f} kg",
+                    delta=f"{k_remaining:.2f} kg kurang" if k_remaining > 0 else "✓ Cukup",
+                    delta_color="inverse" if k_remaining > 0 else "normal"
+                )
+            
+            st.markdown("---")
+            
+            # Step 2: Add single fertilizers for remaining needs
+            st.markdown("### 2️⃣ Tambahkan Pupuk Tunggal untuk Kekurangan")
+            
+            total_single_cost = 0
+            
+            # N supplement
+            if n_remaining > 0:
+                st.markdown(f"**Tambahan Nitrogen:** {n_remaining:.2f} kg")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    n_supp_type = st.selectbox(
+                        "Pupuk N Tambahan",
+                        options=["Urea", "ZA (Amonium Sulfat)"],
+                        key="n_supp_combo"
+                    )
+                
+                with col2:
+                    n_supp_price = st.number_input(
+                        f"Harga {n_supp_type} (Rp/kg)",
+                        min_value=1000,
+                        max_value=20000,
+                        value=FERTILIZER_CONTENT[n_supp_type]['price_per_kg'],
+                        step=100,
+                        key="n_supp_price_combo"
+                    )
+                
+                n_supp_kg = n_remaining / (FERTILIZER_CONTENT[n_supp_type]['N'] / 100)
+                n_supp_cost = n_supp_kg * n_supp_price
+                total_single_cost += n_supp_cost
+                
+                st.success(f"✅ Tambah {n_supp_type}: **{n_supp_kg:.2f} kg** (Rp {n_supp_cost:,.0f})")
+            else:
+                st.info("✓ Nitrogen sudah cukup dari NPK majemuk")
+            
+            # P supplement
+            if p_remaining > 0:
+                st.markdown(f"**Tambahan Fosfor:** {p_remaining:.2f} kg")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    p_supp_type = st.selectbox(
+                        "Pupuk P Tambahan",
+                        options=["SP-36"],
+                        key="p_supp_combo"
+                    )
+                
+                with col2:
+                    p_supp_price = st.number_input(
+                        f"Harga {p_supp_type} (Rp/kg)",
+                        min_value=1000,
+                        max_value=20000,
+                        value=FERTILIZER_CONTENT[p_supp_type]['price_per_kg'],
+                        step=100,
+                        key="p_supp_price_combo"
+                    )
+                
+                p_supp_kg = p_remaining / (FERTILIZER_CONTENT[p_supp_type]['P'] / 100)
+                p_supp_cost = p_supp_kg * p_supp_price
+                total_single_cost += p_supp_cost
+                
+                st.success(f"✅ Tambah {p_supp_type}: **{p_supp_kg:.2f} kg** (Rp {p_supp_cost:,.0f})")
+            else:
+                st.info("✓ Fosfor sudah cukup dari NPK majemuk")
+            
+            # K supplement
+            if k_remaining > 0:
+                st.markdown(f"**Tambahan Kalium:** {k_remaining:.2f} kg")
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    k_supp_type = st.selectbox(
+                        "Pupuk K Tambahan",
+                        options=["KCl", "KNO3 (Kalium Nitrat)"],
+                        key="k_supp_combo"
+                    )
+                
+                with col2:
+                    k_supp_price = st.number_input(
+                        f"Harga {k_supp_type} (Rp/kg)",
+                        min_value=1000,
+                        max_value=50000,
+                        value=FERTILIZER_CONTENT[k_supp_type]['price_per_kg'],
+                        step=100,
+                        key="k_supp_price_combo"
+                    )
+                
+                k_supp_kg = k_remaining / (FERTILIZER_CONTENT[k_supp_type]['K'] / 100)
+                k_supp_cost = k_supp_kg * k_supp_price
+                total_single_cost += k_supp_cost
+                
+                st.success(f"✅ Tambah {k_supp_type}: **{k_supp_kg:.2f} kg** (Rp {k_supp_cost:,.0f})")
+            else:
+                st.info("✓ Kalium sudah cukup dari NPK majemuk")
+            
+            st.markdown("---")
+            
+            # Total combination cost
+            st.markdown("### 💰 Total Biaya Kombinasi")
+            
+            total_combo_cost = compound_cost + total_single_cost
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric("Biaya NPK Majemuk", f"Rp {compound_cost:,.0f}")
+            
+            with col2:
+                st.metric("Biaya Pupuk Tunggal", f"Rp {total_single_cost:,.0f}")
+            
+            with col3:
+                st.metric("Total Kombinasi", f"Rp {total_combo_cost:,.0f}")
+            
+            # Comparison with other strategies
+            st.info(f"""
+            📊 **Perbandingan Semua Strategi:**
+            - **Pupuk Tunggal Saja:** Rp {total_cost_custom:,.0f}
+            - **Kombinasi NPK + Tunggal:** Rp {total_combo_cost:,.0f} ({'Lebih murah' if total_combo_cost < total_cost_custom else 'Lebih mahal'} Rp {abs(total_combo_cost - total_cost_custom):,.0f})
+            - **Biaya per Pohon:** Rp {total_combo_cost/num_trees:,.0f}
+            
+            💡 **Rekomendasi:** {'Kombinasi lebih ekonomis!' if total_combo_cost < total_cost_custom else 'Pupuk tunggal lebih ekonomis!'}
+            """)
     
     
     # ========== TAB 3: METODE KOCOR ==========
