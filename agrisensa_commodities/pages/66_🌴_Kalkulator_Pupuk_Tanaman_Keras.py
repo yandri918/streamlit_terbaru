@@ -1202,35 +1202,186 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         Konsentrasi aman foliar: **0.5-2.0%** (lebih rendah untuk mencegah leaf burn)
         """)
         
-        # Use default parameters from phase data - no additional user input
+        st.markdown("### 📊 Perhitungan untuk Semua Opsi Pupuk")
+        st.caption("Menggunakan data dari Tab Tugal - Volume default: 400L/ha")
+        
+        # Use default parameters
         spray_volume_ha = 400  # Standard 400L/ha
-        fertilizer_for_semprot = "KNO3 (Kalium Nitrat)"  # Best for foliar
         
-        st.info(f"💨 **Parameter Default:** Volume {spray_volume_ha}L/ha, Pupuk {fertilizer_for_semprot}")
+        # Calculate for all 3 options from Tab 2
+        single_mix = calculate_single_fertilizer_mix(phase_req['npk_total'])
+        compound_npk = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 15-15-15")
         
-        # Calculate semprot solution
-        if fertilizer_for_semprot == "KNO3 (Kalium Nitrat)":
-            fert_amount = phase_req['npk_total']['K'] / 0.46
-        elif fertilizer_for_semprot == "MKP (Mono Kalium Fosfat)":
-            fert_amount = max(
-                phase_req['npk_total']['P'] / 0.52,
-                phase_req['npk_total']['K'] / 0.34
+        # Create tabs for each option
+        semprot_tab1, semprot_tab2, semprot_tab3 = st.tabs([
+            "💊 Pupuk Tunggal",
+            "🔷 Pupuk Majemuk",
+            "🔄 Kombinasi"
+        ])
+        
+        # ===== OPTION 1: Single Fertilizer (Water-Soluble Only) =====
+        with semprot_tab1:
+            st.subheader("Larutan Semprot Pupuk Larut Air")
+            
+            st.info("""
+            **Catatan:** Untuk semprot foliar, gunakan pupuk yang larut air sempurna.
+            Urea dan KCl bisa digunakan, tapi SP-36 kurang cocok untuk foliar.
+            Lebih baik gunakan pupuk premium seperti KNO3 atau MKP.
+            """)
+            
+            # For foliar, reduce dose to 25% of soil application
+            foliar_dose_kg = single_mix['total_kg'] * 0.25
+            
+            semprot_single = calculate_semprot_solution(
+                foliar_dose_kg,
+                estimated_area,
+                phase_req['application_frequency'],
+                spray_volume_ha,
+                "KNO3 (Kalium Nitrat)"  # Best for foliar
             )
-        elif fertilizer_for_semprot == "Urea":
-            fert_amount = phase_req['npk_total']['N'] / 0.46
-        else:  # NPK 15-15-15
-            fert_amount = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 15-15-15")['total_kg']
+            
+            # Safety check
+            if semprot_single['is_safe']:
+                st.success(f"✅ Konsentrasi: {semprot_single['recommended_concentration']:.2f}% (AMAN)")
+            else:
+                st.error(f"⚠️ Konsentrasi diturunkan ke {semprot_single['recommended_concentration']:.2f}% untuk keamanan")
+                
+                original_fert_g = (semprot_single['concentration_percent'] * semprot_single['total_spray_volume_L'] * 10)
+                safe_conc = semprot_single['safe_concentration']
+                min_spray_volume = original_fert_g / (safe_conc * 10)
+                min_volume_per_ha = min_spray_volume / estimated_area
+                
+                st.warning(f"""
+                **💡 Alternatif:**
+                - Minimum **{min_spray_volume:.0f} liter** volume semprot
+                - **{min_volume_per_ha:.0f} L/ha** (saat ini: {spray_volume_ha}L/ha)
+                """)
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Pupuk per Aplikasi", f"{semprot_single['fertilizer_needed_g']:.0f} g")
+            with col2:
+                st.metric("Total Volume", f"{semprot_single['total_spray_volume_L']:.0f} L")
+            with col3:
+                st.metric("Tangki 16L", f"{semprot_single['tanks_16L_needed']:.1f}")
+            
+            st.info(f"""
+            **📝 Cara Mencampur (Per Tangki 16L):**
+            1. Siapkan **{semprot_single['fertilizer_per_tank_g']:.0f} gram pupuk larut air**
+            2. Larutkan dalam 16L air
+            3. Semprot merata pada daun (atas dan bawah)
+            4. Volume: {spray_volume_ha}L per hektar
+            
+            ⚠️ **WAJIB:**
+            - Semprot pagi (06:00-09:00) atau sore (16:00-18:00)
+            - JANGAN semprot saat terik atau hujan
+            """)
         
-        # Reduce amount for foliar (typically 20-30% of soil application)
-        fert_amount_foliar = fert_amount * 0.25  # 25% of soil dose
+        # ===== OPTION 2: Compound Fertilizer =====
+        with semprot_tab2:
+            st.subheader("Larutan Semprot Pupuk Majemuk")
+            
+            # User can choose compound type
+            compound_choice_spray = st.selectbox(
+                "Pilih Jenis NPK",
+                ["NPK 15-15-15", "NPK 16-16-16", "KNO3 (Kalium Nitrat)", "MKP (Mono Kalium Fosfat)"],
+                key="semprot_compound_choice"
+            )
+            
+            if compound_choice_spray in ["NPK 15-15-15", "NPK 16-16-16"]:
+                compound_data_spray = calculate_compound_fertilizer(phase_req['npk_total'], compound_choice_spray)
+                foliar_dose = compound_data_spray['total_kg'] * 0.25  # 25% for foliar
+            elif compound_choice_spray == "KNO3 (Kalium Nitrat)":
+                # KNO3 for K needs
+                foliar_dose = (phase_req['npk_total']['K'] / 0.46) * 0.25
+            else:  # MKP
+                # MKP for P+K needs
+                foliar_dose = (max(phase_req['npk_total']['P'] / 0.52, phase_req['npk_total']['K'] / 0.34)) * 0.25
+            
+            semprot_compound = calculate_semprot_solution(
+                foliar_dose,
+                estimated_area,
+                phase_req['application_frequency'],
+                spray_volume_ha,
+                compound_choice_spray
+            )
+            
+            # Safety check
+            if semprot_compound['is_safe']:
+                st.success(f"✅ Konsentrasi: {semprot_compound['recommended_concentration']:.2f}% (AMAN)")
+            else:
+                st.error(f"⚠️ Konsentrasi diturunkan ke {semprot_compound['recommended_concentration']:.2f}%")
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Pupuk per Aplikasi", f"{semprot_compound['fertilizer_needed_g']:.0f} g")
+            with col2:
+                st.metric("Total Volume", f"{semprot_compound['total_spray_volume_L']:.0f} L")
+            with col3:
+                st.metric("Tangki 16L", f"{semprot_compound['tanks_16L_needed']:.1f}")
+            
+            st.info(f"""
+            **📝 Cara Mencampur (Per Tangki 16L):**
+            1. Siapkan **{semprot_compound['fertilizer_per_tank_g']:.0f} gram {compound_choice_spray}**
+            2. Larutkan dalam 16L air
+            3. Semprot merata pada daun
+            4. Aplikasi {phase_req['application_frequency']}x per tahun
+            
+            ⚠️ Semprot pagi/sore, hindari siang terik!
+            """)
         
-        semprot_solution = calculate_semprot_solution(
-            fert_amount_foliar,
-            estimated_area,
-            phase_req['application_frequency'],
-            spray_volume_ha,
-            fertilizer_for_semprot
-        )
+        # ===== OPTION 3: Combination Strategy =====
+        with semprot_tab3:
+            st.subheader("Strategi Kombinasi untuk Foliar")
+            
+            st.info("""
+            **Strategi Foliar:**
+            - Gunakan pupuk premium larut air (KNO3, MKP) untuk foliar
+            - Pupuk tunggal (Urea, KCl) untuk aplikasi soil
+            - Kombinasi memberikan nutrisi cepat (foliar) + lambat (soil)
+            """)
+            
+            # For combination: use premium water-soluble for foliar
+            kno3_dose = (phase_req['npk_total']['K'] / 0.46) * 0.20  # 20% via foliar
+            
+            semprot_combo = calculate_semprot_solution(
+                kno3_dose,
+                estimated_area,
+                phase_req['application_frequency'],
+                spray_volume_ha,
+                "KNO3 (Kalium Nitrat)"
+            )
+            
+            # Safety check
+            if semprot_combo['is_safe']:
+                st.success(f"✅ Konsentrasi: {semprot_combo['recommended_concentration']:.2f}% (AMAN)")
+            else:
+                st.error(f"⚠️ Konsentrasi diturunkan ke {semprot_combo['recommended_concentration']:.2f}%")
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Pupuk per Aplikasi", f"{semprot_combo['fertilizer_needed_g']:.0f} g")
+            with col2:
+                st.metric("Total Volume", f"{semprot_combo['total_spray_volume_L']:.0f} L")
+            with col3:
+                st.metric("Tangki 16L", f"{semprot_combo['tanks_16L_needed']:.1f}")
+            
+            st.info("""
+            **📝 Strategi Aplikasi Kombinasi:**
+            
+            **Foliar (Semprot):**
+            - 20-25% kebutuhan via foliar spray
+            - Gunakan KNO3 atau MKP (larut sempurna)
+            - Semprot setiap 2-3 minggu
+            
+            **Soil (Kocor/Tugal):**
+            - 75-80% kebutuhan via aplikasi tanah
+            - Gunakan pupuk tunggal atau majemuk
+            - Aplikasi sesuai jadwal normal
+            
+            💡 **Keuntungan:** Nutrisi cepat tersedia (foliar) + cadangan jangka panjang (soil)
+            """)
+
         
         # Display results
         st.subheader("🧪 Perhitungan Larutan Semprot")
