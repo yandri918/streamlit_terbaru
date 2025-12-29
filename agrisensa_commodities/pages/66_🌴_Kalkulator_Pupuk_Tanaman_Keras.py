@@ -2055,6 +2055,13 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             # Manual input (always show for both modes)
             st.markdown("**📝 Atau Input Manual:**")
             
+            # Callback functions to update session state
+            def update_lat():
+                st.session_state.farm_lat = st.session_state.lat_input
+            
+            def update_lon():
+                st.session_state.farm_lon = st.session_state.lon_input
+            
             new_lat = st.number_input(
                 "Latitude", 
                 value=st.session_state.farm_lat, 
@@ -2063,7 +2070,8 @@ if st.session_state.calculation_done and st.session_state.phase_req:
                 step=0.01, 
                 format="%.4f",
                 key="lat_input",
-                disabled=(location_option != "Custom")
+                disabled=(location_option != "Custom"),
+                on_change=update_lat if location_option == "Custom" else None
             )
             new_lon = st.number_input(
                 "Longitude", 
@@ -2073,17 +2081,9 @@ if st.session_state.calculation_done and st.session_state.phase_req:
                 step=0.01, 
                 format="%.4f",
                 key="lon_input",
-                disabled=(location_option != "Custom")
+                disabled=(location_option != "Custom"),
+                on_change=update_lon if location_option == "Custom" else None
             )
-            
-            # Update button for manual input
-            if location_option == "Custom":
-                if new_lat != st.session_state.farm_lat or new_lon != st.session_state.farm_lon:
-                    if st.button("🔄 Update Koordinat Manual"):
-                        st.session_state.farm_lat = new_lat
-                        st.session_state.farm_lon = new_lon
-                        st.success("Koordinat berhasil diupdate!")
-                        st.rerun()
         
         with col2:
             st.markdown("**💡 Tips:**")
