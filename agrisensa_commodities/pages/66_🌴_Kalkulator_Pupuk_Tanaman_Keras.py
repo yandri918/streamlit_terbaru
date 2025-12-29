@@ -2055,14 +2055,7 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             # Manual input (always show for both modes)
             st.markdown("**📝 Atau Input Manual:**")
             
-            # Callback functions to update session state
-            def update_lat():
-                st.session_state.farm_lat = st.session_state.lat_input
-            
-            def update_lon():
-                st.session_state.farm_lon = st.session_state.lon_input
-            
-            new_lat = st.number_input(
+            latitude = st.number_input(
                 "Latitude", 
                 value=st.session_state.farm_lat, 
                 min_value=-11.0, 
@@ -2070,10 +2063,9 @@ if st.session_state.calculation_done and st.session_state.phase_req:
                 step=0.01, 
                 format="%.4f",
                 key="lat_input",
-                disabled=(location_option != "Custom"),
-                on_change=update_lat if location_option == "Custom" else None
+                disabled=(location_option != "Custom")
             )
-            new_lon = st.number_input(
+            longitude = st.number_input(
                 "Longitude", 
                 value=st.session_state.farm_lon, 
                 min_value=95.0, 
@@ -2081,9 +2073,13 @@ if st.session_state.calculation_done and st.session_state.phase_req:
                 step=0.01, 
                 format="%.4f",
                 key="lon_input",
-                disabled=(location_option != "Custom"),
-                on_change=update_lon if location_option == "Custom" else None
+                disabled=(location_option != "Custom")
             )
+            
+            # Update session state from widget values (Custom mode only)
+            if location_option == "Custom":
+                st.session_state.farm_lat = latitude
+                st.session_state.farm_lon = longitude
         
         with col2:
             st.markdown("**💡 Tips:**")
