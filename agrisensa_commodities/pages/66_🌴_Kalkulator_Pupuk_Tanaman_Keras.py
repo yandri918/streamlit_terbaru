@@ -1846,17 +1846,8 @@ if st.session_state.calculation_done and st.session_state.phase_req:
             """)
         
         st.markdown("---")
-            schedule_data.append({
-                "Aplikasi Ke-": i + 1,
-                "Bulan": month,
-                "Fase": phase_req['phase_name'],
-                "Metode": ", ".join([m.title() for m in phase_req['application_methods']])
-            })
         
-        schedule_df = pd.DataFrame(schedule_data)
-        st.dataframe(schedule_df, use_container_width=True, hide_index=True)
-        
-        st.markdown("---")
+        # Cost comparison
         
         # Cost comparison
         st.subheader("💰 Perbandingan Biaya Metode Pemupukan")
