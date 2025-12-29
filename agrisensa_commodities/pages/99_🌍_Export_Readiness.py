@@ -534,19 +534,22 @@ with tabs[7]:
         # Create editable cost inputs
         if edit_mode:
             st.markdown("#### 📝 Editable Cost Components (Rp per kg)")
+            st.info("💡 Edit the costs below and scroll down to see updated calculations automatically")
             
+            # Initialize or get custom values
+            key_prefix = f"{product_name}_{volume_kg}"
+            
+            # Use columns for better layout
             col_cost1, col_cost2 = st.columns(2)
             
             with col_cost1:
-                # Initialize or get custom values
-                key_prefix = f"{product_name}_{volume_kg}"
-                
                 custom_product_cost = st.number_input(
                     "🌾 Product Cost (Farm Gate) - Rp/kg",
                     min_value=0,
                     value=int(result['price_domestic']),
                     step=1000,
-                    key=f"product_cost_{key_prefix}"
+                    key=f"product_cost_{key_prefix}",
+                    help="Farm gate price per kg"
                 )
                 
                 custom_sorting = st.number_input(
@@ -554,7 +557,8 @@ with tabs[7]:
                     min_value=0,
                     value=int(costs['sorting_grading'] / volume_kg),
                     step=100,
-                    key=f"sorting_{key_prefix}"
+                    key=f"sorting_{key_prefix}",
+                    help="Cost for sorting and grading per kg"
                 )
                 
                 custom_packaging = st.number_input(
@@ -562,7 +566,8 @@ with tabs[7]:
                     min_value=0,
                     value=int(costs['packaging'] / volume_kg),
                     step=100,
-                    key=f"packaging_{key_prefix}"
+                    key=f"packaging_{key_prefix}",
+                    help="Packaging materials and labor per kg"
                 )
                 
                 custom_cold_storage = st.number_input(
@@ -570,7 +575,8 @@ with tabs[7]:
                     min_value=0,
                     value=int(costs['cold_storage'] / volume_kg),
                     step=100,
-                    key=f"cold_storage_{key_prefix}"
+                    key=f"cold_storage_{key_prefix}",
+                    help="Cold storage fees per kg"
                 )
             
             with col_cost2:
@@ -579,7 +585,8 @@ with tabs[7]:
                     min_value=0,
                     value=int(costs['phytosanitary'] / volume_kg),
                     step=50,
-                    key=f"phyto_{key_prefix}"
+                    key=f"phyto_{key_prefix}",
+                    help="Phytosanitary certification cost per kg"
                 )
                 
                 custom_shipping = st.number_input(
@@ -587,7 +594,8 @@ with tabs[7]:
                     min_value=0,
                     value=int(costs['shipping'] / volume_kg),
                     step=100,
-                    key=f"shipping_{key_prefix}"
+                    key=f"shipping_{key_prefix}",
+                    help="International shipping cost per kg"
                 )
                 
                 custom_insurance = st.number_input(
@@ -595,7 +603,8 @@ with tabs[7]:
                     min_value=0,
                     value=int(costs['insurance'] / volume_kg),
                     step=50,
-                    key=f"insurance_{key_prefix}"
+                    key=f"insurance_{key_prefix}",
+                    help="Cargo insurance per kg"
                 )
                 
                 custom_documentation = st.number_input(
@@ -603,7 +612,8 @@ with tabs[7]:
                     min_value=0,
                     value=int(costs['documentation'] / volume_kg),
                     step=50,
-                    key=f"documentation_{key_prefix}"
+                    key=f"documentation_{key_prefix}",
+                    help="Export documentation fees per kg"
                 )
             
             # Recalculate with custom costs
@@ -627,7 +637,7 @@ with tabs[7]:
             result['profit_margin'] = round((result['profit'] / result['revenue'] * 100), 1) if result['revenue'] > 0 else 0
             result['roi'] = round((result['profit'] / costs['total_cost'] * 100), 1) if costs['total_cost'] > 0 else 0
             
-            st.success("✅ Costs updated! See recalculated profitability below.")
+            st.success("✅ Calculations updated with your custom costs!")
         
         # Display cost breakdown table
         cost_data = pd.DataFrame({
