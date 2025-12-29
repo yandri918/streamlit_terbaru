@@ -358,6 +358,69 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         if 'Mg' in npk_per_tree:
             st.info(f"➕ **Magnesium (Mg):** {npk_per_tree.get('Mg', 0):.0f} gram/pohon/tahun")
         
+        # ===== SOIL TEST ADJUSTMENT =====
+        st.markdown("---")
+        soil_n = st.session_state.get('soil_n', 0)
+        soil_p = st.session_state.get('soil_p', 0)
+        soil_k = st.session_state.get('soil_k', 0)
+        soil_ph = st.session_state.get('soil_ph', 6.5)
+        
+        if soil_n > 0 or soil_p > 0 or soil_k > 0:
+            st.subheader("🧪 Penyesuaian Berdasarkan Uji Tanah")
+            soil_status = get_soil_status_message(soil_n, soil_p, soil_k, soil_ph)
+            if soil_status:
+                st.info(soil_status)
+            
+            base_n_kg = npk_per_tree.get('N', 0) / 1000
+            base_p_kg = npk_per_tree.get('P', 0) / 1000
+            base_k_kg = npk_per_tree.get('K', 0) / 1000
+            
+            adj_n, adj_p, adj_k, red_n, red_p, red_k = adjust_npk_for_soil_test(
+                base_n_kg, base_p_kg, base_k_kg, soil_n, soil_p, soil_k
+            )
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("N (Adjusted)", f"{adj_n*1000:.0f} g", 
+                         delta=f"-{red_n*100:.0f}%" if red_n > 0 else "0%", delta_color="inverse")
+            with col2:
+                st.metric("P (Adjusted)", f"{adj_p*1000:.0f} g",
+                         delta=f"-{red_p*100:.0f}%" if red_p > 0 else "0%", delta_color="inverse")
+            with col3:
+                st.metric("K (Adjusted)", f"{adj_k*1000:.0f} g",
+                         delta=f"-{red_k*100:.0f}%" if red_k > 0 else "0%", delta_color="inverse")
+            
+            if red_n > 0 or red_p > 0 or red_k > 0:
+                avg_red = (red_n + red_p + red_k) / 3
+                st.success(f"💰 Penghematan: ~{avg_red*100:.0f}% biaya pupuk!")
+        
+        # pH Correction
+        target_ph = 6.5 if crop_name not in ["Kelapa Sawit", "Karet", "Kakao", "Kopi Arabika", "Kopi Robusta"] else 6.0
+        
+        if soil_ph < target_ph:
+            st.markdown("---")
+            st.subheader("🧪 Rekomendasi Pengapuran")
+            lime_req = calculate_lime_requirement(soil_ph, target_ph, estimated_area, 'medium')
+            
+            if lime_req['needed']:
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("pH Saat Ini", f"{lime_req['current_ph']:.1f}", 
+                             delta=f"Target: {lime_req['target_ph']:.1f}")
+                with col2:
+                    st.metric("Dolomite", f"Rp {lime_req['dolomite_cost']:,.0f}",
+                             help=f"{lime_req['dolomite_total_ton']:.2f} ton")
+                
+                with st.expander("📋 Detail Pengapuran"):
+                    st.markdown(f"""
+                    **Dolomite (Recommended):** {lime_req['dolomite_ton_per_ha']:.2f} ton/ha  
+                    **CaCO3:** {lime_req['caco3_ton_per_ha']:.2f} ton/ha  
+                    **Waktu:** {lime_req['timing']}  
+                    **Metode:** {lime_req['application_method']}
+                    
+                    ⚠️ Aplikasikan 2-8 minggu sebelum pemupukan!
+                    """)
+        
         st.markdown("---")
         
         # Per Application Breakdown
