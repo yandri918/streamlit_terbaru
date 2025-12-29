@@ -1013,31 +1013,183 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         Konsentrasi aman: **0.5-1.5%** untuk mencegah root burn.
         """)
         
-        # Use default parameters from phase data - no additional user input
+        st.markdown("### 📊 Perhitungan untuk Semua Opsi Pupuk")
+        st.caption("Menggunakan data dari Tab Tugal - Volume default: 2L per pohon")
+        
+        # Use default parameters
         liters_per_tree = 2  # Standard 2L per tree
-        fertilizer_for_kocor = "NPK 15-15-15"  # Default compound fertilizer
         
-        st.info(f"💧 **Parameter Default:** Volume {liters_per_tree}L per pohon, Pupuk {fertilizer_for_kocor}")
+        # Calculate for all 3 options from Tab 2
+        # 1. Single fertilizer mix
+        single_mix = calculate_single_fertilizer_mix(phase_req['npk_total'])
         
-        # Calculate kocor solution
-        # Use total NPK or specific fertilizer amount
-        if fertilizer_for_kocor == "NPK 15-15-15":
-            fert_amount = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 15-15-15")['total_kg']
-        elif fertilizer_for_kocor == "NPK 16-16-16":
-            fert_amount = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 16-16-16")['total_kg']
-        elif fertilizer_for_kocor == "KNO3 (Kalium Nitrat)":
-            # For KNO3, focus on K
-            fert_amount = phase_req['npk_total']['K'] / 0.46  # 46% K in KNO3
-        else:  # Urea
-            fert_amount = phase_req['npk_total']['N'] / 0.46  # 46% N in Urea
+        # 2. Compound fertilizer
+        compound_npk = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 15-15-15")
         
-        kocor_solution = calculate_kocor_solution(
-            fert_amount,
-            num_trees,
-            phase_req['application_frequency'],
-            liters_per_tree,
-            fertilizer_for_kocor
-        )
+        # Create tabs for each option
+        kocor_tab1, kocor_tab2, kocor_tab3 = st.tabs([
+            "💊 Pupuk Tunggal",
+            "🔷 Pupuk Majemuk", 
+            "🔄 Kombinasi"
+        ])
+        
+        # ===== OPTION 1: Single Fertilizer =====
+        with kocor_tab1:
+            st.subheader("Larutan Pupuk Tunggal (Urea + SP-36 + KCl)")
+            
+            # Calculate kocor for total single mix
+            kocor_single = calculate_kocor_solution(
+                single_mix['total_kg'],
+                num_trees,
+                phase_req['application_frequency'],
+                liters_per_tree,
+                "Urea"  # Use Urea as reference for safety
+            )
+            
+            # Safety check
+            if kocor_single['is_safe']:
+                st.success(f"✅ Konsentrasi: {kocor_single['concentration_percent']:.2f}% (AMAN)")
+            else:
+                st.error(f"⚠️ Konsentrasi: {kocor_single['concentration_percent']:.2f}% (TERLALU TINGGI!)")
+                
+                # Calculate safe volume
+                fertilizer_per_app_g = kocor_single['fertilizer_per_app_g']
+                safe_conc = 1.0  # Safe for mixed fertilizers
+                min_water_liters = fertilizer_per_app_g / (safe_conc * 10)
+                recommended_per_tree = min_water_liters / num_trees
+                
+                st.warning(f"""
+                **💡 Rekomendasi Aman:**
+                - Minimum **{min_water_liters:.0f} liter air** total
+                - **{recommended_per_tree:.1f} liter per pohon**
+                """)
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Pupuk per Aplikasi", f"{kocor_single['fertilizer_per_app_g']:.0f} g")
+            with col2:
+                st.metric("Total Larutan", f"{kocor_single['total_solution_per_app_L']:.0f} L")
+            with col3:
+                st.metric("Tangki 16L", f"{kocor_single['tanks_16L_needed']:.1f}")
+            
+            st.info(f"""
+            **📝 Cara Mencampur (Per Tangki 16L):**
+            1. Campur: Urea {single_mix['urea_kg']/phase_req['application_frequency']/kocor_single['tanks_16L_needed']:.0f}g + 
+               SP-36 {single_mix['sp36_kg']/phase_req['application_frequency']/kocor_single['tanks_16L_needed']:.0f}g + 
+               KCl {single_mix['kcl_kg']/phase_req['application_frequency']/kocor_single['tanks_16L_needed']:.0f}g
+            2. Larutkan dalam 16L air
+            3. Siram {liters_per_tree}L per pohon
+            4. Aplikasi {phase_req['application_frequency']}x per tahun
+            """)
+        
+        # ===== OPTION 2: Compound Fertilizer =====
+        with kocor_tab2:
+            st.subheader("Larutan Pupuk Majemuk")
+            
+            # User can choose compound type
+            compound_choice = st.selectbox(
+                "Pilih Jenis NPK",
+                ["NPK 15-15-15", "NPK 16-16-16", "NPK 12-12-17+2MgO"],
+                key="kocor_compound_choice"
+            )
+            
+            compound_data = calculate_compound_fertilizer(phase_req['npk_total'], compound_choice)
+            
+            kocor_compound = calculate_kocor_solution(
+                compound_data['total_kg'],
+                num_trees,
+                phase_req['application_frequency'],
+                liters_per_tree,
+                compound_choice
+            )
+            
+            # Safety check
+            if kocor_compound['is_safe']:
+                st.success(f"✅ Konsentrasi: {kocor_compound['concentration_percent']:.2f}% (AMAN)")
+            else:
+                st.error(f"⚠️ Konsentrasi: {kocor_compound['concentration_percent']:.2f}% (TERLALU TINGGI!)")
+                
+                fertilizer_per_app_g = kocor_compound['fertilizer_per_app_g']
+                safe_conc = kocor_compound['safe_concentration']
+                min_water_liters = fertilizer_per_app_g / (safe_conc * 10)
+                recommended_per_tree = min_water_liters / num_trees
+                
+                st.warning(f"""
+                **💡 Rekomendasi Aman:**
+                - Minimum **{min_water_liters:.0f} liter air** total
+                - **{recommended_per_tree:.1f} liter per pohon**
+                """)
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Pupuk per Aplikasi", f"{kocor_compound['fertilizer_per_app_g']:.0f} g")
+            with col2:
+                st.metric("Total Larutan", f"{kocor_compound['total_solution_per_app_L']:.0f} L")
+            with col3:
+                st.metric("Tangki 16L", f"{kocor_compound['tanks_16L_needed']:.1f}")
+            
+            st.info(f"""
+            **📝 Cara Mencampur (Per Tangki 16L):**
+            1. Siapkan **{kocor_compound['fertilizer_per_tank_g']:.0f} gram {compound_choice}**
+            2. Larutkan dalam 16L air
+            3. Siram {liters_per_tree}L per pohon
+            4. Aplikasi {phase_req['application_frequency']}x per tahun
+            
+            💰 **Biaya:** Rp {compound_data['total_cost']:,.0f}/tahun
+            """)
+        
+        # ===== OPTION 3: Combination =====
+        with kocor_tab3:
+            st.subheader("Larutan Kombinasi (NPK + Tunggal)")
+            
+            st.info("""
+            **Strategi:** Gunakan NPK majemuk sebagai base, tambah pupuk tunggal untuk kekurangan.
+            Untuk kocor, bisa dicampur dalam satu larutan atau diaplikasikan terpisah.
+            """)
+            
+            # Use NPK 15-15-15 as base
+            npk_base = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 15-15-15")
+            
+            # Calculate total fertilizer for combination
+            # This is simplified - in practice would calculate based on actual combination from Tab 2
+            total_combo_kg = npk_base['total_kg'] * 0.7  # Assume 70% of full NPK + supplements
+            
+            kocor_combo = calculate_kocor_solution(
+                total_combo_kg,
+                num_trees,
+                phase_req['application_frequency'],
+                liters_per_tree,
+                "NPK 15-15-15"
+            )
+            
+            # Safety check
+            if kocor_combo['is_safe']:
+                st.success(f"✅ Konsentrasi: {kocor_combo['concentration_percent']:.2f}% (AMAN)")
+            else:
+                st.error(f"⚠️ Konsentrasi: {kocor_combo['concentration_percent']:.2f}% (TERLALU TINGGI!)")
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Pupuk per Aplikasi", f"{kocor_combo['fertilizer_per_app_g']:.0f} g")
+            with col2:
+                st.metric("Total Larutan", f"{kocor_combo['total_solution_per_app_L']:.0f} L")
+            with col3:
+                st.metric("Tangki 16L", f"{kocor_combo['tanks_16L_needed']:.1f}")
+            
+            st.info("""
+            **📝 Cara Aplikasi:**
+            
+            **Opsi A - Campur Jadi Satu:**
+            1. Larutkan NPK majemuk + pupuk tunggal dalam satu tangki
+            2. Siram 2L per pohon
+            
+            **Opsi B - Aplikasi Terpisah (Lebih Aman):**
+            1. Hari 1: Kocor dengan NPK majemuk
+            2. Hari 3-5: Kocor dengan pupuk tunggal (jika ada kekurangan)
+            
+            💡 Opsi B lebih aman untuk mencegah reaksi kimia antar pupuk
+            """)
+
         
         # Display results
         st.subheader("🧪 Perhitungan Larutan")
