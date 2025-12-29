@@ -40,11 +40,21 @@ from services.fertilizer_calculator import (
 )
 
 from services.weather_service import (
+    get_real_weather,
+    get_real_forecast,
     get_simulated_weather,
     get_7day_forecast,
     check_fertilization_timing,
     get_method_specific_recommendations,
     get_seasonal_tips
+)
+
+from services.map_service import (
+    create_location_picker_map,
+    create_farm_map_with_weather,
+    get_location_from_name,
+    render_interactive_map,
+    DEFAULT_LOCATIONS
 )
 
 # Page config
@@ -1962,16 +1972,55 @@ if st.session_state.calculation_done and st.session_state.phase_req:
     # ========== TAB 7: WEATHER & TIMING ==========
     
     with tab7:
-        st.header("🌦️ Weather Integration & Fertilization Timing")
+        st.header("🌦️ Weather Integration & Farm Mapping")
         
         st.info("""
-        **Fitur Demo:** Data cuaca disimulasikan untuk demonstrasi.
-        Untuk produksi, dapat diintegrasikan dengan API cuaca real-time (OpenWeatherMap, BMKG).
+        **Real Weather Data:** Menggunakan Open-Meteo API (gratis, tanpa API key!)
+        **Interactive Map:** Pilih lokasi kebun Anda di peta untuk mendapatkan data cuaca real-time.
         """)
         
-        # Get weather data
-        current_weather = get_simulated_weather("Indonesia")
-        forecast = get_7day_forecast("Indonesia")
+        # ===== LOCATION PICKER =====
+        st.subheader("📍 Pilih Lokasi Kebun")
+        
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            # Predefined locations
+            location_option = st.selectbox(
+                "Pilih Kota Terdekat:",
+                ["Custom"] + list(DEFAULT_LOCATIONS.keys()),
+                help="Pilih kota terdekat atau gunakan Custom untuk input manual"
+            )
+            
+            if location_option == "Custom":
+                latitude = st.number_input("Latitude", value=-2.5, min_value=-11.0, max_value=6.0, step=0.01, format="%.4f")
+                longitude = st.number_input("Longitude", value=118.0, min_value=95.0, max_value=141.0, step=0.01, format="%.4f")
+            else:
+                coords = get_location_from_name(location_option)
+                latitude = st.number_input("Latitude", value=coords[0], min_value=-11.0, max_value=6.0, step=0.01, format="%.4f")
+                longitude = st.number_input("Longitude", value=coords[1], min_value=95.0, max_value=141.0, step=0.01, format="%.4f")
+        
+        with col2:
+            st.markdown("**💡 Tips:**")
+            st.markdown("""
+            - Gunakan Google Maps untuk mendapatkan koordinat kebun Anda
+            - Klik kanan pada lokasi → pilih koordinat
+            - Atau pilih kota terdekat dari dropdown
+            """)
+        
+        # Get weather data (real API with fallback)
+        st.markdown("---")
+        
+        with st.spinner("🌐 Mengambil data cuaca real-time..."):
+            current_weather = get_real_weather(latitude, longitude)
+            forecast = get_real_forecast(latitude, longitude)
+            
+            # Fallback to simulated if API fails
+            if current_weather is None:
+                st.warning("⚠️ Tidak dapat mengakses API cuaca. Menggunakan data simulasi.")
+                current_weather = get_simulated_weather(f"Lat: {latitude:.2f}, Lon: {longitude:.2f}")
+                forecast = get_7day_forecast()
+
         
         # ===== CURRENT WEATHER =====
         st.subheader("🌡️ Kondisi Cuaca Saat Ini")
@@ -2010,6 +2059,34 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         st.markdown("**Analisis:**")
         for reason in reasons:
             st.markdown(f"- {reason}")
+        
+        st.markdown("---")
+        
+        # ===== INTERACTIVE MAP =====
+        st.subheader("🗺️ Peta Lokasi Kebun")
+        
+        # Create farm map with weather data
+        farm_map = create_farm_map_with_weather(
+            latitude=latitude,
+            longitude=longitude,
+            farm_name=f"Kebun {crop_name}",
+            weather_data=current_weather,
+            zoom=13
+        )
+        
+        # Render map
+        st.markdown(f"""
+        **Lokasi:** Lat {latitude:.4f}, Lon {longitude:.4f}  
+        **Data Source:** {current_weather.get('source', 'Unknown')}
+        """)
+        
+        # Display map using streamlit-folium
+        try:
+            from streamlit_folium import st_folium
+            st_folium(farm_map, height=400, width=None)
+        except ImportError:
+            st.warning("⚠️ Install streamlit-folium untuk menampilkan peta interaktif: `pip install streamlit-folium`")
+            st.info(f"Koordinat kebun: {latitude:.4f}, {longitude:.4f}")
         
         st.markdown("---")
         

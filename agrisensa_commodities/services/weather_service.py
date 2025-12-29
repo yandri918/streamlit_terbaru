@@ -1,16 +1,151 @@
 # -*- coding: utf-8 -*-
 """
 Weather Service for Fertilizer Calculator
-Provides simulated weather data and fertilization timing recommendations
+Provides real weather data from Open-Meteo API and fertilization timing recommendations
 """
 
 import random
+import requests
 from datetime import datetime, timedelta
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
+
+# Open-Meteo API endpoint (FREE, no API key needed!)
+OPEN_METEO_API = "https://api.open-meteo.com/v1/forecast"
+
+def get_real_weather(latitude: float, longitude: float) -> Optional[Dict]:
+    """
+    Get real weather data from Open-Meteo API
+    
+    Args:
+        latitude: Latitude coordinate
+        longitude: Longitude coordinate
+    
+    Returns:
+        Dictionary with current weather conditions or None if API fails
+    """
+    try:
+        params = {
+            "latitude": latitude,
+            "longitude": longitude,
+            "current": "temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,weather_code",
+            "timezone": "Asia/Jakarta"
+        }
+        
+        response = requests.get(OPEN_METEO_API, params=params, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        
+        current = data.get('current', {})
+        
+        # Map weather code to condition
+        weather_code = current.get('weather_code', 0)
+        if weather_code == 0:
+            condition = "Cerah"
+            icon = "☀️"
+        elif weather_code in [1, 2, 3]:
+            condition = "Berawan"
+            icon = "⛅"
+        elif weather_code in [51, 53, 55, 61, 63, 65]:
+            condition = "Hujan"
+            icon = "🌧️"
+        elif weather_code in [80, 81, 82]:
+            condition = "Hujan Lebat"
+            icon = "⛈️"
+        else:
+            condition = "Berawan"
+            icon = "☁️"
+        
+        return {
+            "location": f"Lat: {latitude:.2f}, Lon: {longitude:.2f}",
+            "temperature": round(current.get('temperature_2m', 25)),
+            "humidity": round(current.get('relative_humidity_2m', 80)),
+            "rainfall": round(current.get('precipitation', 0), 1),
+            "wind_speed": round(current.get('wind_speed_10m', 10)),
+            "condition": condition,
+            "icon": icon,
+            "timestamp": datetime.now(),
+            "source": "Open-Meteo API"
+        }
+    
+    except Exception as e:
+        print(f"Error fetching weather data: {e}")
+        return None
+
+
+def get_real_forecast(latitude: float, longitude: float, days: int = 7) -> Optional[List[Dict]]:
+    """
+    Get real 7-day forecast from Open-Meteo API
+    
+    Args:
+        latitude: Latitude coordinate
+        longitude: Longitude coordinate
+        days: Number of days to forecast (default 7)
+    
+    Returns:
+        List of daily forecast dictionaries or None if API fails
+    """
+    try:
+        params = {
+            "latitude": latitude,
+            "longitude": longitude,
+            "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,weather_code",
+            "timezone": "Asia/Jakarta",
+            "forecast_days": days
+        }
+        
+        response = requests.get(OPEN_METEO_API, params=params, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        
+        daily = data.get('daily', {})
+        forecast = []
+        
+        for i in range(days):
+            date = datetime.fromisoformat(daily['time'][i])
+            temp_max = round(daily['temperature_2m_max'][i])
+            temp_min = round(daily['temperature_2m_min'][i])
+            rainfall = round(daily['precipitation_sum'][i], 1)
+            rain_prob = round(daily['precipitation_probability_max'][i])
+            weather_code = daily['weather_code'][i]
+            
+            # Map weather code to condition
+            if weather_code == 0:
+                condition = "Cerah"
+                icon = "☀️"
+            elif weather_code in [1, 2, 3]:
+                condition = "Berawan"
+                icon = "⛅"
+            elif weather_code in [51, 53, 55, 61, 63, 65]:
+                condition = "Hujan Ringan"
+                icon = "🌦️"
+            elif weather_code in [80, 81, 82]:
+                condition = "Hujan Lebat"
+                icon = "🌧️"
+            else:
+                condition = "Berawan"
+                icon = "☁️"
+            
+            forecast.append({
+                "date": date,
+                "day_name": date.strftime("%A"),
+                "temp_min": temp_min,
+                "temp_max": temp_max,
+                "rainfall": rainfall,
+                "rain_probability": rain_prob,
+                "condition": condition,
+                "icon": icon
+            })
+        
+        return forecast
+    
+    except Exception as e:
+        print(f"Error fetching forecast data: {e}")
+        return None
+
 
 def get_simulated_weather(location: str = "Indonesia") -> Dict:
     """
-    Generate simulated current weather data
+    Generate simulated current weather data (fallback)
     
     Args:
         location: Location name (for display only in demo mode)
@@ -43,13 +178,14 @@ def get_simulated_weather(location: str = "Indonesia") -> Dict:
         "wind_speed": wind_speed,
         "condition": condition,
         "icon": icon,
-        "timestamp": datetime.now()
+        "timestamp": datetime.now(),
+        "source": "Simulated (Demo)"
     }
 
 
 def get_7day_forecast(location: str = "Indonesia") -> List[Dict]:
     """
-    Generate simulated 7-day weather forecast
+    Generate simulated 7-day weather forecast (fallback)
     
     Args:
         location: Location name
