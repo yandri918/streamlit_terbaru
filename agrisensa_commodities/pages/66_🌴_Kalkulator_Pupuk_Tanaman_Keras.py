@@ -1,0 +1,792 @@
+# -*- coding: utf-8 -*-
+"""
+Kalkulator Pupuk Tanaman Keras & Buah
+Advanced fertilizer calculator for hard crops and fruit trees
+Based on scientific research from IOPRI, TNAU, Haifa, Yara
+"""
+
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+from datetime import datetime, timedelta
+import sys
+import os
+
+# Add parent directory to path for imports
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+from services.fertilizer_database import (
+    get_crop_data,
+    get_all_crops,
+    get_crop_category,
+    FERTILIZER_CONTENT,
+    HARD_CROPS,
+    FRUIT_TREES
+)
+
+from services.fertilizer_calculator import (
+    get_current_phase,
+    calculate_phase_requirements,
+    calculate_single_fertilizer_mix,
+    calculate_compound_fertilizer,
+    calculate_tugal_application,
+    calculate_kocor_solution,
+    calculate_semprot_solution,
+    calculate_organic_chemical_mix
+)
+
+# Page config
+st.set_page_config(
+    page_title="Kalkulator Pupuk Tanaman Keras & Buah",
+    page_icon="🌴",
+    layout="wide"
+)
+
+# ========== HEADER ==========
+
+st.title("🌴 Kalkulator Pupuk Tanaman Keras & Buah")
+st.markdown("""
+<div style="background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%); padding: 20px; border-radius: 15px; color: white; margin-bottom: 25px;">
+    <h3 style="margin: 0; color: white;">📊 Kalkulator Ilmiah Berbasis Fase Pertumbuhan</h3>
+    <p style="margin: 5px 0 0 0; opacity: 0.9;">
+        Hitung kebutuhan pupuk berdasarkan fase pertumbuhan (TBM/TM) dengan 3 metode aplikasi: 
+        <b>Tugal (Padat)</b>, <b>Kocor (Larutan Siram)</b>, dan <b>Semprot (Foliar Spray)</b>
+    </p>
+    <p style="margin: 5px 0 0 0; font-size: 0.9em; opacity: 0.8;">
+        🔬 Data ilmiah dari: IOPRI, TNAU, IPB, Haifa Group, Yara Fertilizer
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
+# ========== SIDEBAR INPUT ==========
+
+with st.sidebar:
+    st.header("⚙️ Input Data")
+    
+    # Crop selection
+    all_crops = get_all_crops()
+    crop_name = st.selectbox(
+        "🌱 Pilih Tanaman",
+        options=all_crops,
+        help="Pilih jenis tanaman keras atau buah"
+    )
+    
+    # Get crop data
+    crop_data = get_crop_data(crop_name)
+    
+    if crop_data:
+        st.info(f"**{crop_data['latin_name']}**\n\n{crop_data['category']}")
+        
+        # Tree age
+        tree_age = st.number_input(
+            "🎂 Umur Tanaman (Tahun)",
+            min_value=0.5,
+            max_value=50.0,
+            value=3.0,
+            step=0.5,
+            help="Umur tanaman dalam tahun"
+        )
+        
+        # Number of trees
+        num_trees = st.number_input(
+            "🌳 Jumlah Pohon",
+            min_value=1,
+            max_value=10000,
+            value=100,
+            step=10,
+            help="Total jumlah pohon yang akan dipupuk"
+        )
+        
+        # Area calculation (optional)
+        if 'spacing' in crop_data:
+            st.caption(f"📏 Jarak tanam: {crop_data['spacing']}")
+            # Extract population from spacing info
+            if "pohon/ha" in crop_data['spacing']:
+                try:
+                    pop_str = crop_data['spacing'].split("Populasi")[1].split("pohon/ha")[0].strip()
+                    # Handle range like "100-156"
+                    if "-" in pop_str:
+                        pop_avg = sum([int(x) for x in pop_str.split("-")]) / 2
+                    else:
+                        pop_avg = int(pop_str)
+                    estimated_area = num_trees / pop_avg
+                    st.caption(f"📐 Estimasi luas: ~{estimated_area:.2f} ha")
+                except:
+                    estimated_area = num_trees / 150  # default
+                    st.caption(f"📐 Estimasi luas: ~{estimated_area:.2f} ha")
+            else:
+                estimated_area = num_trees / 150
+        else:
+            estimated_area = num_trees / 150
+        
+        st.divider()
+        
+        # Calculate button
+        calculate_btn = st.button("🔍 Hitung Kebutuhan Pupuk", type="primary", use_container_width=True)
+
+# ========== MAIN CONTENT ==========
+
+if crop_data and calculate_btn:
+    
+    # Get current phase and requirements
+    phase_req = calculate_phase_requirements(crop_name, tree_age, num_trees)
+    
+    if not phase_req:
+        st.error("❌ Tidak dapat menghitung kebutuhan pupuk untuk umur tanaman ini.")
+        st.stop()
+    
+    # ========== TAB 1: REKOMENDASI DASAR ==========
+    
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+        "📋 Rekomendasi Dasar",
+        "🔸 Metode Tugal (Padat)",
+        "💧 Metode Kocor (Larutan)",
+        "💨 Metode Semprot (Foliar)",
+        "🌿 Organik + Kimia",
+        "📊 Jadwal & Biaya"
+    ])
+    
+    with tab1:
+        st.header("📋 Rekomendasi Dasar Pemupukan")
+        
+        # Phase info
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Fase Pertumbuhan", phase_req['phase_name'])
+        
+        with col2:
+            st.metric("Rentang Umur", phase_req['age_range'])
+        
+        with col3:
+            st.metric("Frekuensi/Tahun", f"{phase_req['application_frequency']}x")
+        
+        st.markdown("---")
+        
+        # NPK requirements
+        st.subheader("🧪 Kebutuhan NPK")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("### Per Pohon Per Tahun")
+            npk_per_tree = phase_req['npk_per_tree']
+            
+            st.markdown(f"""
+            - **Nitrogen (N):** {npk_per_tree.get('N', 0):.0f} gram
+            - **Fosfor (P):** {npk_per_tree.get('P', 0):.0f} gram
+            - **Kalium (K):** {npk_per_tree.get('K', 0):.0f} gram
+            """)
+            
+            if 'Mg' in npk_per_tree:
+                st.markdown(f"- **Magnesium (Mg):** {npk_per_tree.get('Mg', 0):.0f} gram")
+        
+        with col2:
+            st.markdown(f"### Total ({num_trees} Pohon)")
+            npk_total = phase_req['npk_total']
+            
+            st.markdown(f"""
+            - **Nitrogen (N):** {npk_total.get('N', 0):.2f} kg
+            - **Fosfor (P):** {npk_total.get('P', 0):.2f} kg
+            - **Kalium (K):** {npk_total.get('K', 0):.2f} kg
+            """)
+            
+            if 'Mg' in npk_total:
+                st.markdown(f"- **Magnesium (Mg):** {npk_total.get('Mg', 0):.2f} kg")
+        
+        # Visualization: NPK distribution
+        st.markdown("---")
+        st.subheader("📊 Distribusi NPK")
+        
+        npk_data = pd.DataFrame({
+            'Nutrisi': ['Nitrogen (N)', 'Fosfor (P)', 'Kalium (K)'],
+            'Kebutuhan (kg)': [
+                npk_total.get('N', 0),
+                npk_total.get('P', 0),
+                npk_total.get('K', 0)
+            ]
+        })
+        
+        fig_npk = px.bar(
+            npk_data,
+            x='Nutrisi',
+            y='Kebutuhan (kg)',
+            title=f'Kebutuhan NPK Total untuk {num_trees} Pohon',
+            color='Nutrisi',
+            color_discrete_map={
+                'Nitrogen (N)': '#4CAF50',
+                'Fosfor (P)': '#2196F3',
+                'Kalium (K)': '#FF9800'
+            }
+        )
+        fig_npk.update_layout(showlegend=False)
+        st.plotly_chart(fig_npk, use_container_width=True)
+        
+        # Notes and source
+        st.info(f"💡 **Catatan:** {phase_req['notes']}")
+        st.caption(f"📚 Sumber: {phase_req['source']}")
+        
+        # Application methods available
+        st.markdown("---")
+        st.subheader("✅ Metode Aplikasi yang Tersedia")
+        
+        methods = phase_req['application_methods']
+        method_icons = {
+            'tugal': '🔸',
+            'kocor': '💧',
+            'semprot': '💨'
+        }
+        method_names = {
+            'tugal': 'Tugal (Padat)',
+            'kocor': 'Kocor (Larutan Siram)',
+            'semprot': 'Semprot (Foliar Spray)'
+        }
+        
+        cols = st.columns(len(methods))
+        for idx, method in enumerate(methods):
+            with cols[idx]:
+                st.success(f"{method_icons.get(method, '✓')} **{method_names.get(method, method.title())}**")
+    
+    # ========== TAB 2: METODE TUGAL ==========
+    
+    with tab2:
+        st.header("🔸 Metode Tugal (Aplikasi Padat)")
+        
+        st.info("""
+        **Metode Tugal** adalah aplikasi pupuk padat langsung ke tanah di sekitar pohon.
+        Pupuk ditaburkan melingkar di bawah tajuk (radius 1-2 meter dari batang).
+        """)
+        
+        # Calculate for single fertilizer mix
+        single_mix = calculate_single_fertilizer_mix(phase_req['npk_total'])
+        
+        st.subheader("💊 Rekomendasi Pupuk Tunggal (Ekonomis)")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown(f"""
+            ### Urea (46% N)
+            - **Total/Tahun:** {single_mix['urea_kg']:.2f} kg
+            - **Karung (50kg):** {single_mix['urea_kg']/50:.1f} karung
+            - **Biaya:** Rp {single_mix['urea_cost']:,.0f}
+            """)
+        
+        with col2:
+            st.markdown(f"""
+            ### SP-36 (36% P)
+            - **Total/Tahun:** {single_mix['sp36_kg']:.2f} kg
+            - **Karung (50kg):** {single_mix['sp36_kg']/50:.1f} karung
+            - **Biaya:** Rp {single_mix['sp36_cost']:,.0f}
+            """)
+        
+        with col3:
+            st.markdown(f"""
+            ### KCl (60% K)
+            - **Total/Tahun:** {single_mix['kcl_kg']:.2f} kg
+            - **Karung (50kg):** {single_mix['kcl_kg']/50:.1f} karung
+            - **Biaya:** Rp {single_mix['kcl_cost']:,.0f}
+            """)
+        
+        st.success(f"💰 **Total Biaya Pupuk Tunggal:** Rp {single_mix['total_cost']:,.0f}")
+        
+        st.markdown("---")
+        
+        # Application schedule
+        tugal_app = calculate_tugal_application(
+            single_mix['total_kg'],
+            num_trees,
+            phase_req['application_frequency']
+        )
+        
+        st.subheader("📅 Jadwal Aplikasi")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.metric("Per Pohon Per Aplikasi", f"{tugal_app['per_tree_per_app_g']:.0f} gram")
+            st.metric("Per Pohon Per Tahun", f"{tugal_app['per_tree_per_year_g']:.0f} gram")
+        
+        with col2:
+            st.metric("Total Per Aplikasi", f"{tugal_app['total_per_app_kg']:.2f} kg")
+            st.metric("Frekuensi Per Tahun", f"{tugal_app['applications_per_year']}x")
+        
+        st.info(f"📝 **Cara Aplikasi:** {tugal_app['instructions']}")
+        
+        # Compound fertilizer option
+        st.markdown("---")
+        st.subheader("💊 Alternatif: Pupuk Majemuk (Praktis)")
+        
+        compound_options = ["NPK 15-15-15", "NPK 16-16-16", "NPK 12-12-17+2MgO"]
+        
+        compound_results = []
+        for compound in compound_options:
+            result = calculate_compound_fertilizer(phase_req['npk_total'], compound)
+            if result:
+                compound_results.append(result)
+        
+        cols = st.columns(len(compound_results))
+        for idx, result in enumerate(compound_results):
+            with cols[idx]:
+                st.markdown(f"""
+                ### {result['fertilizer_type']}
+                - **Total:** {result['total_kg']:.2f} kg
+                - **Karung:** {result['total_kg']/50:.1f} karung
+                - **Biaya:** Rp {result['total_cost']:,.0f}
+                """)
+        
+        st.caption("💡 Pupuk majemuk lebih praktis tapi biasanya lebih mahal. Pilih sesuai budget dan kemudahan aplikasi.")
+    
+    # ========== TAB 3: METODE KOCOR ==========
+    
+    with tab3:
+        st.header("💧 Metode Kocor (Larutan Siram)")
+        
+        st.info("""
+        **Metode Kocor** adalah aplikasi pupuk dalam bentuk larutan yang disiramkan ke tanah.
+        Konsentrasi aman: **0.5-1.5%** untuk mencegah root burn.
+        """)
+        
+        # User input for kocor parameters
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            liters_per_tree = st.slider(
+                "Volume Larutan per Pohon (Liter)",
+                min_value=1,
+                max_value=10,
+                value=2,
+                help="Volume larutan yang disiramkan per pohon"
+            )
+        
+        with col2:
+            fertilizer_for_kocor = st.selectbox(
+                "Jenis Pupuk untuk Kocor",
+                options=["NPK 15-15-15", "NPK 16-16-16", "KNO3 (Kalium Nitrat)", "Urea"],
+                help="Pilih pupuk yang larut air"
+            )
+        
+        # Calculate kocor solution
+        # Use total NPK or specific fertilizer amount
+        if fertilizer_for_kocor == "NPK 15-15-15":
+            fert_amount = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 15-15-15")['total_kg']
+        elif fertilizer_for_kocor == "NPK 16-16-16":
+            fert_amount = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 16-16-16")['total_kg']
+        elif fertilizer_for_kocor == "KNO3 (Kalium Nitrat)":
+            # For KNO3, focus on K
+            fert_amount = phase_req['npk_total']['K'] / 0.46  # 46% K in KNO3
+        else:  # Urea
+            fert_amount = phase_req['npk_total']['N'] / 0.46  # 46% N in Urea
+        
+        kocor_solution = calculate_kocor_solution(
+            fert_amount,
+            num_trees,
+            phase_req['application_frequency'],
+            liters_per_tree,
+            fertilizer_for_kocor
+        )
+        
+        # Display results
+        st.subheader("🧪 Perhitungan Larutan")
+        
+        # Safety indicator
+        if kocor_solution['is_safe']:
+            st.success(f"✅ Konsentrasi AMAN: {kocor_solution['concentration_percent']:.2f}% (Batas: {kocor_solution['safe_concentration']}%)")
+        else:
+            st.error(f"⚠️ Konsentrasi TERLALU TINGGI: {kocor_solution['concentration_percent']:.2f}% (Batas: {kocor_solution['safe_concentration']}%)")
+            st.warning("Kurangi dosis pupuk atau tingkatkan volume air untuk keamanan!")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Konsentrasi", f"{kocor_solution['concentration_percent']:.2f}%")
+            st.metric("Volume per Pohon", f"{kocor_solution['solution_per_tree_L']} L")
+        
+        with col2:
+            st.metric("Pupuk per Aplikasi", f"{kocor_solution['fertilizer_per_app_g']:.0f} g")
+            st.metric("Total Larutan", f"{kocor_solution['total_solution_per_app_L']:.0f} L")
+        
+        with col3:
+            st.metric("Tangki 16L Dibutuhkan", f"{kocor_solution['tanks_16L_needed']:.1f}")
+            st.metric("Frekuensi/Tahun", f"{kocor_solution['applications_per_year']}x")
+        
+        st.markdown("---")
+        
+        # Mixing instructions
+        st.subheader("📝 Cara Mencampur Larutan")
+        
+        st.success(f"""
+        **Per Tangki 16 Liter:**
+        1. Isi tangki dengan {kocor_solution['water_per_tank_L']} liter air bersih
+        2. Tambahkan **{kocor_solution['fertilizer_per_tank_g']:.0f} gram {fertilizer_for_kocor}**
+        3. Aduk hingga larut sempurna
+        4. Siram **{liters_per_tree} liter per pohon**
+        5. Aplikasi **{kocor_solution['applications_per_year']}x per tahun**
+        
+        💡 **Tips:** Kocor pagi atau sore hari, hindari siang terik!
+        """)
+    
+    # ========== TAB 4: METODE SEMPROT ==========
+    
+    with tab4:
+        st.header("💨 Metode Semprot (Foliar Spray)")
+        
+        st.warning("""
+        ⚠️ **PENTING:** Konsentrasi semprot HARUS LEBIH RENDAH dari kocor!
+        
+        Konsentrasi aman foliar: **0.5-2.0%** (lebih rendah untuk mencegah leaf burn)
+        """)
+        
+        # User input for semprot parameters
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            spray_volume_ha = st.slider(
+                "Volume Semprot per Hektar (Liter)",
+                min_value=200,
+                max_value=600,
+                value=400,
+                step=50,
+                help="Volume semprot standar 300-500 L/ha"
+            )
+        
+        with col2:
+            fertilizer_for_semprot = st.selectbox(
+                "Jenis Pupuk untuk Semprot",
+                options=["KNO3 (Kalium Nitrat)", "NPK 15-15-15", "Urea", "MKP (Mono Kalium Fosfat)"],
+                help="Pilih pupuk larut air untuk foliar"
+            )
+        
+        # Calculate semprot solution
+        if fertilizer_for_semprot == "KNO3 (Kalium Nitrat)":
+            fert_amount = phase_req['npk_total']['K'] / 0.46
+        elif fertilizer_for_semprot == "MKP (Mono Kalium Fosfat)":
+            fert_amount = max(
+                phase_req['npk_total']['P'] / 0.52,
+                phase_req['npk_total']['K'] / 0.34
+            )
+        elif fertilizer_for_semprot == "Urea":
+            fert_amount = phase_req['npk_total']['N'] / 0.46
+        else:  # NPK 15-15-15
+            fert_amount = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 15-15-15")['total_kg']
+        
+        # Reduce amount for foliar (typically 20-30% of soil application)
+        fert_amount_foliar = fert_amount * 0.25  # 25% of soil dose
+        
+        semprot_solution = calculate_semprot_solution(
+            fert_amount_foliar,
+            estimated_area,
+            phase_req['application_frequency'],
+            spray_volume_ha,
+            fertilizer_for_semprot
+        )
+        
+        # Display results
+        st.subheader("🧪 Perhitungan Larutan Semprot")
+        
+        # Safety indicator
+        if semprot_solution['is_safe']:
+            st.success(f"✅ Konsentrasi AMAN: {semprot_solution['recommended_concentration']:.2f}% (Batas: {semprot_solution['safe_concentration']}%)")
+        else:
+            st.error(f"⚠️ BAHAYA LEAF BURN! Konsentrasi diturunkan ke {semprot_solution['recommended_concentration']:.2f}%")
+            st.warning(semprot_solution['warning'])
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Konsentrasi Aman", f"{semprot_solution['recommended_concentration']:.2f}%")
+            st.metric("Volume per Ha", f"{semprot_solution['spray_volume_per_ha_L']} L")
+        
+        with col2:
+            st.metric("Pupuk Dibutuhkan", f"{semprot_solution['fertilizer_needed_g']:.0f} g")
+            st.metric("Total Volume", f"{semprot_solution['total_spray_volume_L']:.0f} L")
+        
+        with col3:
+            st.metric("Tangki 16L Dibutuhkan", f"{semprot_solution['tanks_16L_needed']:.1f}")
+            st.metric("Frekuensi/Tahun", f"{semprot_solution['applications_per_year']}x")
+        
+        st.markdown("---")
+        
+        # Mixing instructions
+        st.subheader("📝 Cara Mencampur Larutan Semprot")
+        
+        st.success(f"""
+        **Per Tangki 16 Liter:**
+        1. Isi tangki dengan {semprot_solution['water_per_tank_L']} liter air bersih
+        2. Tambahkan **{semprot_solution['fertilizer_per_tank_g']:.0f} gram {fertilizer_for_semprot}**
+        3. Aduk hingga larut sempurna
+        4. Semprot merata pada daun (atas dan bawah)
+        5. Aplikasi **{semprot_solution['applications_per_year']}x per tahun**
+        
+        ⚠️ **WAJIB:**
+        - Semprot pagi hari (06:00-09:00) atau sore (16:00-18:00)
+        - JANGAN semprot saat terik matahari (leaf burn!)
+        - JANGAN semprot saat hujan atau akan hujan
+        - Gunakan nozzle halus untuk coverage maksimal
+        """)
+    
+    # ========== TAB 5: ORGANIK + KIMIA ==========
+    
+    with tab5:
+        st.header("🌿 Kombinasi Pupuk Organik + Kimia")
+        
+        st.info("""
+        **Kombinasi Organik + Kimia** memberikan manfaat jangka panjang:
+        - Organik: Memperbaiki struktur tanah, meningkatkan mikroba
+        - Kimia: Nutrisi cepat tersedia untuk tanaman
+        
+        Rasio rekomendasi: **30% Organik + 70% Kimia**
+        """)
+        
+        # User input for ratio
+        organic_ratio = st.slider(
+            "Rasio Pupuk Organik (%)",
+            min_value=10,
+            max_value=50,
+            value=30,
+            step=5,
+            help="Persentase kebutuhan NPK dari pupuk organik"
+        ) / 100
+        
+        # Calculate mix
+        org_chem_mix = calculate_organic_chemical_mix(phase_req['npk_total'], organic_ratio)
+        
+        st.subheader("📊 Perhitungan Kombinasi")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("### 🌿 Pupuk Organik")
+            st.markdown(f"""
+            **Pupuk Kandang Sapi**
+            - Rasio: **{org_chem_mix['organic_ratio']:.0f}%**
+            - Jumlah: **{org_chem_mix['organic_kg']:.2f} kg**
+            - Biaya: **Rp {org_chem_mix['organic_cost']:,.0f}**
+            
+            💡 Aplikasi: Taburkan melingkar di bawah tajuk, 2x per tahun
+            """)
+        
+        with col2:
+            st.markdown("### 💊 Pupuk Kimia")
+            st.markdown(f"""
+            **Kombinasi Tunggal**
+            - Rasio: **{org_chem_mix['chemical_ratio']:.0f}%**
+            - Urea: **{org_chem_mix['chemical_urea_kg']:.2f} kg**
+            - SP-36: **{org_chem_mix['chemical_sp36_kg']:.2f} kg**
+            - KCl: **{org_chem_mix['chemical_kcl_kg']:.2f} kg**
+            - Biaya: **Rp {org_chem_mix['chemical_cost']:,.0f}**
+            """)
+        
+        st.success(f"💰 **Total Biaya Kombinasi:** Rp {org_chem_mix['total_cost']:,.0f}")
+        
+        st.markdown("---")
+        
+        # Benefits
+        st.subheader("✅ Manfaat Kombinasi Organik + Kimia")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            **Jangka Pendek:**
+            - ✓ Nutrisi cepat tersedia (dari kimia)
+            - ✓ Pertumbuhan optimal
+            - ✓ Hasil panen meningkat
+            """)
+        
+        with col2:
+            st.markdown("""
+            **Jangka Panjang:**
+            - ✓ Struktur tanah membaik
+            - ✓ Aktivitas mikroba meningkat
+            - ✓ Kesuburan tanah berkelanjutan
+            - ✓ Ketahanan terhadap stress
+            """)
+        
+        st.info(org_chem_mix['benefits'])
+    
+    # ========== TAB 6: JADWAL & BIAYA ==========
+    
+    with tab6:
+        st.header("📊 Jadwal Pemupukan & Analisis Biaya")
+        
+        # Annual schedule
+        st.subheader("📅 Jadwal Pemupukan Tahunan")
+        
+        # Create schedule dataframe
+        freq = phase_req['application_frequency']
+        months_interval = 12 / freq
+        
+        schedule_data = []
+        for i in range(freq):
+            month = int(i * months_interval) + 1
+            schedule_data.append({
+                "Aplikasi Ke-": i + 1,
+                "Bulan": month,
+                "Fase": phase_req['phase_name'],
+                "Metode": ", ".join([m.title() for m in phase_req['application_methods']])
+            })
+        
+        schedule_df = pd.DataFrame(schedule_data)
+        st.dataframe(schedule_df, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        
+        # Cost comparison
+        st.subheader("💰 Perbandingan Biaya Metode Pemupukan")
+        
+        # Calculate costs for different strategies
+        cost_data = []
+        
+        # 1. Single fertilizer mix
+        cost_data.append({
+            "Strategi": "Pupuk Tunggal (Urea+SP36+KCl)",
+            "Total Biaya (Rp)": single_mix['total_cost'],
+            "Biaya per Pohon (Rp)": single_mix['total_cost'] / num_trees,
+            "Keterangan": "Paling ekonomis"
+        })
+        
+        # 2. Compound fertilizer
+        npk_compound = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 15-15-15")
+        cost_data.append({
+            "Strategi": "Pupuk Majemuk (NPK 15-15-15)",
+            "Total Biaya (Rp)": npk_compound['total_cost'],
+            "Biaya per Pohon (Rp)": npk_compound['total_cost'] / num_trees,
+            "Keterangan": "Paling praktis"
+        })
+        
+        # 3. Organic + Chemical
+        cost_data.append({
+            "Strategi": "Organik 30% + Kimia 70%",
+            "Total Biaya (Rp)": org_chem_mix['total_cost'],
+            "Biaya per Pohon (Rp)": org_chem_mix['total_cost'] / num_trees,
+            "Keterangan": "Terbaik jangka panjang"
+        })
+        
+        cost_df = pd.DataFrame(cost_data)
+        st.dataframe(cost_df, use_container_width=True, hide_index=True)
+        
+        # Visualization
+        fig_cost = px.bar(
+            cost_df,
+            x='Strategi',
+            y='Total Biaya (Rp)',
+            title='Perbandingan Total Biaya Pemupukan',
+            color='Strategi',
+            text='Total Biaya (Rp)'
+        )
+        fig_cost.update_traces(texttemplate='Rp %{text:,.0f}', textposition='outside')
+        st.plotly_chart(fig_cost, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # ROI Calculator
+        st.subheader("💵 Kalkulator ROI (Return on Investment)")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            yield_per_tree = st.number_input(
+                "Estimasi Hasil per Pohon (kg/tahun)",
+                min_value=1.0,
+                max_value=1000.0,
+                value=50.0,
+                step=5.0
+            )
+        
+        with col2:
+            price_per_kg = st.number_input(
+                "Harga Jual per Kg (Rp)",
+                min_value=1000,
+                max_value=100000,
+                value=15000,
+                step=1000
+            )
+        
+        # Calculate ROI
+        total_yield = yield_per_tree * num_trees
+        total_revenue = total_yield * price_per_kg
+        
+        # Use cheapest fertilizer cost
+        fertilizer_cost = min([c['Total Biaya (Rp)'] for c in cost_data])
+        
+        net_profit = total_revenue - fertilizer_cost
+        roi = (net_profit / fertilizer_cost) * 100 if fertilizer_cost > 0 else 0
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Hasil", f"{total_yield:,.0f} kg")
+        
+        with col2:
+            st.metric("Pendapatan", f"Rp {total_revenue:,.0f}")
+        
+        with col3:
+            st.metric("Biaya Pupuk", f"Rp {fertilizer_cost:,.0f}")
+        
+        with col4:
+            st.metric("ROI", f"{roi:,.0f}%")
+        
+        if roi > 100:
+            st.success(f"✅ ROI sangat baik! Setiap Rp 1 biaya pupuk menghasilkan Rp {roi/100:.2f} keuntungan.")
+        elif roi > 50:
+            st.info(f"💡 ROI cukup baik. Optimasi pemupukan dapat meningkatkan hasil.")
+        else:
+            st.warning(f"⚠️ ROI rendah. Pertimbangkan efisiensi pemupukan atau peningkatan harga jual.")
+
+# ========== FOOTER: SCIENTIFIC REFERENCES ==========
+
+st.markdown("---")
+
+with st.expander("📚 Referensi Ilmiah & Sumber Data"):
+    st.markdown("""
+    ### Sumber Data Ilmiah
+    
+    **Tanaman Keras:**
+    - **Kelapa Sawit:** Indonesian Oil Palm Research Institute (IOPRI), Malaysian Palm Oil Board
+    - **Kakao:** Indonesian Coffee and Cocoa Research Institute (ICCRI)
+    - **Kopi:** ICCRI, TNAU (Tamil Nadu Agricultural University)
+    - **Karet:** Rubber Research Institute
+    - **Kelapa:** Coconut Research Institute, TNAU
+    
+    **Tanaman Buah:**
+    - **Mangga:** TNAU, Mango.org, Haifa Group
+    - **Durian:** Haifa Group, IPB (Institut Pertanian Bogor), Growplant.org
+    - **Jeruk:** Yara Fertilizer, Citrus Australia, TNAU
+    - **Rambutan, Alpukat:** IPB, Agriculture Institute
+    
+    **Fertilizer Research:**
+    - Haifa Group - Nutrition Programs
+    - Yara International - Crop Nutrition
+    - Malaysian Palm Oil Board (MPOB)
+    - Various peer-reviewed journals on tropical fruit cultivation
+    
+    ### Konsentrasi Aman Pupuk
+    
+    **Metode Kocor (Drench):**
+    - Konsentrasi umum: 0.5-1.5%
+    - Maksimum: 2% (untuk tanaman dewasa)
+    
+    **Metode Semprot (Foliar):**
+    - Urea: 0.5-2%
+    - KNO3: 0.5-1%
+    - NPK Compound: 0.5-1.5%
+    - Maksimum: 2% (risiko leaf burn!)
+    
+    ### Disclaimer
+    
+    Data dalam kalkulator ini berdasarkan penelitian ilmiah dan rekomendasi standar.
+    Kebutuhan aktual dapat bervariasi tergantung:
+    - Kondisi tanah lokal
+    - Iklim dan cuaca
+    - Varietas tanaman
+    - Sistem budidaya
+    
+    **Rekomendasi:** Lakukan analisis tanah dan daun untuk rekomendasi yang lebih spesifik.
+    """)
+
+st.caption("🌴 Kalkulator Pupuk Tanaman Keras & Buah - AgriSensa Commodities © 2025")
