@@ -664,24 +664,11 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         Konsentrasi aman: **0.5-1.5%** untuk mencegah root burn.
         """)
         
-        # User input for kocor parameters
-        col1, col2 = st.columns(2)
+        # Use default parameters from phase data - no additional user input
+        liters_per_tree = 2  # Standard 2L per tree
+        fertilizer_for_kocor = "NPK 15-15-15"  # Default compound fertilizer
         
-        with col1:
-            liters_per_tree = st.slider(
-                "Volume Larutan per Pohon (Liter)",
-                min_value=1,
-                max_value=10,
-                value=2,
-                help="Volume larutan yang disiramkan per pohon"
-            )
-        
-        with col2:
-            fertilizer_for_kocor = st.selectbox(
-                "Jenis Pupuk untuk Kocor",
-                options=["NPK 15-15-15", "NPK 16-16-16", "KNO3 (Kalium Nitrat)", "Urea"],
-                help="Pilih pupuk yang larut air"
-            )
+        st.info(f"💧 **Parameter Default:** Volume {liters_per_tree}L per pohon, Pupuk {fertilizer_for_kocor}")
         
         # Calculate kocor solution
         # Use total NPK or specific fertilizer amount
@@ -754,25 +741,11 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         Konsentrasi aman foliar: **0.5-2.0%** (lebih rendah untuk mencegah leaf burn)
         """)
         
-        # User input for semprot parameters
-        col1, col2 = st.columns(2)
+        # Use default parameters from phase data - no additional user input
+        spray_volume_ha = 400  # Standard 400L/ha
+        fertilizer_for_semprot = "KNO3 (Kalium Nitrat)"  # Best for foliar
         
-        with col1:
-            spray_volume_ha = st.slider(
-                "Volume Semprot per Hektar (Liter)",
-                min_value=200,
-                max_value=600,
-                value=400,
-                step=50,
-                help="Volume semprot standar 300-500 L/ha"
-            )
-        
-        with col2:
-            fertilizer_for_semprot = st.selectbox(
-                "Jenis Pupuk untuk Semprot",
-                options=["KNO3 (Kalium Nitrat)", "NPK 15-15-15", "Urea", "MKP (Mono Kalium Fosfat)"],
-                help="Pilih pupuk larut air untuk foliar"
-            )
+        st.info(f"💨 **Parameter Default:** Volume {spray_volume_ha}L/ha, Pupuk {fertilizer_for_semprot}")
         
         # Calculate semprot solution
         if fertilizer_for_semprot == "KNO3 (Kalium Nitrat)":
@@ -855,15 +828,10 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         Rasio rekomendasi: **30% Organik + 70% Kimia**
         """)
         
-        # User input for ratio
-        organic_ratio = st.slider(
-            "Rasio Pupuk Organik (%)",
-            min_value=10,
-            max_value=50,
-            value=30,
-            step=5,
-            help="Persentase kebutuhan NPK dari pupuk organik"
-        ) / 100
+        # Use standard 30% organic ratio - no user input
+        organic_ratio = 0.30  # Standard 30% organic + 70% chemical
+        
+        st.info(f"🌿 **Rasio Standard:** {organic_ratio*100:.0f}% Organik + {(1-organic_ratio)*100:.0f}% Kimia")
         
         # Calculate mix
         org_chem_mix = calculate_organic_chemical_mix(phase_req['npk_total'], organic_ratio)
