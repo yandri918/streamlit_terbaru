@@ -9,6 +9,7 @@ from services.export_readiness_service import (
     PACKAGING_STANDARDS,
     BUYERS_DIRECTORY,
     COLD_CHAIN_GUIDE,
+    HORTICULTURE_EXPORT,
     ExportReadinessService
 )
 
@@ -59,6 +60,7 @@ tabs = st.tabs([
     "📦 Packaging",
     "🤝 Buyer Matching",
     "🚚 Logistics",
+    "🥬 Horticulture Export",
     "✅ Readiness Assessment"
 ])
 
@@ -436,8 +438,231 @@ with tabs[6]:
     for destination, route in COLD_CHAIN_GUIDE["Shipping_Routes"].items():
         st.markdown(f"**{destination}:** {route}")
 
-# TAB 8: READINESS ASSESSMENT
+# TAB 8: HORTICULTURE EXPORT
 with tabs[7]:
+    st.markdown("## 🥬 Horticulture Export Calculator")
+    
+    st.info("💡 **Kalkulator khusus untuk ekspor produk hortikultura dengan breakdown biaya lengkap**")
+    
+    # Product selection
+    col_hort1, col_hort2 = st.columns(2)
+    
+    with col_hort1:
+        product_name = st.selectbox(
+            "Pilih Produk Hortikultura:",
+            list(HORTICULTURE_EXPORT.keys())
+        )
+    
+    with col_hort2:
+        volume_kg = st.number_input(
+            "Volume Ekspor (kg):",
+            min_value=100,
+            max_value=50000,
+            value=1000,
+            step=100
+        )
+    
+    if st.button("💰 Hitung Profitabilitas Ekspor", type="primary"):
+        result = ExportReadinessService.calculate_horticulture_export(product_name, volume_kg)
+        
+        # Product info
+        st.markdown("### 📋 Informasi Produk")
+        
+        col_info1, col_info2, col_info3 = st.columns(3)
+        
+        with col_info1:
+            st.markdown(f"""
+            **Export Grade:**
+            {result['export_grade']}
+            
+            **Shelf Life:**
+            {result['shelf_life']}
+            """)
+        
+        with col_info2:
+            st.markdown(f"""
+            **Cold Chain:**
+            {result['cold_chain']}
+            
+            **Rejection Rate:**
+            {result['rejection_rate']}
+            """)
+        
+        with col_info3:
+            st.markdown(f"""
+            **Main Markets:**
+            {', '.join(result['main_markets'])}
+            
+            **Certifications:**
+            {', '.join(result['certifications_required'])}
+            """)
+        
+        st.markdown("---")
+        
+        # Price comparison
+        st.markdown("### 💵 Price Comparison")
+        
+        col_price1, col_price2, col_price3 = st.columns(3)
+        
+        with col_price1:
+            st.metric("Harga Domestik", f"Rp {result['price_domestic']:,}/kg")
+        
+        with col_price2:
+            st.metric("Harga Export", f"Rp {result['price_export']:,}/kg")
+        
+        with col_price3:
+            st.metric("Premium", result['premium'], delta="vs domestic")
+        
+        st.markdown("---")
+        
+        # Cost breakdown
+        st.markdown("### 💰 Cost Breakdown")
+        
+        costs = result['cost_breakdown']
+        
+        cost_data = pd.DataFrame({
+            "Cost Component": [
+                "Product Cost (Farm Gate)",
+                "Sorting & Grading",
+                "Packaging",
+                "Cold Storage",
+                "Phytosanitary Certificate",
+                "Shipping",
+                "Insurance",
+                "Documentation"
+            ],
+            "Amount (Rp)": [
+                costs['product_cost'],
+                costs['sorting_grading'],
+                costs['packaging'],
+                costs['cold_storage'],
+                costs['phytosanitary'],
+                costs['shipping'],
+                costs['insurance'],
+                costs['documentation']
+            ],
+            "Per Kg (Rp)": [
+                costs['product_cost'] / volume_kg,
+                costs['sorting_grading'] / volume_kg,
+                costs['packaging'] / volume_kg,
+                costs['cold_storage'] / volume_kg,
+                costs['phytosanitary'] / volume_kg,
+                costs['shipping'] / volume_kg,
+                costs['insurance'] / volume_kg,
+                costs['documentation'] / volume_kg
+            ]
+        })
+        
+        st.dataframe(cost_data, use_container_width=True, hide_index=True)
+        
+        # Cost composition pie chart
+        fig_cost = px.pie(
+            values=[
+                costs['product_cost'],
+                costs['sorting_grading'],
+                costs['packaging'],
+                costs['cold_storage'],
+                costs['phytosanitary'],
+                costs['shipping'],
+                costs['insurance'],
+                costs['documentation']
+            ],
+            names=[
+                "Product Cost",
+                "Sorting & Grading",
+                "Packaging",
+                "Cold Storage",
+                "Phytosanitary",
+                "Shipping",
+                "Insurance",
+                "Documentation"
+            ],
+            title="Cost Composition"
+        )
+        st.plotly_chart(fig_cost, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # Profitability analysis
+        st.markdown("### 📊 Profitability Analysis")
+        
+        col_prof1, col_prof2, col_prof3, col_prof4 = st.columns(4)
+        
+        with col_prof1:
+            st.metric("Volume Input", f"{volume_kg:,} kg")
+            st.caption("Harvest volume")
+        
+        with col_prof2:
+            st.metric("Saleable Volume", f"{result['saleable_volume']:,.0f} kg")
+            st.caption(f"After {result['rejection_rate']} rejection")
+        
+        with col_prof3:
+            st.metric("Total Cost", f"Rp {costs['total_cost']:,.0f}")
+            st.caption(f"Rp {costs['total_cost']/volume_kg:,.0f}/kg")
+        
+        with col_prof4:
+            st.metric("Revenue", f"Rp {result['revenue']:,.0f}")
+            st.caption(f"Rp {result['revenue']/result['saleable_volume']:,.0f}/kg")
+        
+        # Profit metrics
+        col_profit1, col_profit2, col_profit3 = st.columns(3)
+        
+        with col_profit1:
+            st.metric("Profit", f"Rp {result['profit']:,.0f}", delta=f"{result['profit_margin']}% margin")
+        
+        with col_profit2:
+            st.metric("ROI", f"{result['roi']}%")
+        
+        with col_profit3:
+            profit_per_kg = result['profit'] / volume_kg
+            st.metric("Profit per kg", f"Rp {profit_per_kg:,.0f}")
+        
+        # Profit visualization
+        fig_profit = go.Figure(data=[
+            go.Bar(name='Total Cost', x=['Financial Summary'], y=[costs['total_cost']], marker_color='#ff6b6b'),
+            go.Bar(name='Revenue', x=['Financial Summary'], y=[result['revenue']], marker_color='#4ecdc4'),
+            go.Bar(name='Profit', x=['Financial Summary'], y=[result['profit']], marker_color='#95e1d3')
+        ])
+        fig_profit.update_layout(title="Cost vs Revenue vs Profit", barmode='group')
+        st.plotly_chart(fig_profit, use_container_width=True)
+        
+        # Recommendations
+        st.markdown("---")
+        st.markdown("### 💡 Export Recommendations")
+        
+        if result['profit_margin'] >= 20:
+            st.success(f"""
+            ✅ **PROFITABLE!** Margin {result['profit_margin']}% sangat baik untuk ekspor.
+            
+            **Next Steps:**
+            1. Dapatkan sertifikasi: {', '.join(result['certifications_required'])}
+            2. Setup cold chain {result['cold_chain']}
+            3. Contact buyers di: {', '.join(result['main_markets'])}
+            4. Prepare phytosanitary certificate
+            """)
+        elif result['profit_margin'] >= 10:
+            st.warning(f"""
+            ⚠️ **MARGINAL** Margin {result['profit_margin']}% cukup, tapi bisa ditingkatkan.
+            
+            **Optimization Tips:**
+            1. Kurangi rejection rate dengan quality control lebih ketat
+            2. Negosiasi harga shipping untuk volume lebih besar
+            3. Target pasar premium dengan sertifikasi organic
+            4. Improve packaging efficiency
+            """)
+        else:
+            st.error(f"""
+            ❌ **NOT PROFITABLE** Margin {result['profit_margin']}% terlalu rendah.
+            
+            **Perbaikan Diperlukan:**
+            1. Tingkatkan harga jual atau kurangi biaya produksi
+            2. Fokus ke pasar domestik dulu
+            3. Improve quality untuk reduce rejection rate
+            4. Consider value-added processing
+            """)
+
+# TAB 9: READINESS ASSESSMENT
+with tabs[8]:
     st.markdown("## ✅ Export Readiness Assessment")
     
     st.info("💡 **Evaluate your export readiness and get personalized recommendations**")
