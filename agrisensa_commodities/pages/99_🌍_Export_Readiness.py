@@ -521,32 +521,15 @@ with tabs[7]:
         # Initialize session state for editable costs if not exists
         if 'custom_costs' not in st.session_state:
             st.session_state.custom_costs = {}
-        if 'show_cost_editor' not in st.session_state:
-            st.session_state.show_cost_editor = False
         
         costs = result['cost_breakdown']
         
-        # Button to toggle edit mode (using session state to avoid refresh)
-        col_btn1, col_btn2, col_btn3 = st.columns([2, 1, 2])
-        with col_btn2:
-            if not st.session_state.show_cost_editor:
-                if st.button("✏️ Edit Costs", type="secondary", use_container_width=True, key=f"show_editor_{product_name}_{volume_kg}"):
-                    st.session_state.show_cost_editor = True
-                    st.rerun()
-            else:
-                if st.button("❌ Close Editor", type="secondary", use_container_width=True, key=f"hide_editor_{product_name}_{volume_kg}"):
-                    st.session_state.show_cost_editor = False
-                    st.rerun()
-        
-        # Create editable cost inputs
-        if st.session_state.show_cost_editor:
-            st.markdown("---")
-            st.markdown("#### 📝 Editable Cost Components (Rp per kg)")
+        # Use expander to show/hide cost editor (expander doesn't cause refresh)
+        with st.expander("✏️ **Edit Cost Components** (Click to customize costs)", expanded=False):
+            st.info("💡 Adjust the costs below and click 'Recalculate' - no page refresh while editing!")
             
             # Use form to prevent auto-refresh on every input change
             with st.form(key=f"cost_form_{product_name}_{volume_kg}"):
-                st.info("💡 Edit the costs below and click 'Recalculate' - no page refresh while editing!")
-                
                 # Initialize or get custom values
                 key_prefix = f"{product_name}_{volume_kg}"
                 
@@ -654,8 +637,6 @@ with tabs[7]:
                 result['roi'] = round((result['profit'] / costs['total_cost'] * 100), 1) if costs['total_cost'] > 0 else 0
                 
                 st.success("✅ Calculations updated with your custom costs!")
-            
-            st.markdown("---")
         
         # Display cost breakdown table
         cost_data = pd.DataFrame({
