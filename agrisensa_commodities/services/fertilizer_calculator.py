@@ -269,35 +269,36 @@ def calculate_tugal_application(total_kg, num_trees, applications_per_year):
 def calculate_kocor_solution(fertilizer_kg, num_trees, applications_per_year, 
                              liters_per_tree=2, fertilizer_type="NPK 15-15-15"):
     """
-    Calculate drench solution (Kocor method)
+    Calculate drench solution for kocor method.
+    IMPORTANT: fertilizer_kg is ANNUAL amount, must divide by applications_per_year first!
     
     Args:
-        fertilizer_kg: Total fertilizer needed per year (kg)
+        fertilizer_kg: Total fertilizer needed per YEAR (kg)
         num_trees: Number of trees
-        applications_per_year: Frequency
-        liters_per_tree: Solution volume per tree (default 2L)
-        fertilizer_type: Type of fertilizer for safety check
+        applications_per_year: Frequency of application per year
+        liters_per_tree: Volume of solution per tree (default 2L)
+        fertilizer_type: Type of fertilizer being used
     
     Returns:
-        dict: Solution preparation details
+        Dictionary with solution details including concentration, volume, safety check
     """
-    # Get safe concentration limit
     safe_conc = FERTILIZER_CONTENT.get(fertilizer_type, {}).get('safe_drench_conc', 1.0)
     
-    # Per application
+    # CRITICAL: Divide annual amount by frequency to get per-application amount
     fertilizer_per_app_kg = fertilizer_kg / applications_per_year
     fertilizer_per_app_g = fertilizer_per_app_kg * 1000
     
     # Total solution volume per application
     total_solution_liters = num_trees * liters_per_tree
     
-    # Concentration (%)
+    # Calculate concentration percentage
+    # Formula: (grams of fertilizer / liters of solution) / 10 = concentration %
     concentration_percent = (fertilizer_per_app_g / total_solution_liters) / 10
     
-    # Check if safe
+    # Safety check
     is_safe = concentration_percent <= safe_conc
     
-    # For 16L tank
+    # Calculate per-tank amounts (16L tank standard)
     tanks_needed = total_solution_liters / 16
     fertilizer_per_tank_g = fertilizer_per_app_g / tanks_needed if tanks_needed > 0 else 0
     water_per_tank_L = 16
@@ -310,6 +311,7 @@ def calculate_kocor_solution(fertilizer_kg, num_trees, applications_per_year,
         "solution_per_tree_L": liters_per_tree,
         "total_solution_per_app_L": total_solution_liters,
         "fertilizer_per_app_g": fertilizer_per_app_g,
+        "fertilizer_per_year_kg": fertilizer_kg,
         "applications_per_year": applications_per_year,
         "tanks_16L_needed": tanks_needed,
         "fertilizer_per_tank_g": fertilizer_per_tank_g,
@@ -321,40 +323,40 @@ def calculate_kocor_solution(fertilizer_kg, num_trees, applications_per_year,
 def calculate_semprot_solution(fertilizer_kg, area_ha, applications_per_year,
                                spray_volume_per_ha=400, fertilizer_type="NPK 15-15-15"):
     """
-    Calculate foliar spray solution (Semprot method)
-    IMPORTANT: Concentrations are LOWER than drench to prevent leaf burn
+    Calculate foliar spray solution for semprot method.
+    IMPORTANT: fertilizer_kg is ANNUAL amount, must divide by applications_per_year first!
+    Lower concentration than kocor to prevent leaf burn.
     
     Args:
-        fertilizer_kg: Total fertilizer needed per year (kg)
+        fertilizer_kg: Total fertilizer needed per YEAR (kg)
         area_ha: Area in hectares
-        applications_per_year: Frequency
-        spray_volume_per_ha: Spray volume (L/ha), default 400L
-        fertilizer_type: Type of fertilizer for safety check
+        applications_per_year: Frequency of application per year
+        spray_volume_per_ha: Spray volume per hectare (default 400L)
+        fertilizer_type: Type of fertilizer being used
     
     Returns:
-        dict: Spray solution details
+        Dictionary with spray solution details including concentration, volume, safety warnings
     """
-    # Get safe concentration limit (foliar is lower than drench!)
     safe_conc = FERTILIZER_CONTENT.get(fertilizer_type, {}).get('safe_foliar_conc', 0.5)
     
-    # Per application
+    # CRITICAL: Divide annual amount by frequency to get per-application amount
     fertilizer_per_app_kg = fertilizer_kg / applications_per_year
     fertilizer_per_app_g = fertilizer_per_app_kg * 1000
     
     # Total spray volume per application
     total_spray_volume_L = area_ha * spray_volume_per_ha
     
-    # Concentration (%)
+    # Calculate concentration percentage
     concentration_percent = (fertilizer_per_app_g / total_spray_volume_L) / 10
     
-    # Check if safe
+    # Safety check - foliar must be lower concentration
     is_safe = concentration_percent <= safe_conc
     
-    # Recommended concentration (use safe limit)
+    # Use recommended (safe) concentration
     recommended_conc = min(concentration_percent, safe_conc)
     recommended_fertilizer_g = (recommended_conc * total_spray_volume_L * 10)
     
-    # For 16L tank
+    # Calculate per-tank amounts
     tanks_needed = total_spray_volume_L / 16
     fertilizer_per_tank_g = recommended_fertilizer_g / tanks_needed if tanks_needed > 0 else 0
     
@@ -367,6 +369,7 @@ def calculate_semprot_solution(fertilizer_kg, area_ha, applications_per_year,
         "spray_volume_per_ha_L": spray_volume_per_ha,
         "total_spray_volume_L": total_spray_volume_L,
         "fertilizer_needed_g": recommended_fertilizer_g,
+        "fertilizer_per_year_kg": fertilizer_kg,
         "applications_per_year": applications_per_year,
         "tanks_16L_needed": tanks_needed,
         "fertilizer_per_tank_g": fertilizer_per_tank_g,
