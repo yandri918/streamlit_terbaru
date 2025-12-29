@@ -162,6 +162,96 @@ with st.sidebar:
         
         st.divider()
         
+        # ===== SOIL TEST DATA =====
+        st.subheader("🧪 Data Uji Tanah (Opsional)")
+        
+        with st.expander("📊 Input Hasil Uji Tanah", expanded=False):
+            st.markdown("""
+            **Masukkan hasil uji tanah untuk rekomendasi yang lebih akurat.**  
+            Jika tidak ada data, sistem akan menggunakan nilai standar.
+            """)
+            
+            col_soil1, col_soil2 = st.columns(2)
+            
+            with col_soil1:
+                st.markdown("**NPK Tanah Saat Ini (ppm):**")
+                
+                soil_n = st.number_input(
+                    "N (Nitrogen)",
+                    min_value=0.0,
+                    max_value=500.0,
+                    value=st.session_state.get('soil_n', 0.0),
+                    step=5.0,
+                    help="Kadar N dalam tanah (ppm). 0 = tidak ada data",
+                    key="soil_n_input"
+                )
+                
+                soil_p = st.number_input(
+                    "P (Fosfor)",
+                    min_value=0.0,
+                    max_value=200.0,
+                    value=st.session_state.get('soil_p', 0.0),
+                    step=5.0,
+                    help="Kadar P dalam tanah (ppm). 0 = tidak ada data",
+                    key="soil_p_input"
+                )
+                
+                soil_k = st.number_input(
+                    "K (Kalium)",
+                    min_value=0.0,
+                    max_value=500.0,
+                    value=st.session_state.get('soil_k', 0.0),
+                    step=5.0,
+                    help="Kadar K dalam tanah (ppm). 0 = tidak ada data",
+                    key="soil_k_input"
+                )
+            
+            with col_soil2:
+                st.markdown("**pH Tanah:**")
+                
+                soil_ph = st.number_input(
+                    "pH Tanah",
+                    min_value=3.0,
+                    max_value=9.0,
+                    value=st.session_state.get('soil_ph', 0.0),
+                    step=0.1,
+                    format="%.1f",
+                    help="pH tanah (3.0-9.0). 0 = tidak ada data",
+                    key="soil_ph_input"
+                )
+                
+                # pH interpretation
+                if soil_ph > 0:
+                    if soil_ph < 5.5:
+                        st.warning(f"⚠️ pH {soil_ph:.1f} - Sangat Masam")
+                        st.caption("Perlu pengapuran")
+                    elif soil_ph < 6.0:
+                        st.info(f"📊 pH {soil_ph:.1f} - Masam")
+                        st.caption("Cocok untuk tanaman asam")
+                    elif soil_ph <= 7.0:
+                        st.success(f"✅ pH {soil_ph:.1f} - Ideal")
+                        st.caption("pH optimal untuk kebanyakan tanaman")
+                    elif soil_ph <= 7.5:
+                        st.info(f"📊 pH {soil_ph:.1f} - Sedikit Basa")
+                        st.caption("Masih baik untuk tanaman")
+                    else:
+                        st.warning(f"⚠️ pH {soil_ph:.1f} - Basa")
+                        st.caption("Perlu penurunan pH")
+                else:
+                    st.caption("Masukkan pH untuk interpretasi")
+                
+                st.markdown("**Rekomendasi pH per Tanaman:**")
+                if crop_name in ["Kelapa Sawit", "Karet", "Kakao"]:
+                    st.caption("🎯 pH Optimal: 5.0-6.5")
+                elif crop_name in ["Kopi Arabika", "Kopi Robusta"]:
+                    st.caption("🎯 pH Optimal: 5.5-6.5")
+                elif crop_name in ["Mangga", "Durian", "Rambutan"]:
+                    st.caption("🎯 pH Optimal: 5.5-7.0")
+                else:
+                    st.caption("🎯 pH Optimal: 6.0-7.0")
+        
+        st.divider()
+        
         # Calculate button - updates session state
         if st.button("🔍 Hitung Kebutuhan Pupuk", type="primary", use_container_width=True):
             # Store inputs in session state
@@ -169,6 +259,12 @@ with st.sidebar:
             st.session_state.tree_age = tree_age
             st.session_state.num_trees = num_trees
             st.session_state.estimated_area = estimated_area
+            
+            # Store soil test data
+            st.session_state.soil_n = soil_n
+            st.session_state.soil_p = soil_p
+            st.session_state.soil_k = soil_k
+            st.session_state.soil_ph = soil_ph
             
             # Calculate and store results
             phase_req = calculate_phase_requirements(crop_name, tree_age, num_trees)
