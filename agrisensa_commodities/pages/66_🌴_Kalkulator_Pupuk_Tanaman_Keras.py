@@ -186,84 +186,178 @@ if st.session_state.calculation_done and st.session_state.phase_req:
     ])
     
     with tab1:
-        st.header("📋 Rekomendasi Dasar Pemupukan")
+        st.header("📋 Kebutuhan Pupuk Per Pohon")
         
-        # Phase info
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            st.metric("Fase Pertumbuhan", phase_req['phase_name'])
-        
-        with col2:
-            st.metric("Rentang Umur", phase_req['age_range'])
-        
-        with col3:
-            st.metric("Frekuensi/Tahun", f"{phase_req['application_frequency']}x")
+        # Emphasize current phase
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); padding: 20px; border-radius: 10px; color: white; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: white;">🌱 {phase_req['phase_name']}</h3>
+            <p style="margin: 5px 0 0 0; font-size: 1.1em;">
+                Umur: {phase_req['age_range']} | Frekuensi: {phase_req['application_frequency']}x per tahun
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
         
         st.markdown("---")
         
-        # NPK requirements
-        st.subheader("🧪 Kebutuhan NPK")
+        # Core Logic: Per Tree Requirements
+        st.subheader("🎯 Kebutuhan Per Pohon Per Tahun")
+        
+        npk_per_tree = phase_req['npk_per_tree']
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric(
+                "Nitrogen (N)",
+                f"{npk_per_tree.get('N', 0):.0f} gram",
+                help="Untuk pertumbuhan daun dan batang"
+            )
+        
+        with col2:
+            st.metric(
+                "Fosfor (P)",
+                f"{npk_per_tree.get('P', 0):.0f} gram",
+                help="Untuk akar, bunga, dan buah"
+            )
+        
+        with col3:
+            st.metric(
+                "Kalium (K)",
+                f"{npk_per_tree.get('K', 0):.0f} gram",
+                help="Untuk kualitas buah dan ketahanan"
+            )
+        
+        if 'Mg' in npk_per_tree:
+            st.info(f"➕ **Magnesium (Mg):** {npk_per_tree.get('Mg', 0):.0f} gram/pohon/tahun")
+        
+        st.markdown("---")
+        
+        # Per Application Breakdown
+        st.subheader("📅 Kebutuhan Per Aplikasi")
+        
+        freq = phase_req['application_frequency']
         
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown("### Per Pohon Per Tahun")
-            npk_per_tree = phase_req['npk_per_tree']
-            
             st.markdown(f"""
-            - **Nitrogen (N):** {npk_per_tree.get('N', 0):.0f} gram
-            - **Fosfor (P):** {npk_per_tree.get('P', 0):.0f} gram
-            - **Kalium (K):** {npk_per_tree.get('K', 0):.0f} gram
+            **Per Pohon Per Aplikasi:**
+            - **Nitrogen (N):** {npk_per_tree.get('N', 0) / freq:.1f} gram
+            - **Fosfor (P):** {npk_per_tree.get('P', 0) / freq:.1f} gram
+            - **Kalium (K):** {npk_per_tree.get('K', 0) / freq:.1f} gram
             """)
-            
             if 'Mg' in npk_per_tree:
-                st.markdown(f"- **Magnesium (Mg):** {npk_per_tree.get('Mg', 0):.0f} gram")
+                st.markdown(f"- **Magnesium (Mg):** {npk_per_tree.get('Mg', 0) / freq:.1f} gram")
         
         with col2:
-            st.markdown(f"### Total ({num_trees} Pohon)")
-            npk_total = phase_req['npk_total']
-            
             st.markdown(f"""
-            - **Nitrogen (N):** {npk_total.get('N', 0):.2f} kg
-            - **Fosfor (P):** {npk_total.get('P', 0):.2f} kg
-            - **Kalium (K):** {npk_total.get('K', 0):.2f} kg
+            **Jadwal Aplikasi:**
+            - **Frekuensi:** {freq}x per tahun
+            - **Interval:** Setiap {12/freq:.1f} bulan
+            - **Bulan:** {', '.join([str(int(i * 12/freq) + 1) for i in range(freq)])}
             """)
-            
-            if 'Mg' in npk_total:
-                st.markdown(f"- **Magnesium (Mg):** {npk_total.get('Mg', 0):.2f} kg")
         
-        # Visualization: NPK distribution
         st.markdown("---")
-        st.subheader("📊 Distribusi NPK")
         
-        npk_data = pd.DataFrame({
-            'Nutrisi': ['Nitrogen (N)', 'Fosfor (P)', 'Kalium (K)'],
-            'Kebutuhan (kg)': [
-                npk_total.get('N', 0),
-                npk_total.get('P', 0),
-                npk_total.get('K', 0)
-            ]
-        })
+        # Total for all trees
+        st.subheader(f"📊 Total Kebutuhan ({num_trees} Pohon)")
         
-        fig_npk = px.bar(
-            npk_data,
-            x='Nutrisi',
-            y='Kebutuhan (kg)',
-            title=f'Kebutuhan NPK Total untuk {num_trees} Pohon',
-            color='Nutrisi',
-            color_discrete_map={
-                'Nitrogen (N)': '#4CAF50',
-                'Fosfor (P)': '#2196F3',
-                'Kalium (K)': '#FF9800'
-            }
+        npk_total = phase_req['npk_total']
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Total N", f"{npk_total.get('N', 0):.2f} kg")
+        
+        with col2:
+            st.metric("Total P", f"{npk_total.get('P', 0):.2f} kg")
+        
+        with col3:
+            st.metric("Total K", f"{npk_total.get('K', 0):.2f} kg")
+        
+        # Visualization: Timeline
+        st.markdown("---")
+        st.subheader("📈 Timeline Pemupukan Tahunan")
+        
+        # Create timeline data
+        timeline_data = []
+        for i in range(freq):
+            month = int(i * 12/freq) + 1
+            timeline_data.append({
+                'Bulan': month,
+                'N (gram/pohon)': npk_per_tree.get('N', 0) / freq,
+                'P (gram/pohon)': npk_per_tree.get('P', 0) / freq,
+                'K (gram/pohon)': npk_per_tree.get('K', 0) / freq
+            })
+        
+        timeline_df = pd.DataFrame(timeline_data)
+        
+        # Create line chart
+        fig_timeline = go.Figure()
+        
+        fig_timeline.add_trace(go.Scatter(
+            x=timeline_df['Bulan'],
+            y=timeline_df['N (gram/pohon)'],
+            mode='lines+markers',
+            name='Nitrogen (N)',
+            line=dict(color='#4CAF50', width=3),
+            marker=dict(size=10)
+        ))
+        
+        fig_timeline.add_trace(go.Scatter(
+            x=timeline_df['Bulan'],
+            y=timeline_df['P (gram/pohon)'],
+            mode='lines+markers',
+            name='Fosfor (P)',
+            line=dict(color='#2196F3', width=3),
+            marker=dict(size=10)
+        ))
+        
+        fig_timeline.add_trace(go.Scatter(
+            x=timeline_df['Bulan'],
+            y=timeline_df['K (gram/pohon)'],
+            mode='lines+markers',
+            name='Kalium (K)',
+            line=dict(color='#FF9800', width=3),
+            marker=dict(size=10)
+        ))
+        
+        fig_timeline.update_layout(
+            title=f'Jadwal Pemupukan - {phase_req["phase_name"]}',
+            xaxis_title='Bulan',
+            yaxis_title='Gram per Pohon',
+            hovermode='x unified',
+            height=400
         )
-        fig_npk.update_layout(showlegend=False)
-        st.plotly_chart(fig_npk, use_container_width=True)
         
-        # Notes and source
-        st.info(f"💡 **Catatan:** {phase_req['notes']}")
-        st.caption(f"📚 Sumber: {phase_req['source']}")
+        st.plotly_chart(fig_timeline, use_container_width=True)
+        
+        # Show all phases for reference
+        st.markdown("---")
+        st.subheader("📚 Semua Fase Pertumbuhan")
+        
+        with st.expander("Lihat Kebutuhan Semua Fase", expanded=False):
+            crop_data_full = get_crop_data(crop_name)
+            
+            phases_data = []
+            for phase in crop_data_full['phases']:
+                phases_data.append({
+                    'Fase': phase['phase_name'],
+                    'Rentang Umur': phase['age_range'],
+                    'N (g/pohon/tahun)': phase['npk_per_tree_per_year'].get('N', 0),
+                    'P (g/pohon/tahun)': phase['npk_per_tree_per_year'].get('P', 0),
+                    'K (g/pohon/tahun)': phase['npk_per_tree_per_year'].get('K', 0),
+                    'Frekuensi': f"{phase['application_frequency']}x/tahun"
+                })
+            
+            phases_df = pd.DataFrame(phases_data)
+            st.dataframe(phases_df, use_container_width=True, hide_index=True)
+            
+            st.caption(f"📚 Sumber: {phase_req['source']}")
+        
+        # Notes
+        st.info(f"💡 **Catatan Fase Ini:** {phase_req['notes']}")
         
         # Application methods available
         st.markdown("---")
