@@ -1653,16 +1653,199 @@ if st.session_state.calculation_done and st.session_state.phase_req:
     with tab6:
         st.header("📊 Jadwal Pemupukan & Analisis Biaya")
         
-        # Annual schedule
-        st.subheader("📅 Jadwal Pemupukan Tahunan")
+        st.info(f"""
+        **Data Acuan:**
+        - Tanaman: **{crop_name}**
+        - Fase: **{phase_req['phase_name']}** ({phase_req['age_range']})
+        - Jumlah Pohon: **{num_trees}** pohon
+        - Frekuensi: **{phase_req['application_frequency']}x per tahun**
+        """)
         
-        # Create schedule dataframe
+        # ===== COMPREHENSIVE SCHEDULE =====
+        st.subheader("📅 Jadwal Pemupukan Tahunan Lengkap")
+        
+        # Calculate schedule
         freq = phase_req['application_frequency']
         months_interval = 12 / freq
+        
+        # Prepare data for all methods
+        single_mix = calculate_single_fertilizer_mix(phase_req['npk_total'])
+        compound_npk = calculate_compound_fertilizer(phase_req['npk_total'], "NPK 15-15-15")
         
         schedule_data = []
         for i in range(freq):
             month = int(i * months_interval) + 1
+            month_name = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"][month - 1]
+            
+            # Calculate per application amounts
+            tugal_urea = single_mix['urea_kg'] / freq
+            tugal_sp36 = single_mix['sp36_kg'] / freq
+            tugal_kcl = single_mix['kcl_kg'] / freq
+            tugal_cost = (tugal_urea * 2500 + tugal_sp36 * 3000 + tugal_kcl * 4000)
+            
+            npk_amount = compound_npk['total_kg'] / freq
+            npk_cost = npk_amount * compound_npk['price_per_kg']
+            
+            schedule_data.append({
+                "Aplikasi": f"#{i+1}",
+                "Bulan": month_name,
+                "Metode Tugal": f"Urea {tugal_urea:.1f}kg + SP36 {tugal_sp36:.1f}kg + KCl {tugal_kcl:.1f}kg",
+                "Biaya Tugal": f"Rp {tugal_cost:,.0f}",
+                "Metode NPK": f"NPK 15-15-15: {npk_amount:.1f} kg",
+                "Biaya NPK": f"Rp {npk_cost:,.0f}",
+                "Per Pohon": f"{npk_amount/num_trees*1000:.0f} g"
+            })
+        
+        schedule_df = pd.DataFrame(schedule_data)
+        st.dataframe(schedule_df, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        
+        # ===== METHOD-SPECIFIC SCHEDULES =====
+        st.subheader("📋 Jadwal Detail per Metode Aplikasi")
+        
+        method_tabs = st.tabs(["🔸 Tugal", "💧 Kocor", "💨 Semprot", "🌿 Organik"])
+        
+        # Tugal Schedule
+        with method_tabs[0]:
+            st.markdown("### Metode Tugal (Aplikasi Padat)")
+            
+            tugal_schedule = []
+            for i in range(freq):
+                month = int(i * months_interval) + 1
+                tugal_schedule.append({
+                    "Bulan": month,
+                    "Urea (kg)": single_mix['urea_kg'] / freq,
+                    "SP-36 (kg)": single_mix['sp36_kg'] / freq,
+                    "KCl (kg)": single_mix['kcl_kg'] / freq,
+                    "Per Pohon (g)": (single_mix['total_kg'] / freq / num_trees) * 1000,
+                    "Biaya": (single_mix['urea_kg']/freq * 2500 + 
+                             single_mix['sp36_kg']/freq * 3000 + 
+                             single_mix['kcl_kg']/freq * 4000)
+                })
+            
+            tugal_df = pd.DataFrame(tugal_schedule)
+            st.dataframe(tugal_df, use_container_width=True, hide_index=True)
+            
+            st.success(f"""
+            **Total per Tahun:**
+            - Urea: {single_mix['urea_kg']:.1f} kg (Rp {single_mix['urea_cost']:,.0f})
+            - SP-36: {single_mix['sp36_kg']:.1f} kg (Rp {single_mix['sp36_cost']:,.0f})
+            - KCl: {single_mix['kcl_kg']:.1f} kg (Rp {single_mix['kcl_cost']:,.0f})
+            - **Total: Rp {single_mix['total_cost']:,.0f}**
+            """)
+        
+        # Kocor Schedule
+        with method_tabs[1]:
+            st.markdown("### Metode Kocor (Larutan Siram)")
+            
+            # Use NPK 15-15-15 for kocor
+            kocor_calc = calculate_kocor_solution(
+                compound_npk['total_kg'],
+                num_trees,
+                freq,
+                2,  # 2L per tree
+                "NPK 15-15-15"
+            )
+            
+            kocor_schedule = []
+            for i in range(freq):
+                month = int(i * months_interval) + 1
+                kocor_schedule.append({
+                    "Bulan": month,
+                    "Pupuk (g)": kocor_calc['fertilizer_per_app_g'],
+                    "Air Total (L)": kocor_calc['total_solution_per_app_L'],
+                    "Per Pohon (L)": kocor_calc['solution_per_tree_L'],
+                    "Konsentrasi (%)": kocor_calc['concentration_percent'],
+                    "Tangki 16L": kocor_calc['tanks_16L_needed'],
+                    "Biaya": compound_npk['total_cost'] / freq
+                })
+            
+            kocor_df = pd.DataFrame(kocor_schedule)
+            st.dataframe(kocor_df, use_container_width=True, hide_index=True)
+            
+            if kocor_calc['is_safe']:
+                st.success(f"✅ Konsentrasi {kocor_calc['concentration_percent']:.2f}% - AMAN")
+            else:
+                st.warning(f"⚠️ Konsentrasi {kocor_calc['concentration_percent']:.2f}% - Perlu penyesuaian")
+            
+            st.info(f"""
+            **Total per Tahun:**
+            - NPK 15-15-15: {compound_npk['total_kg']:.1f} kg
+            - **Total: Rp {compound_npk['total_cost']:,.0f}**
+            """)
+        
+        # Semprot Schedule
+        with method_tabs[2]:
+            st.markdown("### Metode Semprot (Foliar)")
+            
+            # Use 25% of NPK for foliar
+            semprot_calc = calculate_semprot_solution(
+                compound_npk['total_kg'] * 0.25,
+                estimated_area,
+                freq,
+                400,  # 400L/ha
+                "NPK 15-15-15"
+            )
+            
+            semprot_schedule = []
+            for i in range(freq):
+                month = int(i * months_interval) + 1
+                semprot_schedule.append({
+                    "Bulan": month,
+                    "Pupuk (g)": semprot_calc['fertilizer_needed_g'],
+                    "Volume (L)": semprot_calc['total_spray_volume_L'],
+                    "Konsentrasi (%)": semprot_calc['recommended_concentration'],
+                    "Tangki 16L": semprot_calc['tanks_16L_needed'],
+                    "Biaya": (compound_npk['total_cost'] * 0.25) / freq
+                })
+            
+            semprot_df = pd.DataFrame(semprot_schedule)
+            st.dataframe(semprot_df, use_container_width=True, hide_index=True)
+            
+            st.warning("⚠️ Semprot pagi (06:00-09:00) atau sore (16:00-18:00) saja!")
+            
+            st.info(f"""
+            **Total per Tahun (25% dosis soil):**
+            - NPK 15-15-15: {compound_npk['total_kg'] * 0.25:.1f} kg
+            - **Total: Rp {compound_npk['total_cost'] * 0.25:,.0f}**
+            """)
+        
+        # Organic Schedule
+        with method_tabs[3]:
+            st.markdown("### Pupuk Organik")
+            
+            # Calculate organic needs (30% ratio)
+            org_calc = calculate_organic_chemical_mix(phase_req['npk_total'], 0.30)
+            
+            st.info("""
+            **Frekuensi Organik:** 2-3x per tahun (berbeda dari kimia)
+            - Aplikasi 1: Awal musim hujan
+            - Aplikasi 2: Pertengahan tahun
+            - Aplikasi 3 (opsional): Akhir tahun
+            """)
+            
+            organic_schedule = []
+            for i in range(3):
+                months = ["Januari-Februari", "Juni-Juli", "November-Desember"]
+                organic_schedule.append({
+                    "Periode": months[i],
+                    "Pupuk Kandang (kg)": org_calc['organic_kg'] / 3,
+                    "Per Pohon (kg)": (org_calc['organic_kg'] / 3) / num_trees,
+                    "Biaya": org_calc['organic_cost'] / 3,
+                    "Catatan": "Taburkan melingkar di bawah tajuk" if i < 2 else "Opsional"
+                })
+            
+            organic_df = pd.DataFrame(organic_schedule)
+            st.dataframe(organic_df, use_container_width=True, hide_index=True)
+            
+            st.success(f"""
+            **Total per Tahun:**
+            - Pupuk Kandang Sapi: {org_calc['organic_kg']:.1f} kg
+            - **Total: Rp {org_calc['organic_cost']:,.0f}**
+            """)
+        
+        st.markdown("---")
             schedule_data.append({
                 "Aplikasi Ke-": i + 1,
                 "Bulan": month,
