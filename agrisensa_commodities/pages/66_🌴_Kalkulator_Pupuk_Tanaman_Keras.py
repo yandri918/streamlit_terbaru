@@ -285,6 +285,145 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         for idx, method in enumerate(methods):
             with cols[idx]:
                 st.success(f"{method_icons.get(method, '✓')} **{method_names.get(method, method.title())}**")
+        
+        # Climate and weather information
+        st.markdown("---")
+        st.subheader("🌤️ Informasi Iklim & Cuaca Ideal")
+        
+        # Get climate info from crop data
+        climate_info = {}
+        
+        # Extract climate data based on crop type
+        if crop_name in ["Kelapa Sawit", "Kakao", "Kopi Robusta", "Karet", "Kelapa"]:
+            # Hard crops have specific climate requirements
+            if crop_name == "Kelapa Sawit":
+                climate_info = {
+                    "Curah Hujan": "1500-2500 mm/tahun",
+                    "Suhu Optimal": "24-32°C",
+                    "Ketinggian": "0-400 mdpl (dataran rendah)",
+                    "Kelembaban": "80-90%",
+                    "Musim Kering": "Tidak tahan kekeringan panjang",
+                    "Catatan": "Butuh distribusi hujan merata sepanjang tahun"
+                }
+            elif crop_name == "Kakao":
+                climate_info = {
+                    "Curah Hujan": "1500-2500 mm/tahun",
+                    "Suhu Optimal": "25-28°C",
+                    "Ketinggian": "0-600 mdpl",
+                    "Kelembaban": "70-80%",
+                    "Naungan": "Wajib ada naungan saat muda (2-3 tahun pertama)",
+                    "Catatan": "Tidak tahan angin kencang"
+                }
+            elif crop_name == "Kopi Robusta":
+                climate_info = {
+                    "Curah Hujan": "2000-3000 mm/tahun",
+                    "Suhu Optimal": "24-30°C",
+                    "Ketinggian": "0-800 mdpl (dataran rendah-menengah)",
+                    "Kelembaban": "70-80%",
+                    "Musim Kering": "2-3 bulan untuk induksi bunga",
+                    "Catatan": "Lebih tahan panas dibanding Arabika"
+                }
+            elif crop_name == "Kopi Arabika":
+                climate_info = {
+                    "Curah Hujan": "1500-2500 mm/tahun",
+                    "Suhu Optimal": "16-20°C (sejuk)",
+                    "Ketinggian": "800-2000 mdpl (dataran tinggi WAJIB)",
+                    "Kelembaban": "70-80%",
+                    "Musim Kering": "2-3 bulan untuk induksi bunga",
+                    "Catatan": "Tidak tahan suhu >30°C, butuh naungan"
+                }
+            elif crop_name == "Karet":
+                climate_info = {
+                    "Curah Hujan": "2000-4000 mm/tahun",
+                    "Suhu Optimal": "24-28°C",
+                    "Ketinggian": "0-600 mdpl",
+                    "Kelembaban": "80-90%",
+                    "Musim Kering": "Maksimal 2 bulan",
+                    "Catatan": "Butuh hujan merata, tidak tahan kekeringan"
+                }
+            elif crop_name == "Kelapa":
+                climate_info = {
+                    "Curah Hujan": "1500-2500 mm/tahun",
+                    "Suhu Optimal": "27-30°C",
+                    "Ketinggian": "0-450 mdpl (dataran rendah)",
+                    "Kelembaban": "70-80%",
+                    "Angin": "Tahan angin pantai",
+                    "Catatan": "Cocok untuk daerah pesisir"
+                }
+        
+        elif crop_name in ["Mangga", "Durian", "Jeruk", "Rambutan", "Alpukat"]:
+            # Fruit trees
+            if crop_name == "Mangga":
+                climate_info = {
+                    "Curah Hujan": "750-2500 mm/tahun",
+                    "Suhu Optimal": "24-30°C",
+                    "Ketinggian": "0-500 mdpl (dataran rendah)",
+                    "Kelembaban": "50-80%",
+                    "Musim Kering": "WAJIB 3-4 bulan kering untuk pembungaan",
+                    "Catatan": "Musim kering sangat penting untuk bunga!"
+                }
+            elif crop_name == "Durian":
+                climate_info = {
+                    "Curah Hujan": "1500-2500 mm/tahun",
+                    "Suhu Optimal": "23-30°C",
+                    "Ketinggian": "100-800 mdpl (optimal 400-600 mdpl)",
+                    "Kelembaban": "75-85%",
+                    "Musim Kering": "1-3 bulan untuk induksi bunga",
+                    "Catatan": "Perbedaan suhu siang-malam membantu pembungaan"
+                }
+            elif crop_name == "Jeruk":
+                climate_info = {
+                    "Curah Hujan": "1000-2000 mm/tahun",
+                    "Suhu Optimal": "25-30°C (Siam), 20-25°C (Keprok)",
+                    "Ketinggian": "0-1200 mdpl (Siam rendah, Keprok tinggi)",
+                    "Kelembaban": "70-80%",
+                    "Musim Kering": "Tidak terlalu kritis",
+                    "Catatan": "Perbedaan suhu siang-malam untuk warna kulit cerah"
+                }
+            elif crop_name == "Rambutan":
+                climate_info = {
+                    "Curah Hujan": "2000-3000 mm/tahun",
+                    "Suhu Optimal": "25-30°C",
+                    "Ketinggian": "0-500 mdpl (dataran rendah)",
+                    "Kelembaban": "75-85%",
+                    "Musim Kering": "Jelas untuk induksi bunga",
+                    "Catatan": "Butuh distribusi hujan merata"
+                }
+            elif crop_name == "Alpukat":
+                climate_info = {
+                    "Curah Hujan": "1000-2000 mm/tahun",
+                    "Suhu Optimal": "20-28°C (sejuk lebih baik)",
+                    "Ketinggian": "200-1000 mdpl (dataran menengah-tinggi)",
+                    "Kelembaban": "60-80%",
+                    "Drainase": "WAJIB sempurna - tidak tahan genangan!",
+                    "Catatan": "Angin kencang dapat merusak cabang"
+                }
+        
+        # Display climate information
+        if climate_info:
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**📊 Kondisi Iklim Optimal:**")
+                for key, value in list(climate_info.items())[:3]:
+                    st.markdown(f"- **{key}:** {value}")
+            
+            with col2:
+                st.markdown("**🌡️ Kondisi Lingkungan:**")
+                for key, value in list(climate_info.items())[3:]:
+                    st.markdown(f"- **{key}:** {value}")
+            
+            # Weather recommendations
+            st.info("""
+            💡 **Tips Pemupukan Berdasarkan Cuaca:**
+            - ☀️ **Musim Kemarau:** Tingkatkan frekuensi penyiraman saat aplikasi pupuk
+            - 🌧️ **Musim Hujan:** Hindari pemupukan saat hujan deras (pupuk tercuci)
+            - 🌤️ **Waktu Terbaik:** Pagi hari (07:00-09:00) atau sore (16:00-18:00)
+            - ⚠️ **Hindari:** Pemupukan saat tanah terlalu kering atau tergenang air
+            """)
+        else:
+            st.warning("Informasi iklim untuk tanaman ini sedang dikembangkan.")
+    
     
     # ========== TAB 2: METODE TUGAL ==========
     
