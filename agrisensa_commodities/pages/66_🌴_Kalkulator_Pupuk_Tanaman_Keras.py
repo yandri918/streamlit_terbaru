@@ -653,6 +653,140 @@ if st.session_state.calculation_done and st.session_state.phase_req:
                 """)
         
         st.caption("💡 Pupuk majemuk lebih praktis tapi biasanya lebih mahal. Pilih sesuai budget dan kemudahan aplikasi.")
+        
+        st.markdown("---")
+        
+        # Additional fertilizer options with editable prices
+        st.subheader("💊 Input Pupuk Kimia Lengkap (Editable)")
+        
+        with st.expander("⚙️ Pilih & Edit Pupuk Sesuai Kebutuhan", expanded=False):
+            st.markdown("**Sesuaikan jenis dan harga pupuk berdasarkan ketersediaan lokal:**")
+            
+            # Get NPK requirements
+            npk_needed = phase_req['npk_total']
+            
+            # Fertilizer selection
+            st.markdown("### 1️⃣ Pilih Pupuk untuk Nitrogen (N)")
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                n_fertilizer = st.selectbox(
+                    "Pupuk N",
+                    options=["Urea", "ZA (Amonium Sulfat)", "KNO3 (Kalium Nitrat)"],
+                    key="n_fert_tugal"
+                )
+            
+            with col2:
+                n_content = FERTILIZER_CONTENT[n_fertilizer]['N']
+                st.metric("Kandungan N", f"{n_content}%")
+            
+            with col3:
+                n_price = st.number_input(
+                    f"Harga {n_fertilizer} (Rp/kg)",
+                    min_value=1000,
+                    max_value=50000,
+                    value=FERTILIZER_CONTENT[n_fertilizer]['price_per_kg'],
+                    step=100,
+                    key="n_price_tugal"
+                )
+            
+            # Calculate N fertilizer needed
+            n_needed_kg = npk_needed.get('N', 0) / (n_content / 100)
+            n_cost = n_needed_kg * n_price
+            
+            st.success(f"✅ Kebutuhan {n_fertilizer}: **{n_needed_kg:.2f} kg** (Rp {n_cost:,.0f})")
+            
+            st.markdown("---")
+            
+            st.markdown("### 2️⃣ Pilih Pupuk untuk Fosfor (P)")
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                p_fertilizer = st.selectbox(
+                    "Pupuk P",
+                    options=["SP-36", "MKP (Mono Kalium Fosfat)"],
+                    key="p_fert_tugal"
+                )
+            
+            with col2:
+                p_content = FERTILIZER_CONTENT[p_fertilizer]['P']
+                st.metric("Kandungan P", f"{p_content}%")
+            
+            with col3:
+                p_price = st.number_input(
+                    f"Harga {p_fertilizer} (Rp/kg)",
+                    min_value=1000,
+                    max_value=50000,
+                    value=FERTILIZER_CONTENT[p_fertilizer]['price_per_kg'],
+                    step=100,
+                    key="p_price_tugal"
+                )
+            
+            # Calculate P fertilizer needed
+            p_needed_kg = npk_needed.get('P', 0) / (p_content / 100)
+            p_cost = p_needed_kg * p_price
+            
+            st.success(f"✅ Kebutuhan {p_fertilizer}: **{p_needed_kg:.2f} kg** (Rp {p_cost:,.0f})")
+            
+            st.markdown("---")
+            
+            st.markdown("### 3️⃣ Pilih Pupuk untuk Kalium (K)")
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                k_fertilizer = st.selectbox(
+                    "Pupuk K",
+                    options=["KCl", "KNO3 (Kalium Nitrat)", "MKP (Mono Kalium Fosfat)"],
+                    key="k_fert_tugal"
+                )
+            
+            with col2:
+                k_content = FERTILIZER_CONTENT[k_fertilizer]['K']
+                st.metric("Kandungan K", f"{k_content}%")
+            
+            with col3:
+                k_price = st.number_input(
+                    f"Harga {k_fertilizer} (Rp/kg)",
+                    min_value=1000,
+                    max_value=50000,
+                    value=FERTILIZER_CONTENT[k_fertilizer]['price_per_kg'],
+                    step=100,
+                    key="k_price_tugal"
+                )
+            
+            # Calculate K fertilizer needed
+            k_needed_kg = npk_needed.get('K', 0) / (k_content / 100)
+            k_cost = k_needed_kg * k_price
+            
+            st.success(f"✅ Kebutuhan {k_fertilizer}: **{k_needed_kg:.2f} kg** (Rp {k_cost:,.0f})")
+            
+            st.markdown("---")
+            
+            # Total custom mix
+            st.markdown("### 💰 Total Biaya Pupuk Custom")
+            
+            total_custom_kg = n_needed_kg + p_needed_kg + k_needed_kg
+            total_custom_cost = n_cost + p_cost + k_cost
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric("Total Pupuk", f"{total_custom_kg:.2f} kg")
+            
+            with col2:
+                st.metric("Total Biaya", f"Rp {total_custom_cost:,.0f}")
+            
+            with col3:
+                st.metric("Biaya per Pohon", f"Rp {total_custom_cost/num_trees:,.0f}")
+            
+            # Comparison with standard mix
+            st.info(f"""
+            📊 **Perbandingan:**
+            - **Pupuk Tunggal Standard:** Rp {total_cost_custom:,.0f}
+            - **Pupuk Custom Pilihan Anda:** Rp {total_custom_cost:,.0f}
+            - **Selisih:** Rp {abs(total_custom_cost - total_cost_custom):,.0f} ({'+' if total_custom_cost > total_cost_custom else '-'}{abs((total_custom_cost - total_cost_custom)/total_cost_custom*100):.1f}%)
+            """)
+    
     
     # ========== TAB 3: METODE KOCOR ==========
     
