@@ -1390,19 +1390,6 @@ if st.session_state.calculation_done and st.session_state.phase_req:
         
         st.info("""
         **Kombinasi Organik + Kimia** memberikan manfaat jangka panjang:
-        - Organik: Memperbaiki struktur tanah, meningkatkan mikroba
-        - Kimia: Nutrisi cepat tersedia untuk tanaman
-        
-        Rasio rekomendasi: **30% Organik + 70% Kimia**
-        """)
-        
-        # Use standard 30% organic ratio - no user input
-        organic_ratio = 0.30  # Standard 30% organic + 70% chemical
-        
-        st.info(f"🌿 **Rasio Standard:** {organic_ratio*100:.0f}% Organik + {(1-organic_ratio)*100:.0f}% Kimia")
-        
-        # Calculate mix
-        org_chem_mix = calculate_organic_chemical_mix(phase_req['npk_total'], organic_ratio)
         
         st.subheader("📊 Perhitungan Kombinasi")
         
