@@ -47,10 +47,9 @@ def create_location_picker_map(
         tiles='OpenStreetMap'
     )
     
-    # Add alternative tile layers
-    folium.TileLayer('Stamen Terrain', name='Terrain').add_to(m)
-    folium.TileLayer('Stamen Toner', name='Toner').add_to(m)
-    folium.TileLayer('CartoDB positron', name='Light').add_to(m)
+    # Add alternative tile layers (only working ones)
+    folium.TileLayer('CartoDB positron', name='Light Map').add_to(m)
+    folium.TileLayer('CartoDB dark_matter', name='Dark Map').add_to(m)
     
     # Add layer control
     folium.LayerControl().add_to(m)
