@@ -46,6 +46,22 @@ st.set_page_config(
     layout="wide"
 )
 
+# ========== SESSION STATE INITIALIZATION ==========
+
+# Initialize session state for storing calculation results
+if 'calculation_done' not in st.session_state:
+    st.session_state.calculation_done = False
+if 'phase_req' not in st.session_state:
+    st.session_state.phase_req = None
+if 'crop_name' not in st.session_state:
+    st.session_state.crop_name = None
+if 'num_trees' not in st.session_state:
+    st.session_state.num_trees = 100
+if 'tree_age' not in st.session_state:
+    st.session_state.tree_age = 3.0
+if 'estimated_area' not in st.session_state:
+    st.session_state.estimated_area = 0.67
+
 # ========== HEADER ==========
 
 st.title("🌴 Kalkulator Pupuk Tanaman Keras & Buah")
@@ -72,7 +88,8 @@ with st.sidebar:
     crop_name = st.selectbox(
         "🌱 Pilih Tanaman",
         options=all_crops,
-        help="Pilih jenis tanaman keras atau buah"
+        help="Pilih jenis tanaman keras atau buah",
+        key="crop_select"
     )
     
     # Get crop data
@@ -86,9 +103,10 @@ with st.sidebar:
             "🎂 Umur Tanaman (Tahun)",
             min_value=0.5,
             max_value=50.0,
-            value=3.0,
+            value=st.session_state.tree_age,
             step=0.5,
-            help="Umur tanaman dalam tahun"
+            help="Umur tanaman dalam tahun",
+            key="tree_age_input"
         )
         
         # Number of trees
@@ -96,9 +114,10 @@ with st.sidebar:
             "🌳 Jumlah Pohon",
             min_value=1,
             max_value=10000,
-            value=100,
+            value=st.session_state.num_trees,
             step=10,
-            help="Total jumlah pohon yang akan dipupuk"
+            help="Total jumlah pohon yang akan dipupuk",
+            key="num_trees_input"
         )
         
         # Area calculation (optional)
@@ -125,19 +144,35 @@ with st.sidebar:
         
         st.divider()
         
-        # Calculate button
-        calculate_btn = st.button("🔍 Hitung Kebutuhan Pupuk", type="primary", use_container_width=True)
+        # Calculate button - updates session state
+        if st.button("🔍 Hitung Kebutuhan Pupuk", type="primary", use_container_width=True):
+            # Store inputs in session state
+            st.session_state.crop_name = crop_name
+            st.session_state.tree_age = tree_age
+            st.session_state.num_trees = num_trees
+            st.session_state.estimated_area = estimated_area
+            
+            # Calculate and store results
+            phase_req = calculate_phase_requirements(crop_name, tree_age, num_trees)
+            if phase_req:
+                st.session_state.phase_req = phase_req
+                st.session_state.calculation_done = True
+            else:
+                st.error("❌ Tidak dapat menghitung kebutuhan pupuk untuk umur tanaman ini.")
+                st.session_state.calculation_done = False
 
 # ========== MAIN CONTENT ==========
 
-if crop_data and calculate_btn:
+# Display results if calculation has been done
+if st.session_state.calculation_done and st.session_state.phase_req:
     
-    # Get current phase and requirements
-    phase_req = calculate_phase_requirements(crop_name, tree_age, num_trees)
-    
-    if not phase_req:
-        st.error("❌ Tidak dapat menghitung kebutuhan pupuk untuk umur tanaman ini.")
-        st.stop()
+    # Get data from session state
+    phase_req = st.session_state.phase_req
+    crop_name = st.session_state.crop_name
+    num_trees = st.session_state.num_trees
+    tree_age = st.session_state.tree_age
+    estimated_area = st.session_state.estimated_area
+    crop_data = get_crop_data(crop_name)
     
     # ========== TAB 1: REKOMENDASI DASAR ==========
     
