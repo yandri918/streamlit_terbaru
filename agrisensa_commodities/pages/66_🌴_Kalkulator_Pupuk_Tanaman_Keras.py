@@ -209,11 +209,16 @@ with st.sidebar:
             with col_soil2:
                 st.markdown("**pH Tanah:**")
                 
+                # Ensure valid pH value from session state
+                default_ph = st.session_state.get('soil_ph', 6.5)
+                if default_ph < 3.0:
+                    default_ph = 6.5
+                
                 soil_ph = st.number_input(
                     "pH Tanah",
                     min_value=3.0,
                     max_value=9.0,
-                    value=st.session_state.get('soil_ph', 6.5),
+                    value=default_ph,
                     step=0.1,
                     format="%.1f",
                     help="pH tanah (3.0-9.0). Default 6.5 = netral",
