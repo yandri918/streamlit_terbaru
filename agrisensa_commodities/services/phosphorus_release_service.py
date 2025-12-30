@@ -222,16 +222,29 @@ class PhosphorusReleaseService:
         
         Args:
             organic_p: Available P from organic (kg)
-            synthetic_type: Type of synthetic (SP-36, TSP, DSP)
+            synthetic_type: Type of synthetic (SP-36, TSP, DSP, MKP, NPK, UltraDAP)
         
         Returns:
             Comparison data
         """
         # Synthetic P content (as P2O5)
         synthetic_p2o5_content = {
-            "SP-36": 36.0,  # 36% P2O5
-            "TSP": 46.0,    # 46% P2O5 (Triple Super Phosphate)
-            "DSP": 18.0     # 18% P2O5 (Double Super Phosphate)
+            "SP-36": 36.0,      # 36% P2O5 (Single Super Phosphate)
+            "TSP": 46.0,        # 46% P2O5 (Triple Super Phosphate)
+            "DSP": 18.0,        # 18% P2O5 (Double Super Phosphate)
+            "MKP": 52.0,        # 52% P2O5 (Mono Potassium Phosphate) + 34% K2O
+            "NPK": 15.0,        # 15% P2O5 (NPK 15-15-15 typical)
+            "UltraDAP": 46.0    # 46% P2O5 (Diammonium Phosphate) + 18% N
+        }
+        
+        # Additional info for each fertilizer
+        fertilizer_info = {
+            "SP-36": "Pupuk fosfat standar, harga ekonomis",
+            "TSP": "Kandungan P tinggi, tidak ada sulfur",
+            "DSP": "Kandungan P rendah, cocok untuk tanah masam",
+            "MKP": "Kandungan P tertinggi + bonus Kalium (K)",
+            "NPK": "Pupuk lengkap N-P-K, praktis untuk semua tanaman",
+            "UltraDAP": "Kandungan P tinggi + bonus Nitrogen (N)"
         }
         
         p2o5_content = synthetic_p2o5_content.get(synthetic_type, 36.0)
@@ -248,5 +261,6 @@ class PhosphorusReleaseService:
             "synthetic_type": synthetic_type,
             "synthetic_p2o5_content": p2o5_content,
             "synthetic_needed_kg": synthetic_needed,
+            "fertilizer_info": fertilizer_info.get(synthetic_type, ""),
             "advantage": "Pupuk organik juga memperbaiki struktur tanah, tidak hanya menyediakan P"
         }

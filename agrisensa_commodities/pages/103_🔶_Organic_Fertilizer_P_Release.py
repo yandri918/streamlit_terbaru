@@ -328,8 +328,8 @@ with tabs[1]:
         with col_syn1:
             synthetic_type = st.selectbox(
                 "Pilih Jenis Pupuk Kimia",
-                ["SP-36", "TSP", "DSP"],
-                help="SP-36 (36% P2O5), TSP (46% P2O5), DSP (18% P2O5)"
+                ["SP-36", "TSP", "DSP", "MKP", "NPK 15-15-15", "UltraDAP"],
+                help="Pilih pupuk kimia untuk perbandingan"
             )
         
         comparison = PhosphorusReleaseService.compare_with_synthetic(
@@ -372,6 +372,9 @@ with tabs[1]:
         )
         
         st.plotly_chart(fig_compare, use_container_width=True)
+        
+        # Show fertilizer info
+        st.info(f"ℹ️ **{synthetic_type}:** {comparison['fertilizer_info']}")
         
         st.success(f"✅ {comparison['advantage']}")
         
