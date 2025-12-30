@@ -319,4 +319,321 @@ with tabs[1]:
                 mime="text/plain"
             )
 
-# Continue with Tab 3 and 4 in next part...
+# TAB 3: IPM RECOMMENDATIONS
+with tabs[2]:
+    st.markdown("## 🌾 Rekomendasi Pengendalian Hama Terpadu (IPM)")
+    
+    st.success("✅ **Integrated Pest Management:** Pendekatan berkelanjutan untuk pengendalian hama")
+    
+    # Check if pest selected from Tab 1
+    if 'selected_pest' in st.session_state and 'selected_crop' in st.session_state:
+        selected_item = st.session_state['selected_pest']
+        selected_crop_key = st.session_state['selected_crop']
+        
+        st.info(f"📌 **Terpilih dari Tab 1:** {selected_item['name_id']} pada {selected_crop_key.title()}")
+    else:
+        # Manual selection
+        col_ipm1, col_ipm2 = st.columns(2)
+        
+        with col_ipm1:
+            selected_crop_key = st.selectbox(
+                "Pilih Tanaman",
+                options=[crop["key"] for crop in crops],
+                format_func=lambda x: next((c["name_id"] for c in crops if c["key"] == x), x),
+                key="ipm_crop"
+            )
+        
+        with col_ipm2:
+            items = pest_service.get_all_pests_by_crop(selected_crop_key)
+            
+            selected_item_id = st.selectbox(
+                "Pilih Hama/Penyakit",
+                options=[item["id"] for item in items],
+                format_func=lambda x: next((item["name_id"] for item in items if item["id"] == x), x),
+                key="ipm_pest"
+            )
+            
+            selected_item = next((item for item in items if item["id"] == selected_item_id), None)
+    
+    if selected_item:
+        # Severity and growth stage selection
+        col_set1, col_set2 = st.columns(2)
+        
+        with col_set1:
+            severity = st.select_slider(
+                "Tingkat Serangan",
+                options=["low", "medium", "high"],
+                value="medium",
+                format_func=lambda x: {"low": "Rendah", "medium": "Sedang", "high": "Tinggi"}[x]
+            )
+        
+        with col_set2:
+            growth_stage = st.selectbox(
+                "Fase Pertumbuhan",
+                options=["vegetatif", "generatif"],
+                format_func=lambda x: x.title()
+            )
+        
+        # Get IPM recommendations
+        recommendations = pest_service.get_ipm_recommendations(
+            selected_crop_key,
+            selected_item["id"],
+            severity,
+            growth_stage
+        )
+        
+        if "error" in recommendations:
+            st.error(recommendations["error"])
+        else:
+            # Display pest info
+            st.markdown("### 📋 Informasi Hama/Penyakit")
+            
+            col_info1, col_info2 = st.columns(2)
+            
+            with col_info1:
+                st.markdown(f"""
+                **Nama Indonesia:** {recommendations["pest_info"]["name_id"]}  
+                **Nama Inggris:** {recommendations["pest_info"]["name_en"]}  
+                **Nama Ilmiah:** *{recommendations["pest_info"]["scientific"]}*
+                """)
+            
+            with col_info2:
+                st.markdown(f"""
+                **Kategori:** {recommendations["pest_info"]["type"].title()}  
+                **Tingkat Bahaya:** {recommendations["pest_info"]["severity"].upper()}  
+                **Tingkat Serangan Saat Ini:** {severity.upper()}
+                """)
+            
+            st.markdown("---")
+            
+            # Immediate actions
+            st.markdown("### 🚨 Tindakan Segera")
+            
+            for action in recommendations["immediate_actions"]:
+                st.markdown(f"- {action}")
+            
+            # Cost estimation
+            if recommendations["estimated_cost"]:
+                st.markdown("### 💰 Estimasi Biaya Pengendalian")
+                
+                cost_df = pd.DataFrame([
+                    {"Item": k.replace("_", " ").title(), "Biaya": v}
+                    for k, v in recommendations["estimated_cost"].items()
+                ])
+                
+                st.dataframe(cost_df, use_container_width=True, hide_index=True)
+            
+            st.markdown("---")
+            
+            # IPM Strategy (3 pillars)
+            st.markdown("### 🎯 Strategi IPM (3 Pilar)")
+            
+            col_ipm_1, col_ipm_2, col_ipm_3 = st.columns(3)
+            
+            with col_ipm_1:
+                st.markdown("""
+                <div class='ipm-card'>
+                    <h4>1️⃣ Pengendalian Kultur Teknis</h4>
+                    <p><em>Pencegahan melalui praktik budidaya</em></p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                for method in recommendations["cultural_control"]:
+                    st.markdown(f"✅ {method}")
+            
+            with col_ipm_2:
+                st.markdown("""
+                <div class='ipm-card'>
+                    <h4>2️⃣ Pengendalian Biologis</h4>
+                    <p><em>Musuh alami & agen hayati</em></p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                for method in recommendations["biological_control"]:
+                    st.markdown(f"🦠 {method}")
+            
+            with col_ipm_3:
+                st.markdown("""
+                <div class='ipm-card'>
+                    <h4>3️⃣ Pengendalian Kimia</h4>
+                    <p><em>Pestisida (pilihan terakhir)</em></p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                for method in recommendations["chemical_control"]:
+                    st.markdown(f"💊 {method}")
+            
+            st.markdown("---")
+            
+            # Monitoring
+            st.markdown("### 📊 Monitoring & Pencegahan")
+            
+            col_mon1, col_mon2 = st.columns(2)
+            
+            with col_mon1:
+                st.markdown("**Monitoring:**")
+                for item in recommendations["monitoring"]:
+                    st.markdown(f"- {item}")
+            
+            with col_mon2:
+                st.markdown("**Pencegahan:**")
+                for item in recommendations["prevention"]:
+                    st.markdown(f"- {item}")
+
+# TAB 4: EDUCATIONAL GUIDE
+with tabs[3]:
+    st.markdown("## 📖 Panduan Lengkap Pengendalian Hama & Penyakit")
+    
+    st.success("✅ **Panduan komprehensif** tentang IPM, identifikasi, dan strategi pengendalian")
+    
+    # Section 1: IPM Principles
+    with st.expander("🌾 Prinsip Dasar IPM (Integrated Pest Management)", expanded=True):
+        st.markdown("""
+        ### Apa itu IPM?
+        
+        **IPM (Integrated Pest Management)** adalah pendekatan pengendalian hama yang:
+        - Mengutamakan pencegahan
+        - Menggunakan berbagai metode secara terpadu
+        - Meminimalkan penggunaan pestisida kimia
+        - Ramah lingkungan dan berkelanjutan
+        
+        ### 5 Pilar IPM:
+        
+        #### 1. Pencegahan (Prevention)
+        - Gunakan benih/bibit sehat
+        - Rotasi tanaman
+        - Sanitasi lahan
+        - Varietas tahan hama
+        
+        #### 2. Monitoring (Pemantauan)
+        - Inspeksi rutin
+        - Catat populasi hama
+        - Gunakan perangkap
+        - Dokumentasi foto
+        
+        #### 3. Ambang Ekonomi (Economic Threshold)
+        - Hitung populasi hama
+        - Bandingkan dengan ambang batas
+        - Tindakan hanya jika melewati ambang
+        - Hindari aplikasi preventif berlebihan
+        
+        #### 4. Pengendalian Non-Kimia
+        - Kultur teknis (jarak tanam, pemupukan)
+        - Biologis (musuh alami)
+        - Mekanis (hand picking, perangkap)
+        - Fisik (mulsa, solarisasi)
+        
+        #### 5. Pengendalian Kimia (Last Resort)
+        - Hanya jika metode lain gagal
+        - Pilih pestisida selektif
+        - Dosis tepat
+        - Waktu aplikasi tepat
+        - Rotasi bahan aktif
+        
+        ### Keuntungan IPM:
+        
+        ✅ **Ekonomis:** Biaya lebih rendah jangka panjang  
+        ✅ **Aman:** Residu pestisida minimal  
+        ✅ **Berkelanjutan:** Tidak merusak ekosistem  
+        ✅ **Efektif:** Hama tidak mudah resisten  
+        ✅ **Ramah lingkungan:** Musuh alami terjaga
+        """)
+    
+    # Section 2: Pest vs Disease
+    with st.expander("🐛 Perbedaan Hama vs Penyakit"):
+        st.markdown("""
+        ### Tabel Perbandingan
+        
+        | Aspek | Hama | Penyakit |
+        |-------|------|----------|
+        | **Penyebab** | Serangga, tikus, burung | Jamur, bakteri, virus |
+        | **Gejala** | Daun berlubang, batang patah | Bercak, layu, busuk |
+        | **Penyebaran** | Terbang, merayap | Angin, air, vektor |
+        | **Pengendalian** | Insektisida, perangkap | Fungisida, bakterisida |
+        | **Kecepatan** | Cepat (hari-minggu) | Lambat (minggu-bulan) |
+        | **Deteksi** | Mudah (terlihat mata) | Sulit (gejala mirip) |
+        
+        ### Tips Identifikasi:
+        
+        **Hama:**
+        - Cari bekas gigitan
+        - Periksa bawah daun
+        - Cek kotoran/lendir
+        - Lihat pola kerusakan
+        
+        **Penyakit:**
+        - Perhatikan warna bercak
+        - Cek pola penyebaran
+        - Periksa pembuluh (potong batang)
+        - Amati kondisi lingkungan
+        """)
+    
+    # Section 3: Common Mistakes
+    with st.expander("⚠️ Kesalahan Umum dalam Pengendalian"):
+        st.markdown("""
+        ### 10 Kesalahan yang Sering Terjadi:
+        
+        #### 1. Aplikasi Pestisida Preventif
+        ❌ **Salah:** Semprot pestisida setiap minggu tanpa ada hama  
+        ✅ **Benar:** Semprot hanya jika populasi melewati ambang ekonomi
+        
+        #### 2. Dosis Berlebihan
+        ❌ **Salah:** "Lebih banyak = lebih efektif"  
+        ✅ **Benar:** Ikuti dosis rekomendasi
+        
+        #### 3. Mengabaikan Kultur Teknis
+        ❌ **Salah:** Hanya mengandalkan pestisida  
+        ✅ **Benar:** Kombinasi kultur teknis + biologis + kimia
+        
+        #### 4. Tidak Rotasi Bahan Aktif
+        ❌ **Salah:** Pakai pestisida yang sama terus-menerus  
+        ✅ **Benar:** Rotasi bahan aktif untuk cegah resistensi
+        
+        #### 5. Aplikasi Saat Cuaca Buruk
+        ❌ **Salah:** Semprot saat hujan/angin kencang  
+        ✅ **Benar:** Semprot pagi/sore, tidak ada angin
+        """)
+    
+    # Section 4: Emergency Response
+    with st.expander("🚨 Panduan Respons Darurat"):
+        st.markdown("""
+        ### Jika Terjadi Serangan Berat (>50% tanaman):
+        
+        **Langkah 1: Isolasi (Hari 1)**
+        - Tandai area terinfeksi
+        - Batasi akses
+        - Jangan pindahkan alat ke area lain
+        
+        **Langkah 2: Identifikasi (Hari 1-2)**
+        - Foto gejala
+        - Ambil sampel
+        - Konsultasi ahli/PPL
+        - Tentukan hama/penyakit
+        
+        **Langkah 3: Tindakan Segera (Hari 2-3)**
+        - Cabut tanaman sakit parah (>80% rusak)
+        - Aplikasi pestisida sesuai rekomendasi
+        - Tingkatkan monitoring (setiap hari)
+        
+        **Langkah 4: Evaluasi (Hari 7)**
+        - Cek efektivitas
+        - Jika belum efektif, ganti pestisida
+        - Dokumentasi hasil
+        
+        **Langkah 5: Pencegahan (Setelah panen)**
+        - Sanitasi total
+        - Rotasi tanaman
+        - Perbaiki kultur teknis
+        - Gunakan varietas tahan
+        """)
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center; color: #666;'>
+    <p>🐛 <strong>Pest & Disease Recognition System - AgriSensa</strong></p>
+    <p>Database: 24+ entries | 5 tanaman | IPM recommendations</p>
+    <p>Siap integrasi WAGRI API untuk image recognition</p>
+    <p><em>Untuk pertanian yang lebih sehat dan berkelanjutan</em></p>
+</div>
+""", unsafe_allow_html=True)
