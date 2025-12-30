@@ -62,12 +62,12 @@ st.title("🐛 Sistem Identifikasi Hama & Penyakit Tanaman")
 st.markdown("""
 <div class='main-header'>
     <h3>📊 Berbasis Metodologi WAGRI & IPM</h3>
-    <p>Identifikasi hama dan penyakit tanaman dengan database lengkap 50+ entries</p>
+    <p>Identifikasi hama dan penyakit tanaman dengan database lengkap 53 entries</p>
     <p><em>Integrated Pest Management untuk pertanian berkelanjutan</em></p>
 </div>
 """, unsafe_allow_html=True)
 
-st.info("💡 **Database Lokal Lengkap:** 5 tanaman (Padi, Jagung, Tomat, Cabai, Kedelai) dengan 50+ hama & penyakit. Siap integrasi WAGRI API!")
+st.info("💡 **Database Lokal Lengkap:** 5 tanaman (Padi, Jagung, Tomat, Cabai, Kedelai) dengan 53 hama & penyakit. Siap integrasi WAGRI API!")
 
 st.markdown("---")
 
@@ -169,7 +169,7 @@ with tabs[0]:
 with tabs[1]:
     st.markdown("## 📚 Database Lengkap Hama & Penyakit")
     
-    st.success("✅ **Database Lokal:** 50+ entries siap digunakan tanpa koneksi internet!")
+    st.success("✅ **Database Lokal:** 53 entries siap digunakan tanpa koneksi internet!")
     
     # Filters
     col_f1, col_f2, col_f3 = st.columns(3)
@@ -632,7 +632,7 @@ st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666;'>
     <p>🐛 <strong>Pest & Disease Recognition System - AgriSensa</strong></p>
-    <p>Database: 50+ entries | 5 tanaman | IPM recommendations</p>
+    <p>Database: 53 entries (28 pests + 25 diseases) | 5 tanaman | IPM recommendations</p>
     <p>Siap integrasi WAGRI API untuk image recognition</p>
     <p><em>Untuk pertanian yang lebih sehat dan berkelanjutan</em></p>
 </div>
