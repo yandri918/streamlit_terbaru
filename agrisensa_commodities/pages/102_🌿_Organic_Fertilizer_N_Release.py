@@ -455,47 +455,42 @@ with tabs[1]:
         # Chart 3: Temperature Impact
         st.markdown("### 🌡️ Temperature Impact on Release")
         
-        fig_temp = go.Figure()
+        # Create two separate charts to avoid yaxis2 compatibility issues
+        col_t1, col_t2 = st.columns(2)
         
-        # Temperature on secondary y-axis
-        fig_temp.add_trace(go.Scatter(
-            x=date_strings,
-            y=temps[:result['total_days']],
-            mode='lines',
-            name='Temperature',
-            line=dict(color='#ff6b6b', width=2),
-            yaxis='y2'
-        ))
+        with col_t1:
+            fig_temp_bar = go.Figure()
+            fig_temp_bar.add_trace(go.Bar(
+                x=date_strings,
+                y=result['daily_list'],
+                name='Daily N Release',
+                marker_color='#4ecdc4'
+            ))
+            fig_temp_bar.update_layout(
+                title="Daily Nitrogen Release",
+                xaxis_title="Date",
+                yaxis_title="N Release (kg/day)",
+                height=350
+            )
+            st.plotly_chart(fig_temp_bar, use_container_width=True)
         
-        # Daily release on primary y-axis
-        fig_temp.add_trace(go.Bar(
-            x=date_strings,
-            y=result['daily_list'],
-            name='Daily N Release',
-            marker_color='#4ecdc4',
-            yaxis='y'
-        ))
-        
-        fig_temp.update_layout(
-            title="Temperature vs Nitrogen Release",
-            xaxis_title="Date",
-            yaxis=dict(
-                title="N Release (kg/day)",
-                titlefont=dict(color='#4ecdc4'),
-                tickfont=dict(color='#4ecdc4')
-            ),
-            yaxis2=dict(
-                title="Temperature (°C)",
-                titlefont=dict(color='#ff6b6b'),
-                tickfont=dict(color='#ff6b6b'),
-                overlaying='y',
-                side='right'
-            ),
-            hovermode='x unified',
-            height=400
-        )
-        
-        st.plotly_chart(fig_temp, use_container_width=True)
+        with col_t2:
+            fig_temp_line = go.Figure()
+            fig_temp_line.add_trace(go.Scatter(
+                x=date_strings,
+                y=temps[:result['total_days']],
+                mode='lines+markers',
+                name='Temperature',
+                line=dict(color='#ff6b6b', width=2),
+                marker=dict(size=6)
+            ))
+            fig_temp_line.update_layout(
+                title="Daily Temperature",
+                xaxis_title="Date",
+                yaxis_title="Temperature (°C)",
+                height=350
+            )
+            st.plotly_chart(fig_temp_line, use_container_width=True)
         
         # Data table
         st.markdown("### 📋 Detailed Data Table")
