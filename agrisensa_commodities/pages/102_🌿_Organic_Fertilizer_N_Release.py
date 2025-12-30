@@ -48,18 +48,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Header
-st.title("🌿 Organic Fertilizer Nitrogen Release Calculator")
+st.title("🌿 Kalkulator Pelepasan Nitrogen Pupuk Organik")
 st.markdown("""
 <div class='info-box'>
-    <h3>🔬 WAGRI-Inspired Scientific Calculator</h3>
-    <p>Understand how nitrogen from organic fertilizers becomes available to plants over time!</p>
+    <h3>🔬 Kalkulator Ilmiah Berbasis WAGRI</h3>
+    <p>Pahami bagaimana nitrogen dari pupuk organik tersedia untuk tanaman dari waktu ke waktu!</p>
     <ul>
-        <li>✅ <strong>Temperature-Adjusted Release</strong> - Q10 coefficient model</li>
-        <li>✅ <strong>Material-Specific Properties</strong> - 6 preset organic fertilizers</li>
-        <li>✅ <strong>Daily & Cumulative Tracking</strong> - Visualize N release patterns</li>
-        <li>✅ <strong>Compare with Synthetic</strong> - See the slow-release advantage</li>
+        <li>✅ <strong>Penyesuaian Suhu</strong> - Model koefisien Q10</li>
+        <li>✅ <strong>Properti Material Spesifik</strong> - 6 preset pupuk organik</li>
+        <li>✅ <strong>Pelacakan Harian & Kumulatif</strong> - Visualisasi pola pelepasan N</li>
+        <li>✅ <strong>Bandingkan dengan Sintetis</strong> - Lihat keunggulan pelepasan lambat</li>
     </ul>
-    <p><em>Based on WAGRI (Japan's Agricultural Data Platform) methodology</em></p>
+    <p><em>Berdasarkan metodologi WAGRI (Platform Data Pertanian Jepang)</em></p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -67,15 +67,15 @@ st.markdown("---")
 
 # Create tabs
 tabs = st.tabs([
-    "📊 Calculator",
-    "📈 Results & Visualization",
-    "🔬 Material Properties",
-    "📚 Educational Guide"
+    "📊 Kalkulator",
+    "📈 Hasil & Visualisasi",
+    "🔬 Properti Material",
+    "📚 Panduan Edukasi"
 ])
 
 # TAB 1: CALCULATOR
 with tabs[0]:
-    st.markdown("## 📊 Input Parameters")
+    st.markdown("## 📊 Parameter Input")
     
     col1, col2 = st.columns(2)
     
@@ -84,19 +84,19 @@ with tabs[0]:
         
         # Date inputs
         start_date = st.date_input(
-            "Start Date",
+            "Tanggal Mulai",
             value=datetime(2024, 5, 3),
             help="Tanggal mulai pengamatan"
         )
         
         water_date = st.date_input(
-            "Water Application Date",
+            "Tanggal Aplikasi Air",
             value=datetime(2024, 5, 10),
             help="Tanggal aplikasi air/irigasi pertama setelah aplikasi pupuk"
         )
         
         end_date = st.date_input(
-            "End Date",
+            "Tanggal Akhir",
             value=datetime(2024, 5, 14),
             help="Tanggal akhir pengamatan"
         )
@@ -104,17 +104,17 @@ with tabs[0]:
         st.markdown("### 🌡️ Temperature Data")
         
         temp_input_method = st.radio(
-            "Temperature Input Method",
-            ["Manual Input", "Generate Example Data"],
+            "Metode Input Suhu",
+            ["Input Manual", "Generate Data Contoh"],
             help="Pilih cara input data suhu"
         )
         
-        if temp_input_method == "Manual Input":
+        if temp_input_method == "Input Manual":
             total_days = (end_date - start_date).days + 1
             st.info(f"📝 Masukkan suhu untuk {total_days} hari")
             
             temp_input = st.text_area(
-                "Daily Temperatures (°C)",
+                "Suhu Harian (°C)",
                 value="20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31",
                 help="Pisahkan dengan koma. Contoh: 20, 21, 22, 23, 24"
             )
@@ -126,7 +126,7 @@ with tabs[0]:
                 daily_temperatures = [25.0] * total_days
         else:
             base_temp = st.slider(
-                "Base Temperature (°C)",
+                "Suhu Dasar (°C)",
                 min_value=15.0,
                 max_value=35.0,
                 value=25.0,
@@ -135,7 +135,7 @@ with tabs[0]:
             )
             
             variation = st.slider(
-                "Temperature Variation (°C)",
+                "Variasi Suhu (°C)",
                 min_value=0.0,
                 max_value=10.0,
                 value=5.0,
@@ -150,7 +150,7 @@ with tabs[0]:
                 variation=variation
             )
             
-            st.success(f"✅ Generated {len(daily_temperatures)} days of temperature data")
+            st.success(f"✅ Berhasil generate {len(daily_temperatures)} hari data suhu")
             st.write(f"Preview: {daily_temperatures[:7]}...")
     
     with col2:
@@ -160,7 +160,7 @@ with tabs[0]:
         material_presets.append("Custom")
         
         selected_material = st.selectbox(
-            "Select Organic Material",
+            "Pilih Material Organik",
             material_presets,
             help="Pilih jenis pupuk organik atau Custom untuk input manual"
         )
@@ -177,11 +177,11 @@ with tabs[0]:
             # Show preset values
             col_p1, col_p2 = st.columns(2)
             with col_p1:
-                st.metric("Moisture Content (MC)", f"{MC}%")
+                st.metric("Kadar Air (MC)", f"{MC}%")
                 st.metric("Total Nitrogen (TN)", f"{TN}%")
             with col_p2:
-                st.metric("Adsorbable N (ADSON)", f"{ADSON}%")
-                st.metric("Mineral N (Nm)", f"{Nm}%")
+                st.metric("Nitrogen Tersedia (ADSON)", f"{ADSON}%")
+                st.metric("Nitrogen Mineral (Nm)", f"{Nm}%")
         else:
             st.markdown("### 🔧 Custom Material Properties")
             
@@ -228,7 +228,7 @@ with tabs[0]:
         st.markdown("### 📦 Application Amount")
         
         material_amount = st.number_input(
-            "Material Amount (kg)",
+            "Jumlah Material (kg)",
             min_value=1.0,
             max_value=10000.0,
             value=123.0,
@@ -282,7 +282,7 @@ with tabs[0]:
     st.markdown("---")
     
     # Calculate button
-    if st.button("🔄 Calculate Nitrogen Release", type="primary", use_container_width=True):
+    if st.button("🔄 Hitung Pelepasan Nitrogen", type="primary", use_container_width=True):
         # Prepare inputs
         material_props = {
             "MC": MC,
@@ -331,58 +331,58 @@ with tabs[0]:
                 st.session_state['daily_temperatures'] = daily_temperatures
                 st.session_state['selected_material'] = selected_material
                 
-                st.success("✅ Calculation completed! Go to 'Results & Visualization' tab to see the results.")
+                st.success("✅ Perhitungan selesai! Buka tab 'Hasil & Visualisasi' untuk melihat hasilnya.")
                 
                 # Show quick summary
                 st.markdown(f"""
                 <div class='success-box'>
-                    <h4>📊 Quick Summary</h4>
-                    <p><strong>Total Nitrogen Released:</strong> {result['total_release_kg']:.2f} kg ({result['release_percentage']:.1f}% of total N)</p>
-                    <p><strong>Period:</strong> {result['total_days']} days</p>
-                    <p><strong>Material:</strong> {material_amount} kg of {selected_material}</p>
+                    <h4>📊 Ringkasan Cepat</h4>
+                    <p><strong>Total Nitrogen Terlepas:</strong> {result['total_release_kg']:.2f} kg ({result['release_percentage']:.1f}% dari total N)</p>
+                    <p><strong>Periode:</strong> {result['total_days']} hari</p>
+                    <p><strong>Material:</strong> {material_amount} kg {selected_material}</p>
                 </div>
                 """, unsafe_allow_html=True)
 
 # TAB 2: RESULTS & VISUALIZATION
 with tabs[1]:
-    st.markdown("## 📈 Results & Visualization")
+    st.markdown("## 📈 Hasil & Visualisasi")
     
     if 'n_release_result' not in st.session_state:
-        st.info("ℹ️ Please run the calculator first in the 'Calculator' tab.")
+        st.info("ℹ️ Silakan jalankan kalkulator terlebih dahulu di tab 'Kalkulator'.")
     else:
         result = st.session_state['n_release_result']
         temps = st.session_state['daily_temperatures']
         material_name = st.session_state.get('selected_material', 'Unknown')
         
         # Summary metrics
-        st.markdown("### 📊 Summary Metrics")
+        st.markdown("### 📊 Metrik Ringkasan")
         
         col_m1, col_m2, col_m3, col_m4 = st.columns(4)
         
         with col_m1:
             st.metric(
-                "Total N Released",
+                "Total N Terlepas",
                 f"{result['total_release_kg']:.2f} kg",
-                delta=f"{result['release_percentage']:.1f}% of total"
+                delta=f"{result['release_percentage']:.1f}% dari total"
             )
         
         with col_m2:
             st.metric(
-                "Total N in Material",
+                "Total N dalam Material",
                 f"{result['total_n_in_material_kg']:.2f} kg"
             )
         
         with col_m3:
             avg_daily = result['total_release_kg'] / result['total_days']
             st.metric(
-                "Avg Daily Release",
-                f"{avg_daily:.3f} kg/day"
+                "Rata-rata Pelepasan Harian",
+                f"{avg_daily:.3f} kg/hari"
             )
         
         with col_m4:
             st.metric(
-                "Observation Period",
-                f"{result['total_days']} days"
+                "Periode Pengamatan",
+                f"{result['total_days']} hari"
             )
         
         st.markdown("---")
@@ -393,7 +393,7 @@ with tabs[1]:
         date_strings = [d.strftime("%Y-%m-%d") for d in dates]
         
         # Chart 1: Daily Release
-        st.markdown("### 📊 Daily Nitrogen Release")
+        st.markdown("### 📊 Pelepasan Nitrogen Harian")
         
         fig_daily = go.Figure()
         
@@ -401,7 +401,7 @@ with tabs[1]:
             x=date_strings,
             y=result['daily_list'],
             mode='lines+markers',
-            name='Daily N Release',
+            name='Pelepasan N Harian',
             line=dict(color='#28a745', width=3),
             marker=dict(size=6),
             fill='tozeroy',
@@ -409,9 +409,9 @@ with tabs[1]:
         ))
         
         fig_daily.update_layout(
-            title=f"Daily Nitrogen Release from {material_name}",
-            xaxis_title="Date",
-            yaxis_title="Nitrogen Release (kg/day)",
+            title=f"Pelepasan Nitrogen Harian dari {material_name}",
+            xaxis_title="Tanggal",
+            yaxis_title="Pelepasan Nitrogen (kg/hari)",
             hovermode='x unified',
             height=400
         )
@@ -419,7 +419,7 @@ with tabs[1]:
         st.plotly_chart(fig_daily, use_container_width=True)
         
         # Chart 2: Cumulative Release
-        st.markdown("### 📈 Cumulative Nitrogen Release")
+        st.markdown("### 📈 Pelepasan Nitrogen Kumulatif")
         
         fig_cum = go.Figure()
         
@@ -427,7 +427,7 @@ with tabs[1]:
             x=date_strings,
             y=result['cum_list'],
             mode='lines+markers',
-            name='Cumulative N Release',
+            name='Pelepasan N Kumulatif',
             line=dict(color='#007bff', width=3),
             marker=dict(size=6),
             fill='tozeroy',
@@ -439,13 +439,13 @@ with tabs[1]:
             y=result['total_n_in_material_kg'],
             line_dash="dash",
             line_color="red",
-            annotation_text=f"Total N in Material ({result['total_n_in_material_kg']:.2f} kg)"
+            annotation_text=f"Total N dalam Material ({result['total_n_in_material_kg']:.2f} kg)"
         )
         
         fig_cum.update_layout(
-            title=f"Cumulative Nitrogen Release from {material_name}",
-            xaxis_title="Date",
-            yaxis_title="Cumulative N Release (kg)",
+            title=f"Pelepasan Nitrogen Kumulatif dari {material_name}",
+            xaxis_title="Tanggal",
+            yaxis_title="Pelepasan N Kumulatif (kg)",
             hovermode='x unified',
             height=400
         )
@@ -453,7 +453,7 @@ with tabs[1]:
         st.plotly_chart(fig_cum, use_container_width=True)
         
         # Chart 3: Temperature Impact
-        st.markdown("### 🌡️ Temperature Impact on Release")
+        st.markdown("### 🌡️ Pengaruh Suhu terhadap Pelepasan")
         
         # Create two separate charts to avoid yaxis2 compatibility issues
         col_t1, col_t2 = st.columns(2)
@@ -463,13 +463,13 @@ with tabs[1]:
             fig_temp_bar.add_trace(go.Bar(
                 x=date_strings,
                 y=result['daily_list'],
-                name='Daily N Release',
+                name='Pelepasan N Harian',
                 marker_color='#4ecdc4'
             ))
             fig_temp_bar.update_layout(
-                title="Daily Nitrogen Release",
-                xaxis_title="Date",
-                yaxis_title="N Release (kg/day)",
+                title="Pelepasan Nitrogen Harian",
+                xaxis_title="Tanggal",
+                yaxis_title="Pelepasan N (kg/hari)",
                 height=350
             )
             st.plotly_chart(fig_temp_bar, use_container_width=True)
@@ -480,40 +480,40 @@ with tabs[1]:
                 x=date_strings,
                 y=temps[:result['total_days']],
                 mode='lines+markers',
-                name='Temperature',
+                name='Suhu',
                 line=dict(color='#ff6b6b', width=2),
                 marker=dict(size=6)
             ))
             fig_temp_line.update_layout(
-                title="Daily Temperature",
-                xaxis_title="Date",
-                yaxis_title="Temperature (°C)",
+                title="Suhu Harian",
+                xaxis_title="Tanggal",
+                yaxis_title="Suhu (°C)",
                 height=350
             )
             st.plotly_chart(fig_temp_line, use_container_width=True)
         
         # Data table
-        st.markdown("### 📋 Detailed Data Table")
+        st.markdown("### 📋 Tabel Data Detail")
         
         df_results = pd.DataFrame({
-            'Date': date_strings,
-            'Temperature (°C)': temps[:result['total_days']],
-            'Daily Release (kg)': result['daily_list'],
-            'Cumulative Release (kg)': result['cum_list'],
-            'Release Rate (%)': [(cum / result['total_n_in_material_kg'] * 100) for cum in result['cum_list']]
+            'Tanggal': date_strings,
+            'Suhu (°C)': temps[:result['total_days']],
+            'Pelepasan Harian (kg)': result['daily_list'],
+            'Pelepasan Kumulatif (kg)': result['cum_list'],
+            'Tingkat Pelepasan (%)': [(cum / result['total_n_in_material_kg'] * 100) for cum in result['cum_list']]
         })
         
         st.dataframe(df_results, use_container_width=True, hide_index=True)
         
         # Export options
-        st.markdown("### 💾 Export Data")
+        st.markdown("### 💾 Ekspor Data")
         
         col_e1, col_e2 = st.columns(2)
         
         with col_e1:
             csv = df_results.to_csv(index=False)
             st.download_button(
-                label="📥 Download as CSV",
+                label="📥 Unduh sebagai CSV",
                 data=csv,
                 file_name=f"nitrogen_release_{material_name}_{result['start_date']}.csv",
                 mime="text/csv",
@@ -523,33 +523,33 @@ with tabs[1]:
         with col_e2:
             # Create summary report
             report = f"""
-NITROGEN RELEASE CALCULATION REPORT
+LAPORAN PERHITUNGAN PELEPASAN NITROGEN
 =====================================
 
 Material: {material_name}
-Amount Applied: {result['material_amount_kg']} kg
-Period: {result['start_date']} to {result['end_date']} ({result['total_days']} days)
+Jumlah Aplikasi: {result['material_amount_kg']} kg
+Periode: {result['start_date']} sampai {result['end_date']} ({result['total_days']} hari)
 
-MATERIAL PROPERTIES:
-- Moisture Content (MC): {result['material_props']['MC']}%
-- Adsorbable Nitrogen (ADSON): {result['material_props']['ADSON']}%
+PROPERTI MATERIAL:
+- Kadar Air (MC): {result['material_props']['MC']}%
+- Nitrogen Tersedia (ADSON): {result['material_props']['ADSON']}%
 - Total Nitrogen (TN): {result['material_props']['TN']}%
-- Mineral Nitrogen (Nm): {result['material_props']['Nm']}%
+- Nitrogen Mineral (Nm): {result['material_props']['Nm']}%
 
-RESULTS:
-- Total N in Material: {result['total_n_in_material_kg']:.2f} kg
-- Total N Released: {result['total_release_kg']:.2f} kg
-- Release Percentage: {result['release_percentage']:.1f}%
-- Average Daily Release: {result['total_release_kg'] / result['total_days']:.3f} kg/day
+HASIL:
+- Total N dalam Material: {result['total_n_in_material_kg']:.2f} kg
+- Total N Terlepas: {result['total_release_kg']:.2f} kg
+- Persentase Pelepasan: {result['release_percentage']:.1f}%
+- Rata-rata Pelepasan Harian: {result['total_release_kg'] / result['total_days']:.3f} kg/hari
 
-Generated by AgriSensa - Organic Fertilizer N Release Calculator
-Based on WAGRI (Japan Agricultural Data Platform) methodology
+Dibuat oleh AgriSensa - Kalkulator Pelepasan N Pupuk Organik
+Berdasarkan metodologi WAGRI (Platform Data Pertanian Jepang)
 """
             
             st.download_button(
-                label="📄 Download Report (TXT)",
+                label="📄 Unduh Laporan (TXT)",
                 data=report,
-                file_name=f"nitrogen_release_report_{result['start_date']}.txt",
+                file_name=f"laporan_nitrogen_release_{result['start_date']}.txt",
                 mime="text/plain",
                 use_container_width=True
             )
