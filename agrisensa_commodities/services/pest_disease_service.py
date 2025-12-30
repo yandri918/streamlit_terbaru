@@ -337,7 +337,529 @@ class PestDiseaseService:
             ]
         },
         
-        # Continue with other crops in next part due to length...
+        "corn": {
+            "name_id": "Jagung",
+            "name_en": "Corn",
+            "pests": [
+                {
+                    "id": "corn_borer",
+                    "name_id": "Penggerek Batang Jagung",
+                    "name_en": "Corn Borer",
+                    "scientific": "Ostrinia furnacalis",
+                    "type": "pest",
+                    "severity": "high",
+                    "symptoms": [
+                        "Lubang pada batang dan tongkol",
+                        "Daun berlubang",
+                        "Batang mudah patah",
+                        "Tongkol busuk"
+                    ],
+                    "damage_stage": ["Vegetatif", "Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Tanam serempak",
+                            "Hancurkan sisa tanaman",
+                            "Gunakan varietas tahan"
+                        ],
+                        "biological": [
+                            "Trichogramma spp.",
+                            "Beauveria bassiana"
+                        ],
+                        "chemical": [
+                            "Klorantraniliprol 5 WG (0.5 g/L)",
+                            "Emamektin benzoat 5 WG (0.5 g/L)"
+                        ]
+                    },
+                    "economic_threshold": "10% tanaman terserang",
+                    "peak_season": "Fase vegetatif"
+                },
+                {
+                    "id": "fall_armyworm",
+                    "name_id": "Ulat Grayak",
+                    "name_en": "Fall Armyworm",
+                    "scientific": "Spodoptera frugiperda",
+                    "type": "pest",
+                    "severity": "high",
+                    "symptoms": [
+                        "Daun berlubang dan robek",
+                        "Kotoran ulat pada pucuk",
+                        "Tongkol dimakan",
+                        "Pertumbuhan terhambat"
+                    ],
+                    "damage_stage": ["Vegetatif", "Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Monitoring rutin",
+                            "Hancurkan kelompok telur",
+                            "Tanam refugia"
+                        ],
+                        "biological": [
+                            "Telenomus remus (parasitoid telur)",
+                            "Bacillus thuringiensis"
+                        ],
+                        "chemical": [
+                            "Klorantraniliprol 5 WG (0.5 g/L)",
+                            "Spinetoram 12 SC (0.5 ml/L)"
+                        ]
+                    },
+                    "economic_threshold": "5% tanaman terserang",
+                    "peak_season": "Sepanjang musim"
+                }
+            ],
+            "diseases": [
+                {
+                    "id": "downy_mildew",
+                    "name_id": "Bulai",
+                    "name_en": "Downy Mildew",
+                    "scientific": "Peronosclerospora maydis",
+                    "type": "disease",
+                    "severity": "high",
+                    "symptoms": [
+                        "Daun klorotik bergaris",
+                        "Pertumbuhan kerdil",
+                        "Tongkol tidak terbentuk",
+                        "Lapisan jamur putih di bawah daun"
+                    ],
+                    "damage_stage": ["Vegetatif"],
+                    "control": {
+                        "cultural": [
+                            "Tanam varietas tahan",
+                            "Cabut tanaman sakit",
+                            "Rotasi tanaman",
+                            "Sanitasi lahan"
+                        ],
+                        "biological": [
+                            "Trichoderma harzianum"
+                        ],
+                        "chemical": [
+                            "Metalaksil 35 WP (2 g/L)",
+                            "Dimetomorf 50 WP (1 g/L)"
+                        ]
+                    },
+                    "favorable_conditions": "Kelembaban tinggi, suhu 20-25°C",
+                    "peak_season": "Awal musim hujan"
+                }
+            ]
+        },
+        
+        "tomato": {
+            "name_id": "Tomat",
+            "name_en": "Tomato",
+            "pests": [
+                {
+                    "id": "whitefly",
+                    "name_id": "Kutu Kebul",
+                    "name_en": "Whitefly",
+                    "scientific": "Bemisia tabaci",
+                    "type": "pest",
+                    "severity": "high",
+                    "symptoms": [
+                        "Daun keriting dan kuning",
+                        "Embun madu",
+                        "Virus kuning (TYLCV)",
+                        "Pertumbuhan terhambat"
+                    ],
+                    "damage_stage": ["Vegetatif", "Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Gunakan mulsa plastik perak",
+                            "Pasang yellow sticky trap",
+                            "Sanitasi gulma"
+                        ],
+                        "biological": [
+                            "Encarsia formosa (parasitoid)",
+                            "Beauveria bassiana"
+                        ],
+                        "chemical": [
+                            "Imidakloprid 200 SL (0.5 ml/L)",
+                            "Spiromesifen 24 SC (0.5 ml/L)"
+                        ]
+                    },
+                    "economic_threshold": "5 ekor per daun",
+                    "peak_season": "Musim kemarau"
+                },
+                {
+                    "id": "fruit_borer",
+                    "name_id": "Ulat Buah",
+                    "name_en": "Fruit Borer",
+                    "scientific": "Helicoverpa armigera",
+                    "type": "pest",
+                    "severity": "high",
+                    "symptoms": [
+                        "Buah berlubang",
+                        "Kotoran ulat di buah",
+                        "Buah busuk",
+                        "Kualitas menurun"
+                    ],
+                    "damage_stage": ["Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Petik buah terserang",
+                            "Pasang perangkap feromon",
+                            "Tanam refugia"
+                        ],
+                        "biological": [
+                            "Trichogramma spp.",
+                            "NPV (Nuclear Polyhedrosis Virus)"
+                        ],
+                        "chemical": [
+                            "Emamektin benzoat 5 WG (0.5 g/L)",
+                            "Indoxacarb 15 EC (0.5 ml/L)"
+                        ]
+                    },
+                    "economic_threshold": "2% buah terserang",
+                    "peak_season": "Fase pembuahan"
+                }
+            ],
+            "diseases": [
+                {
+                    "id": "late_blight",
+                    "name_id": "Busuk Daun",
+                    "name_en": "Late Blight",
+                    "scientific": "Phytophthora infestans",
+                    "type": "disease",
+                    "severity": "high",
+                    "symptoms": [
+                        "Bercak coklat pada daun",
+                        "Busuk pada buah",
+                        "Lapisan jamur putih",
+                        "Tanaman mati cepat"
+                    ],
+                    "damage_stage": ["Vegetatif", "Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Drainase baik",
+                            "Jarak tanam optimal",
+                            "Hindari penyiraman overhead",
+                            "Buang tanaman sakit"
+                        ],
+                        "biological": [
+                            "Trichoderma harzianum",
+                            "Bacillus subtilis"
+                        ],
+                        "chemical": [
+                            "Mankozeb 80 WP (2 g/L)",
+                            "Dimetomorf 50 WP (1 g/L)",
+                            "Propineb 70 WP (2 g/L)"
+                        ]
+                    },
+                    "favorable_conditions": "Kelembaban >90%, suhu 15-20°C",
+                    "peak_season": "Musim hujan"
+                },
+                {
+                    "id": "bacterial_wilt",
+                    "name_id": "Layu Bakteri",
+                    "name_en": "Bacterial Wilt",
+                    "scientific": "Ralstonia solanacearum",
+                    "type": "disease",
+                    "severity": "high",
+                    "symptoms": [
+                        "Layu mendadak",
+                        "Daun hijau tapi layu",
+                        "Pembuluh coklat",
+                        "Lendir bakteri dari batang"
+                    ],
+                    "damage_stage": ["Vegetatif", "Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Rotasi tanaman (bukan Solanaceae)",
+                            "Drainase sempurna",
+                            "Cabut tanaman sakit",
+                            "Solarisasi tanah"
+                        ],
+                        "biological": [
+                            "Pseudomonas fluorescens",
+                            "Bacillus subtilis"
+                        ],
+                        "chemical": [
+                            "Bakterisida tembaga (2 g/L)",
+                            "Streptomisin sulfat (0.5 g/L)"
+                        ]
+                    },
+                    "favorable_conditions": "Suhu tinggi, tanah lembab",
+                    "peak_season": "Musim hujan"
+                }
+            ]
+        },
+        
+        "chili": {
+            "name_id": "Cabai",
+            "name_en": "Chili",
+            "pests": [
+                {
+                    "id": "thrips",
+                    "name_id": "Trips",
+                    "name_en": "Thrips",
+                    "scientific": "Thrips parvispinus",
+                    "type": "pest",
+                    "severity": "high",
+                    "symptoms": [
+                        "Daun keriting dan menggulung",
+                        "Bercak perak pada daun",
+                        "Bunga rontok",
+                        "Virus kuning (PYVV)"
+                    ],
+                    "damage_stage": ["Vegetatif", "Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Mulsa plastik perak",
+                            "Blue sticky trap",
+                            "Sanitasi gulma"
+                        ],
+                        "biological": [
+                            "Orius spp. (predator)",
+                            "Beauveria bassiana"
+                        ],
+                        "chemical": [
+                            "Abamektin 18 EC (0.5 ml/L)",
+                            "Spinosad 25 SC (0.5 ml/L)"
+                        ]
+                    },
+                    "economic_threshold": "10 ekor per bunga",
+                    "peak_season": "Musim kemarau"
+                },
+                {
+                    "id": "aphid",
+                    "name_id": "Kutu Daun",
+                    "name_en": "Aphid",
+                    "scientific": "Aphis gossypii",
+                    "type": "pest",
+                    "severity": "medium",
+                    "symptoms": [
+                        "Daun keriting",
+                        "Embun madu",
+                        "Virus mosaik",
+                        "Pertumbuhan terhambat"
+                    ],
+                    "damage_stage": ["Vegetatif"],
+                    "control": {
+                        "cultural": [
+                            "Mulsa plastik perak",
+                            "Yellow sticky trap",
+                            "Tanam refugia"
+                        ],
+                        "biological": [
+                            "Coccinellidae (kumbang kepik)",
+                            "Chrysoperla spp."
+                        ],
+                        "chemical": [
+                            "Imidakloprid 200 SL (0.5 ml/L)",
+                            "Acetamiprid 20 SP (0.2 g/L)"
+                        ]
+                    },
+                    "economic_threshold": "20% tanaman terserang",
+                    "peak_season": "Awal musim tanam"
+                }
+            ],
+            "diseases": [
+                {
+                    "id": "anthracnose",
+                    "name_id": "Antraknosa",
+                    "name_en": "Anthracnose",
+                    "scientific": "Colletotrichum spp.",
+                    "type": "disease",
+                    "severity": "high",
+                    "symptoms": [
+                        "Bercak cekung pada buah",
+                        "Buah busuk",
+                        "Bercak coklat dengan lingkaran",
+                        "Buah rontok"
+                    ],
+                    "damage_stage": ["Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Panen tepat waktu",
+                            "Drainase baik",
+                            "Buang buah sakit",
+                            "Rotasi tanaman"
+                        ],
+                        "biological": [
+                            "Trichoderma harzianum",
+                            "Bacillus subtilis"
+                        ],
+                        "chemical": [
+                            "Mankozeb 80 WP (2 g/L)",
+                            "Azoksistrobin 25 SC (1 ml/L)",
+                            "Propineb 70 WP (2 g/L)"
+                        ]
+                    },
+                    "favorable_conditions": "Kelembaban tinggi, hujan",
+                    "peak_season": "Musim hujan"
+                },
+                {
+                    "id": "fusarium_wilt",
+                    "name_id": "Layu Fusarium",
+                    "name_en": "Fusarium Wilt",
+                    "scientific": "Fusarium oxysporum",
+                    "type": "disease",
+                    "severity": "high",
+                    "symptoms": [
+                        "Layu satu sisi",
+                        "Daun kuning dari bawah",
+                        "Pembuluh coklat",
+                        "Tanaman mati"
+                    ],
+                    "damage_stage": ["Vegetatif", "Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Gunakan varietas tahan",
+                            "Rotasi tanaman",
+                            "Solarisasi tanah",
+                            "Drainase baik"
+                        ],
+                        "biological": [
+                            "Trichoderma harzianum",
+                            "Pseudomonas fluorescens"
+                        ],
+                        "chemical": [
+                            "Benomil 50 WP (1 g/L)",
+                            "Karbendazim 50 WP (1 g/L)"
+                        ]
+                    },
+                    "favorable_conditions": "Suhu 25-30°C, tanah lembab",
+                    "peak_season": "Sepanjang tahun"
+                }
+            ]
+        },
+        
+        "soybean": {
+            "name_id": "Kedelai",
+            "name_en": "Soybean",
+            "pests": [
+                {
+                    "id": "pod_borer",
+                    "name_id": "Penggerek Polong",
+                    "name_en": "Pod Borer",
+                    "scientific": "Etiella zinckenella",
+                    "type": "pest",
+                    "severity": "high",
+                    "symptoms": [
+                        "Polong berlubang",
+                        "Biji dimakan",
+                        "Kotoran ulat di polong",
+                        "Polong busuk"
+                    ],
+                    "damage_stage": ["Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Tanam serempak",
+                            "Petik polong terserang",
+                            "Pasang perangkap feromon"
+                        ],
+                        "biological": [
+                            "Trichogramma spp.",
+                            "Beauveria bassiana"
+                        ],
+                        "chemical": [
+                            "Klorantraniliprol 5 WG (0.5 g/L)",
+                            "Profenofos 500 EC (2 ml/L)"
+                        ]
+                    },
+                    "economic_threshold": "10% polong terserang",
+                    "peak_season": "Fase pembentukan polong"
+                },
+                {
+                    "id": "armyworm",
+                    "name_id": "Ulat Grayak Kedelai",
+                    "name_en": "Armyworm",
+                    "scientific": "Spodoptera litura",
+                    "type": "pest",
+                    "severity": "medium",
+                    "symptoms": [
+                        "Daun berlubang",
+                        "Defoliasi",
+                        "Kotoran ulat",
+                        "Pertumbuhan terhambat"
+                    ],
+                    "damage_stage": ["Vegetatif"],
+                    "control": {
+                        "cultural": [
+                            "Monitoring rutin",
+                            "Hancurkan kelompok telur",
+                            "Tanam refugia"
+                        ],
+                        "biological": [
+                            "NPV (Nuclear Polyhedrosis Virus)",
+                            "Bacillus thuringiensis"
+                        ],
+                        "chemical": [
+                            "Emamektin benzoat 5 WG (0.5 g/L)",
+                            "Klorpirifos 200 EC (2 ml/L)"
+                        ]
+                    },
+                    "economic_threshold": "25% defoliasi",
+                    "peak_season": "Fase vegetatif"
+                }
+            ],
+            "diseases": [
+                {
+                    "id": "rust",
+                    "name_id": "Karat Daun",
+                    "name_en": "Rust",
+                    "scientific": "Phakopsora pachyrhizi",
+                    "type": "disease",
+                    "severity": "high",
+                    "symptoms": [
+                        "Bercak coklat karat pada daun",
+                        "Pustula coklat di bawah daun",
+                        "Daun rontok",
+                        "Penurunan hasil"
+                    ],
+                    "damage_stage": ["Vegetatif", "Generatif"],
+                    "control": {
+                        "cultural": [
+                            "Tanam varietas tahan",
+                            "Jarak tanam optimal",
+                            "Sanitasi lahan",
+                            "Rotasi tanaman"
+                        ],
+                        "biological": [
+                            "Trichoderma harzianum"
+                        ],
+                        "chemical": [
+                            "Azoksistrobin 25 SC (1 ml/L)",
+                            "Difenokonazol 25 EC (1 ml/L)",
+                            "Tebukonazol 25 EC (1 ml/L)"
+                        ]
+                    },
+                    "favorable_conditions": "Kelembaban tinggi, suhu 20-25°C",
+                    "peak_season": "Musim hujan"
+                },
+                {
+                    "id": "mosaic",
+                    "name_id": "Mosaik",
+                    "name_en": "Mosaic",
+                    "scientific": "Soybean mosaic virus (SMV)",
+                    "type": "disease",
+                    "severity": "medium",
+                    "symptoms": [
+                        "Mosaik kuning pada daun",
+                        "Daun keriting",
+                        "Pertumbuhan kerdil",
+                        "Polong sedikit"
+                    ],
+                    "damage_stage": ["Vegetatif"],
+                    "control": {
+                        "cultural": [
+                            "Gunakan benih sehat",
+                            "Cabut tanaman sakit",
+                            "Kendalikan kutu daun (vektor)",
+                            "Tanam varietas tahan"
+                        ],
+                        "biological": [
+                            "Tidak ada (virus)",
+                            "Fokus pada pengendalian vektor"
+                        ],
+                        "chemical": [
+                            "Tidak ada (virus)",
+                            "Kendalikan kutu daun dengan insektisida"
+                        ]
+                    },
+                    "favorable_conditions": "Populasi kutu daun tinggi",
+                    "peak_season": "Awal musim tanam"
+                }
+            ]
+        }
     }
     
     @staticmethod
