@@ -171,7 +171,7 @@ def test_split_application():
 
 
 if __name__ == "__main__":
-    print("\n🟡 POTASSIUM RELEASE SERVICE - TEST SUITE")
+    print("\nPOTASSIUM RELEASE SERVICE - TEST SUITE")
     print("=" * 60)
     
     results = []
@@ -195,8 +195,8 @@ if __name__ == "__main__":
     all_passed = all(result[1] for result in results)
     
     if all_passed:
-        print("\n🎉 ALL TESTS PASSED!")
+        print("\nALL TESTS PASSED!")
     else:
-        print("\n⚠️ SOME TESTS FAILED")
+        print("\nSOME TESTS FAILED")
     
     print("=" * 60)
