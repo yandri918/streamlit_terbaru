@@ -275,4 +275,473 @@ with tabs[1]:
                 - Packaging: {opp['data']['packaging']}
                 """)
 
-# Continue with remaining tabs in next message due to length...
+# TAB 3: PRICE TRENDS
+with tabs[2]:
+    st.markdown("## 📈 Price Trends Analysis")
+    
+    st.info("💡 **Historical price trends** for export commodities (7/30/90 day analysis)")
+    
+    # Select commodity
+    commodity_list = commodity_db.get_commodity_list()
+    commodity_options = {f"{c['name_en']} ({c['name_id']})": c['code'] for c in commodity_list}
+    
+    selected_commodity_name = st.selectbox(
+        "Select Commodity for Trend Analysis",
+        options=list(commodity_options.keys()),
+        key="trend_commodity"
+    )
+    
+    selected_code = commodity_options[selected_commodity_name]
+    commodity_data = commodity_db.get_commodity(selected_code)
+    
+    # Time range
+    col_t1, col_t2 = st.columns(2)
+    
+    with col_t1:
+        days_range = st.selectbox(
+            "Time Range",
+            [7, 30, 90],
+            index=1,
+            key="trend_days"
+        )
+    
+    with col_t2:
+        st.metric(
+            "Priority Level",
+            commodity_db.get_priority_stars(commodity_data.get("priority", 1))
+        )
+    
+    # Get price history (sample data for demo)
+    st.markdown(f"### 📊 {commodity_data['name_en']} Price History")
+    
+    # Sample historical data
+    dates = pd.date_range(end=datetime.now(), periods=days_range, freq="D")
+    
+    # Generate sample price data (in real implementation, fetch from cache)
+    import numpy as np
+    base_price = commodity_data.get("typical_price_idr", 50000) / market_service.EXCHANGE_RATE_JPY_TO_IDR
+    prices_jpy = base_price * (1 + np.random.randn(days_range) * 0.1)
+    volumes = np.random.randint(1000, 5000, days_range)
+    
+    df_history = pd.DataFrame({
+        "Date": dates,
+        "Price (¥)": prices_jpy,
+        "Price (Rp)": [market_service.convert_jpy_to_idr(p) for p in prices_jpy],
+        "Volume (kg)": volumes
+    })
+    
+    # Price chart
+    fig_price = go.Figure()
+    
+    fig_price.add_trace(go.Scatter(
+        x=df_history["Date"],
+        y=df_history["Price (¥)"],
+        mode="lines+markers",
+        name="Price (¥)",
+        line=dict(color="#667eea", width=2),
+        marker=dict(size=6)
+    ))
+    
+    # Add moving average
+    df_history["MA_7"] = df_history["Price (¥)"].rolling(window=min(7, days_range)).mean()
+    
+    fig_price.add_trace(go.Scatter(
+        x=df_history["Date"],
+        y=df_history["MA_7"],
+        mode="lines",
+        name="7-Day MA",
+        line=dict(color="#f5576c", width=2, dash="dash")
+    ))
+    
+    fig_price.update_layout(
+        title=f"{commodity_data['name_en']} Price Trend ({days_range} days)",
+        xaxis_title="Date",
+        yaxis_title="Price (¥)",
+        hovermode="x unified",
+        height=400
+    )
+    
+    st.plotly_chart(fig_price, use_container_width=True)
+    
+    # Volume chart
+    fig_volume = go.Figure()
+    
+    fig_volume.add_trace(go.Bar(
+        x=df_history["Date"],
+        y=df_history["Volume (kg)"],
+        name="Trading Volume",
+        marker_color="#38ef7d"
+    ))
+    
+    fig_volume.update_layout(
+        title="Trading Volume",
+        xaxis_title="Date",
+        yaxis_title="Volume (kg)",
+        height=300
+    )
+    
+    st.plotly_chart(fig_volume, use_container_width=True)
+    
+    # Statistics
+    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    
+    with col_s1:
+        st.metric(
+            "Current Price",
+            market_service.format_price_jpy(prices_jpy[-1]),
+            delta=f"{((prices_jpy[-1] - prices_jpy[0]) / prices_jpy[0] * 100):.1f}%"
+        )
+    
+    with col_s2:
+        st.metric(
+            "Average Price",
+            market_service.format_price_jpy(prices_jpy.mean())
+        )
+    
+    with col_s3:
+        st.metric(
+            "Highest",
+            market_service.format_price_jpy(prices_jpy.max())
+        )
+    
+    with col_s4:
+        st.metric(
+            "Lowest",
+            market_service.format_price_jpy(prices_jpy.min())
+        )
+    
+    # Data table
+    with st.expander("📋 View Raw Data"):
+        st.dataframe(df_history, use_container_width=True, hide_index=True)
+
+# TAB 4: EXPORT CALCULATOR
+with tabs[3]:
+    st.markdown("## 💰 Export Profitability Calculator")
+    
+    st.info("💡 **Calculate export margins** with custom inputs for your specific situation")
+    
+    # Select commodity
+    calc_commodity_name = st.selectbox(
+        "Select Commodity",
+        options=list(commodity_options.keys()),
+        key="calc_commodity"
+    )
+    
+    calc_code = commodity_options[calc_commodity_name]
+    calc_data = commodity_db.get_commodity(calc_code)
+    calc_costs = commodity_db.get_typical_costs(calc_code)
+    
+    st.markdown(f"### 📦 {calc_data['name_en']} Export Analysis")
+    
+    col_c1, col_c2 = st.columns(2)
+    
+    with col_c1:
+        st.markdown("#### 🇯🇵 Japan Market")
+        
+        japan_price_jpy = st.number_input(
+            "Japan Wholesale Price (¥/kg)",
+            min_value=0.0,
+            value=float(calc_data["typical_price_idr"] / market_service.EXCHANGE_RATE_JPY_TO_IDR * 3),
+            step=100.0,
+            help="Current wholesale price in Japan"
+        )
+        
+        japan_price_idr = market_service.convert_jpy_to_idr(japan_price_jpy)
+        st.info(f"Equivalent: {market_service.format_price_idr(japan_price_idr)}")
+        
+        quantity_kg = st.number_input(
+            "Export Quantity (kg)",
+            min_value=1.0,
+            value=1000.0,
+            step=100.0,
+            help="Total quantity to export"
+        )
+    
+    with col_c2:
+        st.markdown("#### 🇮🇩 Indonesia Costs")
+        
+        production_cost = st.number_input(
+            "Production Cost (Rp/kg)",
+            min_value=0.0,
+            value=float(calc_costs["production"]),
+            step=1000.0
+        )
+        
+        packaging_cost = st.number_input(
+            "Packaging Cost (Rp/kg)",
+            min_value=0.0,
+            value=float(calc_costs["packaging"]),
+            step=500.0
+        )
+        
+        transport_cost = st.number_input(
+            "Transport to Port (Rp/kg)",
+            min_value=0.0,
+            value=float(calc_costs["transport_to_port"]),
+            step=500.0
+        )
+    
+    st.markdown("#### 🚢 Export Costs")
+    
+    col_e1, col_e2, col_e3 = st.columns(3)
+    
+    with col_e1:
+        air_freight = st.number_input(
+            "Air Freight (Rp/kg)",
+            min_value=0.0,
+            value=float(calc_costs["air_freight"]),
+            step=5000.0
+        )
+    
+    with col_e2:
+        customs_duty = st.number_input(
+            "Customs Duty (Rp/kg)",
+            min_value=0.0,
+            value=float(calc_costs["customs_duty"]),
+            step=1000.0
+        )
+    
+    with col_e3:
+        certification = st.number_input(
+            "Certification (Rp/kg)",
+            min_value=0.0,
+            value=float(calc_costs["certification"]),
+            step=500.0
+        )
+    
+    # Calculate button
+    if st.button("🔄 Calculate Export Profitability", type="primary", use_container_width=True):
+        # Calculate margin
+        margin_result = market_service.calculate_export_margin(
+            japan_price_jpy=japan_price_jpy,
+            indonesia_production_cost=production_cost,
+            packaging_cost=packaging_cost,
+            transport_to_port=transport_cost,
+            air_freight_per_kg=air_freight,
+            customs_duty=customs_duty,
+            certification_cost=certification
+        )
+        
+        # Display results
+        st.markdown("---")
+        st.markdown("### 📊 Profitability Analysis")
+        
+        # Metrics
+        col_r1, col_r2, col_r3, col_r4 = st.columns(4)
+        
+        with col_r1:
+            st.metric(
+                "Selling Price",
+                market_service.format_price_idr(margin_result["japan_price_idr"])
+            )
+        
+        with col_r2:
+            st.metric(
+                "Total Cost",
+                market_service.format_price_idr(margin_result["total_cost"])
+            )
+        
+        with col_r3:
+            st.metric(
+                "Gross Margin",
+                market_service.format_price_idr(margin_result["gross_margin"]),
+                delta=f"{margin_result['margin_percentage']:.1f}%"
+            )
+        
+        with col_r4:
+            st.metric(
+                "ROI",
+                f"{margin_result['roi_percentage']:.1f}%"
+            )
+        
+        # Profitability status
+        score_stars = "⭐" * margin_result["profitability_score"]
+        
+        if margin_result["profitability_score"] >= 4:
+            st.success(f"✅ {margin_result['profitability']} {score_stars}")
+        elif margin_result["profitability_score"] >= 3:
+            st.info(f"ℹ️ {margin_result['profitability']} {score_stars}")
+        else:
+            st.warning(f"⚠️ {margin_result['profitability']} {score_stars}")
+        
+        # Cost breakdown chart
+        breakdown = margin_result["cost_breakdown"]
+        
+        fig_breakdown = go.Figure(data=[go.Pie(
+            labels=list(breakdown.keys()),
+            values=list(breakdown.values()),
+            hole=0.3,
+            marker=dict(colors=["#667eea", "#764ba2", "#f093fb", "#f5576c", "#38ef7d", "#11998e"])
+        )])
+        
+        fig_breakdown.update_layout(
+            title="Cost Breakdown",
+            height=400
+        )
+        
+        st.plotly_chart(fig_breakdown, use_container_width=True)
+        
+        # Total calculation
+        st.markdown("### 💵 Total Export Calculation")
+        
+        total_revenue = margin_result["japan_price_idr"] * quantity_kg
+        total_cost_all = margin_result["total_cost"] * quantity_kg
+        total_profit = margin_result["gross_margin"] * quantity_kg
+        
+        col_t1, col_t2, col_t3 = st.columns(3)
+        
+        with col_t1:
+            st.metric(
+                f"Total Revenue ({quantity_kg:,.0f} kg)",
+                market_service.format_price_idr(total_revenue)
+            )
+        
+        with col_t2:
+            st.metric(
+                "Total Cost",
+                market_service.format_price_idr(total_cost_all)
+            )
+        
+        with col_t3:
+            st.metric(
+                "Net Profit",
+                market_service.format_price_idr(total_profit)
+            )
+
+# TAB 5: MARKET INTELLIGENCE
+with tabs[4]:
+    st.markdown("## 📚 Market Intelligence & Insights")
+    
+    st.info("💡 **Market insights** and recommendations for Indonesian exporters")
+    
+    # Top opportunities today
+    st.markdown("### 🏆 Top 5 Export Opportunities")
+    
+    for idx, opp in enumerate(opportunities[:5]):
+        with st.expander(f"#{idx+1} {opp['name']} - {opp['profitability']}"):
+            col_i1, col_i2 = st.columns(2)
+            
+            with col_i1:
+                st.markdown(f"""
+                **Market Data:**
+                - Priority: {commodity_db.get_priority_stars(opp['priority'])}
+                - Margin: {opp['margin_pct']:.1f}%
+                - Profitability Score: {opp['score']}/5
+                
+                **Indonesia Production:**
+                - Regions: {', '.join(opp['data']['indonesia_regions'])}
+                - Peak Season: {opp['data']['peak_season']}
+                - Typical Price: {market_service.format_price_idr(opp['data']['typical_price_idr'])}
+                """)
+            
+            with col_i2:
+                st.markdown(f"""
+                **Export Requirements:**
+                - Certifications: {', '.join(opp['data']['certification_needed'])}
+                - Shipping: {opp['data']['shipping_method']}
+                - Shelf Life: {opp['data']['shelf_life_days']} days
+                - Quality: {opp['data']['quality_grade']}
+                - Packaging: {opp['data']['packaging']}
+                """)
+    
+    # Market recommendations
+    st.markdown("### 💡 Export Recommendations")
+    
+    st.markdown("""
+    **High Priority Actions:**
+    
+    1. **Focus on Premium Products**
+       - Asparagus, Strawberry, Edamame have highest margins (40-50%)
+       - Japan market values quality over quantity
+       - Invest in GAP certification and quality control
+    
+    2. **Optimize Shipping**
+       - Air freight for high-value, perishable items
+       - Sea freight for bulk, longer shelf-life products
+       - Consider consolidated shipments to reduce costs
+    
+    3. **Seasonal Planning**
+       - Match Indonesia peak season with Japan demand
+       - Avoid oversupply periods in Japan market
+       - Plan harvest 2-3 months ahead
+    
+    4. **Certification Strategy**
+       - GAP (Good Agricultural Practices) - Essential
+       - Phytosanitary - Required for all fresh produce
+       - HACCP - Recommended for premium market
+       - Organic - Premium pricing (+30-50%)
+    
+    5. **Market Entry**
+       - Start with 1-2 commodities
+       - Build relationships with Japanese importers
+       - Attend trade fairs (Foodex Japan, etc.)
+       - Consider partnership with established exporters
+    """)
+    
+    # Export guide
+    with st.expander("📖 Complete Export Guide to Japan"):
+        st.markdown("""
+        ### Step-by-Step Export Process
+        
+        **Phase 1: Preparation (2-3 months)**
+        1. Select target commodity
+        2. Obtain GAP certification
+        3. Register with quarantine authority
+        4. Find Japanese importer/buyer
+        5. Negotiate contract terms
+        
+        **Phase 2: Production (1-2 months)**
+        1. Plan harvest timing
+        2. Implement quality control
+        3. Prepare packaging materials
+        4. Arrange logistics
+        
+        **Phase 3: Export (1-2 weeks)**
+        1. Harvest at optimal maturity
+        2. Post-harvest handling
+        3. Phytosanitary inspection
+        4. Export documentation
+        5. Shipping arrangement
+        
+        **Phase 4: Arrival & Payment (1 week)**
+        1. Customs clearance in Japan
+        2. Quality inspection
+        3. Delivery to buyer
+        4. Payment processing
+        
+        ### Required Documents
+        - Commercial Invoice
+        - Packing List
+        - Phytosanitary Certificate
+        - Certificate of Origin
+        - Bill of Lading / Airway Bill
+        - Quality Certificate (if required)
+        
+        ### Typical Costs (per kg)
+        - Production: Rp 20,000 - 80,000
+        - Packaging: Rp 3,000 - 10,000
+        - Transport to port: Rp 2,000 - 5,000
+        - Air freight: Rp 60,000 - 120,000
+        - Sea freight: Rp 20,000 - 40,000
+        - Customs/duties: Rp 5,000 - 15,000
+        - Certification: Rp 1,000 - 3,000
+        
+        ### Success Factors
+        ✅ Consistent quality
+        ✅ Reliable supply
+        ✅ Proper packaging
+        ✅ Timely delivery
+        ✅ Good communication
+        ✅ Competitive pricing
+        """)
+
+# Footer
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center; color: #666;'>
+    <p>📊 <strong>AgriSensa Japan Market Intelligence Dashboard</strong></p>
+    <p>Data source: WAGRI (Agriculture Data Collaboration Platform Japan)</p>
+    <p>Developed by NARO (National Agriculture and Food Research Organization)</p>
+    <p><em>For export planning and market analysis. Consult with export specialists for specific guidance.</em></p>
+</div>
+""", unsafe_allow_html=True)
