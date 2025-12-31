@@ -259,55 +259,60 @@ with cols2[1]:
 
 with cols2[2]:
     st.markdown('''
-    <div class="compact-card">
+    <div class="modern-card">
         <span class="icon">🦠</span>
-        <h4>Mikroba & Biofertilizer</h4>
-        <p>Produksi pupuk hayati & biocontrol</p>
+        <h3>Mikroba & Biofertilizer</h3>
+        <p>Produksi pupuk hayati & biocontrol untuk pertanian berkelanjutan.</p>
     </div>
     ''', unsafe_allow_html=True)
-    st.page_link("pages/52_Mikroba_Biofertilizer_Production.py", label="▶️ Buka Module", icon="🦠", use_container_width=True)
+    if st.button("▶️ Buka Modul Mikroba", key="btn_mikroba"): 
+        st.switch_page("pages/52_Mikroba_Biofertilizer_Production.py")
 
 with cols2[3]:
     st.markdown('''
-    <div class="compact-card">
+    <div class="modern-card">
         <span class="icon">🌿</span>
-        <h4>Tanaman Obat & Herbal</h4>
-        <p>High-value medicinal plants - Export market</p>
+        <h3>Tanaman Obat & Herbal</h3>
+        <p>High-value medicinal plants untuk pasar ekspor premium.</p>
     </div>
     ''', unsafe_allow_html=True)
-    st.page_link("pages/64_Tanaman_Obat_Herbal.py", label="▶️ Buka Module", icon="🌿", use_container_width=True)
+    if st.button("▶️ Buka Modul Herbal", key="btn_herbal"): 
+        st.switch_page("pages/64_Tanaman_Obat_Herbal.py")
 
 # Row 3: Additional modules
 cols3 = st.columns(3)
 with cols3[0]:
     st.markdown('''
-    <div class="compact-card">
+    <div class="modern-card">
         <span class="icon">🍵</span>
-        <h4>Kalkulator Jamu Saintifik</h4>
-        <p>Evidence-based traditional herbal medicine calculator</p>
+        <h3>Kalkulator Jamu Saintifik</h3>
+        <p>Evidence-based traditional herbal medicine calculator berbasis riset.</p>
     </div>
     ''', unsafe_allow_html=True)
-    st.page_link("pages/65_Kalkulator_Jamu_Saintifik.py", label="▶️ Buka Module", icon="🍵", use_container_width=True)
+    if st.button("▶️ Buka Kalkulator Jamu", key="btn_jamu"): 
+        st.switch_page("pages/65_Kalkulator_Jamu_Saintifik.py")
 
 with cols3[1]:
     st.markdown('''
-    <div class="compact-card">
+    <div class="modern-card">
         <span class="icon">🥥</span>
-        <h4>Kelapa & Produk Turunan</h4>
-        <p>VCO, Gula Kelapa, Fiber, Peat, Charcoal - Diversifikasi</p>
+        <h3>Kelapa & Produk Turunan</h3>
+        <p>VCO, Gula Kelapa, Fiber, Peat, Charcoal - Diversifikasi produk kelapa.</p>
     </div>
     ''', unsafe_allow_html=True)
-    st.page_link("pages/67_Kelapa_Produk_Turunan.py", label="▶️ Buka Module", icon="🥥", use_container_width=True)
+    if st.button("▶️ Buka Modul Kelapa", key="btn_kelapa"): 
+        st.switch_page("pages/67_Kelapa_Produk_Turunan.py")
 
 with cols3[2]:
     st.markdown('''
-    <div class="compact-card">
+    <div class="modern-card">
         <span class="icon">🌴</span>
-        <h4>Budidaya Buah Luar Musim</h4>
-        <p>Premium tropical fruits - Off-season cultivation</p>
+        <h3>Budidaya Buah Luar Musim</h3>
+        <p>Premium tropical fruits dengan teknik off-season cultivation.</p>
     </div>
     ''', unsafe_allow_html=True)
-    st.page_link("pages/24_🌴_Budidaya_Buah_Luar_Musim.py", label="▶️ Buka Module", icon="🌴", use_container_width=True)
+    if st.button("▶️ Buka Modul Buah Premium", key="btn_offseason"): 
+        st.switch_page("pages/24_🌴_Budidaya_Buah_Luar_Musim.py")
 
 st.markdown("---")
 st.info("💡 Aplikasi ini adalah bagian dari ekosistem AgriSensa.")
