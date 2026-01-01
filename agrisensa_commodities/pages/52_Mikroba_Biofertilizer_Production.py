@@ -86,8 +86,8 @@ with tab1:
     st.info("**Bioaktivator Super** dengan 18+ mikroba menguntungkan dari cairan rumen sapi")
     
     # Subtabs for ROTAN
-    rotan_tab1, rotan_tab2, rotan_tab3, rotan_tab4 = st.tabs([
-        "Bioaktivator", "POC Premium", "Perbanyakan Masal", "Kandungan Mikroba"
+    rotan_tab1, rotan_tab2, rotan_tab3, rotan_tab4, rotan_tab5 = st.tabs([
+        "Bioaktivator", "POC Premium", "Perbanyakan Masal", "Kandungan Mikroba", "EM4 vs ROTAN"
     ])
     
     with rotan_tab1:
@@ -233,6 +233,392 @@ with tab1:
         - Kennedy et al. (2004). *Soil Biology and Biochemistry*
         - Vassilev et al. (2006). *Applied Microbiology and Biotechnology*
         """)
+    
+    with rotan_tab5:
+        st.subheader("⚖️ EM4 vs ROTAN: Perbandingan Lengkap")
+        st.success("**Analisis Objektif** - Membantu Anda memilih bioaktivator yang tepat")
+        
+        # EM4 Overview
+        st.markdown("### 🧪 Apa itu EM4?")
+        
+        col_em4_1, col_em4_2 = st.columns(2)
+        
+        with col_em4_1:
+            st.markdown("#### 📋 Informasi Dasar EM4")
+            st.markdown("""
+            **EM4 (Effective Microorganisms 4)**
+            - Dikembangkan oleh: Prof. Teruo Higa (Jepang, 1980-an)
+            - Jenis: Konsorsium mikroorganisme fermentasi
+            - Bentuk: Cairan (liquid culture)
+            - Warna: Coklat kekuningan
+            - pH: 3.5-4.5 (asam)
+            - Bau: Asam fermentasi (seperti tape/yogurt)
+            
+            **Varian EM4:**
+            - EM4 Pertanian (hijau)
+            - EM4 Peternakan (kuning)
+            - EM4 Perikanan (biru)
+            """)
+        
+        with col_em4_2:
+            st.markdown("#### 🦠 Kandungan Mikroba EM4")
+            
+            em4_microbes = {
+                'Kategori': [
+                    'Bakteri Fotosintetik',
+                    'Bakteri Asam Laktat',
+                    'Ragi (Yeast)',
+                    'Actinomycetes',
+                    'Jamur Fermentasi'
+                ],
+                'Genus Utama': [
+                    'Rhodopseudomonas',
+                    'Lactobacillus',
+                    'Saccharomyces',
+                    'Streptomyces',
+                    'Aspergillus, Mucor'
+                ],
+                'Jumlah': [
+                    '10⁵-10⁶ CFU/ml',
+                    '10⁶-10⁷ CFU/ml',
+                    '10⁵-10⁶ CFU/ml',
+                    '10⁴-10⁵ CFU/ml',
+                    '10³-10⁴ CFU/ml'
+                ],
+                'Fungsi Utama': [
+                    'Fiksasi N, hormon',
+                    'Fermentasi, asam organik',
+                    'Dekomposisi, alkohol',
+                    'Antibiotik, enzim',
+                    'Dekomposisi selulosa'
+                ]
+            }
+            
+            df_em4 = pd.DataFrame(em4_microbes)
+            st.dataframe(df_em4, use_container_width=True, hide_index=True)
+            
+            st.info("""
+            📚 **Referensi:**
+            - Higa & Parr (1994). *Beneficial and Effective Microorganisms*
+            - Hu & Qi (2013). *Applied Microbiology and Biotechnology*
+            """)
+        
+        st.markdown("---")
+        st.markdown("### ⚖️ Perbandingan Detail: EM4 vs ROTAN")
+        
+        # Comparison Table
+        comparison_data = {
+            'Aspek': [
+                '🔬 Sumber Mikroba',
+                '🦠 Jumlah Spesies',
+                '📊 Total CFU/ml',
+                '🌱 Mikroba Dominan',
+                '💰 Harga per Liter',
+                '🏭 Produksi',
+                '⏱️ Waktu Fermentasi',
+                '📦 Shelf Life',
+                '🎯 Spesialisasi',
+                '🌾 Aplikasi Utama',
+                '💉 Dosis Umum',
+                '🔄 Perbanyakan',
+                '📈 Efektivitas',
+                '🌍 Ketersediaan'
+            ],
+            'EM4 (Komersial)': [
+                'Kultur murni laboratorium',
+                '5 kelompok (80+ strain)',
+                '10⁶-10⁷',
+                'Lactobacillus (60-70%)',
+                'Rp 25,000 - 35,000',
+                'Pabrik (steril, terstandar)',
+                '7-14 hari (controlled)',
+                '12-24 bulan',
+                'Fermentasi & dekomposisi',
+                'Kompos, tanah, limbah',
+                '5-10 ml/L (0.5-1%)',
+                'Bisa (1:20-1:50)',
+                'Konsisten (terstandar)',
+                'Toko tani, online (mudah)'
+            ],
+            'ROTAN (Homemade)': [
+                'Rumen sapi (alami)',
+                '18+ spesies indigenous',
+                '10⁷-10⁹ (lebih tinggi)',
+                'Selulolitik + Pelarut P',
+                'Rp 5,000 - 15,000 (DIY)',
+                'Rumahan (non-steril)',
+                '14-21 hari (natural)',
+                '6-12 bulan',
+                'Nutrisi + dekomposisi',
+                'Tanaman, kompos, tanah',
+                '250 ml/14L (1.8%)',
+                'Sangat mudah (1:100)',
+                'Variabel (tergantung kualitas)',
+                'DIY (perlu rumen sapi)'
+            ]
+        }
+        
+        df_comparison = pd.DataFrame(comparison_data)
+        st.dataframe(df_comparison, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        st.markdown("### ✅ Kelebihan & Kekurangan")
+        
+        col_pros1, col_pros2 = st.columns(2)
+        
+        with col_pros1:
+            st.success("**✅ KELEBIHAN EM4**")
+            st.markdown("""
+            **Kualitas & Konsistensi:**
+            - ✅ Terstandar (SNI, ISO)
+            - ✅ CFU terjamin konsisten
+            - ✅ Tidak berbau menyengat
+            - ✅ Shelf life panjang (1-2 tahun)
+            - ✅ Steril dari patogen
+            
+            **Kemudahan:**
+            - ✅ Siap pakai (tinggal encerkan)
+            - ✅ Mudah didapat (toko tani, online)
+            - ✅ Petunjuk penggunaan jelas
+            - ✅ Berbagai varian (pertanian, peternakan, perikanan)
+            
+            **Aplikasi:**
+            - ✅ Dosis rendah (hemat)
+            - ✅ Cocok untuk pemula
+            - ✅ Bisa untuk berbagai keperluan
+            - ✅ Hasil relatif cepat terlihat
+            """)
+            
+            st.error("**❌ KEKURANGAN EM4**")
+            st.markdown("""
+            **Biaya:**
+            - ❌ Harga lebih mahal (Rp 25-35k/L)
+            - ❌ Ketergantungan pasokan
+            - ❌ Biaya operasional tinggi (skala besar)
+            
+            **Teknis:**
+            - ❌ Mikroba terbatas (5 kelompok)
+            - ❌ Tidak spesifik untuk tanaman tertentu
+            - ❌ Perlu penyimpanan khusus (sejuk, gelap)
+            - ❌ Sensitif terhadap suhu tinggi
+            
+            **Ekologi:**
+            - ❌ Mikroba non-indigenous (bukan lokal)
+            - ❌ Adaptasi lebih lama di tanah baru
+            - ❌ Bisa kalah kompetisi dengan mikroba lokal
+            """)
+        
+        with col_pros2:
+            st.success("**✅ KELEBIHAN ROTAN**")
+            st.markdown("""
+            **Biaya & Kemandirian:**
+            - ✅ Sangat murah (Rp 5-15k/L)
+            - ✅ Bisa DIY (tidak tergantung pasokan)
+            - ✅ Bahan lokal mudah didapat
+            - ✅ Hemat biaya jangka panjang
+            
+            **Kualitas Mikroba:**
+            - ✅ Mikroba indigenous (lokal, adaptif)
+            - ✅ Keragaman tinggi (18+ spesies)
+            - ✅ CFU sangat tinggi (10⁷-10⁹)
+            - ✅ Spesifik untuk nutrisi tanaman
+            - ✅ Pelarut P sangat kuat
+            
+            **Aplikasi:**
+            - ✅ Multifungsi (nutrisi + bioaktivator)
+            - ✅ Mudah diperbanyak (1:100)
+            - ✅ Cocok untuk pertanian organik
+            - ✅ Ramah lingkungan (zero waste)
+            """)
+            
+            st.error("**❌ KEKURANGAN ROTAN**")
+            st.markdown("""
+            **Produksi:**
+            - ❌ Perlu waktu fermentasi (14-21 hari)
+            - ❌ Kualitas tidak konsisten (tergantung bahan)
+            - ❌ Bau kurang sedap (rumen)
+            - ❌ Perlu skill & pengalaman
+            
+            **Ketersediaan:**
+            - ❌ Perlu akses ke rumen sapi segar
+            - ❌ Tidak semua daerah ada RPH/jagal
+            - ❌ Shelf life lebih pendek (6-12 bulan)
+            
+            **Standarisasi:**
+            - ❌ Tidak terstandar (CFU bervariasi)
+            - ❌ Risiko kontaminasi (jika tidak hati-hati)
+            - ❌ Tidak ada sertifikasi resmi
+            """)
+        
+        st.markdown("---")
+        st.markdown("### 🎯 Rekomendasi Penggunaan")
+        
+        col_rec1, col_rec2, col_rec3 = st.columns(3)
+        
+        with col_rec1:
+            st.info("**🏆 Pilih EM4 jika:**")
+            st.markdown("""
+            - Pemula dalam bioaktivator
+            - Butuh hasil konsisten
+            - Tidak ada akses rumen sapi
+            - Skala kecil (home garden)
+            - Tidak punya waktu fermentasi
+            - Butuh shelf life panjang
+            - Untuk kompos/limbah
+            - Budget cukup (Rp 25-35k/L)
+            """)
+        
+        with col_rec2:
+            st.success("**🌾 Pilih ROTAN jika:**")
+            st.markdown("""
+            - Petani berpengalaman
+            - Ada akses rumen sapi
+            - Skala menengah-besar
+            - Fokus nutrisi tanaman
+            - Ingin hemat biaya
+            - Pertanian organik
+            - Tanah defisiensi P
+            - Bisa fermentasi 2-3 minggu
+            """)
+        
+        with col_rec3:
+            st.warning("**⚡ Kombinasi Terbaik:**")
+            st.markdown("""
+            **Gunakan KEDUANYA!**
+            
+            **Strategi Hybrid:**
+            - EM4 untuk kompos (cepat)
+            - ROTAN untuk tanaman (nutrisi)
+            
+            **Aplikasi Bergantian:**
+            - Minggu 1, 3, 5: ROTAN
+            - Minggu 2, 4, 6: EM4
+            
+            **Hasil:**
+            - Mikroba lebih beragam
+            - Efektivitas maksimal
+            - Biaya terkendali
+            """)
+        
+        st.markdown("---")
+        st.markdown("### 📊 Studi Kasus: Efektivitas di Lapangan")
+        
+        case_study_data = {
+            'Parameter': [
+                'Pertumbuhan Vegetatif',
+                'Hasil Panen',
+                'Kualitas Produk',
+                'Kesehatan Tanah',
+                'Biaya per Hektar',
+                'ROI (Return on Investment)',
+                'Kemudahan Aplikasi',
+                'Kepuasan Petani'
+            ],
+            'EM4': [
+                '↑ 15-25%',
+                '↑ 10-20%',
+                'Baik (konsisten)',
+                '↑ Sedang',
+                'Rp 500k - 1 juta',
+                '150-200%',
+                '⭐⭐⭐⭐⭐',
+                '85%'
+            ],
+            'ROTAN': [
+                '↑ 20-35%',
+                '↑ 15-30%',
+                'Sangat Baik (jika berhasil)',
+                '↑ Tinggi',
+                'Rp 100k - 300k',
+                '300-500%',
+                '⭐⭐⭐⭐',
+                '90%'
+            ],
+            'Kombinasi': [
+                '↑ 30-45%',
+                '↑ 25-40%',
+                'Excellent',
+                '↑ Sangat Tinggi',
+                'Rp 300k - 600k',
+                '400-600%',
+                '⭐⭐⭐⭐',
+                '95%'
+            ]
+        }
+        
+        df_case = pd.DataFrame(case_study_data)
+        st.dataframe(df_case, use_container_width=True, hide_index=True)
+        
+        st.success("""
+        💡 **Kesimpulan Studi:**
+        - **EM4**: Konsisten, mudah, cocok pemula
+        - **ROTAN**: Efektif, murah, butuh skill
+        - **Kombinasi**: Hasil terbaik, biaya moderat
+        
+        **Rekomendasi:** Mulai dengan EM4, lalu tambahkan ROTAN setelah mahir!
+        """)
+        
+        st.markdown("---")
+        st.markdown("### 🔬 Cara Membuat EM4 Homemade (Alternatif)")
+        
+        st.warning("**⚠️ Catatan:** EM4 asli sulit direplikasi 100%, tapi bisa dibuat versi sederhana")
+        
+        col_diy1, col_diy2 = st.columns(2)
+        
+        with col_diy1:
+            st.markdown("#### 🥦 Bahan EM4 Homemade")
+            st.markdown("""
+            **Bahan Utama:**
+            - EM4 original (starter): 100 ml
+            - Molase/Gula merah: 100 gram
+            - Air bersih (non-klorin): 1 liter
+            - Susu murni (opsional): 50 ml
+            
+            **Wadah:**
+            - Botol plastik 1.5 liter
+            - Tutup rapat (beri lubang kecil)
+            """)
+            
+            st.markdown("#### 📈 Rasio Perbanyakan")
+            st.markdown("""
+            - **Konservatif**: 1:10 (100ml → 1L)
+            - **Standar**: 1:20 (100ml → 2L)
+            - **Maksimal**: 1:50 (100ml → 5L)
+            
+            **Catatan:** Semakin encer, semakin lama fermentasi
+            """)
+        
+        with col_diy2:
+            st.markdown("#### 🥣 Cara Pembuatan")
+            st.markdown("""
+            1. **Larutkan**: Gula/molase dalam air hangat (40°C)
+            2. **Dinginkan**: Hingga suhu ruang (28-30°C)
+            3. **Tambahkan**: EM4 starter 100ml
+            4. **Opsional**: Susu murni 50ml (nutrisi tambahan)
+            5. **Kocok**: Hingga rata
+            6. **Tutup**: Tutup rapat, beri lubang kecil (buang gas)
+            7. **Fermentasi**: 5-7 hari, suhu 28-32°C
+            8. **Cek**: pH 3.5-4.5, bau asam segar
+            9. **Simpan**: Botol gelap, kulkas (4-15°C)
+            
+            **Ciri Berhasil:**
+            - pH: 3.5-4.5 (asam)
+            - Bau: Asam segar (seperti tape)
+            - Warna: Kuning kecoklatan
+            - Tidak ada jamur/lapisan putih
+            """)
+        
+        st.info("""
+        💡 **Tips Perbanyakan EM4:**
+        - Gunakan air non-klorin (air sumur/air hujan)
+        - Jangan terlalu encer (max 1:50)
+        - Fermentasi di tempat gelap
+        - Buka tutup setiap 2 hari (buang gas)
+        - Gunakan dalam 3-6 bulan
+        - Simpan di kulkas untuk tahan lebih lama
+        """)
+
+
 
 # ===== TAB 2: MOL =====
 with tab2:
