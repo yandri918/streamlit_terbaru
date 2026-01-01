@@ -304,7 +304,7 @@ with tab1:
             """)
         
         st.markdown("---")
-        st.markdown("### ⚖️ Perbandingan Detail: EM4 vs ROTAN")
+        st.markdown("### ⚖️ Perbandingan Detail: EM4 vs ROTAN vs POC ROTAN Premium")
         
         # Comparison Table
         comparison_data = {
@@ -340,7 +340,7 @@ with tab1:
                 'Konsisten (terstandar)',
                 'Toko tani, online (mudah)'
             ],
-            'ROTAN (Homemade)': [
+            'ROTAN Bioaktivator': [
                 'Rumen sapi (alami)',
                 '18+ spesies indigenous',
                 '10⁷-10⁹ (lebih tinggi)',
@@ -349,12 +349,28 @@ with tab1:
                 'Rumahan (non-steril)',
                 '14-21 hari (natural)',
                 '6-12 bulan',
-                'Nutrisi + dekomposisi',
-                'Tanaman, kompos, tanah',
+                'Bioaktivator tanah',
+                'Kompos, tanah, mikroba',
                 '250 ml/14L (1.8%)',
                 'Sangat mudah (1:100)',
                 'Variabel (tergantung kualitas)',
                 'DIY (perlu rumen sapi)'
+            ],
+            'POC ROTAN Premium': [
+                'Rumen + Buah + Sayur + Urine',
+                '18+ mikroba + nutrisi lengkap',
+                '10⁷-10⁹ + NPK tinggi',
+                'Selulolitik + Nutrisi',
+                'Rp 8,000 - 20,000 (DIY)',
+                'Rumahan (fermentasi buah)',
+                '14-21 hari (natural)',
+                '6-12 bulan',
+                'Nutrisi + bioaktivator',
+                'Tanaman langsung (foliar/root)',
+                '250 ml/14L (1.8%)',
+                'Mudah (1:50-1:100)',
+                'Tinggi (nutrisi + mikroba)',
+                'DIY (perlu rumen + buah)'
             ]
         }
         
@@ -453,7 +469,7 @@ with tab1:
         st.markdown("---")
         st.markdown("### 🎯 Rekomendasi Penggunaan")
         
-        col_rec1, col_rec2, col_rec3 = st.columns(3)
+        col_rec1, col_rec2, col_rec3, col_rec4 = st.columns(4)
         
         with col_rec1:
             st.info("**🏆 Pilih EM4 jika:**")
@@ -469,35 +485,50 @@ with tab1:
             """)
         
         with col_rec2:
-            st.success("**🌾 Pilih ROTAN jika:**")
+            st.success("**🌾 Pilih ROTAN Bioaktivator jika:**")
             st.markdown("""
-            - Petani berpengalaman
+            - Fokus bioaktivator tanah
             - Ada akses rumen sapi
-            - Skala menengah-besar
-            - Fokus nutrisi tanaman
+            - Untuk kompos & tanah
             - Ingin hemat biaya
             - Pertanian organik
-            - Tanah defisiensi P
+            - Tanah defisiensi mikroba
             - Bisa fermentasi 2-3 minggu
+            - Budget minimal (Rp 5-15k/L)
             """)
         
         with col_rec3:
+            st.success("**🍎 Pilih POC ROTAN Premium jika:**")
+            st.markdown("""
+            - Butuh nutrisi + mikroba
+            - Ada akses rumen + buah
+            - Aplikasi langsung ke tanaman
+            - Skala menengah-besar
+            - Tanaman buah/sayur
+            - Tanah defisiensi NPK
+            - Ingin hasil maksimal
+            - Budget moderat (Rp 8-20k/L)
+            """)
+        
+        with col_rec4:
             st.warning("**⚡ Kombinasi Terbaik:**")
             st.markdown("""
-            **Gunakan KEDUANYA!**
+            **Gunakan SEMUA!**
             
             **Strategi Hybrid:**
-            - EM4 untuk kompos (cepat)
-            - ROTAN untuk tanaman (nutrisi)
+            - EM4 untuk kompos
+            - ROTAN untuk tanah
+            - POC Premium untuk tanaman
             
-            **Aplikasi Bergantian:**
-            - Minggu 1, 3, 5: ROTAN
-            - Minggu 2, 4, 6: EM4
+            **Rotasi:**
+            - Minggu 1: POC Premium
+            - Minggu 2: EM4
+            - Minggu 3: ROTAN
             
             **Hasil:**
-            - Mikroba lebih beragam
+            - Mikroba beragam
+            - Nutrisi lengkap
             - Efektivitas maksimal
-            - Biaya terkendali
             """)
         
         st.markdown("---")
@@ -524,25 +555,35 @@ with tab1:
                 '⭐⭐⭐⭐⭐',
                 '85%'
             ],
-            'ROTAN': [
-                '↑ 20-35%',
-                '↑ 15-30%',
-                'Sangat Baik (jika berhasil)',
+            'ROTAN Bioaktivator': [
+                '↑ 20-30%',
+                '↑ 15-25%',
+                'Baik (tanah lebih sehat)',
                 '↑ Tinggi',
                 'Rp 100k - 300k',
-                '300-500%',
+                '250-400%',
                 '⭐⭐⭐⭐',
-                '90%'
+                '88%'
             ],
-            'Kombinasi': [
-                '↑ 30-45%',
+            'POC ROTAN Premium': [
                 '↑ 25-40%',
+                '↑ 20-35%',
+                'Sangat Baik (nutrisi + mikroba)',
+                '↑ Tinggi',
+                'Rp 200k - 500k',
+                '350-550%',
+                '⭐⭐⭐⭐',
+                '92%'
+            ],
+            'Kombinasi Lengkap': [
+                '↑ 35-50%',
+                '↑ 30-45%',
                 'Excellent',
                 '↑ Sangat Tinggi',
-                'Rp 300k - 600k',
-                '400-600%',
+                'Rp 400k - 800k',
+                '450-700%',
                 '⭐⭐⭐⭐',
-                '95%'
+                '96%'
             ]
         }
         
@@ -551,11 +592,12 @@ with tab1:
         
         st.success("""
         💡 **Kesimpulan Studi:**
-        - **EM4**: Konsisten, mudah, cocok pemula
-        - **ROTAN**: Efektif, murah, butuh skill
-        - **Kombinasi**: Hasil terbaik, biaya moderat
+        - **EM4**: Konsisten, mudah, cocok pemula (ROI 150-200%)
+        - **ROTAN Bioaktivator**: Hemat, untuk tanah & kompos (ROI 250-400%)
+        - **POC ROTAN Premium**: Nutrisi + mikroba, hasil tinggi (ROI 350-550%)
+        - **Kombinasi Lengkap**: Hasil terbaik, investasi optimal (ROI 450-700%)
         
-        **Rekomendasi:** Mulai dengan EM4, lalu tambahkan ROTAN setelah mahir!
+        **Rekomendasi:** Mulai dengan EM4, tambahkan ROTAN Bioaktivator untuk tanah, lalu POC Premium untuk tanaman!
         """)
         
         st.markdown("---")
