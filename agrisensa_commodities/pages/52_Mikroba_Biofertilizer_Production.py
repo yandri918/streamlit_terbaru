@@ -64,7 +64,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Main tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab_amino, tab_booster, tab_qc, tab_calc = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab_myco, tab_purple, tab_amino, tab_booster, tab_qc, tab_calc = st.tabs([
     "🐮 ROTAN",
     "🦠 MOL", 
     "🌱 PGPR",
@@ -72,6 +72,8 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab_amino, tab_booster, tab_qc, tab_ca
     "🐛 Beauveria",
     "🦗 Metarhizium",
     "🌾 N-Fixers",
+    "🍄 Mikoriza",
+    "🔴 Bakteri Merah",
     "🧬 Asam Amino",
     "🌊 Booster Pertumbuhan",
     "🔬 Quality Control",
@@ -603,7 +605,850 @@ with tab7:
     - Energi tinggi (16 ATP per N₂)
     """)
 
-# ===== TAB 8: Amino Acid Fertilizers =====
+# ===== TAB 8: Mycorrhiza =====
+with tab_myco:
+    st.header("🍄 Mikoriza (Mycorrhizal Fungi)")
+    st.info("**Simbiosis Mutualistik** - Jamur yang bersimbiosis dengan akar tanaman untuk meningkatkan penyerapan hara")
+    
+    st.markdown("""
+    ### 🎯 Manfaat Utama Mikoriza
+    
+    **Penyerapan Nutrisi:**
+    - 📈 **Peningkatan Penyerapan Fosfor (P)**: 50-80% lebih efisien
+    - 📈 **Penyerapan Nitrogen (N)**: Naik 20-40%
+    - 📈 **Mikronutrien**: Zn, Cu, Fe lebih tersedia (30-60%)
+    - 🌐 **Memperluas Jangkauan Akar**: Hifa 100x lebih panjang dari akar rambut
+    
+    **Ketahanan Tanaman:**
+    - 💧 **Toleransi Kekeringan**: Efisiensi air naik 40-60%
+    - 🛡️ **Resistensi Penyakit**: Melindungi dari patogen akar (Fusarium, Phytophthora)
+    - 🌡️ **Toleransi Stres**: Tahan salinitas, logam berat, pH ekstrem
+    
+    **Kesehatan Tanah:**
+    - 🌱 **Agregasi Tanah**: Meningkatkan struktur tanah via glomalin
+    - 🔄 **Siklus Karbon**: Menyimpan C organik di tanah (10-20% total C tanah)
+    - 🌿 **Biodiversitas**: Meningkatkan mikrobioma rhizosphere
+    """)
+    
+    myco_tab1, myco_tab2, myco_tab3, myco_tab4 = st.tabs([
+        "🌾 AMF (Arbuscular Mycorrhiza)",
+        "🌲 Ectomycorrhiza",
+        "🧫 Produksi & Perbanyakan",
+        "💉 Aplikasi & Dosis"
+    ])
+    
+    with myco_tab1:
+        st.subheader("🌾 AMF (Arbuscular Mycorrhizal Fungi)")
+        st.success("**Untuk 80% tanaman** - Sayuran, padi, jagung, kedelai, buah-buahan")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🦠 Spesies Utama AMF")
+            
+            amf_data = {
+                'Genus': [
+                    'Glomus',
+                    'Gigaspora',
+                    'Acaulospora',
+                    'Scutellospora'
+                ],
+                'Spesies Umum': [
+                    'G. mosseae, G. intraradices',
+                    'Gi. margarita, Gi. gigantea',
+                    'A. scrobiculata',
+                    'S. calospora'
+                ],
+                'Karakteristik': [
+                    'Paling umum, adaptif',
+                    'Spora besar, tahan stres',
+                    'Toleran pH rendah',
+                    'Hifa eksternal panjang'
+                ],
+                'Target Tanaman': [
+                    'Universal (sayur, padi, jagung)',
+                    'Buah-buahan, perkebunan',
+                    'Tanah asam (pH 4.5-6)',
+                    'Tanaman tahunan'
+                ]
+            }
+            
+            df_amf = pd.DataFrame(amf_data)
+            st.dataframe(df_amf, use_container_width=True, hide_index=True)
+            
+            st.markdown("#### 🔬 Mekanisme Simbiosis")
+            st.markdown("""
+            1. **Penetrasi**: Hifa menembus sel korteks akar
+            2. **Arbuskula**: Struktur bercabang untuk pertukaran nutrisi
+            3. **Vesikel**: Organ penyimpanan lipid dan nutrisi
+            4. **Hifa Eksternal**: Menjelajah tanah mencari P dan air
+            5. **Pertukaran**: Tanaman beri C (10-20%), jamur beri P dan N
+            """)
+        
+        with col2:
+            st.markdown("#### 🌱 Tanaman Inang AMF")
+            st.markdown("""
+            **Sayuran:**
+            - Tomat, Cabai, Terong
+            - Bawang Merah, Bawang Putih
+            - Wortel, Kentang, Ubi Jalar
+            
+            **Pangan:**
+            - Padi, Jagung, Gandum
+            - Kedelai, Kacang Tanah, Kacang Hijau
+            
+            **Buah-buahan:**
+            - Jeruk, Mangga, Apel
+            - Anggur, Strawberry
+            - Pisang, Pepaya
+            
+            **Perkebunan:**
+            - Kelapa Sawit, Karet
+            - Kopi, Kakao, Teh
+            
+            **TIDAK Bermikoriza:**
+            - ❌ Kubis-kubisan (Brassicaceae)
+            - ❌ Bayam (Amaranthaceae)
+            - ❌ Bit (Chenopodiaceae)
+            """)
+            
+            st.info("""
+            📚 **Referensi Ilmiah:**
+            - Smith & Read (2008). *Mycorrhizal Symbiosis* (3rd ed.)
+            - Gianinazzi et al. (2010). *Mycorrhiza*, 20(8), 519-530
+            - Jeffries et al. (2003). *Biology and Fertility of Soils*, 37(1), 1-16
+            """)
+    
+    with myco_tab2:
+        st.subheader("🌲 Ectomycorrhiza")
+        st.info("**Untuk tanaman berkayu** - Pinus, Eucalyptus, Oak, Jamur Pangan")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🍄 Spesies Ectomycorrhiza")
+            
+            ecto_data = {
+                'Genus': [
+                    'Pisolithus',
+                    'Scleroderma',
+                    'Rhizopogon',
+                    'Laccaria',
+                    'Boletus'
+                ],
+                'Karakteristik': [
+                    'Toleran tanah miskin',
+                    'Tahan kekeringan',
+                    'Spesifik untuk Pinus',
+                    'Mudah diperbanyak',
+                    'Jamur pangan (edible)'
+                ],
+                'Target Tanaman': [
+                    'Eucalyptus, Acacia',
+                    'Pinus, Casuarina',
+                    'Pinus spp.',
+                    'Pinus, Eucalyptus',
+                    'Oak, Beech, Pinus'
+                ]
+            }
+            
+            df_ecto = pd.DataFrame(ecto_data)
+            st.dataframe(df_ecto, use_container_width=True, hide_index=True)
+            
+            st.markdown("#### 🔬 Struktur Ectomycorrhiza")
+            st.markdown("""
+            1. **Mantle (Selubung)**: Lapisan hifa menyelubungi akar
+            2. **Hartig Net**: Jaringan hifa di antara sel korteks
+            3. **Hifa Eksternal**: Menjelajah tanah (radius 1-2 meter)
+            4. **Rhizomorph**: Struktur seperti akar untuk transport jarak jauh
+            5. **Fruiting Body**: Jamur (mushroom) untuk reproduksi
+            """)
+        
+        with col2:
+            st.markdown("#### 🌲 Tanaman Inang Ectomycorrhiza")
+            st.markdown("""
+            **Kehutanan:**
+            - Pinus (Pine): P. merkusii, P. caribaea
+            - Eucalyptus: E. grandis, E. urophylla
+            - Acacia: A. mangium, A. auriculiformis
+            - Casuarina: C. equisetifolia
+            
+            **Tanaman Buah Berkayu:**
+            - Durian (Durio zibethinus)
+            - Kemiri (Aleurites moluccanus)
+            - Chestnut (Castanea sativa)
+            
+            **Jamur Pangan (Edible):**
+            - Boletus edulis (Porcini)
+            - Lactarius deliciosus
+            - Amanita caesarea
+            - Tuber spp. (Truffle)
+            """)
+            
+            st.success("""
+            💡 **Aplikasi Khusus:**
+            - **Reboisasi**: Meningkatkan survival rate 40-70%
+            - **Lahan Kritis**: Rehabilitasi tanah bekas tambang
+            - **Agroforestry**: Kombinasi kayu + jamur pangan
+            """)
+    
+    with myco_tab3:
+        st.subheader("🧫 Produksi & Perbanyakan Mikoriza")
+        
+        prod_tab1, prod_tab2, prod_tab3 = st.tabs([
+            "Trap Culture (AMF)",
+            "Pot Culture (AMF)",
+            "Ectomycorrhiza Inoculum"
+        ])
+        
+        with prod_tab1:
+            st.markdown("#### 🌾 Trap Culture Method (Sederhana)")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**Bahan:**")
+                st.markdown("""
+                - **Tanah Rhizosphere**: 1 kg (dari tanaman bermikoriza)
+                - **Media Steril**: Pasir + tanah (1:1), 10 kg
+                - **Tanaman Inang**: Jagung/sorgum (mudah terinfeksi)
+                - **Pot**: 5-10 liter
+                """)
+                
+                st.markdown("**Cara:**")
+                st.markdown("""
+                1. **Sampling**: Ambil tanah di sekitar akar tanaman sehat
+                2. **Screening**: Ayak tanah (mesh 2mm), ambil spora
+                3. **Inokulasi**: Campur 10% tanah rhizosphere + 90% media steril
+                4. **Tanam**: Semai jagung/sorgum di pot
+                5. **Maintenance**: Siram teratur, hindari pupuk P tinggi
+                6. **Panen**: 3-4 bulan (akar penuh kolonisasi)
+                7. **Perbanyakan**: Gunakan akar + tanah sebagai inokulum
+                """)
+            
+            with col2:
+                st.success("✅ **Keunggulan Trap Culture:**")
+                st.markdown("""
+                - Murah dan sederhana
+                - Tidak perlu lab steril
+                - Cocok untuk petani
+                - Bisa skala rumahan
+                """)
+                
+                st.warning("⚠️ **Catatan Penting:**")
+                st.markdown("""
+                - Hindari pupuk P \u003e 50 ppm (menghambat kolonisasi)
+                - pH optimal: 6.0-7.0
+                - Suhu: 25-30°C
+                - Kelembaban: 60-70%
+                - Hindari fungisida sistemik
+                """)
+                
+                st.info("**Hasil:** 1 pot → 50-100 tanaman (inokulum 100g/tanaman)")
+        
+        with prod_tab2:
+            st.markdown("#### 🏭 Pot Culture Method (Komersial)")
+            
+            st.markdown("""
+            **Media Produksi:**
+            - Pasir steril: 50%
+            - Zeolit: 30%
+            - Tanah steril: 20%
+            - pH: 6.5-7.0
+            
+            **Prosedur:**
+            1. **Sterilisasi**: Autoclave media 121°C, 60 menit
+            2. **Inokulasi**: 5-10% inokulum starter (spora + akar terkolonisasi)
+            3. **Tanam Inang**: Jagung, sorgum, atau clover (3-5 tanaman/pot)
+            4. **Nutrisi**: 
+               - N: 50 ppm (amonium nitrat)
+               - P: 10-20 ppm (sangat rendah!)
+               - K: 100 ppm
+            5. **Inkubasi**: 3-4 bulan, greenhouse
+            6. **Panen**: 
+               - Potong bagian atas tanaman
+               - Keringkan akar + media (udara, 7 hari)
+               - Simpan 4°C (tahan 6-12 bulan)
+            
+            **Quality Control:**
+            - Kolonisasi akar: \u003e70% (pewarnaan Trypan Blue)
+            - Kepadatan spora: \u003e50 spora/g media
+            - Viabilitas: \u003e80% (germination test)
+            
+            **Yield:** 1 pot (10L) → 500-1000 tanaman
+            """)
+        
+        with prod_tab3:
+            st.markdown("#### 🌲 Ectomycorrhiza Inoculum")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**Metode 1: Spore Slurry**")
+                st.markdown("""
+                1. Kumpulkan fruiting body (jamur) segar
+                2. Blender dengan air steril (1:10)
+                3. Saring (mesh 500 µm)
+                4. Aplikasi langsung ke bibit (50-100 ml/bibit)
+                5. Tahan: 1-2 minggu (kulkas)
+                """)
+                
+                st.markdown("**Metode 2: Vegetative Inoculum**")
+                st.markdown("""
+                1. **Media**: Peat moss + vermiculite (1:1)
+                2. **Sterilisasi**: Autoclave 121°C, 60 menit
+                3. **Inokulasi**: Mycelium dari kultur murni
+                4. **Inkubasi**: 4-8 minggu, 20-25°C, gelap
+                5. **Panen**: Media penuh miselium putih
+                6. **Aplikasi**: 10-20g/bibit
+                """)
+            
+            with col2:
+                st.markdown("**Metode 3: Root Inoculum (Praktis)**")
+                st.markdown("""
+                1. Ambil akar halus tanaman termikoriza
+                2. Cuci bersih dari tanah
+                3. Potong kecil (1-2 cm)
+                4. Campur dengan media tanam (5-10%)
+                5. Tanam bibit langsung
+                
+                **Sumber Akar:**
+                - Pinus dewasa (usia \u003e5 tahun)
+                - Eucalyptus di hutan/kebun
+                - Casuarina di pantai
+                """)
+                
+                st.success("""
+                💡 **Tips Sukses:**
+                - Gunakan tanaman inang yang sama
+                - Hindari kontaminasi Trichoderma
+                - Simpan di tempat sejuk dan lembab
+                - Aplikasi sesegera mungkin
+                """)
+    
+    with myco_tab4:
+        st.subheader("💉 Aplikasi & Dosis Mikoriza")
+        
+        st.markdown("### 📋 Metode Aplikasi")
+        
+        col_app1, col_app2 = st.columns(2)
+        
+        with col_app1:
+            st.success("**🌱 Aplikasi Bibit (Nursery)**")
+            st.markdown("""
+            **Dosis:**
+            - AMF: 5-10 g inokulum/bibit
+            - Ectomycorrhiza: 10-20 g/bibit
+            
+            **Cara:**
+            1. Campur inokulum dengan media tanam (5-10%)
+            2. Atau: Tabur di lubang tanam sebelum bibit
+            3. Tutup dengan media, tanam bibit
+            4. Siram secukupnya (jangan tergenang)
+            
+            **Waktu:** Saat penyemaian atau transplanting
+            
+            **Hasil:**
+            - Kolonisasi akar: 4-8 minggu
+            - Pertumbuhan bibit 30-50% lebih cepat
+            - Survival rate naik 20-40%
+            """)
+        
+        with col_app2:
+            st.info("**🌾 Aplikasi Lapangan**")
+            st.markdown("""
+            **Dosis:**
+            - Sayuran: 50-100 g/tanaman
+            - Tanaman tahunan: 100-200 g/pohon
+            - Kehutanan: 20-50 g/bibit
+            
+            **Cara:**
+            1. Buat lubang tanam
+            2. Tabur inokulum di dasar lubang
+            3. Tutup dengan sedikit tanah
+            4. Tanam bibit/benih
+            5. Siram dengan air (tanpa fungisida)
+            
+            **Waktu:** Awal musim tanam
+            
+            **Frekuensi:** 
+            - Tanaman semusim: 1x per musim
+            - Tanaman tahunan: 1x saat tanam (efek 3-5 tahun)
+            """)
+        
+        st.markdown("---")
+        st.markdown("### 📊 Tabel Dosis Spesifik")
+        
+        dose_data = {
+            'Jenis Tanaman': [
+                'Sayuran (Tomat, Cabai)',
+                'Padi, Jagung, Kedelai',
+                'Buah (Jeruk, Mangga)',
+                'Perkebunan (Sawit, Karet)',
+                'Kehutanan (Pinus, Eucalyptus)'
+            ],
+            'Jenis Mikoriza': [
+                'AMF (Glomus)',
+                'AMF (Glomus)',
+                'AMF (Gigaspora)',
+                'AMF (Glomus + Gigaspora)',
+                'Ectomycorrhiza (Pisolithus)'
+            ],
+            'Dosis (g/tanaman)': [
+                '50-100',
+                '20-50',
+                '100-200',
+                '150-300',
+                '20-50'
+            ],
+            'Waktu Aplikasi': [
+                'Transplanting',
+                'Semai/Tanam langsung',
+                'Tanam bibit',
+                'Tanam bibit',
+                'Tanam bibit'
+            ],
+            'Hasil yang Diharapkan': [
+                'Hasil ↑ 20-40%, P uptake ↑ 60%',
+                'Hasil ↑ 15-30%, N ↑ 25%',
+                'Pertumbuhan ↑ 30%, buah ↑ 25%',
+                'Pertumbuhan ↑ 40%, survival ↑ 30%',
+                'Survival ↑ 50%, pertumbuhan ↑ 60%'
+            ]
+        }
+        
+        df_dose = pd.DataFrame(dose_data)
+        st.dataframe(df_dose, use_container_width=True, hide_index=True)
+        
+        st.warning("""
+        ⚠️ **Faktor yang Mempengaruhi Efektivitas:**
+        - **Pupuk P tinggi** (\u003e50 ppm): Menghambat kolonisasi (hindari!)
+        - **Fungisida sistemik**: Membunuh mikoriza (gunakan biocontrol)
+        - **pH ekstrem** (\u003c5 atau \u003e8): Kurang optimal
+        - **Tanah tergenang**: AMF tidak tahan anaerob (kecuali padi)
+        - **Suhu \u003c15°C atau \u003e35°C**: Pertumbuhan lambat
+        """)
+        
+        st.success("""
+        💡 **Tips Maksimalkan Manfaat:**
+        - Gunakan pupuk organik (kompos, ROTAN, MOL)
+        - Kurangi pupuk P kimia (cukup 50% dosis normal)
+        - Rotasi tanaman dengan legum (meningkatkan mikoriza)
+        - Mulsa organik (menjaga kelembaban dan suhu)
+        - Hindari pengolahan tanah intensif (merusak hifa)
+        """)
+
+# ===== TAB 9: Purple Bacteria =====
+with tab_purple:
+    st.header("🔴 Bakteri Merah (Purple Bacteria)")
+    st.info("**Photosynthetic Bacteria** - Bakteri fotosintetik untuk fiksasi nitrogen dan kesehatan tanah")
+    
+    st.markdown("""
+    ### 🎯 Manfaat Utama Bakteri Merah
+    
+    **Fiksasi Nitrogen:**
+    - 🌾 **N-Fixation**: 10-30 kg N/ha/tahun (tanpa nodulasi)
+    - 🔄 **Siklus Nitrogen**: Mengubah N₂ atmosfer → NH₃
+    - 📈 **Efisiensi Pupuk N**: Hemat 20-40% pupuk urea
+    
+    **Dekomposisi & Detoksifikasi:**
+    - 🍂 **Dekomposisi Organik**: Mempercepat pengomposan 30-50%
+    - 🧪 **Degradasi Pestisida**: Mengurangi residu kimia
+    - 🌊 **Bioremediasi**: Mengurangi H₂S, NH₃, CH₄ (bau tidak sedap)
+    
+    **Produksi Senyawa Bioaktif:**
+    - 🌱 **Hormon Pertumbuhan**: IAA, Gibberellin, Cytokinin
+    - 🛡️ **Antibiotik Alami**: Menghambat patogen
+    - 💊 **Vitamin B12**: Meningkatkan kesehatan tanaman
+    - 🧬 **Asam Amino**: 18+ jenis untuk sintesis protein
+    
+    **Aplikasi Luas:**
+    - 🌾 Pertanian: Padi, sayuran, buah
+    - 🐟 Akuakultur: Kolam ikan, udang (kualitas air)
+    - 🗑️ Pengomposan: Bioaktivator super
+    - 🌊 Pengolahan limbah: IPAL, septik tank
+    """)
+    
+    purple_tab1, purple_tab2, purple_tab3, purple_tab4 = st.tabs([
+        "🦠 Spesies & Karakteristik",
+        "🧫 Produksi Kultur",
+        "💉 Aplikasi Pertanian",
+        "🐟 Aplikasi Akuakultur"
+    ])
+    
+    with purple_tab1:
+        st.subheader("🦠 Spesies Purple Bacteria")
+        st.success("**Bakteri Fotosintetik Anoksigenik** - Tidak menghasilkan O₂")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🔬 Spesies Utama")
+            
+            purple_data = {
+                'Spesies': [
+                    'Rhodopseudomonas palustris',
+                    'Rhodobacter sphaeroides',
+                    'Rhodospirillum rubrum',
+                    'Rhodovulum sulfidophilum'
+                ],
+                'Warna': [
+                    'Merah-coklat',
+                    'Merah-pink',
+                    'Merah-ungu',
+                    'Merah-oranye'
+                ],
+                'Habitat Alami': [
+                    'Sawah, kolam, rawa',
+                    'Air tawar, limbah',
+                    'Kolam, danau',
+                    'Laut, tambak udang'
+                ],
+                'Keunggulan': [
+                    'Paling adaptif, N-fixer',
+                    'Tumbuh cepat, toleran O₂',
+                    'Produksi H₂ tinggi',
+                    'Toleran salinitas'
+                ]
+            }
+            
+            df_purple = pd.DataFrame(purple_data)
+            st.dataframe(df_purple, use_container_width=True, hide_index=True)
+            
+            st.markdown("#### 🔬 Karakteristik Unik")
+            st.markdown("""
+            **Metabolisme Ganda:**
+            - **Anaerob + Cahaya**: Fotosintesis (tanpa O₂)
+            - **Aerob + Gelap**: Respirasi (seperti bakteri biasa)
+            - **Anaerob + Gelap**: Fermentasi
+            
+            **Pigmen Fotosintesis:**
+            - Bacteriochlorophyll a/b (merah-ungu)
+            - Karotenoid (kuning-oranye)
+            - Absorpsi: 800-900 nm (inframerah dekat)
+            """)
+        
+        with col2:
+            st.markdown("#### 🌾 Manfaat untuk Pertanian")
+            st.markdown("""
+            **1. Fiksasi Nitrogen (N₂ → NH₃)**
+            - Enzim: Nitrogenase (Mo-Fe protein)
+            - Kondisi: Anaerob + cahaya
+            - Hasil: 10-30 kg N/ha/tahun
+            
+            **2. Produksi Hormon Pertumbuhan**
+            - IAA (Auxin): 10-50 µg/ml
+            - Gibberellin: 5-20 µg/ml
+            - Cytokinin: 2-10 µg/ml
+            
+            **3. Dekomposisi Bahan Organik**
+            - Selulosa, hemiselulosa, lignin
+            - Protein, lemak, karbohidrat
+            - Pestisida, herbisida (detoksifikasi)
+            
+            **4. Bioremediasi**
+            - Mengurangi H₂S (bau telur busuk)
+            - Mengurangi NH₃ (bau amoniak)
+            - Mengurangi CH₄ (gas rumah kaca)
+            """)
+            
+            st.info("""
+            📚 **Referensi Ilmiah:**
+            - Madigan et al. (2011). *Annual Review of Microbiology*, 65, 25-47
+            - Hiraishi & Kitamura (1984). *Bull. Japanese Society Scientific Fisheries*, 50(10), 1929-1937
+            - Sasikala & Ramana (1998). *Advances in Applied Microbiology*, 45, 1-92
+            """)
+    
+    with purple_tab2:
+        st.subheader("🧫 Produksi Kultur Purple Bacteria")
+        
+        prod_tab1, prod_tab2 = st.tabs([
+            "Isolasi dari Alam",
+            "Perbanyakan Massal"
+        ])
+        
+        with prod_tab1:
+            st.markdown("#### 🌾 Isolasi dari Sawah/Kolam")
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**Bahan & Alat:**")
+                st.markdown("""
+                - Lumpur sawah/kolam: 100 gram
+                - Botol kaca bening: 500 ml
+                - Air bersih: 400 ml
+                - Gula merah: 10 gram
+                - Ragi tape: 1 butir
+                - Lampu pijar 40-60 watt
+                """)
+                
+                st.markdown("**Cara Isolasi:**")
+                st.markdown("""
+                1. **Sampling**: Ambil lumpur dari sawah/kolam (kedalaman 5-10 cm)
+                2. **Campur**: Lumpur 100g + Air 400ml + Gula 10g + Ragi 1 butir
+                3. **Wadah**: Masukkan ke botol kaca bening
+                4. **Tutup**: Tutup longgar (biarkan gas keluar)
+                5. **Inkubasi**: 
+                   - Letakkan di dekat lampu pijar (30-40 cm)
+                   - Suhu: 28-32°C
+                   - Cahaya: 24 jam (anaerob fotosintesis)
+                6. **Observasi**: 
+                   - Hari 3-5: Air mulai keruh
+                   - Hari 7-10: Warna merah-ungu muncul
+                   - Hari 14: Warna merah pekat
+                7. **Panen**: Ambil cairan (biang purple bacteria)
+                """)
+            
+            with col2:
+                st.success("✅ **Ciri Berhasil:**")
+                st.markdown("""
+                - Warna merah-ungu pekat
+                - Bau asam fermentasi (tidak busuk)
+                - Tidak ada lapisan putih di permukaan
+                - Cairan agak kental
+                """)
+                
+                st.error("❌ **Ciri Gagal:**")
+                st.markdown("""
+                - Warna tetap coklat/hijau
+                - Bau busuk menyengat
+                - Banyak jamur putih/hijau
+                - Terlalu banyak oksigen (tutup terlalu longgar)
+                """)
+                
+                st.warning("⚠️ **Tips Sukses:**")
+                st.markdown("""
+                - Gunakan air non-klorin (air sumur/air hujan)
+                - Hindari kontaminasi udara berlebihan
+                - Cahaya harus cukup (lampu pijar, bukan LED)
+                - Suhu stabil 28-32°C
+                - Jangan dikocok/diaduk (anaerob)
+                """)
+        
+        with prod_tab2:
+            st.markdown("#### 🏭 Perbanyakan Massal")
+            
+            st.markdown("""
+            **Media Produksi (per 10 Liter):**
+            - Air bersih: 10 liter
+            - Gula merah/molase: 100 gram (1%)
+            - Ragi tape: 5 butir
+            - Urea: 10 gram (sumber N)
+            - TSP: 5 gram (sumber P)
+            - Biang purple bacteria: 500 ml (5%)
+            
+            **Prosedur:**
+            1. **Larutkan**: Gula + Urea + TSP dalam air hangat
+            2. **Dinginkan**: Hingga suhu ruang (28-30°C)
+            3. **Inokulasi**: Tambahkan biang 5-10%
+            4. **Wadah**: Jerigen/drum plastik transparan
+            5. **Tutup**: Tutup longgar (pasang selang ke botol air untuk buang gas)
+            6. **Cahaya**: Lampu pijar 60-100 watt, jarak 30-50 cm
+            7. **Inkubasi**: 7-14 hari, suhu 28-32°C
+            8. **Panen**: Warna merah pekat, bau asam segar
+            
+            **Quality Control:**
+            - Warna: Merah-ungu pekat (OD₆₀₀ \u003e 1.0)
+            - pH: 6.5-7.5
+            - Bau: Asam fermentasi (tidak busuk)
+            - Kepadatan: 10⁷-10⁹ CFU/ml
+            - Viabilitas: \u003e80% (mikroskop)
+            
+            **Penyimpanan:**
+            - Botol gelap, tutup rapat
+            - Suhu: 4-15°C (kulkas)
+            - Tahan: 3-6 bulan
+            - Sebelum pakai: Kocok perlahan
+            
+            **Yield:** 1L biang → 100L kultur (rasio 1:100)
+            """)
+            
+            st.success("""
+            💡 **Formula Ekonomis (Skala Petani):**
+            - Air: 20 liter
+            - Gula merah: 200 gram (Rp 3,000)
+            - Ragi: 10 butir (Rp 2,000)
+            - Urea: 20 gram (Rp 500)
+            - Biang: 1 liter (Rp 5,000)
+            - **Total: Rp 10,500 untuk 20 liter** (Rp 525/liter)
+            """)
+    
+    with purple_tab3:
+        st.subheader("💉 Aplikasi Purple Bacteria untuk Pertanian")
+        
+        st.markdown("### 🌾 Aplikasi Tanaman Padi")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Dosis & Cara:**")
+            st.markdown("""
+            **1. Pengolahan Tanah:**
+            - Dosis: 5-10 L/ha
+            - Campur dengan air 200-500 L
+            - Semprot ke tanah sebelum bajak
+            - Tunggu 3-7 hari, lalu bajak
+            
+            **2. Persemaian:**
+            - Dosis: 2-3 L per 100 m² bedengan
+            - Campur dengan air 20 L
+            - Siram ke bedengan setelah semai
+            - Ulangi setiap 7 hari (3x)
+            
+            **3. Tanam Pindah:**
+            - Dosis: 1-2 L per 1000 bibit
+            - Rendam akar bibit 10-15 menit
+            - Langsung tanam
+            
+            **4. Pemeliharaan:**
+            - Dosis: 5-10 L/ha
+            - Aplikasi: 3-4 kali per musim
+            - Waktu: 2, 4, 6, 8 MST
+            - Cara: Kocor atau semprot
+            """)
+        
+        with col2:
+            st.success("**Hasil yang Diharapkan:**")
+            st.markdown("""
+            - Pertumbuhan vegetatif 20-30% lebih cepat
+            - Anakan produktif naik 15-25%
+            - Gabah lebih berisi (berat 1000 butir ↑ 10-15%)
+            - Hasil panen naik 15-30%
+            - Hemat pupuk urea 20-40%
+            - Tanah lebih gembur dan subur
+            """)
+            
+            st.info("**Kombinasi Optimal:**")
+            st.markdown("""
+            - Purple Bacteria + ROTAN/MOL
+            - Purple Bacteria + Azotobacter
+            - Purple Bacteria + Kompos
+            - Kurangi urea 30-50% dari dosis normal
+            """)
+        
+        st.markdown("---")
+        st.markdown("### 🥬 Aplikasi Sayuran & Buah")
+        
+        app_data = {
+            'Tanaman': [
+                'Tomat, Cabai, Terong',
+                'Kubis, Sawi, Kangkung',
+                'Bawang Merah, Bawang Putih',
+                'Jeruk, Mangga, Durian',
+                'Strawberry, Melon'
+            ],
+            'Dosis (ml/tanaman)': [
+                '50-100',
+                '30-50',
+                '20-30',
+                '200-500',
+                '50-100'
+            ],
+            'Frekuensi': [
+                'Setiap 7-10 hari',
+                'Setiap 7 hari',
+                'Setiap 10 hari',
+                'Setiap 14 hari',
+                'Setiap 7 hari'
+            ],
+            'Metode': [
+                'Kocor + Semprot',
+                'Kocor',
+                'Kocor',
+                'Kocor (area perakaran)',
+                'Kocor + Semprot'
+            ],
+            'Hasil': [
+                'Hasil ↑ 20-35%, kualitas ↑',
+                'Pertumbuhan ↑ 25%, lebih hijau',
+                'Umbi ↑ 15-25%, tahan layu',
+                'Buah ↑ 20-30%, manis ↑',
+                'Buah ↑ 25-40%, Brix ↑ 2-3°'
+            ]
+        }
+        
+        df_app = pd.DataFrame(app_data)
+        st.dataframe(df_app, use_container_width=True, hide_index=True)
+    
+    with purple_tab4:
+        st.subheader("🐟 Aplikasi Purple Bacteria untuk Akuakultur")
+        st.success("**Meningkatkan Kualitas Air & Kesehatan Ikan/Udang**")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🐟 Kolam Ikan (Lele, Nila, Patin)")
+            st.markdown("""
+            **Dosis:**
+            - Kolam baru: 10-20 L per 1000 m³ air
+            - Maintenance: 5-10 L per 1000 m³ per minggu
+            
+            **Cara Aplikasi:**
+            1. Encerkan purple bacteria dengan air kolam (1:10)
+            2. Siram merata ke seluruh permukaan kolam
+            3. Waktu terbaik: Pagi hari (06:00-08:00)
+            4. Frekuensi: 1-2x per minggu
+            
+            **Manfaat:**
+            - Mengurangi NH₃ (amoniak) 40-60%
+            - Mengurangi H₂S (bau busuk) 50-70%
+            - Meningkatkan DO (dissolved oxygen)
+            - Mengurangi patogen (Aeromonas, Vibrio)
+            - Pertumbuhan ikan 15-25% lebih cepat
+            - FCR (Feed Conversion Ratio) lebih baik
+            - Survival rate naik 10-20%
+            """)
+        
+        with col2:
+            st.markdown("#### 🦐 Tambak Udang (Vaname, Windu)")
+            st.markdown("""
+            **Dosis:**
+            - Persiapan tambak: 20-30 L/ha
+            - Maintenance: 10-15 L/ha per minggu
+            
+            **Cara Aplikasi:**
+            1. Aplikasi pertama: 1 minggu sebelum tebar benur
+            2. Aplikasi rutin: Setiap 5-7 hari
+            3. Dosis lebih tinggi saat:
+               - Setelah hujan lebat
+               - Setelah panen parsial
+               - Saat kualitas air menurun
+            
+            **Manfaat:**
+            - Stabilkan pH (7.5-8.5)
+            - Mengurangi vibrio (penyebab WSSV, IMNV)
+            - Meningkatkan plankton (pakan alami)
+            - Mengurangi bau tambak
+            - Pertumbuhan udang 20-30% lebih cepat
+            - Survival rate naik 15-25%
+            - Kualitas udang lebih baik (warna, tekstur)
+            """)
+        
+        st.markdown("---")
+        st.markdown("#### 🗑️ Aplikasi Lain: Pengomposan & Limbah")
+        
+        col_other1, col_other2 = st.columns(2)
+        
+        with col_other1:
+            st.info("**Bioaktivator Kompos:**")
+            st.markdown("""
+            - Dosis: 1-2 L per 100 kg bahan organik
+            - Cara: Semprot merata saat membuat tumpukan
+            - Hasil: Kompos matang 30-50% lebih cepat (30-45 hari)
+            - Kualitas: C/N ratio lebih baik, bau tidak menyengat
+            """)
+        
+        with col_other2:
+            st.warning("**Pengolahan Limbah (IPAL, Septik Tank):**")
+            st.markdown("""
+            - Dosis: 5-10 L per 1000 L limbah
+            - Frekuensi: 1x per minggu
+            - Manfaat: Mengurangi BOD/COD 40-60%, bau hilang
+            - Aplikasi: Peternakan, rumah potong, industri pangan
+            """)
+
+# ===== TAB 10: Amino Acid Fertilizers =====
 with tab_amino:
     st.header("🧬 Pupuk Asam Amino (Amino Acid Fertilizers)")
     st.info("**Biostimulant Premium** - Meningkatkan penyerapan hara, sintesis protein, dan ketahanan stres")
@@ -1713,6 +2558,13 @@ with tab_calc:
                 "Humic_Acid_Extract",
                 "Moringa_Extract",
                 "Chitosan_Solution"
+            ],
+            "🍄 Mikoriza": [
+                "AMF_Trap_Culture",
+                "Ectomycorrhiza_Inoculum"
+            ],
+            "🔴 Bakteri Merah": [
+                "Purple_Bacteria_Liquid"
             ]
         }
         

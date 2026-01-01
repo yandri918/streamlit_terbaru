@@ -233,6 +233,40 @@ class MicrobeProductionService:
             },
             'output_volume': 1,  # L (solution 0.1%)
             'fermentation_days': 3
+        },
+        # Mycorrhiza Products
+        'AMF_Trap_Culture': {
+            'raw_materials': {
+                'Tanah Rhizosphere': {'qty': 1, 'unit': 'kg', 'price': 5000},
+                'Pasir Steril': {'qty': 5, 'unit': 'kg', 'price': 2000},
+                'Tanah Steril': {'qty': 5, 'unit': 'kg', 'price': 2000},
+                'Benih Jagung/Sorgum': {'qty': 0.05, 'unit': 'kg', 'price': 15000},
+                'Pot 10L': {'qty': 1, 'unit': 'buah', 'price': 5000}
+            },
+            'output_volume': 10,  # kg (media + akar terkolonisasi)
+            'fermentation_days': 90
+        },
+        'Ectomycorrhiza_Inoculum': {
+            'raw_materials': {
+                'Akar Pinus/Eucalyptus': {'qty': 0.5, 'unit': 'kg', 'price': 10000},
+                'Peat Moss': {'qty': 1, 'unit': 'kg', 'price': 15000},
+                'Vermiculite': {'qty': 1, 'unit': 'kg', 'price': 12000}
+            },
+            'output_volume': 2,  # kg (inoculum)
+            'fermentation_days': 30
+        },
+        # Purple Bacteria Products
+        'Purple_Bacteria_Liquid': {
+            'raw_materials': {
+                'Lumpur Sawah': {'qty': 0.1, 'unit': 'kg', 'price': 0},
+                'Gula Merah': {'qty': 0.1, 'unit': 'kg', 'price': 2000},
+                'Ragi Tape': {'qty': 1, 'unit': 'butir', 'price': 500},
+                'Air Bersih': {'qty': 10, 'unit': 'L', 'price': 0},
+                'Urea': {'qty': 0.01, 'unit': 'kg', 'price': 200},
+                'TSP': {'qty': 0.005, 'unit': 'kg', 'price': 100}
+            },
+            'output_volume': 10,  # L
+            'fermentation_days': 14
         }
     }
     
