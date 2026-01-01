@@ -19,6 +19,7 @@ from services.hydroponics_premium_service import (
     CROP_DATABASE,
     DISEASE_RISK_MATRIX
 )
+from services.ai_nutrient_optimizer import AInutrientOptimizer
 
 st.set_page_config(
     page_title="Premium Hydroponics & Vertical Farming",
