@@ -64,7 +64,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Main tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab_qc, tab_calc = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab_amino, tab_booster, tab_qc, tab_calc = st.tabs([
     "🐮 ROTAN",
     "🦠 MOL", 
     "🌱 PGPR",
@@ -72,6 +72,8 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab_qc, tab_calc = st.tabs([
     "🐛 Beauveria",
     "🦗 Metarhizium",
     "🌾 N-Fixers",
+    "🧬 Asam Amino",
+    "🌊 Booster Pertumbuhan",
     "🔬 Quality Control",
     "💰 Business Calculator"
 ])
@@ -601,7 +603,963 @@ with tab7:
     - Energi tinggi (16 ATP per N₂)
     """)
 
-# ===== TAB 8: Quality Control =====
+# ===== TAB 8: Amino Acid Fertilizers =====
+with tab_amino:
+    st.header("🧬 Pupuk Asam Amino (Amino Acid Fertilizers)")
+    st.info("**Biostimulant Premium** - Meningkatkan penyerapan hara, sintesis protein, dan ketahanan stres")
+    
+    st.markdown("""
+    ### 🎯 Manfaat Utama Pupuk Asam Amino
+    
+    **Nutrisi & Pertumbuhan:**
+    - ✅ **Memberikan Unsur Hara Lengkap**: NPK lengkap + unsur hara mikro (Fe, Zn, Mn, Cu, B, Mo)
+    - ✅ **Mempercepat Pertumbuhan Tanaman**: Proses metabolisme lebih efisien
+    - ✅ **Sumber Mineral & Asam Amino**: 18+ jenis asam amino esensial untuk sintesis protein
+    - ✅ **Asam Nukleat & Senyawa Aktif**: Meningkatkan aktivitas fisiologis tanaman
+    - ✅ **Polysakarida**: Sumber energi dan struktur sel tanaman
+    
+    **Produktivitas:**
+    - 🌾 **Memperbanyak & Memperbesar Anakan**: Tanaman lebih rimbun dan seragam (25-40% lebih banyak)
+    - 🌸 **Mempercepat Pembungaan & Pembuahan**: Fase generatif lebih cepat 7-14 hari
+    - 🍎 **Meningkatkan Berat/Bobot Bulir & Buah**: Gabah lebih berisi, buah lebih besar (15-30%)
+    - ⏱️ **Mempercepat Pematangan**: Waktu panen lebih cepat, efisiensi musim tanam
+    - 🍓 **Meningkatkan Kualitas Rasa**: Sayuran lebih segar, buah lebih manis (Brix naik 2-4°)
+    
+    **Ketahanan:**
+    - 🛡️ **Meningkatkan Daya Tahan Penyakit**: Tahan layu fusarium, bakteri, virus (40-60% lebih tahan)
+    - 🌡️ **Ketahanan Stres Lingkungan**: Tahan kekeringan, cuaca ekstrem, salinitas
+    - 🌱 **Menyuburkan Tanah**: Meningkatkan kesuburan tanah dan melarutkan sisa pupuk kimia
+    
+    **Aplikasi Universal:**
+    - 🌾 Pertanian (padi, jagung, kedelai)
+    - 🌳 Perkebunan (kelapa sawit, karet, kakao)
+    - 🌲 Kehutanan (tanaman pionir, reboisasi)
+    - 🥬 Hortikultura (sayuran, buah-buahan)
+    """)
+    
+    
+    amino_tab1, amino_tab2, amino_tab3, amino_tab4, amino_tab5 = st.tabs([
+        "🐟 Fish Amino Acid (FAA)",
+        "🐌 Keong Mas Amino",
+        "🌱 Plant-Based Amino",
+        "🧪 Aplikasi & Dosis",
+        "📊 Produk Komersial"
+    ])
+    
+    with amino_tab1:
+        st.subheader("🐟 Fermented Fish Amino Acid (FAA)")
+        st.success("**Metode Korean Natural Farming** - Sumber asam amino lengkap (18+ jenis)")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🥦 Bahan-Bahan")
+            st.markdown("""
+            **Bahan Utama:**
+            - **Ikan Segar** (teri/tongkol/sisa ikan): 1 kg
+            - **Gula Merah/Molase**: 1 kg (rasio 1:1)
+            
+            **Bahan Tambahan (Opsional):**
+            - Usus Ikan: 200 gram (mempercepat fermentasi)
+            - Nanas: 1 buah (enzim bromelin)
+            - EM4/Starter: 50 ml (opsional)
+            
+            **Wadah:**
+            - Toples kaca/plastik food grade 5L
+            - Jangan gunakan logam!
+            """)
+            
+            st.markdown("#### 🔬 Kandungan Ilmiah")
+            st.markdown("""
+            - **18 Asam Amino Esensial** (Lysine, Methionine, Tryptophan, dll)
+            - **Nitrogen Organik**: 8-12%
+            - **Peptida Bioaktif**: Meningkatkan imunitas tanaman
+            - **Mineral**: Ca, Mg, Fe, Zn dari tulang ikan
+            
+            📚 **Referensi**: 
+            - Colla et al. (2015). *Scientia Horticulturae*
+            - Kauffman et al. (2007). *HortScience*
+            """)
+        
+        with col2:
+            st.markdown("#### 🥣 Cara Pembuatan")
+            st.markdown("""
+            **Metode Tradisional (14 hari):**
+            1. **Potong**: Cincang ikan + usus menjadi potongan kecil
+            2. **Campur**: Ikan 1kg + Gula merah 1kg (1:1), aduk rata
+            3. **Wadah**: Masukkan ke toples, tekan hingga padat
+            4. **Tutup**: Tutup rapat (anaerob), beri lubang kecil untuk gas
+            5. **Fermentasi**: Simpan di tempat teduh, **14-21 hari**
+            6. **Panen**: Saring cairannya (warna coklat kehitaman)
+            7. **Simpan**: Botol kedap udara, tahan 6-12 bulan
+            
+            **Metode Cepat dengan Enzim (7 hari):**
+            1. Blender ikan + nanas (enzim bromelin)
+            2. Campur dengan gula merah 1:1
+            3. Tambahkan EM4 50ml
+            4. Fermentasi 7-10 hari
+            5. Saring dan siap pakai
+            """)
+            
+            st.success("✅ **Ciri Berhasil**: Bau asam fermentasi (seperti terasi), warna coklat tua, tidak berbau busuk")
+            st.error("❌ **Ciri Gagal**: Bau busuk menyengat, warna hitam pekat, banyak belatung")
+    
+    with amino_tab2:
+        st.subheader("🐌 Keong Mas Amino Acid (Golden Snail)")
+        st.info("**Pemanfaatan Hama Menjadi Pupuk** - Tinggi protein (60-70%) dan kalsium")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🥦 Bahan-Bahan")
+            st.markdown("""
+            - **Keong Mas Hidup**: 1 kg (dengan cangkang)
+            - **Gula Merah/Molase**: 500 gram
+            - **Air Kelapa**: 2 liter
+            - **Buah Maja**: ½ buah (atau gula tambahan)
+            - **EM4**: 50 ml (opsional)
+            
+            **Alternatif tanpa Maja:**
+            - Ganti dengan 500g gula merah tambahan
+            """)
+            
+            st.markdown("#### 🔬 Kandungan")
+            st.markdown("""
+            - **Protein**: 60-70% (tertinggi di antara MOL)
+            - **Asam Amino**: Arginine, Lysine, Leucine
+            - **Kalsium (Ca)**: Dari cangkang (20-30%)
+            - **Enzim Proteolitik**: Mempercepat dekomposisi
+            """)
+        
+        with col2:
+            st.markdown("#### 🥣 Cara Pembuatan")
+            st.markdown("""
+            1. **Tumbuk**: Hancurkan keong mas (cangkang + daging) hingga halus
+            2. **Maja**: Tumbuk buah maja atau larutkan gula
+            3. **Campur**: Keong + Maja + Air kelapa + Gula merah
+            4. **Aduk**: Kocok hingga rata
+            5. **Wadah**: Simpan di toples plastik/kaca
+            6. **Fermentasi**: 
+               - Buka tutup setiap pagi (buang gas)
+               - Aduk setiap 2 hari
+               - **15-21 hari** hingga matang
+            7. **Saring**: Ambil cairannya, ampas bisa untuk kompos
+            """)
+            
+            st.success("✅ **Hasil**: Cairan coklat kental, bau fermentasi kuat (seperti petis)")
+            
+            st.markdown("#### 💉 Dosis Aplikasi")
+            st.markdown("""
+            - **Kompos**: 1L MOL : 5L air + gula
+            - **Tanaman**: 1L MOL : 10-15L air
+            - **Frekuensi**: Setiap 7-10 hari
+            """)
+    
+    with amino_tab3:
+        st.subheader("🌱 Plant-Based Amino Acid (Vegan)")
+        st.info("**Alternatif Nabati** - Dari fermentasi kacang-kacangan dan sayuran")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🥦 Formula 1: Kedelai Fermentasi")
+            st.markdown("""
+            **Bahan:**
+            - Kedelai/Kacang Hijau: 2 kg
+            - Gula Merah: 1 kg
+            - Air Leri: 5 liter
+            - Ragi Tempe: 2 bungkus
+            - EM4: 100 ml
+            
+            **Cara:**
+            1. Rebus kacang hingga empuk (jangan terlalu lembek)
+            2. Dinginkan, hancurkan kasar
+            3. Campur dengan ragi tempe, diamkan 24 jam
+            4. Tambahkan gula + air leri + EM4
+            5. Fermentasi 14 hari (anaerob)
+            6. Saring dan siap pakai
+            
+            **Kandungan:**
+            - Asam amino: Glutamic acid, Aspartic acid
+            - Protein: 40-50%
+            - Vitamin B kompleks
+            """)
+        
+        with col2:
+            st.markdown("#### 🥦 Formula 2: Sayuran Hijau")
+            st.markdown("""
+            **Bahan:**
+            - Kangkung/Bayam/Daun Kacang: 3 kg
+            - Kacang Panjang: 1 kg
+            - Gula Merah: 1 kg
+            - Air Kelapa: 3 liter
+            - Air Leri: 2 liter
+            
+            **Cara:**
+            1. Blender semua sayuran seperti jus
+            2. Campur dengan gula + air kelapa + air leri
+            3. Masukkan wadah plastik/kaca
+            4. Fermentasi 14 hari (buka tutup tiap 2 hari)
+            5. Saring dan aplikasikan
+            
+            **Kandungan:**
+            - Asam amino: Proline, Glycine, Alanine
+            - Klorofil: Meningkatkan fotosintesis
+            - Nitrogen organik: 5-8%
+            """)
+            
+            st.success("💡 **Keunggulan**: Ramah lingkungan, tidak berbau amis, cocok untuk pertanian organik")
+    
+    with amino_tab4:
+        st.subheader("🧪 Aplikasi & Dosis Pupuk Asam Amino")
+        
+        st.markdown("### 📋 Jenis & Kandungan")
+        
+        col_type1, col_type2 = st.columns(2)
+        
+        with col_type1:
+            st.markdown("#### 💧 Cair (Liquid)")
+            st.markdown("""
+            **Karakteristik:**
+            - Berbahan dasar fermentasi alami (nanas, ikan, keong)
+            - Mengandung NPK + Asam Amino + ZPT (Zat Pengatur Tumbuh)
+            - **Cepat diserap** tanaman (2-4 jam)
+            - pH: 4.5-6.5 (asam)
+            
+            **Kandungan Tipikal:**
+            - Nitrogen (N): 2-5%
+            - Asam Amino Bebas: 8-15%
+            - Peptida: 5-10%
+            - Mikronutrien: Fe, Zn, Mn, Cu
+            """)
+        
+        with col_type2:
+            st.markdown("#### 🧊 Padat/Slow Release")
+            st.markdown("""
+            **Karakteristik:**
+            - Bentuk granul/powder
+            - **Nitrogen (N) tinggi**: 10-20%
+            - Dilepas perlahan (slow release)
+            - Tahan 30-60 hari di tanah
+            
+            **Kandungan Tipikal:**
+            - Nitrogen (N): 10-20%
+            - Asam Amino Total: 30-50%
+            - Protein Hydrolysate: 40-60%
+            - Bahan organik: 60-80%
+            """)
+        
+        st.markdown("---")
+        st.markdown("### 💉 Cara Penggunaan (Umum)")
+        
+        st.markdown("""
+        **Persiapan:**
+        1. **Kocok dahulu** (untuk yang cair) - endapan normal
+        2. **Campur**: 
+           - Dosis rendah: 1 tutup botol (10 ml) per 1 liter air
+           - Dosis standar: 20-30 ml per 1 liter air
+           - Dosis tinggi: 100 ml per 10 liter air (fase kritis)
+        
+        **Metode Aplikasi:**
+        """)
+        
+        col_app1, col_app2 = st.columns(2)
+        
+        with col_app1:
+            st.success("**🌿 Semprot (Foliar Spray)**")
+            st.markdown("""
+            - **Volume**: 400-600 L/ha
+            - **Konsentrasi**: 0.5-2% (5-20 ml/L)
+            - **Waktu**: Pagi (06:00-09:00) atau Sore (16:00-18:00)
+            - **Hindari**: Siang hari (penguapan tinggi)
+            - **Frekuensi**: Setiap 7-10 hari
+            
+            **Keunggulan:**
+            - Penyerapan cepat (2-4 jam)
+            - Langsung ke metabolisme
+            - Efisien untuk fase vegetatif
+            """)
+        
+        with col_app2:
+            st.info("**💧 Kocor/Siram (Drench/Root)**")
+            st.markdown("""
+            - **Volume**: 100-200 ml per tanaman
+            - **Konsentrasi**: 1-3% (10-30 ml/L)
+            - **Waktu**: Pagi atau sore (tanah lembab)
+            - **Frekuensi**: Setiap 10-14 hari
+            
+            **Keunggulan:**
+            - Merangsang akar
+            - Meningkatkan mikroba tanah
+            - Tahan lebih lama di rhizosphere
+            - Cocok untuk fase generatif
+            """)
+        
+        st.markdown("---")
+        st.markdown("### 📅 Waktu Aplikasi Optimal")
+        
+        timing_data = {
+            'Fase Pertumbuhan': [
+                'Vegetatif Awal (0-30 HST)',
+                'Vegetatif Akhir (30-60 HST)',
+                'Generatif (Pembungaan)',
+                'Pembuahan/Pengisian Bulir',
+                'Menjelang Panen'
+            ],
+            'Metode': [
+                'Semprot + Kocor',
+                'Semprot (fokus daun)',
+                'Kocor (fokus akar)',
+                'Semprot + Kocor',
+                'Semprot (maintenance)'
+            ],
+            'Frekuensi': [
+                '1x per minggu',
+                '1x per 10 hari',
+                '2x per minggu (fase kritis)',
+                '1x per minggu',
+                '1x per 14 hari'
+            ],
+            'Dosis': [
+                '10-20 ml/L',
+                '20-30 ml/L',
+                '30-50 ml/L (booster)',
+                '20-30 ml/L',
+                '10-15 ml/L'
+            ]
+        }
+        
+        df_timing = pd.DataFrame(timing_data)
+        st.dataframe(df_timing, use_container_width=True, hide_index=True)
+        
+        st.warning("""
+        ⚠️ **Catatan Penting:**
+        - Jangan aplikasi saat hujan atau tanah becek
+        - Hindari overdosis (bisa menyebabkan pertumbuhan tidak seimbang)
+        - Kombinasikan dengan pupuk dasar NPK untuk hasil optimal
+        - Simpan di tempat sejuk, hindari sinar matahari langsung
+        """)
+    
+    with amino_tab5:
+        st.subheader("📊 Produk Komersial Amino Acid")
+        st.info("**Referensi Produk Terpercaya** - Untuk perbandingan dan standar kualitas")
+        
+        commercial_data = {
+            'Produk': [
+                'Vitalazo',
+                'Verti K',
+                'DARA',
+                'Booster 76',
+                'Shoucheng',
+                'JetPro'
+            ],
+            'Fungsi Utama': [
+                'Pembangkit Anakan',
+                'Pelebat Bobot Bulir',
+                'Booster Buah (Tinggi K)',
+                'Pelebat & Penyubur',
+                'Pupuk Daun Premium',
+                'Booster Bobot Gabah'
+            ],
+            'Kandungan Kunci': [
+                'Asam Amino + Sitokinin',
+                'Kalium (K) + Asam Amino',
+                'K₂O 20% + Amino Acid',
+                'NPK + 18 Asam Amino',
+                'Amino Acid + Mikronutrien',
+                'Protein Hydrolysate + K'
+            ],
+            'Dosis Umum': [
+                '10-20 ml/L',
+                '20-30 ml/L',
+                '2-3 ml/L',
+                '1-2 tutup/14L',
+                '15-20 ml/L',
+                '20-30 ml/L'
+            ],
+            'Aplikasi': [
+                'Semprot/Kocor',
+                'Kocor (fase generatif)',
+                'Semprot (buah)',
+                'Semprot/Kocor',
+                'Semprot (daun)',
+                'Kocor (bulir)'
+            ],
+            'Harga Estimasi': [
+                'Rp 50-80k/L',
+                'Rp 60-90k/L',
+                'Rp 70-100k/L',
+                'Rp 45-75k/L',
+                'Rp 80-120k/L',
+                'Rp 55-85k/L'
+            ]
+        }
+        
+        df_commercial = pd.DataFrame(commercial_data)
+        st.dataframe(df_commercial, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        st.markdown("### 🏆 Perbandingan: Homemade vs Komersial")
+        
+        col_comp1, col_comp2 = st.columns(2)
+        
+        with col_comp1:
+            st.success("**✅ Pupuk Asam Amino Homemade (FAA/Keong Mas)**")
+            st.markdown("""
+            **Keunggulan:**
+            - Biaya produksi sangat rendah (Rp 5-15k/L)
+            - Bahan lokal, mudah didapat
+            - Ramah lingkungan (zero waste)
+            - Mikroorganisme hidup (probiotik)
+            - Bisa diproduksi skala rumahan
+            
+            **Kekurangan:**
+            - Kandungan tidak terstandar
+            - Bau kurang sedap (ikan/keong)
+            - Perlu waktu fermentasi (14-21 hari)
+            - Shelf life terbatas (6-12 bulan)
+            """)
+        
+        with col_comp2:
+            st.info("**🏭 Pupuk Asam Amino Komersial**")
+            st.markdown("""
+            **Keunggulan:**
+            - Kandungan terstandar (SNI/ISO)
+            - Tidak berbau
+            - Siap pakai (instant)
+            - Shelf life panjang (2-3 tahun)
+            - Formulasi spesifik (fase tanaman)
+            
+            **Kekurangan:**
+            - Harga tinggi (Rp 50-120k/L)
+            - Ketergantungan pasokan
+            - Bahan kimia sintetis (beberapa produk)
+            - Tidak ada mikroorganisme hidup
+            """)
+        
+        st.markdown("---")
+        st.success("""
+        💡 **Rekomendasi Praktis:**
+        - **Petani Skala Kecil**: Gunakan homemade (FAA/Keong Mas) untuk efisiensi biaya
+        - **Petani Komersial**: Kombinasi 70% homemade + 30% komersial (fase kritis)
+        - **Pertanian Organik**: 100% homemade (sertifikasi organik)
+        - **Greenhouse/Hidroponik**: Komersial (standar tinggi, tidak berbau)
+        """)
+
+# ===== TAB 9: Growth Boosters =====
+with tab_booster:
+    st.header("🌊 Booster Pertumbuhan (Growth Stimulants)")
+    st.info("**Plant Biostimulants** - Hormon alami, ekstrak laut, dan asam humat untuk pertumbuhan maksimal")
+    
+    st.markdown("""
+    ### 🎯 Manfaat Utama
+    - **Merangsang Pertumbuhan Akar**: Sistem perakaran lebih kuat dan luas
+    - **Meningkatkan Penyerapan Hara**: Efisiensi pupuk naik 30-50%
+    - **Mempercepat Pembungaan**: Flowering lebih cepat dan seragam
+    - **Ketahanan Stres**: Tahan kekeringan, salinitas, suhu ekstrem
+    - **Meningkatkan Hasil**: Yield naik 15-40%
+    """)
+    
+    booster_tab1, booster_tab2, booster_tab3, booster_tab4, booster_tab5 = st.tabs([
+        "🌊 Seaweed Extract",
+        "🪨 Humic & Fulvic Acid",
+        "🥥 Coconut Water + Chitosan",
+        "🌿 Moringa Extract",
+        "📊 Aplikasi & Kombinasi"
+    ])
+    
+    with booster_tab1:
+        st.subheader("🌊 Seaweed Extract (Liquid Kelp)")
+        st.success("**Sumber Hormon Alami** - Cytokinin, Auxin, Gibberellin dari rumput laut")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🥦 Bahan-Bahan")
+            st.markdown("""
+            **Bahan Utama:**
+            - **Rumput Laut Segar** (Sargassum/Gracilaria): 2 kg
+            - **Air Bersih**: 10 liter
+            - **Molase/Gula Merah**: 500 gram
+            - **EM4**: 100 ml (opsional)
+            
+            **Alternatif:**
+            - Rumput laut kering: 500 gram (rendam 24 jam)
+            - Spirulina powder: 200 gram (instant)
+            
+            **Sumber Rumput Laut:**
+            - Pantai (gratis, cuci bersih)
+            - Pasar ikan (Rp 5-10k/kg)
+            - Toko bahan makanan (rumput laut kering)
+            """)
+            
+            st.markdown("#### 🔬 Kandungan Ilmiah")
+            st.markdown("""
+            **Fitohormon:**
+            - **Cytokinin**: 10-100 ppm (pembelahan sel)
+            - **Auxin (IAA)**: 5-50 ppm (pertumbuhan akar)
+            - **Gibberellin**: 1-10 ppm (perpanjangan batang)
+            
+            **Nutrisi:**
+            - Nitrogen (N): 1-3%
+            - Kalium (K): 3-5%
+            - Trace elements: I, Fe, Zn, Mn, Cu, B
+            - Alginic acid: 10-30% (chelator alami)
+            - Mannitol: 5-10% (osmoprotektan)
+            
+            📚 **Referensi**: 
+            - Khan et al. (2009). *J. Plant Growth Regulation*
+            - Craigie (2011). *J. Applied Phycology*
+            """)
+        
+        with col2:
+            st.markdown("#### 🥣 Cara Pembuatan")
+            st.markdown("""
+            **Metode Fermentasi (14 hari):**
+            1. **Cuci**: Bilas rumput laut dengan air tawar (hilangkan garam)
+            2. **Potong**: Cincang kasar (2-3 cm)
+            3. **Blender**: Haluskan dengan air (rasio 1:5)
+            4. **Campur**: Tambahkan molase + EM4
+            5. **Fermentasi**: Simpan di wadah tertutup, 14 hari
+            6. **Aduk**: Buka dan aduk setiap 3 hari
+            7. **Saring**: Ambil cairannya (warna coklat kehijauan)
+            
+            **Metode Cepat - Cold Extraction (24 jam):**
+            1. Rendam rumput laut segar 1kg dalam 5L air
+            2. Tambahkan 100ml cuka (pH 4-5)
+            3. Diamkan 24 jam, aduk setiap 6 jam
+            4. Saring dan langsung pakai
+            
+            **Metode Instant - Hot Extraction (2 jam):**
+            1. Rebus rumput laut 1kg + 5L air
+            2. Didihkan 30 menit (api kecil)
+            3. Dinginkan, saring
+            4. Siap pakai (tahan 1 minggu)
+            """)
+            
+            st.success("✅ **Ciri Berhasil**: Bau laut segar, warna hijau-coklat, tidak berbusa berlebihan")
+    
+    with booster_tab2:
+        st.subheader("🪨 Humic & Fulvic Acid")
+        st.info("**Soil Conditioner Premium** - Meningkatkan CEC tanah dan chelasi nutrisi")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🥦 Sumber Humic Acid")
+            st.markdown("""
+            **1. Dari Vermicompost (Kascing)**
+            - Kascing matang: 5 kg
+            - Air bersih: 20 liter
+            - KOH/NaOH: 50 gram (pH 10-11)
+            - Waktu ekstraksi: 24 jam
+            
+            **2. Dari Kompos Matang**
+            - Kompos hitam (>6 bulan): 10 kg
+            - Air: 30 liter
+            - KOH: 100 gram
+            - Aduk 48 jam, saring
+            
+            **3. Dari Leonardite (Komersial)**
+            - Leonardite powder: 1 kg
+            - Air: 10 liter
+            - KOH: 50 gram
+            - Hasil: Humic acid 10-15%
+            """)
+            
+            st.markdown("#### 🔬 Kandungan")
+            st.markdown("""
+            **Humic Acid:**
+            - Berat molekul: 10,000-100,000 Da
+            - Fungsi: Meningkatkan CEC tanah
+            - Konsentrasi: 5-15% (ekstrak)
+            
+            **Fulvic Acid:**
+            - Berat molekul: 1,000-10,000 Da
+            - Fungsi: Chelasi nutrisi, transport
+            - Konsentrasi: 2-5% (ekstrak)
+            
+            📚 **Referensi**: 
+            - Canellas et al. (2015). *Scientia Horticulturae*
+            """)
+        
+        with col2:
+            st.markdown("#### 🥣 Cara Pembuatan")
+            st.markdown("""
+            **Ekstraksi Humic Acid (dari Kascing):**
+            1. **Campur**: 5 kg kascing + 20L air
+            2. **Alkali**: Tambahkan 50g KOH (pH 10-11)
+            3. **Aduk**: Aduk kuat selama 2 jam
+            4. **Diamkan**: 24 jam (warna hitam pekat)
+            5. **Saring**: Gunakan kain halus
+            6. **Netralisasi**: Turunkan pH ke 6-7 dengan cuka
+            7. **Simpan**: Botol gelap, tahan 6 bulan
+            
+            **Ekstraksi Fulvic Acid:**
+            1. Ambil filtrat humic acid
+            2. Tambahkan HCl hingga pH 2
+            3. Diamkan 12 jam (fulvic tetap larut)
+            4. Saring (humic mengendap, fulvic di cairan)
+            5. Netralisasi pH ke 6-7
+            6. Siap pakai
+            """)
+            
+            st.markdown("#### 💉 Dosis Aplikasi")
+            st.markdown("""
+            **Humic Acid:**
+            - Tanah: 2-5 L/ha (konsentrasi 10%)
+            - Kocor: 50-100 ml/tanaman (diencerkan 1:100)
+            - Frekuensi: Setiap 2-4 minggu
+            
+            **Fulvic Acid:**
+            - Semprot: 20-50 ml/L (foliar)
+            - Kocor: 100 ml/tanaman (1:50)
+            - Frekuensi: Setiap 7-14 hari
+            """)
+    
+    with booster_tab3:
+        st.subheader("🥥 Coconut Water + Chitosan")
+        st.success("**Natural Cytokinin + Defense Elicitor** - Kombinasi hormon dan imunitas")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🥥 Air Kelapa (Natural Cytokinin)")
+            st.markdown("""
+            **Kandungan:**
+            - **Cytokinin (Zeatin)**: 5-10 ppm
+            - **Auxin (IAA)**: 1-5 ppm
+            - **Gibberellin**: 0.5-2 ppm
+            - **Mineral**: K, Ca, Mg, Fe
+            - **Gula**: Glukosa, fruktosa (energi)
+            
+            **Manfaat:**
+            - Merangsang pembelahan sel
+            - Mempercepat pertumbuhan tunas
+            - Meningkatkan pembungaan
+            - Anti-aging (menunda senescence)
+            
+            **Aplikasi:**
+            - Konsentrasi: 10-30% (100-300 ml/L)
+            - Metode: Semprot atau kocor
+            - Waktu: Fase vegetatif dan pembungaan
+            - Frekuensi: Setiap 7-10 hari
+            """)
+        
+        with col2:
+            st.markdown("#### 🦐 Chitosan (Defense Elicitor)")
+            st.markdown("""
+            **Sumber Chitosan:**
+            - Cangkang udang/kepiting: 1 kg
+            - HCl 5%: 2 liter (demineralisasi)
+            - NaOH 40%: 2 liter (deproteinasi)
+            - Asam asetat 1%: 1 liter (pelarutan)
+            
+            **Cara Pembuatan (Sederhana):**
+            1. Cuci cangkang, keringkan
+            2. Tumbuk halus (powder)
+            3. Rendam HCl 5%, 24 jam (hilangkan mineral)
+            4. Cuci, rendam NaOH 40%, 24 jam (hilangkan protein)
+            5. Cuci hingga netral
+            6. Keringkan = Chitosan powder
+            7. Larutkan 1g chitosan + 1L asam asetat 1%
+            
+            **Manfaat:**
+            - Menginduksi resistensi sistemik (ISR)
+            - Meningkatkan enzim pertahanan (PAL, POX)
+            - Anti-jamur dan anti-bakteri
+            - Meningkatkan lignifikasi (batang kuat)
+            
+            📚 **Referensi**: 
+            - Culver et al. (2012). *Agronomy for Sustainable Development*
+            """)
+        
+        st.markdown("---")
+        st.markdown("#### 🧪 Formula Kombinasi: Kelapa + Chitosan")
+        st.markdown("""
+        **Bahan:**
+        - Air kelapa muda: 1 liter
+        - Chitosan solution (0.1%): 100 ml
+        - Molase: 50 ml (perekat)
+        - Air: 5 liter
+        
+        **Cara:**
+        1. Campur air kelapa + chitosan solution
+        2. Tambahkan molase (sebagai sticker)
+        3. Encerkan dengan air hingga 5L
+        4. Aplikasi semprot pagi/sore
+        
+        **Hasil:**
+        - Pertumbuhan tunas 30% lebih cepat
+        - Ketahanan penyakit naik 40-60%
+        - Pembungaan lebih seragam
+        """)
+    
+    with booster_tab4:
+        st.subheader("🌿 Moringa Extract (Zeatin-Rich)")
+        st.info("**Super Booster** - Kandungan Zeatin (cytokinin) 1000x lebih tinggi dari tanaman lain!")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("#### 🥦 Bahan-Bahan")
+            st.markdown("""
+            **Bahan Utama:**
+            - **Daun Kelor Segar**: 1 kg
+            - **Air Bersih**: 5 liter
+            - **Etanol 70%**: 500 ml (opsional, untuk ekstrak pekat)
+            
+            **Alternatif:**
+            - Daun kelor kering: 300 gram
+            - Moringa powder: 200 gram (instant)
+            
+            **Sumber:**
+            - Pohon kelor (gratis, tanam sendiri)
+            - Pasar tradisional (Rp 5-10k/ikat)
+            - Toko herbal (powder Rp 30-50k/kg)
+            """)
+            
+            st.markdown("#### 🔬 Kandungan Ilmiah")
+            st.markdown("""
+            **Fitohormon:**
+            - **Zeatin (Cytokinin)**: 5-200 µg/g (TERTINGGI!)
+            - **Auxin**: 10-50 µg/g
+            - **Gibberellin**: 5-20 µg/g
+            
+            **Nutrisi:**
+            - Protein: 25-30%
+            - Vitamin A: 6780 µg/100g
+            - Vitamin C: 220 mg/100g
+            - Kalsium: 440 mg/100g
+            - Kalium: 259 mg/100g
+            - Asam amino: 18 jenis
+            
+            **Antioksidan:**
+            - Flavonoid: Quercetin, Kaempferol
+            - Phenolic compounds
+            
+            📚 **Referensi**: 
+            - Fuglie (2000). *CTA Publication*
+            - Rady et al. (2015). *Scientia Horticulturae*
+            """)
+        
+        with col2:
+            st.markdown("#### 🥣 Cara Pembuatan")
+            st.markdown("""
+            **Metode 1: Water Extract (Sederhana)**
+            1. **Cuci**: Bilas daun kelor segar
+            2. **Blender**: 1kg daun + 2L air, haluskan
+            3. **Saring**: Gunakan kain halus
+            4. **Encerkan**: Tambah air hingga 5L
+            5. **Aplikasi**: Langsung pakai (tahan 3 hari di kulkas)
+            
+            **Metode 2: Fermentasi (Tahan Lama)**
+            1. Blender daun kelor + air (1:3)
+            2. Tambahkan molase 100ml + EM4 50ml
+            3. Fermentasi 7 hari (anaerob)
+            4. Saring, siap pakai (tahan 3 bulan)
+            
+            **Metode 3: Ethanol Extract (Pekat)**
+            1. Keringkan daun kelor (oven 50°C)
+            2. Tumbuk halus (powder)
+            3. Rendam 100g powder + 500ml etanol 70%
+            4. Diamkan 48 jam, saring
+            5. Evaporasi etanol (tinggal ekstrak pekat)
+            6. Encerkan 1:1000 saat aplikasi
+            """)
+            
+            st.success("✅ **Ciri Berhasil**: Warna hijau tua, bau khas kelor, tidak berbusa")
+        
+        st.markdown("---")
+        st.markdown("#### 💉 Dosis & Aplikasi")
+        
+        moringa_dose = {
+            'Metode': ['Water Extract', 'Fermentasi', 'Ethanol Extract'],
+            'Konsentrasi': ['20-30%', '5-10%', '0.1-0.5%'],
+            'Dosis': ['200-300 ml/L', '50-100 ml/L', '1-5 ml/L'],
+            'Frekuensi': ['Setiap 7 hari', 'Setiap 10 hari', 'Setiap 14 hari'],
+            'Aplikasi': ['Semprot/Kocor', 'Semprot/Kocor', 'Semprot (foliar)']
+        }
+        
+        df_moringa = pd.DataFrame(moringa_dose)
+        st.dataframe(df_moringa, use_container_width=True, hide_index=True)
+        
+        st.warning("""
+        **📋 Hasil yang Diharapkan:**
+        - Pertumbuhan vegetatif 25-40% lebih cepat
+        - Pembungaan lebih awal (7-14 hari)
+        - Jumlah bunga/buah naik 30-50%
+        - Ukuran buah lebih besar (15-25%)
+        - Ketahanan stres meningkat
+        """)
+    
+    with booster_tab5:
+        st.subheader("📊 Aplikasi & Kombinasi Booster")
+        
+        st.markdown("### 🧪 Tabel Aplikasi Lengkap")
+        
+        application_data = {
+            'Booster': [
+                'Seaweed Extract',
+                'Humic Acid',
+                'Fulvic Acid',
+                'Air Kelapa',
+                'Chitosan',
+                'Moringa Extract'
+            ],
+            'Fase Optimal': [
+                'Vegetatif + Generatif',
+                'Awal tanam + Vegetatif',
+                'Sepanjang musim',
+                'Vegetatif + Pembungaan',
+                'Sepanjang musim (preventif)',
+                'Vegetatif + Pembungaan'
+            ],
+            'Metode': [
+                'Semprot/Kocor',
+                'Kocor (tanah)',
+                'Semprot (foliar)',
+                'Semprot/Kocor',
+                'Semprot',
+                'Semprot/Kocor'
+            ],
+            'Dosis': [
+                '2-5 ml/L',
+                '50-100 ml/tanaman (1:100)',
+                '20-50 ml/L',
+                '100-300 ml/L (10-30%)',
+                '1-2 ml/L (0.1-0.2%)',
+                '50-100 ml/L (5-10%)'
+            ],
+            'Frekuensi': [
+                '7-10 hari',
+                '14-21 hari',
+                '7-14 hari',
+                '7-10 hari',
+                '10-14 hari',
+                '7-10 hari'
+            ],
+            'Biaya/L': [
+                'Rp 5-15k',
+                'Rp 10-20k',
+                'Rp 15-25k',
+                'Rp 5-10k',
+                'Rp 20-40k',
+                'Rp 3-8k'
+            ]
+        }
+        
+        df_application = pd.DataFrame(application_data)
+        st.dataframe(df_application, use_container_width=True, hide_index=True)
+        
+        st.markdown("---")
+        st.markdown("### 🔬 Formula Kombinasi Terbaik")
+        
+        st.success("**Formula 1: All-in-One Vegetatif Booster**")
+        st.markdown("""
+        **Komposisi (per 10L air):**
+        - Seaweed extract: 50 ml
+        - Moringa extract: 100 ml
+        - Fulvic acid: 30 ml
+        - Molase: 50 ml (sticker)
+        
+        **Manfaat:**
+        - Pertumbuhan daun maksimal
+        - Akar kuat dan luas
+        - Fotosintesis optimal
+        
+        **Aplikasi:** Semprot setiap 7 hari (fase vegetatif)
+        """)
+        
+        st.info("**Formula 2: Generatif Booster (Pembungaan & Pembuahan)**")
+        st.markdown("""
+        **Komposisi (per 10L air):**
+        - Air kelapa: 2 liter (20%)
+        - Moringa extract: 150 ml
+        - Humic acid: 50 ml
+        - Chitosan: 10 ml
+        
+        **Manfaat:**
+        - Pembungaan seragam dan lebat
+        - Fruit set tinggi (80-90%)
+        - Ukuran buah besar
+        - Ketahanan penyakit
+        
+        **Aplikasi:** Kocor + semprot setiap 7 hari (fase generatif)
+        """)
+        
+        st.warning("**Formula 3: Stress Recovery (Pasca Kekeringan/Banjir)**")
+        st.markdown("""
+        **Komposisi (per 10L air):**
+        - Seaweed extract: 100 ml (double dose)
+        - Fulvic acid: 50 ml
+        - Moringa extract: 100 ml
+        - Chitosan: 20 ml
+        
+        **Manfaat:**
+        - Recovery cepat (3-7 hari)
+        - Meningkatkan osmoregulasi
+        - Detoksifikasi
+        - Induksi resistensi
+        
+        **Aplikasi:** Semprot intensif setiap 3 hari (hingga pulih)
+        """)
+        
+        st.markdown("---")
+        st.markdown("### 📅 Jadwal Aplikasi Terintegrasi (Contoh: Padi)")
+        
+        schedule_data = {
+            'Fase (HST)': [
+                '0-7 (Semai)',
+                '7-21 (Vegetatif Awal)',
+                '21-45 (Vegetatif Akhir)',
+                '45-65 (Primordial)',
+                '65-85 (Pembungaan)',
+                '85-110 (Pengisian Bulir)',
+                '110-120 (Pematangan)'
+            ],
+            'Booster Utama': [
+                'Humic Acid + Seaweed',
+                'Moringa + Fulvic',
+                'Seaweed + Moringa',
+                'Air Kelapa + Moringa',
+                'Air Kelapa + Chitosan',
+                'Fulvic + Seaweed',
+                'Moringa (maintenance)'
+            ],
+            'Metode': [
+                'Kocor',
+                'Semprot + Kocor',
+                'Semprot',
+                'Kocor',
+                'Semprot',
+                'Semprot + Kocor',
+                'Semprot'
+            ],
+            'Frekuensi': [
+                '1x',
+                '2x (interval 7 hari)',
+                '3x (interval 7 hari)',
+                '2x (interval 7 hari)',
+                '3x (interval 5 hari)',
+                '3x (interval 7 hari)',
+                '1x'
+            ]
+        }
+        
+        df_schedule = pd.DataFrame(schedule_data)
+        st.dataframe(df_schedule, use_container_width=True, hide_index=True)
+        
+        st.success("""
+        💡 **Tips Kombinasi:**
+        - **Jangan campur** Humic Acid + Chitosan (mengendap)
+        - **Kombinasi terbaik**: Seaweed + Moringa + Fulvic
+        - **Aplikasi pagi** (06:00-09:00) untuk penyerapan optimal
+        - **Tambahkan sticker** (molase/surfaktan) untuk semprot
+        - **Rotasi booster** setiap 2-3 minggu (hindari adaptasi)
+        """)
+
+# ===== TAB 10: Quality Control =====
 with tab_qc:
     st.header("🔬 Quality Control Laboratory")
     
@@ -744,6 +1702,17 @@ with tab_calc:
                 "PGPR_Liquid",
                 "PGPR_Carrier",
                 "Azotobacter"
+            ],
+            "🧬 Pupuk Asam Amino": [
+                "Fish_Amino_Acid",
+                "Keong_Mas_Amino",
+                "Plant_Amino_Soybean"
+            ],
+            "🌊 Booster Pertumbuhan": [
+                "Seaweed_Extract",
+                "Humic_Acid_Extract",
+                "Moringa_Extract",
+                "Chitosan_Solution"
             ]
         }
         

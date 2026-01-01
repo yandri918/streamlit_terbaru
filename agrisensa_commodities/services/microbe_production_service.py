@@ -162,6 +162,77 @@ class MicrobeProductionService:
             },
             'output_volume': 2,  # kg
             'fermentation_days': 5
+        },
+        # Amino Acid Products
+        'Fish_Amino_Acid': {
+            'raw_materials': {
+                'Ikan Segar/Sisa Ikan': {'qty': 1, 'unit': 'kg', 'price': 10000},
+                'Gula Merah/Molase': {'qty': 1, 'unit': 'kg', 'price': 15000},
+                'Nanas (opsional)': {'qty': 0.5, 'unit': 'buah', 'price': 10000},
+                'EM4': {'qty': 0.05, 'unit': 'L', 'price': 25000}
+            },
+            'output_volume': 1.5,  # L (setelah disaring)
+            'fermentation_days': 14
+        },
+        'Keong_Mas_Amino': {
+            'raw_materials': {
+                'Keong Mas Hidup': {'qty': 1, 'unit': 'kg', 'price': 5000},
+                'Gula Merah': {'qty': 0.5, 'unit': 'kg', 'price': 15000},
+                'Air Kelapa': {'qty': 2, 'unit': 'L', 'price': 5000},
+                'Buah Maja': {'qty': 0.5, 'unit': 'buah', 'price': 10000}
+            },
+            'output_volume': 2,  # L
+            'fermentation_days': 15
+        },
+        'Plant_Amino_Soybean': {
+            'raw_materials': {
+                'Kedelai/Kacang Hijau': {'qty': 2, 'unit': 'kg', 'price': 12000},
+                'Gula Merah': {'qty': 1, 'unit': 'kg', 'price': 15000},
+                'Air Leri': {'qty': 5, 'unit': 'L', 'price': 0},
+                'Ragi Tempe': {'qty': 2, 'unit': 'bungkus', 'price': 2000},
+                'EM4': {'qty': 0.1, 'unit': 'L', 'price': 25000}
+            },
+            'output_volume': 5,  # L
+            'fermentation_days': 14
+        },
+        # Growth Booster Products
+        'Seaweed_Extract': {
+            'raw_materials': {
+                'Rumput Laut Segar': {'qty': 2, 'unit': 'kg', 'price': 8000},
+                'Molase': {'qty': 0.5, 'unit': 'kg', 'price': 15000},
+                'EM4': {'qty': 0.1, 'unit': 'L', 'price': 25000}
+            },
+            'output_volume': 8,  # L (setelah disaring)
+            'fermentation_days': 14
+        },
+        'Humic_Acid_Extract': {
+            'raw_materials': {
+                'Kascing/Vermicompost': {'qty': 5, 'unit': 'kg', 'price': 5000},
+                'KOH/NaOH': {'qty': 0.05, 'unit': 'kg', 'price': 20000},
+                'Air Bersih': {'qty': 20, 'unit': 'L', 'price': 0}
+            },
+            'output_volume': 15,  # L (ekstrak)
+            'fermentation_days': 2
+        },
+        'Moringa_Extract': {
+            'raw_materials': {
+                'Daun Kelor Segar': {'qty': 1, 'unit': 'kg', 'price': 5000},
+                'Air Bersih': {'qty': 5, 'unit': 'L', 'price': 0},
+                'Molase (opsional)': {'qty': 0.1, 'unit': 'kg', 'price': 15000},
+                'EM4 (opsional)': {'qty': 0.05, 'unit': 'L', 'price': 25000}
+            },
+            'output_volume': 4,  # L
+            'fermentation_days': 7
+        },
+        'Chitosan_Solution': {
+            'raw_materials': {
+                'Cangkang Udang/Kepiting': {'qty': 1, 'unit': 'kg', 'price': 5000},
+                'HCl 5%': {'qty': 2, 'unit': 'L', 'price': 15000},
+                'NaOH 40%': {'qty': 2, 'unit': 'L', 'price': 20000},
+                'Asam Asetat 1%': {'qty': 1, 'unit': 'L', 'price': 5000}
+            },
+            'output_volume': 1,  # L (solution 0.1%)
+            'fermentation_days': 3
         }
     }
     
