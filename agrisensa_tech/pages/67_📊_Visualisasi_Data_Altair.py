@@ -3,59 +3,47 @@ import altair as alt
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+import sys
+import os
+
+# Add parent directory to path for design system import
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+from utils.design_system import *
 
 st.set_page_config(page_title="Visualisasi Data Altair", page_icon="📊", layout="wide")
 
-# Custom CSS
-st.markdown("""
-<style>
-    .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 1rem;
-        color: white;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .info-box {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        padding: 1.5rem;
-        border-radius: 0.8rem;
-        color: white;
-        margin: 1rem 0;
-    }
-    .chart-container {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 0.8rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin: 1rem 0;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Apply design system
+apply_design_system()
 
 # Header
-st.markdown("""
-<div class="main-header">
-    <h1>📊 Visualisasi Data Altair</h1>
-    <p>Contoh Penggunaan Library Altair untuk Analisis Data Pertanian</p>
-</div>
-""", unsafe_allow_html=True)
+create_header(
+    "Visualisasi Data Altair",
+    "Contoh Penggunaan Library Altair untuk Analisis Data Pertanian",
+    "📊"
+)
+
+# Breadcrumb
+create_breadcrumb(["Home", "AgriSensa Tech", "Visualisasi Data Altair"])
 
 # Introduction
-st.markdown("""
-### 🎯 Tentang Modul Ini
+create_section_header("Tentang Modul Ini", "🎯")
 
+st.markdown("""
 Modul ini mendemonstrasikan berbagai kemampuan **Altair** - library visualisasi data deklaratif yang powerful untuk Python.
 Altair menggunakan grammar of graphics dan menghasilkan visualisasi interaktif yang indah dengan kode yang minimal.
-
-**Keunggulan Altair:**
-- 🎨 Sintaks yang bersih dan intuitif
-- 🔄 Interaktivitas built-in (zoom, pan, tooltips)
-- 📱 Responsive dan modern
-- 🔗 Mudah di-embed di Streamlit
-- 📊 Mendukung berbagai jenis chart
 """)
+
+create_info_box("""
+<strong>Keunggulan Altair:</strong><br>
+🎨 Sintaks yang bersih dan intuitif<br>
+🔄 Interaktivitas built-in (zoom, pan, tooltips)<br>
+📱 Responsive dan modern<br>
+🔗 Mudah di-embed di Streamlit<br>
+📊 Mendukung berbagai jenis chart
+""", "info")
 
 # Tabs for different chart types
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
@@ -864,11 +852,5 @@ st.altair_chart(final_chart, use_container_width=True)
     """)
 
 # Footer
-st.markdown("---")
-st.markdown("""
-<div style='text-align: center; color: #666; padding: 2rem;'>
-    <p>📊 <strong>AgriSensa Tech - Visualisasi Data Altair</strong></p>
-    <p>Modul demonstrasi penggunaan Altair untuk analisis data pertanian</p>
-    <p style='font-size: 0.9rem;'>💡 Tip: Explore setiap tab untuk melihat berbagai jenis visualisasi!</p>
-</div>
-""", unsafe_allow_html=True)
+create_footer("📊 AgriSensa Tech - Visualisasi Data Altair | Explore setiap tab untuk melihat berbagai jenis visualisasi!")
+
