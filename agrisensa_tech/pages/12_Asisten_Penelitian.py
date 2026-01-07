@@ -565,8 +565,17 @@ with tab_ml:
 # TAB 2: STATISTIKA
 # -----------------
 with tab_stat:
-    st.header("Rancangan Percobaan (Experimental Design)")
-    st.info("Gunakan mode ini untuk analisis ANOVA (Sidik Ragam) pada eksperimen RAL atau RAK.")
+    create_section_header("Rancangan Percobaan (Experimental Design)", "📊")
+    
+    st.markdown("""
+    Gunakan mode ini untuk analisis ANOVA (Sidik Ragam) pada eksperimen RAL atau RAK.
+    
+    **Fitur:**
+    - ANOVA untuk RAL (Rancangan Acak Lengkap)
+    - ANOVA untuk RAK (Rancangan Acak Kelompok)
+    - Uji lanjut BNT (Beda Nyata Terkecil)
+    - Visualisasi interaktif dengan Altair
+    """)
     
     stat_source = st.radio("Sumber Data Statistik:", ["Sample RAL (Sederhana)", "Sample RAK (Kompleks Multi-Var)", "Upload CSV"], horizontal=True, key='stat_src')
     
@@ -709,21 +718,103 @@ with tab_stat:
                             st.metric("Status Hipotesis", sig_label, delta="Tolak H0" if is_sig else "Terima H0", delta_color="normal" if is_sig else "off")
                             st.caption(f"CV: {cv:.2f}%")
 
-                        # 2. Post-Hoc (If Sig) or Just Plot
+
+                        # ========================================
+                        # ALTAIR VISUALIZATIONS FOR ANOVA
+                        # ========================================
+                        
+                        st.subheader("📊 Visualisasi Hasil ANOVA")
+                        
                         col_viz1, col_viz2 = st.columns(2)
                         
-                        # Barplot mean
-                        mean_df = df_stat.groupby(c_perlakuan)[c_hasil].agg(['mean', 'std']).reset_index()
-                        fig_bar = px.bar(mean_df, x=c_perlakuan, y='mean', error_y='std', title=f"Rata-rata {c_hasil}", color=c_perlakuan)
-                        col_viz1.plotly_chart(fig_bar, use_container_width=True)
+                        # Calculate mean and std for each treatment
+                        mean_df = df_stat.groupby(c_perlakuan)[c_hasil].agg(['mean', 'std', 'count']).reset_index()
+                        mean_df['se'] = mean_df['std'] / np.sqrt(mean_df['count'])  # Standard error
                         
-                        if is_sig:
-                            col_viz2.success("✅ Uji Lanjut BNT 5% (Post-Hoc)")
-                            means, bnt_val, matrix = calculate_bnt(df_stat, c_perlakuan, c_hasil, kt_galat, db_galat)
-                            col_viz2.write(f"**Nilai Beda Nyata (BNT): {bnt_val:.3f}**")
-                            col_viz2.dataframe(means.to_frame(name="Rata-rata").style.background_gradient(cmap="Greens"), use_container_width=True)
-                        else:
-                            col_viz2.info("ℹ️ Tidak ada uji lanjut karena P-Value > 0.05")
+                        with col_viz1:
+                            # Altair Bar Chart with Error Bars
+                            bars = alt.Chart(mean_df).mark_bar().encode(
+                                x=alt.X(f'{c_perlakuan}:N', title='Treatment', sort='-y'),
+                                y=alt.Y('mean:Q', title=f'Mean {c_hasil}'),
+                                color=alt.Color(f'{c_perlakuan}:N', 
+                                                legend=None,
+                                                scale=alt.Scale(scheme='category10')),
+                                tooltip=[
+                                    alt.Tooltip(f'{c_perlakuan}:N', title='Treatment'),
+                                    alt.Tooltip('mean:Q', title='Mean', format='.2f'),
+                                    alt.Tooltip('std:Q', title='Std Dev', format='.2f'),
+                                    alt.Tooltip('count:Q', title='N')
+                                ]
+                            ).properties(
+                                width=400,
+                                height=350,
+                                title=f'Mean {c_hasil} by Treatment'
+                            )
+                            
+                            # Error bars (using standard error)
+                            error_bars = alt.Chart(mean_df).mark_errorbar(extent='stdev').encode(
+                                x=f'{c_perlakuan}:N',
+                                y=alt.Y('mean:Q', title=f'Mean {c_hasil}'),
+                                yError='std:Q'
+                            )
+                            
+                            chart_bar = (bars + error_bars).interactive()
+                            st.altair_chart(chart_bar, use_container_width=True)
+                        
+                        with col_viz2:
+                            # Altair Box Plot for Distribution
+                            box_plot = alt.Chart(df_stat).mark_boxplot(size=50).encode(
+                                x=alt.X(f'{c_perlakuan}:N', title='Treatment'),
+                                y=alt.Y(f'{c_hasil}:Q', title=c_hasil),
+                                color=alt.Color(f'{c_perlakuan}:N', 
+                                                legend=None,
+                                                scale=alt.Scale(scheme='category10')),
+                                tooltip=[
+                                    alt.Tooltip(f'{c_perlakuan}:N', title='Treatment'),
+                                    alt.Tooltip(f'{c_hasil}:Q', title='Value', format='.2f')
+                                ]
+                            ).properties(
+                                width=400,
+                                height=350,
+                                title=f'Distribution of {c_hasil}'
+                            )
+                            
+                            # Add individual points
+                            points = alt.Chart(df_stat).mark_circle(
+                                size=30,
+                                opacity=0.3
+                            ).encode(
+                                x=alt.X(f'{c_perlakuan}:N', title='Treatment'),
+                                y=alt.Y(f'{c_hasil}:Q', title=c_hasil),
+                                color=alt.Color(f'{c_perlakuan}:N', legend=None)
+                            )
+                            
+                            chart_box = (box_plot + points).interactive()
+                            st.altair_chart(chart_box, use_container_width=True)
+                        
+                        # Post-Hoc Test Results
+                        st.divider()
+                        col_post1, col_post2 = st.columns(2)
+                        
+                        with col_post1:
+                            if is_sig:
+                                st.success("✅ Uji Lanjut BNT 5% (Post-Hoc)")
+                                means, bnt_val, matrix = calculate_bnt(df_stat, c_perlakuan, c_hasil, kt_galat, db_galat)
+                                st.write(f"**Nilai Beda Nyata (BNT): {bnt_val:.3f}**")
+                                st.dataframe(means.to_frame(name="Rata-rata").style.background_gradient(cmap="Greens"), use_container_width=True)
+                            else:
+                                st.info("ℹ️ Tidak ada uji lanjut karena P-Value > 0.05")
+                        
+                        with col_post2:
+                            # Treatment ranking
+                            st.markdown("**📊 Ranking Perlakuan:**")
+                            ranking_df = mean_df.sort_values('mean', ascending=False).reset_index(drop=True)
+                            ranking_df['Rank'] = range(1, len(ranking_df) + 1)
+                            st.dataframe(
+                                ranking_df[[c_perlakuan, 'mean', 'Rank']].rename(columns={'mean': 'Mean Value'}),
+                                use_container_width=True
+                            )
+
                             
                     except Exception as e:
                         import traceback
