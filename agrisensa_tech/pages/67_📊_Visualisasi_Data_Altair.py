@@ -11,7 +11,13 @@ parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-from utils.design_system import *
+# Try to import from utils in parent directory, fallback to local utils
+try:
+    from utils.design_system import *
+except ImportError:
+    # If parent utils not found, try local utils folder
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from utils.design_system import *
 
 st.set_page_config(page_title="Visualisasi Data Altair", page_icon="📊", layout="wide")
 
