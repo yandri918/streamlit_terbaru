@@ -119,6 +119,8 @@ with c6:
     st.caption("AI-Powered | IoT Ready | 10x Advanced")
     if st.button("🎯 SOP Presisi Komoditas"): st.switch_page("pages/54_SOP_Presisi_Komoditas.py")
     if st.button("📚 SOP Documentation Center"): st.switch_page("pages/63_SOP_Documentation_Center.py")
+    if st.button("📊 Visualisasi Data Altair"): st.switch_page("pages/67_📊_Visualisasi_Data_Altair.py")
+    st.caption("Interactive Charts & Analytics")
 
 st.markdown("---")
 st.markdown("### 🚜 Manajemen Aset & Infrastruktur")
