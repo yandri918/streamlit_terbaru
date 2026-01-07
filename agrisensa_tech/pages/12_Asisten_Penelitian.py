@@ -1,13 +1,16 @@
 # Asisten Penelitian Agronomi
 # Advanced research assistant with multiple ML models and statistical analysis (ANOVA/RAK/RAL)
-# Version: 2.1.0 (Fixed RAK Kelompok Selection - 2024-12-06)
+# Version: 2.2.0 (Added Altair Visualizations & Design System - 2026-01-07)
 
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import altair as alt
 from datetime import datetime
+import sys
+import os
 
 # ML Imports
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
@@ -20,9 +23,23 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 # Stats Imports
 from scipy import stats
 
+# Design System Import
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+try:
+    from utils.design_system import *
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from utils.design_system import *
+
 # from utils.auth import require_auth, show_user_info_sidebar
 
-st.set_page_config(page_title="Asisten Penelitian v2.1", page_icon="🔬", layout="wide")
+st.set_page_config(page_title="Asisten Penelitian v2.2", page_icon="🔬", layout="wide")
+
+# Apply design system
+apply_design_system()
 
 # ===== AUTHENTICATION CHECK =====
 # user = require_auth()
@@ -232,8 +249,13 @@ def train_and_evaluate_models(X, y, model_names):
 # ==========================================
 # 🏗️ UI LAYOUT
 # ==========================================
-st.title("🔬 Asisten Penelitian Agronomi")
-st.markdown("**Platform Analisis Data Pertanian Terpadu: Machine Learning & Statistika**")
+
+# Header with design system
+create_header(
+    "Asisten Penelitian Agronomi",
+    "Platform Analisis Data Pertanian Terpadu: Machine Learning & Statistika",
+    "🔬"
+)
 
 # MAIN TABS
 tab_ml, tab_stat, tab_regression = st.tabs([
@@ -246,8 +268,17 @@ tab_ml, tab_stat, tab_regression = st.tabs([
 # TAB 1: MACHINE LEARNING
 # -----------------
 with tab_ml:
-    st.header("Prediksi & Pemodelan (ML)")
-    st.info("Gunakan mode ini untuk memprediksi hasil panen berdasarkan variabel input (NPK, Cuaca, dll).")
+    create_section_header("Prediksi & Pemodelan (ML)", "🤖")
+    
+    st.markdown("""
+    Gunakan mode ini untuk memprediksi hasil panen berdasarkan variabel input (NPK, Cuaca, dll).
+    
+    **Fitur:**
+    - 7 model machine learning
+    - Auto-comparison & evaluation
+    - Feature importance analysis
+    - Interactive visualizations
+    """)
     
     ml_data_source = st.radio("Sumber Data ML:", ["Sample (Yield vs NPK)", "Upload CSV"], horizontal=True)
     
@@ -304,10 +335,152 @@ with tab_ml:
                     else:
                         st.error("❌ Poor. Data mungkin tidak linear")
                 
-                # Chart
-                fig = px.bar(res_sorted, x='Model', y='R² Score', title="Perbandingan Akurasi Model", 
-                            color='R² Score', color_continuous_scale='Viridis')
-                st.plotly_chart(fig, use_container_width=True)
+                
+                # ========================================
+                # ALTAIR VISUALIZATIONS
+                # ========================================
+                
+                st.divider()
+                st.subheader("📊 Visualisasi Interaktif")
+                
+                # 1. Model Comparison Chart (Altair)
+                chart_comparison = alt.Chart(res_sorted).mark_bar().encode(
+                    x=alt.X('Model:N', title='Model', sort='-y', axis=alt.Axis(labelAngle=-45)),
+                    y=alt.Y('R² Score:Q', title='R² Score', scale=alt.Scale(domain=[0, 1])),
+                    color=alt.Color('R² Score:Q', 
+                                    scale=alt.Scale(scheme='viridis'),
+                                    legend=alt.Legend(title='Accuracy')),
+                    tooltip=[
+                        alt.Tooltip('Model:N', title='Model'),
+                        alt.Tooltip('R² Score:Q', title='R²', format='.4f'),
+                        alt.Tooltip('RMSE:Q', title='RMSE', format='.2f'),
+                        alt.Tooltip('CV Mean R²:Q', title='CV Mean R²', format='.4f')
+                    ]
+                ).properties(
+                    width=700,
+                    height=400,
+                    title='Model Performance Comparison'
+                ).interactive()
+                
+                st.altair_chart(chart_comparison, use_container_width=True)
+                
+                # 2. Actual vs Predicted Scatter Plot (NEW!)
+                st.subheader("🎯 Actual vs Predicted Values")
+                
+                # Train best model to get predictions
+                X = df_ml[feats].values
+                y = df_ml[target].values
+                
+                scaler = StandardScaler()
+                X_scaled = scaler.fit_transform(X)
+                
+                # Get best model and train
+                if best_name == "Polynomial Regression (deg=2)":
+                    poly = PolynomialFeatures(degree=2)
+                    X_poly = poly.fit_transform(X)
+                    best_model_obj = LinearRegression()
+                    best_model_obj.fit(X_poly, y)
+                    y_pred = best_model_obj.predict(X_poly)
+                else:
+                    best_model_obj = AVAILABLE_MODELS[best_name]
+                    best_model_obj.fit(X_scaled, y)
+                    y_pred = best_model_obj.predict(X_scaled)
+                
+                # Create prediction dataframe
+                pred_df = pd.DataFrame({
+                    'Actual': y,
+                    'Predicted': y_pred,
+                    'Residual': y - y_pred,
+                    'Index': range(len(y))
+                })
+                
+                col_viz1, col_viz2 = st.columns(2)
+                
+                with col_viz1:
+                    # Scatter plot with perfect prediction line
+                    scatter = alt.Chart(pred_df).mark_circle(size=60, opacity=0.6).encode(
+                        x=alt.X('Actual:Q', title='Actual Values', scale=alt.Scale(zero=False)),
+                        y=alt.Y('Predicted:Q', title='Predicted Values', scale=alt.Scale(zero=False)),
+                        color=alt.Color('Residual:Q', 
+                                        scale=alt.Scale(scheme='redblue', domain=[-abs(pred_df['Residual']).max(), abs(pred_df['Residual']).max()]),
+                                        legend=alt.Legend(title='Residual')),
+                        tooltip=[
+                            alt.Tooltip('Actual:Q', title='Actual', format='.2f'),
+                            alt.Tooltip('Predicted:Q', title='Predicted', format='.2f'),
+                            alt.Tooltip('Residual:Q', title='Residual', format='.2f')
+                        ]
+                    ).properties(
+                        width=400,
+                        height=400,
+                        title=f'Actual vs Predicted ({best_name})'
+                    )
+                    
+                    # Perfect prediction line (y=x)
+                    min_val = min(pred_df['Actual'].min(), pred_df['Predicted'].min())
+                    max_val = max(pred_df['Actual'].max(), pred_df['Predicted'].max())
+                    perfect_line_df = pd.DataFrame({
+                        'x': [min_val, max_val],
+                        'y': [min_val, max_val]
+                    })
+                    
+                    perfect_line = alt.Chart(perfect_line_df).mark_line(
+                        color='red',
+                        strokeDash=[5, 5],
+                        size=2
+                    ).encode(
+                        x='x:Q',
+                        y='y:Q'
+                    )
+                    
+                    chart_scatter = (scatter + perfect_line).interactive()
+                    st.altair_chart(chart_scatter, use_container_width=True)
+                    
+                    # Metrics
+                    mae = mean_absolute_error(y, y_pred)
+                    rmse = np.sqrt(mean_squared_error(y, y_pred))
+                    st.metric("MAE (Mean Absolute Error)", f"{mae:.2f}")
+                    st.metric("RMSE (Root Mean Squared Error)", f"{rmse:.2f}")
+                
+                with col_viz2:
+                    # Residual plot
+                    residual_plot = alt.Chart(pred_df).mark_circle(size=60, opacity=0.6).encode(
+                        x=alt.X('Predicted:Q', title='Predicted Values'),
+                        y=alt.Y('Residual:Q', title='Residuals', scale=alt.Scale(zero=True)),
+                        color=alt.condition(
+                            alt.datum.Residual > 0,
+                            alt.value('steelblue'),
+                            alt.value('orange')
+                        ),
+                        tooltip=[
+                            alt.Tooltip('Predicted:Q', title='Predicted', format='.2f'),
+                            alt.Tooltip('Residual:Q', title='Residual', format='.2f')
+                        ]
+                    ).properties(
+                        width=400,
+                        height=400,
+                        title='Residual Plot'
+                    )
+                    
+                    # Zero line
+                    zero_line = alt.Chart(pd.DataFrame({'y': [0]})).mark_rule(
+                        color='red',
+                        strokeDash=[5, 5],
+                        size=2
+                    ).encode(y='y:Q')
+                    
+                    chart_residual = (residual_plot + zero_line).interactive()
+                    st.altair_chart(chart_residual, use_container_width=True)
+                    
+                    # Residual statistics
+                    st.markdown("**📊 Residual Analysis:**")
+                    st.write(f"• Mean Residual: {pred_df['Residual'].mean():.4f}")
+                    st.write(f"• Std Residual: {pred_df['Residual'].std():.4f}")
+                    
+                    if abs(pred_df['Residual'].mean()) < 0.01:
+                        st.success("✅ Residuals centered around zero")
+                    else:
+                        st.warning("⚠️ Residuals may be biased")
+
                 
                 # 💡 INSIGHTS SECTION
                 st.divider()
