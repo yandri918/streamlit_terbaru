@@ -837,11 +837,22 @@ with tab_stat:
                 st.warning("⚠️ Tidak ada hasil analisis yang berhasil dihitung. Periksa visualisasi error di atas.")
 
 # -----------------
+# -----------------
 # TAB 3: TEORI REGRESI
 # -----------------
 with tab_regression:
-    st.header("📚 Teori Regresi Linear & Aplikasi Ekonomi Pertanian")
-    st.info("Tab ini menjelaskan konsep regresi linear, dari dasar hingga lanjutan, dengan visualisasi dan aplikasi praktis dalam ekonomi & bisnis pertanian.")
+    create_section_header("Teori Regresi Linear & Aplikasi Ekonomi Pertanian", "📚")
+    
+    st.markdown("""
+    Tab ini menjelaskan konsep regresi linear, dari dasar hingga lanjutan, dengan visualisasi dan aplikasi praktis dalam ekonomi & bisnis pertanian.
+    
+    **Topik yang Dibahas:**
+    - CLRM & Gauss-Markov Theorem
+    - Regresi Sederhana & Berganda
+    - Inferensia OLS & Uji Hipotesis
+    - Analisis Runtun Waktu
+    - Uji Chi-Square & Teorema Bayes
+    """)
     
     # Sub-tabs for better organization (9 sub-tabs - Added CLRM)
     subtab_clrm, subtab_simple, subtab_multiple, subtab_inference, subtab_timeseries, subtab_chisquare, subtab_bayes, subtab_decision, subtab_viz = st.tabs([
