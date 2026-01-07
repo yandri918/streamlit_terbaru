@@ -121,6 +121,8 @@ with c6:
     if st.button("📚 SOP Documentation Center"): st.switch_page("pages/63_SOP_Documentation_Center.py")
     if st.button("📊 Visualisasi Data Altair"): st.switch_page("pages/67_📊_Visualisasi_Data_Altair.py")
     st.caption("Interactive Charts & Analytics")
+    if st.button("🤖 Machine Learning PyCaret"): st.switch_page("pages/68_🤖_Machine_Learning_PyCaret.py")
+    st.caption("AutoML & Predictive Analytics")
 
 st.markdown("---")
 st.markdown("### 🚜 Manajemen Aset & Infrastruktur")
