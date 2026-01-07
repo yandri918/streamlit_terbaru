@@ -196,9 +196,11 @@ save_model(tuned_model, 'yield_prediction_model')
         'Importance': [0.28, 0.22, 0.18, 0.14, 0.10, 0.05, 0.03]
     }).sort_values('Importance', ascending=True)
     
-    fig_importance = px.barh(feature_importance, x='Importance', y='Feature',
+    
+    fig_importance = px.bar(feature_importance, x='Importance', y='Feature',
                             title='Feature Importance',
-                            color='Importance', color_continuous_scale='Blues')
+                            color='Importance', color_continuous_scale='Blues',
+                            orientation='h')
     fig_importance.update_layout(height=350)
     st.plotly_chart(fig_importance, use_container_width=True)
     
