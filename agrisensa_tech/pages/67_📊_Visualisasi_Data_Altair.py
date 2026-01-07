@@ -31,25 +31,20 @@ create_header(
     "📊"
 )
 
-# Breadcrumb
-create_breadcrumb(["Home", "AgriSensa Tech", "Visualisasi Data Altair"])
-
 # Introduction
 create_section_header("Tentang Modul Ini", "🎯")
 
 st.markdown("""
 Modul ini mendemonstrasikan berbagai kemampuan **Altair** - library visualisasi data deklaratif yang powerful untuk Python.
 Altair menggunakan grammar of graphics dan menghasilkan visualisasi interaktif yang indah dengan kode yang minimal.
-""")
 
-create_info_box("""
-<strong>Keunggulan Altair:</strong><br>
-🎨 Sintaks yang bersih dan intuitif<br>
-🔄 Interaktivitas built-in (zoom, pan, tooltips)<br>
-📱 Responsive dan modern<br>
-🔗 Mudah di-embed di Streamlit<br>
-📊 Mendukung berbagai jenis chart
-""", "info")
+**Keunggulan Altair:**
+- 🎨 Sintaks yang bersih dan intuitif
+- 🔄 Interaktivitas built-in (zoom, pan, tooltips)
+- 📱 Responsive dan modern
+- 🔗 Mudah di-embed di Streamlit
+- 📊 Mendukung berbagai jenis chart
+""")
 
 # Tabs for different chart types
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
