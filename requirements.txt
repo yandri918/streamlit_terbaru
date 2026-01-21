@@ -26,6 +26,7 @@ scikit-learn
 fpdf2
 lifetimes
 altair
+seaborn
 matplotlib
 numpy
 pandas
