@@ -22,3 +22,4 @@ streamlit-folium
 folium
 scipy
 statsmodels>=0.14.0
+fpdf2
