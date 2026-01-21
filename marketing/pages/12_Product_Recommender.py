@@ -1,9 +1,18 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
+
+# Try to import seaborn, gracefully handle if not installed
+try:
+    import seaborn as sns
+    SEABORN_AVAILABLE = True
+except ImportError:
+    SEABORN_AVAILABLE = False
+    st.error("⚠️ **Product Recommender Unavailable**: The `seaborn` library is not installed. Please contact the administrator to add it to requirements.txt")
+    st.info("💡 The platform is rebuilding with updated dependencies. Please refresh in a few minutes.")
+    st.stop()
 
 st.set_page_config(page_title="AI Recommender System", page_icon="🛍️", layout="wide")
 
