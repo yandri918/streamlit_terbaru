@@ -72,3 +72,5 @@ static/icons/*.png
 
 # Streamlit secrets
 .streamlit/secrets.toml
+
+mining_portfolio/
