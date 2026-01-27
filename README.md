@@ -1,139 +1,183 @@
 
----
+<div align="center">
 
-🌾 AgriSensa – AI‑Powered Smart Agriculture Platform for Indonesia
-Empowering farmers with data, intelligence, and automation.
+# 🌾 AgriSensa
+### AI-Powered Smart Agriculture Platform for Indonesia
+*Empowering farmers with data, intelligence, and automation.*
 
-Demo • Dokumentasi • Roadmap • API
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://mirai39.streamlit.app/)
+[![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.32-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
----
+[Demo](https://mirai39.streamlit.app/) • [Dokumentasi](#-dokumentasi) • [Roadmap](#-roadmap-2025) • [API](#-api-documentation)
 
-🚀 Ringkasan Eksekutif
-AgriSensa adalah platform pertanian cerdas berbasis AI yang dirancang untuk meningkatkan produktivitas, efisiensi, dan keberlanjutan pertanian Indonesia. Dengan lebih dari 25+ modul AI, ML, dan Computer Vision, AgriSensa membantu petani mengambil keputusan berbasis data—mulai dari analisis tanah, rekomendasi tanaman, deteksi penyakit, hingga prediksi harga pasar.
-
-Platform ini dibangun dengan arsitektur modern, modular, dan scalable, sehingga siap dikembangkan menjadi produk komersial, SaaS, atau solusi enterprise.
-
----
-
-🎯 Nilai Utama (Why AgriSensa Matters)
-
-🌱 Masalah di Industri Pertanian
-- 40–60% kerugian hasil panen disebabkan penyakit & hama  
-- Akses informasi pupuk, harga pasar, dan SOP budidaya masih terbatas  
-- Petani tidak memiliki alat prediksi berbasis data  
-- Minimnya integrasi teknologi AI dalam pertanian Indonesia  
-
-🤖 Solusi AgriSensa
-- Deteksi penyakit otomatis dengan Computer Vision  
-- Rekomendasi tanaman berbasis NPK, pH, iklim, dan lokasi  
-- Prediksi hasil panen & harga pasar dengan Machine Learning  
-- Dashboard terpadu untuk keputusan cepat dan akurat  
-- Basis pengetahuan pertanian terstruktur (20+ komoditas)  
-
-📈 Dampak
-- Mengurangi kerugian panen  
-- Meningkatkan efisiensi pemupukan  
-- Meningkatkan produktivitas  
-- Memberikan akses data real‑time kepada petani  
+</div>
 
 ---
 
-✨ Fitur Utama
+## 🚀 Ringkasan Eksekutif
 
-🤖 AI & Machine Learning
-- AgriBot (Gemini AI) – Asisten pertanian cerdas  
-- Crop Recommendation – Rekomendasi tanaman berbasis analisis tanah  
-- Yield Prediction (XAI) – Prediksi hasil panen dengan SHAP  
-- Price Trend Forecasting – Prediksi harga komoditas  
-- Explainable AI – Model transparan untuk keputusan kritis  
+**AgriSensa** adalah platform pertanian cerdas berbasis AI yang dirancang untuk meningkatkan produktivitas, efisiensi, dan keberlanjutan pertanian Indonesia. Dengan lebih dari **25+ modul AI, Machine Learning, dan Computer Vision**, AgriSensa memberdayakan petani untuk mengambil keputusan berbasis data—mulai dari analisis tanah presisi, rekomendasi tanaman, deteksi penyakit dini, hingga prediksi harga pasar yang akurat.
 
-🔬 Analisis & Diagnostik
-- Dokter Tanaman AI – Deteksi penyakit via Roboflow  
-- Analisis BWD – Deteksi penyakit padi  
-- Diagnostik Gejala – Identifikasi hama & penyakit  
-- Analisis NPK Manual – Evaluasi kesuburan tanah  
-
-🧮 Kalkulator & Tools
-- Kalkulator pupuk holistik  
-- Konversi pupuk  
-- Strategi penyemprotan cerdas  
-- Rekomendasi pemupukan otomatis  
-
-💰 Intelijen Pasar
-- Harga komoditas real‑time  
-- Prediksi tren harga  
-- Katalog pupuk nasional  
-
-📚 Basis Pengetahuan
-- SOP budidaya 20+ komoditas  
-- Ensiklopedia hama & penyakit  
-- Panduan pupuk, pestisida, hormon tanaman  
-- Info pH tanah & manajemen kesuburan  
-
-🗺️ Fitur Lanjutan
-- AgriMap AI – Rekomendasi tanaman berbasis lokasi  
-- Perencana hasil panen AI  
-- Dasbor rekomendasi terpadu  
-- Pustaka dokumen pertanian  
+Dibangun dengan arsitektur modern yang modular dan scalable, AgriSensa siap dikembangkan menjadi solusi komersial, SaaS, atau platform enterprise untuk masa depan pertanian digital Indonesia.
 
 ---
 
-🏗️ Arsitektur Teknologi
+## 🎯 Nilai Utama (Why AgriSensa Matters)
 
-🧩 Tech Stack
-Backend & Framework  
-- Python 3.12  
-- Streamlit 1.32  
-- pandas, numpy  
-- plotly, seaborn  
+### 🌱 Tantangan Industri Pertanian
+- **Kerugian Panen Tinggi**: 40–60% hasil panen hilang akibat serangan hama & penyakit yang terlambat dideteksi.
+- **Keterbatasan Informasi**: Akses terhadap pemupukan yang tepat, harga pasar real-time, dan SOP budidaya masih sangat minim.
+- **Keputusan Intuitif**: Petani sering bertani berdasarkan kebiasaan, bukan data, karena kurangnya alat prediksi.
+- **Adopsi Teknologi Rendah**: Minimnya integrasi AI dan teknologi modern dalam rantai pasok pertanian lokal.
 
-Machine Learning & AI  
-- scikit‑learn  
-- Google Gemini API  
-- Roboflow (Computer Vision)  
-- SHAP (Explainable AI)  
+### 🤖 Solusi AgriSensa
+- **Deteksi Dini**: Identifikasi penyakit tanaman secara instan menggunakan Computer Vision.
+- **Rekomendasi Presisi**: Algoritma cerdas yang merekomendasikan tanaman berdasarkan NPK, pH, iklim, dan lokasi.
+- **Prediksi Cerdas**: Machine Learning untuk memprediksi hasil panen dan tren harga pasar masa depan.
+- **Dashboard Terintegrasi**: Satu platform untuk memantau seluruh aspek pertanian, dari hulu ke hilir.
+- **Basis Pengetahuan**: Ensiklopedia digital terstruktur untuk 20+ komoditas pertanian utama.
 
-Data Processing  
-- pandas, numpy  
-- Pillow  
-- openpyxl  
-
-Deployment  
-- Streamlit Cloud  
-- GitHub  
-- Docker (opsional)  
+### 📈 Dampak Nyata
+- ✅ **Mengurangi risiko kerugian panen** secara signifikan.
+- ✅ **Meningkatkan efisiensi** penggunaan pupuk dan pestisida.
+- ✅ **Mendongkrak produktivitas** lahan dengan pengelolaan berbasis data.
+- ✅ **Demokratisasi data** pertanian real-time bagi petani kecil.
 
 ---
 
-📁 Struktur Direktori
-`
+## ✨ Fitur Utama
+
+### 🤖 AI & Machine Learning
+| Fitur | Deskripsi | Teknologi |
+|-------|-----------|-----------|
+| **AgriBot** | Asisten pertanian cerdas siap jawab 24/7 | Gemini AI |
+| **Crop Recommendation** | Rekomendasi tanaman optimal berdasarkan data tanah & iklim | Random Forest / XGBoost |
+| **Yield Prediction (XAI)** | Prediksi hasil panen dengan penjelasan faktor pengaruh (SHAP) | Regresi & SHAP |
+| **Price Forecasting** | Prediksi tren harga komoditas masa depan | Time Series Analysis |
+| **Explainable AI** | Transparansi model untuk pengambilan keputusan kritis | XAI Frameworks |
+
+### 🔬 Analisis & Diagnostik
+- **Dokter Tanaman AI**: Deteksi penyakit otomatis via upload foto (integrasi Roboflow).
+- **Analisis BWD**: Deteksi dini penyakit pada daun padi menggunakan indeks warna.
+- **Diagnostik Gejala**: Identifikasi hama & penyakit interaktif berbasis gejala visual.
+- **Analisis NPK Manual**: Evaluasi tingkat kesuburan tanah dan rekomendasi perbaikan.
+
+### 🧮 Kalkulator & Tools
+- **Kalkulator Pupuk Holistik**: Hitung kebutuhan pupuk secara presisi.
+- **Konversi Pupuk**: Alat bantu konversi dosis pupuk tunggal ke majemuk (dan sebaliknya).
+- **Strategi Penyemprotan**: Jadwal dan dosis penyemprotan hama yang cerdas.
+- **Rekomendasi Otomatis**: Saran pemupukan spesifik lokasi dan komoditas.
+
+### 💰 Intelijen Pasar
+- **Harga Real-time**: Monitoring harga komoditas di berbagai pasar.
+- **Tren Masa Depan**: Analisis pergerakan harga untuk strategi jual.
+- **Katalog Pupuk**: Database harga dan ketersediaan pupuk nasional.
+
+### 📚 Basis Pengetahuan
+- **SOP Budidaya Lengkap**: Panduan langkah demi langkah untuk 20+ komoditas.
+- **Ensiklopedia Hama Penyakit**: Database visual hama dan pengendaliannya.
+- **Panduan Input Tani**: Informasi lengkap pupuk, pestisida, dan hormon.
+- **Manajemen Tanah**: Panduan pH dan kesuburan tanah berkelanjutan.
+
+### 🗺️ Fitur Lanjutan
+- **AgriMap AI**: Pemetaan kesesuaian lahan berbasis geospasial.
+- **Smart Planning**: Perencana siklus tanam dan panen otomatis.
+- **Unified Dashboard**: Pusat kontrol rekomendasi pertanian terpadu.
+- **Digital Library**: Pustaka dokumen dan regulasi pertanian.
+
+---
+
+## 🏗️ Arsitektur Teknologi
+
+### Tech Stack
+
+#### Backend & Framework
+- ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white) **Python 3.12**: Core logic & computation.
+- ![Streamlit](https://img.shields.io/badge/Streamlit-1.32-FF4B4B?logo=streamlit&logoColor=white) **Streamlit 1.32**: Interactive Web UI.
+- **Pandas & NumPy**: High-performance data processing.
+- **Plotly & Seaborn**: Advanced data visualization.
+
+#### Machine Learning & AI
+- **Scikit-learn**: Classical ML algorithms.
+- **Google Gemini API**: Generative AI & NLP.
+- **Roboflow**: Service-based Computer Vision.
+- **SHAP**: Explainable AI framework.
+
+#### Data Processing
+- **Pillow**: Image processing.
+- **OpenPyXL**: Excel data handling.
+
+#### Deployment & DevOps
+- **Streamlit Cloud**: Primary deployment platform.
+- **GitHub**: Version control & CI/CD.
+- **Docker**: Containerization (Optional).
+
+### 📁 Struktur Direktori
+
+```bash
 streamlit_terbaru/
-├── agrisensa_main.py
-├── agrisensa_tech/
+├── agrisensa_main.py             # Entry point aplikasi
+├── agrisensa_tech/               # Modul AI & Teknologi
 │   └── pages/
-├── agrisensa_commodities/
+├── agrisensa_commodities/        # Modul Komoditas & Budidaya
 │   └── pages/
-├── agrisensa_biz/
+├── agrisensa_biz/                # Modul Bisnis & Pasar
 │   └── pages/
-├── agrisensa_eco/
+├── agrisensa_eco/                # Modul Ekosistem & Lingkungan
 │   └── pages/
-├── agrisensa_livestock/
+├── agrisensa_livestock/          # Modul Peternakan
 │   └── pages/
-├── data_analysis/
-├── services/
-│   ├── gemini_service.py
-│   ├── roboflow_service.py
-├── utils/
-├── requirements.txt
-└── README.md
-`
+├── data_analysis/                # Skrip & Notebook Analisis Data
+├── services/                     # Layanan Terintegrasi
+│   ├── gemini_service.py         # Integrasi LLM
+│   ├── roboflow_service.py       # Integrasi Computer Vision
+│   └── ...
+├── utils/                        # Fungsi Utilitas
+├── requirements.txt              # Dependensi Python
+└── README.md                     # Dokumentasi Proyek
+```
 
 ---
 
-🔌 API Documentation
+## 🚀 Instalasi & Memulai
 
-Crop Recommendation
-`
+1. **Clone Repository**
+   ```bash
+   git clone https://github.com/yandri918/streamlit_terbaru.git
+   cd streamlit_terbaru
+   ```
+
+2. **Buat Virtual Environment**
+   ```bash
+   python -m venv venv
+   # Windows
+   venv\Scripts\activate
+   # Mac/Linux
+   source venv/bin/activate
+   ```
+
+3. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Jalankan Aplikasi**
+   ```bash
+   streamlit run agrisensa_main.py
+   ```
+
+---
+
+## 🔌 API Documentation
+
+AgriSensa menyediakan endpoint API untuk integrasi pihak ketiga.
+
+### Crop Recommendation
+Analisis kecocokan tanaman berdasarkan parameter tanah.
+```http
 POST /recommend-crop
 {
   "n_value": 80,
@@ -144,99 +188,112 @@ POST /recommend-crop
   "humidity": 75,
   "rainfall": 150
 }
-`
+```
 
-Fertilizer Recommendation
-`
+### Fertilizer Recommendation
+Rekomendasi pemupukan spesifik komoditas.
+```http
 POST /recommend-fertilizer
 {
   "commodity": "padi",
   "area_sqm": 1000,
   "ph": 6.5
 }
-`
+```
 
-Yield Prediction (XAI)
-`
+### Yield Prediction (XAI)
+Prediksi hasil panen tingkat lanjut.
+```http
 POST /predict-yield-advanced
-`
+```
 
-Chatbot
-`
+### Chatbot
+Interaksi dengan AgriBot.
+```http
 POST /chat
-`
+```
 
-Market Prices
-`
+### Market Prices
+Mendapatkan data harga pasar real-time.
+```http
 GET /get-ticker-prices
-`
+```
 
 ---
 
-🧪 Testing
-`
+## 🧪 Testing dan Kualitas Kode
+
+Jalankan test suite untuk memastikan integritas sistem.
+
+```bash
+# Run all tests
 pytest
+
+# Run with coverage report
 pytest --cov=app tests/
+
+# Run specific test module
 pytest tests/testmlservice.py
-`
+```
 
 ---
 
-🔐 Keamanan
-- JWT Authentication  
-- Password hashing (Werkzeug)  
-- CORS protection  
-- Rate limiting  
-- Input validation  
-- SQL injection prevention  
+## 🔐 Keamanan & Privasi
+
+AgriSensa menerapkan standar keamanan industri:
+- **JWT Authentication**: Untuk manajemen sesi pengguna yang aman.
+- **Password Hashing**: Menggunakan Werkzeug security hash.
+- **CORS Protection**: Melindungi dari akses lintas domain yang tidak sah.
+- **Rate Limiting**: Mencegah penyalahgunaan API.
+- **Input Validation**: Sanitasi data untuk mencegah injeksi.
+- **SQL Injection Prevention**: Penggunaan ORM dan parameterized queries.
 
 ---
 
-📊 Database Schema
-Tabel utama:
-- Users  
-- NPK Readings  
-- Recommendations  
+## 📊 Database Schema
 
-(Detail skema tetap seperti versi kamu)
+Struktur basis data utama untuk menyimpan informasi pengguna dan rekomendasi.
 
----
-
-🌍 Roadmap 2025
-
-Q1 2025
-- Mobile App (React Native)  
-- IoT sensor integration  
-- Multi‑language support  
-- Weather forecasting  
-
-Q2 2025
-- Blockchain supply chain  
-- Drone imagery analysis  
-- Community forum  
-- Marketplace integration  
-
-Q3 2025
-- AI‑powered crop insurance  
-- Precision agriculture tools  
-- Farmer networking platform  
+| Tabel | Deskripsi |
+|-------|-----------|
+| `Users` | Menyimpan data profil, kredensial, dan preferensi pengguna. |
+| `NPK Readings` | Riwayat pembacaan sensor atau input manual kondisi tanah. |
+| `Recommendations` | Log rekomendasi yang diberikan sistem untuk analisis historis. |
 
 ---
 
-👤 Developer
-Andriyanto  
-Email: yandri918@gmail.com  
-GitHub: @yandri918  
-LinkedIn: Andriyanto NA  
-Website: mirai39.streamlit.app  
+## 🌍 Roadmap 2025
+
+| Kuartal | Fokus Pengembangan |
+|:---:|:---|
+| **Q1** | Mobile App (React Native), Integrasi IoT Sensor, Multi-language Support, Weather Forecasting |
+| **Q2** | Blockchain Supply Chain, Drone Imagery Analysis, Community Forum, Marketplace Integration |
+| **Q3** | AI-Powered Crop Insurance, Precision Agriculture Tools (VRA), Farmer Networking Platform |
 
 ---
 
-⭐ Dukungan
-Star repository ini untuk mendukung pengembangan AgriSensa.
+## 👤 Developer
+
+<div align="center">
+
+**Andriyanto**  
+*Lead Developer & AI Engineer*
+
+[![Email](https://img.shields.io/badge/Email-yandri918%40gmail.com-red?style=flat-square&logo=gmail)](mailto:yandri918@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-@yandri918-181717?style=flat-square&logo=github)](https://github.com/yandri918)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Andriyanto%20NA-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/andriyanto-na-147492157)
+[![Website](https://img.shields.io/badge/Website-mirai39.streamlit.app-violet?style=flat-square&logo=google-chrome)](https://mirai39.streamlit.app)
+
+</div>
 
 ---
 
-❤️ Dibuat untuk Petani Indonesia
+## ⭐ Dukungan
+
+Jika AgriSensa bermanfaat bagi Anda, dukung kami dengan memberikan **Star** pada repository ini! 🌟
 
 ---
+
+<div align="center">
+  <sub>Dibuat dengan ❤️ untuk Petani Indonesia</sub>
+</div>
