@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="AgriTech Portfolio | AI-Powered Agricultural Solutions | Smart Farming Applications">
+    <title>AgriTech Portfolio - Andriyanto, BScE, S.E</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --dark: #0f172a;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: var(--gray-50);
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--gray-700);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .hero {
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #34d399, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #94a3b8;
+        }
+
+        .hero-description {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            font-size: 1.1rem;
+            color: #cbd5e1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+
+        .section-subtitle {
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-card {
+            border-left: 4px solid var(--primary);
+        }
+
+        .project-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-icon {
+            font-size: 2.5rem;
+        }
+
+        .project-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+
+        .project-description {
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tech-tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--gray-100);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .stat-card {
+            text-align: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            color: var(--gray-700);
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: var(--primary);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .grid-2,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">🌾 AgriTech</a>
+            <ul class="nav-links">
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#stats">Impact</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>AgriTech Portfolio</h1>
+        <p class="hero-subtitle">Andriyanto, BScE, S.E</p>
+        <p class="hero-description">
+            AI-Powered Agricultural Solutions | Smart Farming Applications | Digital Agriculture Innovation
+        </p>
+        <div style="margin: 2rem 0;">
+            <span class="badge">5 Applications</span>
+            <span class="badge">AI & ML Powered</span>
+            <span class="badge">Production Ready</span>
+            <span class="badge">20+ Modules</span>
+        </div>
+    </section>
+
+    <div class="container">
+        <section class="section" id="stats">
+            <h2 class="section-title">Portfolio Impact</h2>
+            <p class="section-subtitle">Comprehensive agricultural solutions serving real farmers</p>
+            <div class="grid grid-4">
+                <div class="card stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Applications</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number">60+</div>
+                    <div class="stat-label">Total Modules</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Crop Types</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number">99%</div>
+                    <div class="stat-label">Uptime</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="projects">
+            <h2 class="section-title">Featured Projects</h2>
+            <p class="section-subtitle">Production-grade agricultural applications</p>
+
+            <div class="grid grid-2">
+                <!-- AgriSensa Platform -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon">🌾</div>
+                        <h3 class="project-title">AgriSensa Intelligence Platform</h3>
+                    </div>
+                    <p class="project-description">
+                        Comprehensive agricultural intelligence platform featuring 20+ specialized modules for precision
+                        farming, crop management, and agricultural decision support. Built with modern glassmorphism UI
+                        and powered by AI.
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">AI/ML</span>
+                        <span class="tech-tag">Plotly</span>
+                        <span class="tech-tag">Folium</span>
+                        <span class="tech-tag">GIS</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>AI-Powered Plant Doctor with disease diagnosis</li>
+                        <li>GIS Intelligence & interactive soil mapping</li>
+                        <li>Smart Climate & weather prediction</li>
+                        <li>NPK Analysis & fertilizer calculator</li>
+                        <li>Botanical pesticide database</li>
+                    </ul>
+                    <div class="project-links">
+                        <a href="https://mirai39.streamlit.app/" class="btn btn-primary" target="_blank">
+                            🚀 Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/streamlit_terbaru" class="btn btn-secondary"
+                            target="_blank">
+                            📂 GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Budidaya Cabai -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon">🌶️</div>
+                        <h3 class="project-title">Budidaya Cabai Platform</h3>
+                    </div>
+                    <p class="project-description">
+                        Comprehensive chili cultivation platform with industry-standard features. Includes ML-based
+                        price forecasting, 6 cultivation scenarios (Organic/Chemical × Open/Greenhouse), complete
+                        SOPs, and business analytics.
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">Prophet</span>
+                        <span class="tech-tag">Plotly</span>
+                        <span class="tech-tag">Pandas</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>Planting calendar with optimal timing</li>
+                        <li>ML-based price prediction (3-6 months)</li>
+                        <li>6 cultivation scenarios with detailed SOPs</li>
+                        <li>RAB calculator for budget planning</li>
+                        <li>Pest & disease database with solutions</li>
+                        <li>ROI & break-even analysis</li>
+                    </ul>
+                    <div class="project-links">
+                        <a href="https://budidayacabe.streamlit.app/" class="btn btn-primary" target="_blank">
+                            🚀 Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/budidaya_cabe_streamlit" class="btn btn-secondary"
+                            target="_blank">
+                            📂 GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Budidaya Krisan -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon">🌸</div>
+                        <h3 class="project-title">Budidaya Krisan AI System</h3>
+                    </div>
+                    <p class="project-description">
+                        AI-powered Japanese spray chrysanthemum cultivation system with machine learning for growth
+                        monitoring, anomaly detection, and health scoring. Features real-time weather integration
+                        and predictive analytics.
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">scikit-learn</span>
+                        <span class="tech-tag">Altair</span>
+                        <span class="tech-tag">Open-Meteo API</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>AI-powered growth prediction (4-8 weeks)</li>
+                        <li>Anomaly detection with Isolation Forest</li>
+                        <li>Multi-factor health scoring (0-100)</li>
+                        <li>Smart recommendations engine</li>
+                        <li>Photoperiod calculator for flowering</li>
+                        <li>Winter temperature management (Dambo)</li>
+                    </ul>
+                    <div class="project-links">
+                        <a href="https://budidayakrisan.streamlit.app/" class="btn btn-primary" target="_blank">
+                            🚀 Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/budidaya_krisan" class="btn btn-secondary"
+                            target="_blank">
+                            📂 GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Budidaya Padi -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon">🌾</div>
+                        <h3 class="project-title">Budidaya Padi Management</h3>
+                    </div>
+                    <p class="project-description">
+                        Integrated rice farming management system with PyCaret AutoML, advanced analytics, and
+                        comprehensive cultivation guides. Supports 20+ Indonesian rice varieties with specialized
+                        modules for water management and pest control.
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">PyCaret</span>
+                        <span class="tech-tag">Altair</span>
+                        <span class="tech-tag">Statsmodels</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>PyCaret AutoML for yield prediction</li>
+                        <li>20+ Indonesian rice varieties database</li>
+                        <li>AWD (Alternate Wetting & Drying) calculator</li>
+                        <li>Statistical analysis (ANOVA, RCBD)</li>
+                        <li>Real-time weather monitoring</li>
+                        <li>Market price prediction</li>
+                    </ul>
+                    <div class="project-links">
+                        <a href="https://budidayapadi.streamlit.app/" class="btn btn-primary" target="_blank">
+                            🚀 Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/budidaya_padi" class="btn btn-secondary" target="_blank">
+                            📂 GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bank Sampah Terpadu -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon">♻️</div>
+                        <h3 class="project-title">Bank Sampah Terpadu</h3>
+                    </div>
+                    <p class="project-description">
+                        Integrated waste management system based on circular economy principles, adapting Japanese
+                        waste sorting standards. Transforms waste perception into "Green Gold" with economic value
+                        calculations and agricultural integration.
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">Plotly</span>
+                        <span class="tech-tag">Pandas</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>Japanese waste sorting standards (Moeru/Shigen/Moenai)</li>
+                        <li>"Trash to Cash" calculator with precision pricing</li>
+                        <li>Real-time monitoring dashboard</li>
+                        <li>Organic waste to compost/maggot feed conversion</li>
+                        <li>AgriSensa ecosystem integration</li>
+                    </ul>
+                    <div class="project-links">
+                        <a href="https://bank-sampah-terpadu.streamlit.app/" class="btn btn-primary" target="_blank">
+                            🚀 Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/bank-sampah-terpadu" class="btn btn-secondary"
+                            target="_blank">
+                            📂 GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer id="contact">
+        <h2 style="font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">Get In Touch</h2>
+        <p style="color: #94a3b8; margin-bottom: 2rem;">
+            AgriTech Developer | AI & Machine Learning Engineer | Open to Opportunities
+        </p>
+        <div class="footer-links">
+            <a href="https://github.com/yandri918" target="_blank">📂 GitHub</a>
+            <a href="https://www.linkedin.com/in/andriyanto-na-147492157" target="_blank">💼 LinkedIn</a>
+            <a href="mailto:yandri918@gmail.com">📧 Email</a>
+            <a href="https://mirai39.streamlit.app/" target="_blank">🌐 AgriSensa Platform</a>
+        </div>
+        <p style="color: #64748b; margin-top: 2rem;">
+            &copy; 2026 Andriyanto, BScE, S.E. Built with ❤️ for Indonesian Farmers
+        </p>
+        <p style="color: #475569; margin-top: 0.5rem; font-size: 0.9rem;">
+            AgriTech Innovation | AI-Powered Agriculture | Smart Farming Solutions
+        </p>
+    </footer>
+</body>
+
+</html>
