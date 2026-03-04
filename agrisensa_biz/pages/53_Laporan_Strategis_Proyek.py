@@ -51,11 +51,7 @@ with st.sidebar:
     source_3k = st.radio("Sektor Operasional (3K)", ["Template Standar (Dummy)", "Sinkron Modul 33 (Live)"], index=0)
     source_trace = st.radio("Sektor Keamanan", ["Template Standar (Dummy)", "Sinkron Modul 48 (Live)"], index=0)
 
-    st.divider()
-    if st.button("🖨️ Cetak Buku Putih", type="primary", use_container_width=True):
-        st.info("📌 Jendela cetakan disiapkan. Pastikan Anda berada di Tab 3 (Laporan) sebelum mencetak!")
-        # Eksekusi aksi cetak (JS fallback) triger window utama, bukan iframe component
-        st.components.v1.html("<script>setTimeout(function() { window.parent.print(); }, 1000);</script>", height=0)
+
 
 
 # --- DATA FETCHING & FALLBACK (Mencegah Error) ---
@@ -207,6 +203,14 @@ with tab2:
 
 # TAB 3: LAPORAN (BUKU PUTIH / PRINT VIEW)
 with tab3:
+    col_print, _ = st.columns([1, 4])
+    with col_print:
+        if st.button("🖨️ Cetak Buku Putih", type="primary", use_container_width=True):
+            st.info("📌 Jendela cetakan disiapkan. (Tekan Ctrl+P)")
+            st.components.v1.html("<script>setTimeout(function() { window.parent.print(); }, 1000);</script>", height=0)
+    
+    st.divider()
+    
     # Membangun struktur HTML untuk tampilan laporannya 
     # Tampilan ini akan di-target oleh @media print 
     
