@@ -2,6 +2,7 @@ import streamlit as st
 import datetime
 import pandas as pd
 import plotly.express as px
+import textwrap
 
 # Page Config
 from utils.auth import require_auth, show_user_info_sidebar
@@ -292,4 +293,4 @@ with tab3:
     </div>
     """
     
-    st.markdown(print_html, unsafe_allow_html=True)
+    st.markdown(textwrap.dedent(print_html), unsafe_allow_html=True)
