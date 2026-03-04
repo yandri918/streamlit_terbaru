@@ -718,6 +718,10 @@ with tab2:
             params['avg_hum'] = str(data['climate']['avg_hum'])
             params['sun_hours'] = str(data['climate']['sun_hours'])
         
+        # Add notes
+        if data.get('riwayat'):
+            params['notes'] = str(data['riwayat'])
+
         # Add milestones as JSON string
         if data.get('milestones'):
             import json
