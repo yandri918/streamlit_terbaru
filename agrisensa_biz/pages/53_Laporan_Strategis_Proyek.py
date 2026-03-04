@@ -52,9 +52,9 @@ with st.sidebar:
 
     st.divider()
     if st.button("🖨️ Cetak Buku Putih", type="primary", use_container_width=True):
-        st.info("📌 Jendela cetakan disiapkan. (Tekan Ctrl+P)")
-        # Eksekusi aksi cetak (JS fallback) - render via render HTML tab 3
-        st.components.v1.html("<script>setTimeout(function() { window.print(); }, 1500);</script>", height=0)
+        st.info("📌 Jendela cetakan disiapkan. Pastikan Anda berada di Tab 3 (Laporan) sebelum mencetak!")
+        # Eksekusi aksi cetak (JS fallback) triger window utama, bukan iframe component
+        st.components.v1.html("<script>setTimeout(function() { window.parent.print(); }, 1000);</script>", height=0)
 
 
 # --- DATA FETCHING & FALLBACK (Mencegah Error) ---
@@ -112,8 +112,16 @@ st.markdown("""
 st.markdown("""
 <style>
 @media print {
+    /* Menyembunyikan elemen Streamlit yang tidak perlu */
     header, .stSidebar, .stTabs > div:first-child, .stButton, div[data-testid="stToolbar"] { display: none !important; }
-    .book-white { display: block !important; padding: 0 !important; }
+    
+    /* Memastikan halaman tidak terpotong (overflow visible pada parent container) */
+    body, html, .stApp, .main, .block-container {
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .book-white { display: block !important; padding: 0 !important; border: none !important; box-shadow: none !important;}
 }
 </style>
 """, unsafe_allow_html=True)
