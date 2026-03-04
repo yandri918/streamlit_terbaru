@@ -216,81 +216,78 @@ with tab3:
         tl_html += f"<tr><td style='padding: 8px; border-bottom: 1px solid #e2e8f0;'>Milestone {idx+1}</td><td style='padding: 8px; border-bottom: 1px solid #e2e8f0;'><strong>{row.get('Fase','-')}</strong></td><td style='padding: 8px; text-align:right; border-bottom: 1px solid #e2e8f0;'>{row.get('Durasi','-')}</td></tr>"
     
     # Rendering Dokumen Premium
-    print_html = f"""
-    <div class="book-white" style="font-family: 'Times New Roman', serif; color: #000; max-width: 800px; margin: 0 auto; padding: 40px; background: white; border: 1px solid #cbd5e1; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
-        
-        <!-- HEADER KOP SURAT -->
-        <table style="width: 100%; border-bottom: 3px solid #1e293b; margin-bottom: 25px; padding-bottom: 15px;">
-            <tr>
-                <td style="width: 25%;"><h1 style="color: #16a34a; margin:0;">🌾 AgriSensa</h1><p style="margin:0; font-size: 11px; color:#64748b;">Ecosystem Intelligence</p></td>
-                <td style="text-align: center;"><h2 style="margin:0; color:#1e293b; text-transform: uppercase;">STRATEGIC PROJECT DOSSIER / BUKU PUTIH</h2><p style="margin: 5px 0 0 0; font-size: 14px;">Nomor Dokumen: AS/PRJ/{datetime.date.today().strftime('%Y%m%d')}/01</p></td>
-                <td style="width: 25%; text-align: right;"><span style="color: #64748b; font-size: 12px;">Tanggal Terbit:</span><br/><strong>{report_date.strftime('%d %B %Y')}</strong></td>
-            </tr>
-        </table>
-        
-        <!-- BAGIAN 1: PROFIL PROYEK -->
-        <h3 style="color: #1e293b; border-bottom: 1px solid #94a3b8; padding-bottom: 5px;">A. RINGKASAN EKSEKUTIF PROFIL PROYEK</h3>
-        <table style="width: 100%; margin-bottom: 25px; font-size: 14px; line-height: 1.6;">
-            <tr><td style="width: 30%; font-weight: bold;">Nama Kegiatan / Proyek</td><td>: {proj_name}</td></tr>
-            <tr><td style="font-weight: bold;">Instansi Pengusul</td><td>: {company_name}</td></tr>
-            <tr><td style="font-weight: bold;">Penanggung Jawab / CEO</td><td>: {owner_name}</td></tr>
-        </table>
+    print_html = f"""<div class="book-white" style="font-family: 'Times New Roman', serif; color: #000; max-width: 800px; margin: 0 auto; padding: 40px; background: white; border: 1px solid #cbd5e1; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+<!-- HEADER KOP SURAT -->
+<table style="width: 100%; border-bottom: 3px solid #1e293b; margin-bottom: 25px; padding-bottom: 15px;">
+    <tr>
+        <td style="width: 25%;"><h1 style="color: #16a34a; margin:0;">🌾 AgriSensa</h1><p style="margin:0; font-size: 11px; color:#64748b;">Ecosystem Intelligence</p></td>
+        <td style="text-align: center;"><h2 style="margin:0; color:#1e293b; text-transform: uppercase;">STRATEGIC PROJECT DOSSIER / BUKU PUTIH</h2><p style="margin: 5px 0 0 0; font-size: 14px;">Nomor Dokumen: AS/PRJ/{datetime.date.today().strftime('%Y%m%d')}/01</p></td>
+        <td style="width: 25%; text-align: right;"><span style="color: #64748b; font-size: 12px;">Tanggal Terbit:</span><br/><strong>{report_date.strftime('%d %B %Y')}</strong></td>
+    </tr>
+</table>
 
-        <!-- BAGIAN 2: ANALISIS SWOT -->
-        <h3 style="color: #1e293b; border-bottom: 1px solid #94a3b8; padding-bottom: 5px;">B. MATRIKS STRATEGI (SWOT ASSESSMENT)</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 13px;">
-            <tr>
-                <td style="width: 50%; padding: 15px; border: 1px solid #94a3b8; vertical-align: top; background-color: #f8fafc;">
-                    <h4 style="margin-top:0; color: #16a34a;">☑️ STRENGTHS (Kekuatan)</h4>
-                    <p style="margin:0;">{st.session_state['swot_data']['Strengths']}</p>
-                </td>
-                <td style="width: 50%; padding: 15px; border: 1px solid #94a3b8; vertical-align: top; background-color: #f8fafc;">
-                    <h4 style="margin-top:0; color: #b45309;">⚠️ WEAKNESSES (Kelemahan)</h4>
-                    <p style="margin:0;">{st.session_state['swot_data']['Weaknesses']}</p>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 15px; border: 1px solid #94a3b8; vertical-align: top; background-color: #f8fafc;">
-                    <h4 style="margin-top:0; color: #2563eb;">🎯 OPPORTUNITIES (Peluang)</h4>
-                    <p style="margin:0;">{st.session_state['swot_data']['Opportunities']}</p>
-                </td>
-                <td style="padding: 15px; border: 1px solid #94a3b8; vertical-align: top; background-color: #f8fafc;">
-                    <h4 style="margin-top:0; color: #dc2626;">💣 THREATS (Ancaman)</h4>
-                    <p style="margin:0;">{st.session_state['swot_data']['Threats']}</p>
-                </td>
-            </tr>
-        </table>
+<!-- BAGIAN 1: PROFIL PROYEK -->
+<h3 style="color: #1e293b; border-bottom: 1px solid #94a3b8; padding-bottom: 5px;">A. RINGKASAN EKSEKUTIF PROFIL PROYEK</h3>
+<table style="width: 100%; margin-bottom: 25px; font-size: 14px; line-height: 1.6;">
+    <tr><td style="width: 30%; font-weight: bold;">Nama Kegiatan / Proyek</td><td>: {proj_name}</td></tr>
+    <tr><td style="font-weight: bold;">Instansi Pengusul</td><td>: {company_name}</td></tr>
+    <tr><td style="font-weight: bold;">Penanggung Jawab / CEO</td><td>: {owner_name}</td></tr>
+</table>
 
-        <!-- BAGIAN 3: KELAYAKAN EKONOMI -->
-        <h3 style="color: #1e293b; border-bottom: 1px solid #94a3b8; padding-bottom: 5px;">C. PROYEKSI KELAYAKAN FINANSIAL & OPERASIONAL</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px;">
-            <tr style="background:#f1f5f9;"><th style="padding:10px; border: 1px solid #cbd5e1; text-align: left;">Indikator Utama</th><th style="padding:10px; border: 1px solid #cbd5e1; text-align: right;">Estimasi Penilaian (Validasi Modul AgriSensa)</th></tr>
-            <tr><td style="padding:10px; border: 1px solid #cbd5e1;">Pagu Investasi / Total Pengeluaran Modal (CAPEX+OPEX)</td><td style="padding:10px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">Rp {rab_raw.get('total_biaya'):,.0f}</td></tr>
-            <tr><td style="padding:10px; border: 1px solid #cbd5e1;">Return on Investment (ROI) Proyeksi</td><td style="padding:10px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #16a34a;">{rab_raw.get('roi_percent'):.1f} %</td></tr>
-            <tr><td style="padding:10px; border: 1px solid #cbd5e1;">Kapasitas Yield Operasional</td><td style="padding:10px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">{sim_raw.get('kapasitas_mingguan')} kg/minggu</td></tr>
-            <tr><td style="padding:10px; border: 1px solid #cbd5e1;">Arsitektur Pengamanan Catu Daya Rantai Pasok</td><td style="padding:10px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #2563eb;">Traceability Blockchain ({len(ledger_raw)} node tersimpan)</td></tr>
-        </table>
+<!-- BAGIAN 2: ANALISIS SWOT -->
+<h3 style="color: #1e293b; border-bottom: 1px solid #94a3b8; padding-bottom: 5px;">B. MATRIKS STRATEGI (SWOT ASSESSMENT)</h3>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 13px;">
+    <tr>
+        <td style="width: 50%; padding: 15px; border: 1px solid #94a3b8; vertical-align: top; background-color: #f8fafc;">
+            <h4 style="margin-top:0; color: #16a34a;">☑️ STRENGTHS (Kekuatan)</h4>
+            <p style="margin:0;">{st.session_state['swot_data']['Strengths']}</p>
+        </td>
+        <td style="width: 50%; padding: 15px; border: 1px solid #94a3b8; vertical-align: top; background-color: #f8fafc;">
+            <h4 style="margin-top:0; color: #b45309;">⚠️ WEAKNESSES (Kelemahan)</h4>
+            <p style="margin:0;">{st.session_state['swot_data']['Weaknesses']}</p>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding: 15px; border: 1px solid #94a3b8; vertical-align: top; background-color: #f8fafc;">
+            <h4 style="margin-top:0; color: #2563eb;">🎯 OPPORTUNITIES (Peluang)</h4>
+            <p style="margin:0;">{st.session_state['swot_data']['Opportunities']}</p>
+        </td>
+        <td style="padding: 15px; border: 1px solid #94a3b8; vertical-align: top; background-color: #f8fafc;">
+            <h4 style="margin-top:0; color: #dc2626;">💣 THREATS (Ancaman)</h4>
+            <p style="margin:0;">{st.session_state['swot_data']['Threats']}</p>
+        </td>
+    </tr>
+</table>
 
-        <!-- BAGIAN 4: TIMELINE -->
-        <h3 style="color: #1e293b; border-bottom: 1px solid #94a3b8; padding-bottom: 5px;">D. TIMELINE EKSEKUSI PROYEK</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 14px;">
-            <tr style="background:#1e293b; color: white;"><th style="padding:8px; text-align: left;">Tahapan</th><th style="padding:8px; text-align: left;">Fase Implementasi Operasional</th><th style="padding:8px; text-align: right;">Sasaran Jangka Waktu</th></tr>
-            {tl_html}
-        </table>
+<!-- BAGIAN 3: KELAYAKAN EKONOMI -->
+<h3 style="color: #1e293b; border-bottom: 1px solid #94a3b8; padding-bottom: 5px;">C. PROYEKSI KELAYAKAN FINANSIAL & OPERASIONAL</h3>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 14px;">
+    <tr style="background:#f1f5f9;"><th style="padding:10px; border: 1px solid #cbd5e1; text-align: left;">Indikator Utama</th><th style="padding:10px; border: 1px solid #cbd5e1; text-align: right;">Estimasi Penilaian (Validasi Modul AgriSensa)</th></tr>
+    <tr><td style="padding:10px; border: 1px solid #cbd5e1;">Pagu Investasi / Total Pengeluaran Modal (CAPEX+OPEX)</td><td style="padding:10px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">Rp {rab_raw.get('total_biaya'):,.0f}</td></tr>
+    <tr><td style="padding:10px; border: 1px solid #cbd5e1;">Return on Investment (ROI) Proyeksi</td><td style="padding:10px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #16a34a;">{rab_raw.get('roi_percent'):.1f} %</td></tr>
+    <tr><td style="padding:10px; border: 1px solid #cbd5e1;">Kapasitas Yield Operasional</td><td style="padding:10px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold;">{sim_raw.get('kapasitas_mingguan')} kg/minggu</td></tr>
+    <tr><td style="padding:10px; border: 1px solid #cbd5e1;">Arsitektur Pengamanan Catu Daya Rantai Pasok</td><td style="padding:10px; border: 1px solid #cbd5e1; text-align: right; font-weight: bold; color: #2563eb;">Traceability Blockchain ({len(ledger_raw)} node tersimpan)</td></tr>
+</table>
 
-        <!-- BAGIAN 5: SIGNATURES -->
-        <p style="font-size: 12px; font-style: italic; color: #64748b; margin-bottom: 20px;">*Dossier ini di-generate secara otomatis via AgriSensa Artificial Intelligence System. Validasi dokumen memuat komparasi algoritma dan skenario pada data pipeline terpusat.</p>
-        <table style="width: 100%; text-align: center; margin-top: 30px;">
-            <tr>
-                <td style="width: 50%; padding-bottom: 80px;">Menyetujui & Memvalidasi,<br/><strong>Strategic Analyst (Sistem Terpadu)</strong></td>
-                <td style="width: 50%; padding-bottom: 80px;">Ditetapkan oleh,<br/><strong>Project Director</strong></td>
-            </tr>
-            <tr>
-                <td><strong>AgriSensa AI Engine</strong></td>
-                <td><strong style="text-decoration: underline;">{owner_name}</strong><br/>{company_name}</td>
-            </tr>
-        </table>
-    </div>
-    """
+<!-- BAGIAN 4: TIMELINE -->
+<h3 style="color: #1e293b; border-bottom: 1px solid #94a3b8; padding-bottom: 5px;">D. TIMELINE EKSEKUSI PROYEK</h3>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 14px;">
+    <tr style="background:#1e293b; color: white;"><th style="padding:8px; text-align: left;">Tahapan</th><th style="padding:8px; text-align: left;">Fase Implementasi Operasional</th><th style="padding:8px; text-align: right;">Sasaran Jangka Waktu</th></tr>
+    {tl_html}
+</table>
+
+<!-- BAGIAN 5: SIGNATURES -->
+<p style="font-size: 12px; font-style: italic; color: #64748b; margin-bottom: 20px;">*Dossier ini di-generate secara otomatis via AgriSensa Artificial Intelligence System. Validasi dokumen memuat komparasi algoritma dan skenario pada data pipeline terpusat.</p>
+<table style="width: 100%; text-align: center; margin-top: 30px;">
+    <tr>
+        <td style="width: 50%; padding-bottom: 80px;">Menyetujui & Memvalidasi,<br/><strong>Strategic Analyst (Sistem Terpadu)</strong></td>
+        <td style="width: 50%; padding-bottom: 80px;">Ditetapkan oleh,<br/><strong>Project Director</strong></td>
+    </tr>
+    <tr>
+        <td><strong>AgriSensa AI Engine</strong></td>
+        <td><strong style="text-decoration: underline;">{owner_name}</strong><br/>{company_name}</td>
+    </tr>
+</table>
+</div>"""
     
-    st.markdown(textwrap.dedent(print_html), unsafe_allow_html=True)
+    st.markdown(print_html, unsafe_allow_html=True)
