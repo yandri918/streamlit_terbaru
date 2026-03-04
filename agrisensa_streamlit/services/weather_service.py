@@ -1,7 +1,31 @@
-
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import pandas as pd
 from datetime import datetime
+import streamlit as st
+
+@st.cache_data(ttl=1800, show_spinner=False)
+def fetch_weather_api(lat, lon, base_url):
+    session = requests.Session()
+    retry = Retry(total=3, connect=3, backoff_factor=0.5, status_forcelist=[429, 500, 502, 503, 504])
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "current": "temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m",
+        "hourly": "temperature_2m,rain,soil_temperature_0cm,soil_moisture_0_to_1cm",
+        "daily": "weather_code,temperature_2m_max,temperature_2m_min,rain_sum,precipitation_probability_max,et0_fao_evapotranspiration",
+        "timezone": "auto"
+    }
+    
+    response = session.get(base_url, params=params, timeout=10)
+    if response.status_code == 200:
+        return response.json()
+    return None
 
 class WeatherService:
     def __init__(self):
@@ -13,22 +37,10 @@ class WeatherService:
         Returns dictionary with current and daily forecast
         """
         try:
-            params = {
-                "latitude": lat,
-                "longitude": lon,
-                "current": "temperature_2m,relative_humidity_2m,rain,weather_code,wind_speed_10m",
-                "hourly": "temperature_2m,rain,soil_temperature_0cm,soil_moisture_0_to_1cm",
-                "daily": "weather_code,temperature_2m_max,temperature_2m_min,rain_sum,precipitation_probability_max,et0_fao_evapotranspiration",
-                "timezone": "auto"
-            }
-            
-            response = requests.get(self.base_url, params=params, timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
+            data = fetch_weather_api(lat, lon, self.base_url)
+            if data:
                 return self._process_weather_data(data)
-            else:
-                return None
+            return None
                 
         except Exception as e:
             print(f"Weather API Error: {e}")

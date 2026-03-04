@@ -110,45 +110,49 @@ def optimize_solution(model, target_yield, optimization_mode="Yield", fixed_para
         0.8 
     ])
     
-    iterations = 250
-    
-    for i in range(iterations):
-        test_cond = current_cond.copy()
-        # Mutation: N, P, K, pH, Rain, Temp, Org, Tex, Water
-        mutation = np.random.normal(0, [25, 10, 15, 0.1, 0, 0, 1.0, 0, 0], 9)
-        test_cond += mutation
-        test_cond = np.clip(test_cond, 
-                           [0,0,0,4,500,15,0,0,0], 
-                           [400,150,300,8,4000,35,20,1,1]) 
-        
-        # Enforce fixed constraints
-        test_cond[4] = start_rain
-        test_cond[5] = start_temp
-        
-        if 'fixed_org' in fixed_params:
-             test_cond[6] = fixed_params['fixed_org']
-        test_cond[7] = fixed_params.get('texture', 0.7)
+    iterations = 5   # We will do 5 steps of hill climbing
+    batch_size = 50  # 50 mutations per step (total 250 evaluations)
 
-        pred_yield = model.predict(test_cond.reshape(1,-1))[0]
+    for i in range(iterations):
+        # Generate batch_size mutations at once
+        test_conds = np.tile(current_cond, (batch_size, 1))
+        mutations = np.random.normal(0, [25, 10, 15, 0.1, 0, 0, 1.0, 0, 0], (batch_size, 9))
+        test_conds += mutations
         
-        # Economic Calculation
-        revenue = pred_yield * price_per_kg
-        chem_cost = (test_cond[0] * COST_N) + (test_cond[1] * COST_P) + (test_cond[2] * COST_K)
-        org_cost = (test_cond[6] * 1000 * COST_ORG)
-        total_variable_cost = chem_cost + org_cost + pest_cost_total
+        # Clip values to realistic ranges
+        test_conds = np.clip(test_conds, 
+                             [0, 0, 0, 4, 500, 15, 0, 0, 0], 
+                             [400, 150, 300, 8, 4000, 35, 20, 1, 1])
         
-        profit = revenue - total_variable_cost
+        # Enforce fixed constraints across the batch
+        test_conds[:, 4] = start_rain
+        test_conds[:, 5] = start_temp
+        if 'fixed_org' in fixed_params:
+             test_conds[:, 6] = fixed_params['fixed_org']
+        test_conds[:, 7] = fixed_params.get('texture', 0.7)
+
+        # Predict all yields for the batch at once (Extremely fast compared to single predictions)
+        pred_yields = model.predict(test_conds)
+        
+        # Economic Calculation Vectorized
+        revenues = pred_yields * price_per_kg
+        chem_costs = (test_conds[:, 0] * COST_N) + (test_conds[:, 1] * COST_P) + (test_conds[:, 2] * COST_K)
+        org_costs = (test_conds[:, 6] * 1000 * COST_ORG)
+        total_variable_costs = chem_costs + org_costs + pest_cost_total
+        
+        profits = revenues - total_variable_costs
         
         if optimization_mode == "Profit":
-            score = profit
+            scores = profits
         else:
-            diff = abs(pred_yield - target_yield)
-            score = -diff 
+            diffs = np.abs(pred_yields - target_yield)
+            scores = -diffs 
             
-        if score > best_score:
-            best_score = score
-            best_conditions = test_cond
-            current_cond = test_cond 
+        best_idx = np.argmax(scores)
+        if scores[best_idx] > best_score:
+            best_score = scores[best_idx]
+            best_conditions = test_conds[best_idx].copy()
+            current_cond = test_conds[best_idx].copy() 
             
     final_yield = model.predict(best_conditions.reshape(1,-1))[0]
     
