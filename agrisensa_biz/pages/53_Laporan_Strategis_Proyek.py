@@ -42,7 +42,7 @@ with st.sidebar:
     st.header("Konfigurasi Proyek")
     proj_name = st.text_input("Nama Proyek", "Pusat Agribisnis Premium Terpadu")
     company_name = st.text_input("Instansi / Perusahaan", "PT. AgriSensa Solusi Madani")
-    owner_name = st.text_input("Penanggung Jawab / CEO", "Bpk. Yandri")
+    owner_name = st.text_input("Penanggung Jawab / CEO", "Bpk. Andriyanto")
     report_date = st.date_input("Tanggal Terbit", datetime.date.today())
     
     st.divider()
