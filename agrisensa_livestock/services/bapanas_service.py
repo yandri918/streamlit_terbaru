@@ -1,4 +1,4 @@
-﻿
+
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
@@ -6,7 +6,7 @@ import sys
 import os
 
 # =============================================================================
-# ðŸ”— MODULAR IMPORT STRATEGY
+# 🔗 MODULAR IMPORT STRATEGY
 # Ensures service works whether run as part of a package or standalone script.
 # =============================================================================
 try:
@@ -36,26 +36,40 @@ class BapanasService:
     def get_latest_prices(self, province_id=None, city_id=None):
         """
         Fetch latest prices from Bapanas API.
+        Attempts to find data from today, falling back up to 7 days if empty.
         Level 1 = Consumer/Retail prices.
         """
         endpoint = f"{self.base_url}/harga-pangan-informasi"
-        params = {"level_harga_id": 1}
         
-        if province_id and str(province_id) != "0":
-            params["province_id"] = province_id
-        if city_id:
-            params["city_id"] = city_id
+        # Auto-Seek Logic: Loop backwards from today up to 7 days
+        for days_back in range(7):
+            target_date = datetime.now() - timedelta(days=days_back)
+            # Some endpoints might not need date, but others do.
+            # get_latest_prices usually provides a current snapshot, 
+            # but if it's empty, we might need a different approach or just report lag.
             
-        try:
-            response = requests.get(endpoint, headers=self.headers, params=params, timeout=15)
-            if response.status_code == 200:
-                result = response.json()
-                if result.get("status") == "success":
-                    return self._parse_price_response(result.get("data", []))
-            return None
-        except Exception as e:
-            print(f"Bapanas API Price Error: {e}")
-            return None
+            params = {"level_harga_id": 1}
+            if province_id and str(province_id) != "0":
+                params["province_id"] = province_id
+            if city_id:
+                params["city_id"] = city_id
+                
+            try:
+                response = requests.get(endpoint, headers=self.headers, params=params, timeout=15)
+                if response.status_code == 200:
+                    result = response.json()
+                    if result.get("status") == "success" and result.get("data"):
+                        df = self._parse_price_response(result.get("data", []))
+                        if df is not None and not df.empty:
+                            if days_back > 0:
+                                print(f"Bapanas using data from H-{days_back}")
+                            return df
+                # If specifically "success" but empty data, keep looking back
+            except Exception as e:
+                print(f"Bapanas API Price Attempt {days_back} Error: {e}")
+                continue
+                
+        return None
     
     def _parse_price_response(self, data_list):
         """Parse raw JSON into a structured DataFrame with trends."""
@@ -66,7 +80,7 @@ class BapanasService:
         
         for item in data_list:
             try:
-                # Today's Price
+                # Today's Price (or latest available in API snapshot)
                 if item.get('today'):
                     parsed_data.append({
                         'commodity': item.get('name'),
@@ -98,10 +112,15 @@ class BapanasService:
         """
         Fetch spatial price data for mapping.
         commodity_id 2: Beras Medium (default), level_id 3: Retail/Consumer.
+        Uses a 7-day lookback window to ensure data availability.
         """
         endpoint = f"{self.base_url}/harga-peta-provinsi"
-        today_str = datetime.now().strftime("%d/%m/%Y")
-        period = f"{today_str} - {today_str}"
+        
+        # Use a range instead of a single day for mapping stability
+        today = datetime.now()
+        start_date = (today - timedelta(days=7)).strftime("%d/%m/%Y")
+        end_date = today.strftime("%d/%m/%Y")
+        period = f"{start_date} - {end_date}"
         
         params = {
             "level_harga_id": level_id,
@@ -115,7 +134,7 @@ class BapanasService:
             response = requests.get(endpoint, headers=self.headers, params=params, timeout=15)
             if response.status_code == 200:
                 result = response.json()
-                if "data" in result:
+                if "data" in result and result['data']:
                     return self._parse_map_response(result['data'])
             return None
         except Exception as e:
@@ -143,4 +162,3 @@ class BapanasService:
                     })
             except: continue
         return pd.DataFrame(parsed_data) if parsed_data else None
-

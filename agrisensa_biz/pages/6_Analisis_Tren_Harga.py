@@ -154,12 +154,19 @@ if st.button("🔄 Segarkan Data Harga", type="primary", use_container_width=Tru
             
             if df is not None and not df.empty:
                 st.session_state['price_data'] = df
-                st.session_state['data_source'] = "Bapanas API v2"
-                # Correct message to count unique commodities
+                st.session_state['data_source'] = "Bapanas API v2 (Official)"
+                
+                # Intelligent messaging based on data freshness
+                max_date = df['date'].max()
+                days_diff = (datetime.now().date() - max_date.date()).days
+                
                 comm_count = df['commodity'].nunique()
-                st.success(f"Berhasil memuat {comm_count} jenis komoditas! (Total {len(df)} data poin hari ini & kemarin)")
+                if days_diff == 0:
+                    st.success(f"✅ Berhasil memuat {comm_count} harga komoditas TERBARU hari ini!")
+                else:
+                    st.warning(f"ℹ️ Data hari ini belum dirilis Bapanas. Menampilkan data terbaru yang tersedia ({max_date.strftime('%d %B %Y')}) - Selisih {days_diff} hari.")
             else:
-                st.error("Gagal mengambil data. Server Bapanas mungkin sibuk atau API Key expired.")
+                st.error("Gagal mengambil data. Server Bapanas mungkin sibuk atau memerlukan API Key khusus.")
                 
         except Exception as e:
             st.error(f"Terjadi kesalahan: {e}")
