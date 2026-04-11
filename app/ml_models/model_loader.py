@@ -47,6 +47,7 @@ class ModelLoader:
                     'crop_recommendation': 'crop_recommendation_model.pkl',
                     'yield_prediction': 'yield_prediction_model.pkl',
                     'advanced_yield': 'advanced_yield_model.pkl',
+                    'success': 'success_model.pkl',
                     'shap_explainer': 'shap_explainer.pkl'
                 }
                 ml_models_path = '.'

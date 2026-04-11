@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アンドリヤント – アグリテックAIエンジニア ポートフォリオ</title>
+    <meta name="description" content="AIプロダクトエンジニア。農業特化AI。5つの本番稼働アプリ、60以上のAIモジュール、収量15%向上の実績。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --green: #10b981;
+            --green-dark: #059669;
+            --green-glow: rgba(16, 185, 129, .25);
+            --blue: #60a5fa;
+            --purple: #a78bfa;
+            --bg: #020917;
+            --bg2: #0a1628;
+            --glass: rgba(255, 255, 255, .04);
+            --glass-border: rgba(255, 255, 255, .08);
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --card-hover: rgba(16, 185, 129, .06);
+            --radius: 16px
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg)
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--green-dark);
+            border-radius: 4px
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            background: rgba(2, 9, 23, .8);
+            border-bottom: 1px solid var(--glass-border);
+            transition: .3s
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: auto;
+            padding: .9rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--green), var(--blue));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: .875rem;
+            font-weight: 500;
+            transition: .2s;
+            position: relative
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text)
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--green);
+            transition: .3s;
+            border-radius: 2px
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%
+        }
+
+        .lang-btn {
+            padding: .4rem .9rem;
+            border: 1px solid var(--green);
+            border-radius: 8px;
+            color: var(--green);
+            text-decoration: none;
+            font-size: .8rem;
+            font-weight: 600;
+            transition: .2s
+        }
+
+        .lang-btn:hover {
+            background: var(--green);
+            color: #000
+        }
+
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .4rem 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            font-size: .8rem;
+            color: var(--muted);
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            background: var(--glass)
+        }
+
+        .hero-tag span {
+            width: 8px;
+            height: 8px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite
+        }
+
+        h1.headline {
+            font-size: clamp(2rem, 5vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            margin-bottom: 1.5rem
+        }
+
+        .grad-text {
+            background: linear-gradient(135deg, var(--green) 0%, var(--blue) 50%, var(--purple) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200%;
+            animation: gradShift 4s ease infinite
+        }
+
+        .hero-sub {
+            font-size: 1rem;
+            color: var(--muted);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.8
+        }
+
+        #typed-text {
+            color: var(--green);
+            border-right: 2px solid var(--green);
+            padding-right: 2px;
+            animation: blink .7s infinite
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem
+        }
+
+        .btn-primary {
+            padding: .8rem 2rem;
+            background: linear-gradient(135deg, var(--green), var(--green-dark));
+            color: #000;
+            font-weight: 700;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: .3s;
+            box-shadow: 0 0 30px var(--green-glow)
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px var(--green-glow)
+        }
+
+        .btn-ghost {
+            padding: .8rem 2rem;
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            font-weight: 600;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: .3s;
+            backdrop-filter: blur(10px)
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--green);
+            color: var(--green);
+            transform: translateY(-2px)
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            flex-wrap: wrap
+        }
+
+        .h-stat {
+            text-align: center
+        }
+
+        .h-stat .num {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--green), var(--blue));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .h-stat .lbl {
+            font-size: .75rem;
+            color: var(--muted)
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .5rem;
+            color: var(--muted);
+            font-size: .75rem;
+            animation: bounce 2s infinite
+        }
+
+        section {
+            position: relative;
+            z-index: 1;
+            padding: 6rem 2rem
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: .3rem .8rem;
+            background: rgba(16, 185, 129, .1);
+            border: 1px solid rgba(16, 185, 129, .2);
+            border-radius: 100px;
+            font-size: .75rem;
+            color: var(--green);
+            font-weight: 600;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            margin-bottom: 1rem
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 1rem
+        }
+
+        .section-desc {
+            color: var(--muted);
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 3rem
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start
+        }
+
+        .about-text p {
+            color: var(--muted);
+            line-height: 1.9;
+            margin-bottom: 1rem
+        }
+
+        .about-text blockquote {
+            border-left: 3px solid var(--green);
+            padding-left: 1rem;
+            color: var(--text);
+            font-style: italic;
+            margin: 1.5rem 0;
+            font-size: 1rem
+        }
+
+        .skill-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem
+        }
+
+        .skill-item label {
+            display: flex;
+            justify-content: space-between;
+            font-size: .85rem;
+            margin-bottom: .4rem;
+            color: var(--text);
+            font-weight: 500
+        }
+
+        .skill-item label span {
+            color: var(--green)
+        }
+
+        .skill-bar {
+            height: 6px;
+            background: var(--glass-border);
+            border-radius: 6px;
+            overflow: hidden
+        }
+
+        .skill-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), var(--blue));
+            border-radius: 6px;
+            width: 0;
+            transition: width 1.2s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        .stats-bg {
+            background: linear-gradient(135deg, rgba(16, 185, 129, .05), rgba(96, 165, 250, .05));
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 4rem 3rem;
+            text-align: center
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem
+        }
+
+        .stat-card {
+            padding: 2rem 1rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            transition: .3s
+        }
+
+        .stat-card:hover {
+            border-color: rgba(16, 185, 129, .3);
+            transform: translateY(-4px);
+            background: var(--card-hover)
+        }
+
+        .stat-num {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--green), var(--blue));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block
+        }
+
+        .stat-lbl {
+            font-size: .8rem;
+            color: var(--muted);
+            margin-top: .5rem
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem
+        }
+
+        .project-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.75rem;
+            transition: .4s;
+            position: relative;
+            overflow: hidden
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--green), var(--blue), var(--purple));
+            transform: scaleX(0);
+            transition: .3s;
+            transform-origin: left
+        }
+
+        .project-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(16, 185, 129, .25);
+            background: rgba(16, 185, 129, .04);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .4)
+        }
+
+        .project-card:hover::before {
+            transform: scaleX(1)
+        }
+
+        .card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, .2), rgba(96, 165, 250, .2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0
+        }
+
+        .badge-live {
+            padding: .25rem .6rem;
+            background: rgba(16, 185, 129, .15);
+            border: 1px solid rgba(16, 185, 129, .3);
+            border-radius: 100px;
+            font-size: .7rem;
+            color: var(--green);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: .3rem
+        }
+
+        .badge-live::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: .6rem
+        }
+
+        .card-desc {
+            font-size: .875rem;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 1rem
+        }
+
+        .tech-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .4rem;
+            margin-bottom: 1.2rem
+        }
+
+        .tech-pill {
+            padding: .25rem .65rem;
+            background: rgba(96, 165, 250, .1);
+            border: 1px solid rgba(96, 165, 250, .2);
+            border-radius: 100px;
+            font-size: .7rem;
+            color: var(--blue);
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .feature-bullets {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: .4rem;
+            margin-bottom: 1.5rem
+        }
+
+        .feature-bullets li {
+            font-size: .8rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .feature-bullets li::before {
+            content: '▸';
+            color: var(--green);
+            flex-shrink: 0
+        }
+
+        .card-links {
+            display: flex;
+            gap: .75rem
+        }
+
+        .link-demo {
+            padding: .5rem 1.2rem;
+            background: linear-gradient(135deg, var(--green), var(--green-dark));
+            color: #000;
+            font-weight: 700;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: .8rem;
+            transition: .2s
+        }
+
+        .link-demo:hover {
+            transform: scale(1.04)
+        }
+
+        .link-gh {
+            padding: .5rem 1.2rem;
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: .8rem;
+            transition: .2s
+        }
+
+        .link-gh:hover {
+            border-color: var(--muted)
+        }
+
+        .arch-wrap {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            overflow-x: auto
+        }
+
+        .arch-diagram {
+            display: flex;
+            gap: 2rem;
+            min-width: 800px;
+            align-items: stretch
+        }
+
+        .arch-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem
+        }
+
+        .arch-col h4 {
+            font-size: .75rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--muted);
+            margin-bottom: .5rem;
+            text-align: center
+        }
+
+        .arch-node {
+            padding: 1rem;
+            background: var(--bg2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            font-size: .8rem;
+            text-align: center;
+            transition: .3s
+        }
+
+        .arch-node:hover {
+            border-color: var(--green);
+            box-shadow: 0 0 20px var(--green-glow)
+        }
+
+        .arch-node.green {
+            border-color: rgba(16, 185, 129, .3);
+            background: rgba(16, 185, 129, .05)
+        }
+
+        .arch-node.blue {
+            border-color: rgba(96, 165, 250, .3);
+            background: rgba(96, 165, 250, .05)
+        }
+
+        .arch-label {
+            font-size: .7rem;
+            color: var(--muted);
+            margin-top: .3rem
+        }
+
+        .arch-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--muted);
+            flex-shrink: 0
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, .08), rgba(96, 165, 250, .08));
+            border: 1px solid rgba(16, 185, 129, .2);
+            border-radius: 24px;
+            padding: 4rem;
+            text-align: center
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .75rem 1.5rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: .9rem;
+            font-weight: 500;
+            transition: .3s
+        }
+
+        .contact-link:hover {
+            border-color: var(--green);
+            color: var(--green);
+            transform: translateY(-3px)
+        }
+
+        footer {
+            border-top: 1px solid var(--glass-border);
+            padding: 2rem;
+            text-align: center;
+            color: var(--muted);
+            font-size: .8rem;
+            position: relative;
+            z-index: 1
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+
+            50% {
+                opacity: .7;
+                transform: scale(1.3)
+            }
+        }
+
+        @keyframes gradShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%
+            }
+
+            50% {
+                background-position: 100% 50%
+            }
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                border-color: var(--green)
+            }
+
+            50% {
+                border-color: transparent
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0)
+            }
+
+            50% {
+                transform: translateX(-50%) translateY(-8px)
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity .7s ease, transform .7s ease
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        @media(max-width:768px) {
+            .about-grid {
+                grid-template-columns: 1fr
+            }
+
+            .nav-links {
+                gap: 1rem
+            }
+
+            .hero-stats {
+                gap: 1.5rem
+            }
+
+            .arch-diagram {
+                flex-direction: column;
+                min-width: unset
+            }
+
+            .arch-arrow {
+                transform: rotate(90deg)
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="#" class="logo">🌿 アグリテック</a>
+            <ul class="nav-links">
+                <li><a href="#about" class="nav-link">私について</a></li>
+                <li><a href="#projects" class="nav-link">プロジェクト</a></li>
+                <li><a href="#impact" class="nav-link">実績</a></li>
+                <li><a href="#architecture" class="nav-link">アーキテクチャ</a></li>
+                <li><a href="#contact" class="nav-link">お問い合わせ</a></li>
+                <li><a href="/" class="lang-btn">EN 🇬🇧</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div>
+            <div class="hero-tag"><span></span> グローバルリモート求人に応募受付中</div>
+            <h1 class="headline">
+                <span class="grad-text">アグリテック・ポートフォリオ</span><br>
+                <span style="font-size:.6em;color:var(--text)">アンドリヤント（Andriyanto, BScE, S.E）</span>
+            </h1>
+            <p class="hero-sub"><span id="typed-text"></span></p>
+            <div class="hero-ctas">
+                <a href="#projects" class="btn-primary">プロジェクトを見る</a>
+                <a href="https://mirai39.streamlit.app/" target="_blank" class="btn-ghost">ライブデモ ↗</a>
+            </div>
+            <div class="hero-stats">
+                <div class="h-stat">
+                    <div class="num" data-target="5">0</div>
+                    <div class="lbl">稼働中アプリ</div>
+                </div>
+                <div class="h-stat">
+                    <div class="num" data-target="60">0</div>
+                    <div class="lbl">AIモジュール</div>
+                </div>
+                <div class="h-stat">
+                    <div class="num" data-target="15">0</div>
+                    <div class="lbl">% 収量増加</div>
+                </div>
+                <div class="h-stat">
+                    <div class="num" data-target="30">0</div>
+                    <div class="lbl">% コスト削減</div>
+                </div>
+            </div>
+            <div class="scroll-hint">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12l7 7 7-7" />
+                </svg>
+                スクロール
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="container">
+            <div class="section-tag">私について</div>
+            <h2 class="section-title">AIエンジニアと<span class="grad-text">農業</span>の融合</h2>
+            <div class="about-grid reveal">
+                <div class="about-text">
+                    <p>私は<strong>AIプロダクトエンジニア</strong>として、農業インテリジェンスシステムをエンド・ツー・エンドで構築することを専門としています。日本を拠点に、技術的な深みとドメイン知識を融合させ、農家の意思決定を革新するプラットフォームを創り出しています。
+                    </p>
+                    <blockquote>「モデルを作るだけではありません。農家の意思決定を変革するプラットフォームを構築します。」</blockquote>
+                    <p>私のAgriSensaエコシステムは、本番運用レベルのAIでインドネシア全土の何千もの農家にサービスを提供しています。病気診断から市場価格予測まで、幅広いソリューションを提供しています。</p>
+                    <p style="margin-top:1rem;color:var(--muted);font-size:.875rem">🎓 BScE（コンピュータ工学）· S.E（経済学）· 日本在住 ·
+                        リモート対応可</p>
+                </div>
+                <div class="skill-list">
+                    <div class="skill-item">
+                        <label>AI・機械学習 <span>92%</span></label>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="92"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <label>フルスタック開発 <span>85%</span></label>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="85"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <label>データ分析・GIS <span>88%</span></label>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="88"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <label>農業ドメイン知識 <span>95%</span></label>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="95"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <label>クラウド・DevOps <span>78%</span></label>
+                        <div class="skill-bar">
+                            <div class="skill-fill" data-width="78"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="impact">
+        <div class="container">
+            <div class="stats-bg reveal">
+                <div class="section-tag">実績</div>
+                <h2 class="section-title">測定可能な<span class="grad-text">ビジネスインパクト</span></h2>
+                <p style="color:var(--muted)">すべての機能が農家の実際の価値創出につながっています</p>
+                <div class="stats-grid">
+                    <div class="stat-card"><span class="stat-num" data-target="15">0</span>
+                        <div class="stat-lbl">% 収量増加</div>
+                    </div>
+                    <div class="stat-card"><span class="stat-num" data-target="30">0</span>
+                        <div class="stat-lbl">% コスト削減</div>
+                    </div>
+                    <div class="stat-card"><span class="stat-num" data-target="60">0</span>
+                        <div class="stat-lbl">AIモジュール</div>
+                    </div>
+                    <div class="stat-card"><span class="stat-num" data-target="5">0</span>
+                        <div class="stat-lbl">稼働中アプリ</div>
+                    </div>
+                    <div class="stat-card"><span class="stat-num" data-target="99">0</span>
+                        <div class="stat-lbl">% 稼働率</div>
+                    </div>
+                    <div class="stat-card"><span class="stat-num" data-target="500">0</span>
+                        <div class="stat-lbl">リサーチ時間</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <div class="container">
+            <div class="section-tag">プロジェクト</div>
+            <h2 class="section-title">注目の<span class="grad-text">アプリケーション</span></h2>
+            <p class="section-desc">5つの実用レベルのアグリテックソリューション — すべてライブ稼働中、農家に活用されています</p>
+            <div class="projects-grid">
+
+                <div class="project-card reveal">
+                    <div class="card-top">
+                        <div class="card-icon">🧠</div><span class="badge-live">稼働中</span>
+                    </div>
+                    <div class="card-title">AgriSensa インテリジェンス・プラットフォーム</div>
+                    <div class="card-desc">精密農業・作物管理のための20以上の専門モジュールを備えたフラッグシップAIプラットフォーム。Gemini AIを搭載したグラスモーフィズムUI。
+                    </div>
+                    <div class="tech-pills"><span class="tech-pill">Streamlit</span><span class="tech-pill">Gemini
+                            AI</span><span class="tech-pill">Roboflow</span><span class="tech-pill">Folium
+                            GIS</span><span class="tech-pill">Plotly</span></div>
+                    <ul class="feature-bullets">
+                        <li>マルチモーダルAIプラントドクター（画像＋テキスト診断）</li>
+                        <li>GISインテリジェンス＆土壌マッピング</li>
+                        <li>スマート気候＆7日間天気予測</li>
+                        <li>NPK分析＆肥料計算機</li>
+                        <li>植物性農薬百科事典</li>
+                    </ul>
+                    <div class="card-links">
+                        <a href="https://mirai39.streamlit.app/" target="_blank" class="link-demo">ライブデモ ↗</a>
+                        <a href="https://github.com/yandri918/streamlit_terbaru" target="_blank"
+                            class="link-gh">GitHub</a>
+                    </div>
+                </div>
+
+                <div class="project-card reveal">
+                    <div class="card-top">
+                        <div class="card-icon">🌶️</div><span class="badge-live">稼働中</span>
+                    </div>
+                    <div class="card-title">トウガラシ栽培プラットフォーム</div>
+                    <div class="card-desc">AIアドバイザリー、ML価格予測、包括的な栽培ガイドを備えたエンド・ツー・エンドのトウガラシ農業管理システム。</div>
+                    <div class="tech-pills"><span class="tech-pill">Streamlit</span><span
+                            class="tech-pill">Prophet</span><span class="tech-pill">Plotly</span><span
+                            class="tech-pill">Pandas</span></div>
+                    <ul class="feature-bullets">
+                        <li>RAB予算計算機＆財務計画</li>
+                        <li>市場価格予測（ML）</li>
+                        <li>AIアドバイザリーシステム</li>
+                        <li>SOP＆栽培日誌</li>
+                    </ul>
+                    <div class="card-links">
+                        <a href="https://budidayacabe.streamlit.app/" target="_blank" class="link-demo">ライブデモ ↗</a>
+                        <a href="https://github.com/yandri918/budidaya_cabe_streamlit" target="_blank"
+                            class="link-gh">GitHub</a>
+                    </div>
+                </div>
+
+                <div class="project-card reveal">
+                    <div class="card-top">
+                        <div class="card-icon">🌸</div><span class="badge-live">稼働中</span>
+                    </div>
+                    <div class="card-title">キク（菊）栽培AIシステム</div>
+                    <div class="card-desc">ML成長モニタリング、異常検知、リアルタイム気象統合を備えたAI搭載の日本式スプレー菊栽培システム。</div>
+                    <div class="tech-pills"><span class="tech-pill">Streamlit</span><span
+                            class="tech-pill">scikit-learn</span><span class="tech-pill">Altair</span><span
+                            class="tech-pill">Open-Meteo</span></div>
+                    <ul class="feature-bullets">
+                        <li>AI成長予測（4〜8週間先）</li>
+                        <li>Isolation Forestによる異常検知</li>
+                        <li>多要素健康スコアリング（0〜100）</li>
+                        <li>電照栽培用日長計算機</li>
+                        <li>冬季温度管理システム</li>
+                    </ul>
+                    <div class="card-links">
+                        <a href="https://budidayakrisan.streamlit.app/" target="_blank" class="link-demo">ライブデモ ↗</a>
+                        <a href="https://github.com/yandri918/budidaya_krisan" target="_blank"
+                            class="link-gh">GitHub</a>
+                    </div>
+                </div>
+
+                <div class="project-card reveal">
+                    <div class="card-top">
+                        <div class="card-icon">🌾</div><span class="badge-live">稼働中</span>
+                    </div>
+                    <div class="card-title">稲作管理システム</div>
+                    <div class="card-desc">PyCaret AutoML、高度な統計分析、水管理・害虫防除専門モジュールを備えた統合稲作管理システム。</div>
+                    <div class="tech-pills"><span class="tech-pill">Streamlit</span><span
+                            class="tech-pill">PyCaret</span><span class="tech-pill">Statsmodels</span><span
+                            class="tech-pill">Altair</span></div>
+                    <ul class="feature-bullets">
+                        <li>収量予測のためのPyCaret AutoML</li>
+                        <li>20以上のインドネシア米品種データベース</li>
+                        <li>AWD（交互湿潤乾燥）計算機</li>
+                        <li>統計分析（ANOVA、RCBD）</li>
+                        <li>市場価格予測</li>
+                    </ul>
+                    <div class="card-links">
+                        <a href="https://budidayapadi.streamlit.app/" target="_blank" class="link-demo">ライブデモ ↗</a>
+                        <a href="https://github.com/yandri918/budidaya_padi" target="_blank" class="link-gh">GitHub</a>
+                    </div>
+                </div>
+
+                <div class="project-card reveal">
+                    <div class="card-top">
+                        <div class="card-icon">♻️</div><span class="badge-live">稼働中</span>
+                    </div>
+                    <div class="card-title">統合廃棄物銀行システム</div>
+                    <div class="card-desc">日本の分別基準を取り入れた循環型経済廃棄物管理システム。経済価値計算で廃棄物を「緑の金（Green Gold）」に変えます。</div>
+                    <div class="tech-pills"><span class="tech-pill">Streamlit</span><span
+                            class="tech-pill">Plotly</span><span class="tech-pill">Pandas</span></div>
+                    <ul class="feature-bullets">
+                        <li>日本式分別基準（燃える/資源/燃えないゴミ）</li>
+                        <li>「ゴミを現金へ」価値計算機</li>
+                        <li>リアルタイムモニタリングダッシュボード</li>
+                        <li>有機廃棄物→堆肥/マゴット飼料変換</li>
+                        <li>AgriSensaエコシステム統合</li>
+                    </ul>
+                    <div class="card-links">
+                        <a href="https://bank-sampah-terpadu.streamlit.app/" target="_blank" class="link-demo">ライブデモ
+                            ↗</a>
+                        <a href="https://github.com/yandri918/bank-sampah-terpadu" target="_blank"
+                            class="link-gh">GitHub</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="architecture">
+        <div class="container">
+            <div class="section-tag">アーキテクチャ</div>
+            <h2 class="section-title">プラットフォーム<span class="grad-text">アーキテクチャ</span></h2>
+            <p class="section-desc">データから意思決定まで — エンド・ツー・エンドのシステム設計</p>
+            <div class="arch-wrap reveal">
+                <div class="arch-diagram">
+                    <div class="arch-col">
+                        <h4>👥 ユーザー</h4>
+                        <div class="arch-node green">🌾 農家<div class="arch-label">エンドユーザー</div>
+                        </div>
+                        <div class="arch-node">💼 HR・採用担当<div class="arch-label">ポートフォリオ閲覧者</div>
+                        </div>
+                        <div class="arch-node">💻 開発者<div class="arch-label">コードレビュアー</div>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-col">
+                        <h4>🌐 ポートフォリオ</h4>
+                        <div class="arch-node green">英語版<div class="arch-label">agritech-portofolio.vercel.app</div>
+                        </div>
+                        <div class="arch-node green">日本語版<div class="arch-label">.../jp</div>
+                        </div>
+                        <div class="arch-node blue">Vercel エッジネットワーク<div class="arch-label">CDN + URL書き換え</div>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-col">
+                        <h4>🌿 アプリ群</h4>
+                        <div class="arch-node green">AgriSensa（20+モジュール）<div class="arch-label">mirai39.streamlit.app
+                            </div>
+                        </div>
+                        <div class="arch-node">トウガラシ栽培<div class="arch-label">budidayacabe</div>
+                        </div>
+                        <div class="arch-node">菊栽培<div class="arch-label">budidayakrisan</div>
+                        </div>
+                        <div class="arch-node">稲作管理<div class="arch-label">budidayapadi</div>
+                        </div>
+                        <div class="arch-node">廃棄物銀行<div class="arch-label">bank-sampah-terpadu</div>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-col">
+                        <h4>🧠 AIコア</h4>
+                        <div class="arch-node blue">Gemini AI<div class="arch-label">マルチモーダルLLM</div>
+                        </div>
+                        <div class="arch-node blue">Roboflow CV<div class="arch-label">コンピュータビジョン</div>
+                        </div>
+                        <div class="arch-node blue">scikit-learn<div class="arch-label">古典的ML</div>
+                        </div>
+                        <div class="arch-node blue">PyCaret<div class="arch-label">AutoML</div>
+                        </div>
+                        <div class="arch-node blue">Prophet<div class="arch-label">時系列予測</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <div class="contact-card reveal">
+                <div class="section-tag">お問い合わせ</div>
+                <h2 class="section-title">一緒に<span class="grad-text">未来</span>を作りましょう</h2>
+                <p style="color:var(--muted);max-width:500px;margin:1rem auto;line-height:1.8">
+                    AIエンジニア、アグリテック開発者、フルスタック開発者としてのグローバルリモートポジションに応募歓迎。日本在住、APACタイムゾーン対応。</p>
+                <div class="contact-links">
+                    <a href="https://www.linkedin.com/in/andriyanto-na-147492157" target="_blank"
+                        class="contact-link">💼 LinkedIn</a>
+                    <a href="https://github.com/yandri918" target="_blank" class="contact-link">💻 GitHub</a>
+                    <a href="mailto:yandri918@gmail.com" class="contact-link">✉️ メール</a>
+                    <a href="https://mirai39.streamlit.app/" target="_blank" class="contact-link">🌿 AgriSensa</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 アンドリヤント, BScE, S.E · インドネシアの農家のために❤️を込めて構築 · <a href="/"
+                style="color:var(--green);text-decoration:none">English version →</a></p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('bg-canvas'), ctx = canvas.getContext('2d');
+        let W, H, particles = [];
+        function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight }
+        resize(); window.addEventListener('resize', resize);
+        class Particle { constructor() { this.reset() } reset() { this.x = Math.random() * W; this.y = Math.random() * H; this.r = Math.random() * 1.5 + .3; this.vx = (Math.random() - .5) * .3; this.vy = (Math.random() - .5) * .3; this.a = Math.random() * .6 + .1 } update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset() } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(16,185,129,${this.a})`; ctx.fill() } }
+        for (let i = 0; i < 120; i++)particles.push(new Particle());
+        function connectParticles() { for (let i = 0; i < particles.length; i++) { for (let j = i + 1; j < particles.length; j++) { const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, d = Math.sqrt(dx * dx + dy * dy); if (d < 120) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = `rgba(16,185,129,${.08 * (1 - d / 120)})`; ctx.lineWidth = .5; ctx.stroke() } } } }
+        function loop() { ctx.clearRect(0, 0, W, H); particles.forEach(p => { p.update(); p.draw() }); connectParticles(); requestAnimationFrame(loop) }
+        loop();
+
+        const phrases = ['AIを活用した農業ソリューション', 'スマート農業アプリケーション', 'デジタル農業イノベーション', '精密農業とMLの融合', 'エンド・ツー・エンドのAgriTechプラットフォーム'];
+        let pi = 0, ci = 0, del = false;
+        const el = document.getElementById('typed-text');
+        function type() { const cur = phrases[pi]; el.textContent = del ? cur.slice(0, ci--) : cur.slice(0, ci++); if (!del && ci > cur.length) { del = true; setTimeout(type, 1500); return } if (del && ci < 0) { del = false; pi = (pi + 1) % phrases.length; ci = 0 } setTimeout(type, del ? 40 : 100) }
+        type();
+
+        function animateCounters(els) { els.forEach(el => { const target = +el.dataset.target; let cur = 0; const step = target / 60; const timer = setInterval(() => { cur = Math.min(cur + step, target); el.textContent = Math.floor(cur); if (cur >= target) { el.textContent = target; clearInterval(timer) } }, 16) }) }
+
+        let countersTriggered = false;
+        const revealObs = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); e.target.querySelectorAll('.skill-fill').forEach(b => { b.style.width = b.dataset.width + '%' }); revealObs.unobserve(e.target) } }) }, { threshold: .1 });
+        document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+        const statObs = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting && !countersTriggered) { countersTriggered = true; animateCounters(document.querySelectorAll('[data-target]')) } }) }, { threshold: .3 });
+        const impactSec = document.getElementById('impact'); if (impactSec) statObs.observe(impactSec);
+        setTimeout(() => animateCounters(document.querySelectorAll('.h-stat .num')), 800);
+
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const navObs = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { navLinks.forEach(l => l.classList.remove('active')); const a = document.querySelector(`.nav-link[href="#${e.target.id}"]`); if (a) a.classList.add('active') } }) }, { threshold: .4 });
+        sections.forEach(s => navObs.observe(s));
+    </script>
+</body>
+
+</html>

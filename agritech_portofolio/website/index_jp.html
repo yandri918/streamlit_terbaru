@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="AgriTech Portfolio | AI-Powered Agricultural Solutions | Smart Farming Applications">
+    <title>AgriTech Portfolio - Andriyanto, BScE, S.E</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --dark: #0f172a;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: var(--gray-50);
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--gray-700);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .hero {
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #34d399, #60a5fa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #94a3b8;
+        }
+
+        .hero-description {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            font-size: 1.1rem;
+            color: #cbd5e1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+
+        .section-subtitle {
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-card {
+            border-left: 4px solid var(--primary);
+        }
+
+        .project-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-icon {
+            font-size: 2.5rem;
+        }
+
+        .project-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+
+        .project-description {
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tech-tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--gray-100);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .stat-card {
+            text-align: center;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            color: var(--gray-700);
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: var(--primary);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .grid-2,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">AgriTech</a>
+            <ul class="nav-links">
+                <li><a href="#about">プロフィール</a></li>
+                <li><a href="#projects">プロジェクト</a></li>
+                <li><a href="#stats">実績</a></li>
+                <li><a href="#contact">お問い合わせ</a></li>
+                <li><a href="/" style="font-weight: 700;">EN 🇬🇧</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>アグリテック・ポートフォリオ</h1>
+        <p class="hero-subtitle">アンドリヤント (BScE, S.E)</p>
+        <p class="hero-description">
+            AIを活用した農業ソリューション | スマート農業アプリケーション | デジタル農業イノベーション
+        </p>
+        <div style="margin: 2rem 0;">
+            <span class="badge">5つのアプリケーション</span>
+            <span class="badge">AI & ML 搭載</span>
+            <span class="badge">実運用中</span>
+            <span class="badge">20+ モジュール</span>
+        </div>
+    </section>
+
+    <div class="container">
+        <section class="section" id="about">
+            <h2 class="section-title">私について</h2>
+            <p class="section-subtitle">AIプロダクトエンジニア | アグリテック革命先駆者 | フルスタック開発者</p>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.5rem;">経歴</h3>
+                    <p style="color: var(--gray-700); line-height: 1.8; margin-bottom: 1rem;">
+                        私は<strong>アンドリヤント (BScE, S.E)</strong>、農業技術ソリューションを専門とするAIプロダクトエンジニアです。
+                        コンピュータ工学と経済学の学位を持ち、技術的な専門知識とビジネス的な視点を組み合わせて、
+                        現実世界の農業課題の解決に取り組んでいます。
+                    </p>
+                    <p style="color: var(--gray-700); line-height: 1.8; margin-bottom: 1rem;">
+                        私のアグリテックへの情熱は、一つのシンプルな問いから始まりました。<em>「インドネシアの農家が生産性と収益性を向上させるために、どのようにAIを活用できるか？」</em>
+                        この問いが、インドネシア全土の何千もの農家にサービスを提供する包括的なプラットフォームである<strong>AgriSensaエコシステム</strong>の創設につながりました。
+                    </p>
+                    <p style="color: var(--gray-700); line-height: 1.8;">
+                        現在日本を拠点とし、国際的なベストプラクティスと現地の農業知識を融合させ、
+                        技術的に高度でありながら文化的に適応したソリューションを生み出しています。
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.5rem;">専門分野</h3>
+                    <div style="display: grid; gap: 1rem;">
+                        <div>
+                            <h4 style="color: var(--gray-800); margin-bottom: 0.5rem;">AI & 機械学習</h4>
+                            <ul class="feature-list" style="margin-left: 0;">
+                                <li>マルチモーダルAIシステム (LLM + コンピュータビジョン + 予測ML)</li>
+                                <li>稼働率99%以上の本番MLデプロイメント</li>
+                                <li>農家の信頼を得るための説明可能なAI (XAI with SHAP)</li>
+                                <li>PyCaretを使用した迅速なプロトタイピング (AutoML)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--gray-800); margin-bottom: 0.5rem;">フルスタック開発</h4>
+                            <ul class="feature-list" style="margin-left: 0;">
+                                <li>Python (Streamlit, Flask, FastAPI)</li>
+                                <li>モダンWeb技術 (HTML5, CSS3, JavaScript)</li>
+                                <li>クラウドデプロイメント (Streamlit Cloud, Vercel, Hugging Face)</li>
+                                <li>データベース設計 (SQLAlchemy, PostgreSQL)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--gray-800); margin-bottom: 0.5rem;">ドメイン知識</h4>
+                            <ul class="feature-list" style="margin-left: 0;">
+                                <li>精密農業 & 作物管理</li>
+                                <li>農業経済学 & 市場分析</li>
+                                <li>持続可能な農業慣行</li>
+                                <li>日本の農業手法</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-2" style="margin-top: 2rem;">
+                <div class="card">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.5rem;">主な実績</h3>
+                    <ul class="feature-list" style="margin-left: 0;">
+                        <li><strong>5つの実稼働アプリケーション</strong> - 実際の農家によって利用中</li>
+                        <li><strong>60以上のAIモジュール</strong> - 包括的な農業ソリューション</li>
+                        <li><strong>マルチモーダルAI統合</strong> - LLM (Gemini) + CV (Roboflow) + ML (scikit-learn)</li>
+                        <li><strong>99.5%の稼働率</strong> - 本番環境レベルの信頼性</li>
+                        <li><strong>リアルタイムAPI</strong> - 天気、市場価格、土壌データの統合</li>
+                        <li><strong>ハブ＆スポークアーキテクチャ</strong> - スケーラブルなマイクロサービス設計</li>
+                        <li><strong>オープンソース貢献</strong> - 全プロジェクトをGitHubで公開</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.5rem;">原動力</h3>
+                    <p style="color: var(--gray-700); line-height: 1.8; margin-bottom: 1rem;">
+                        <strong>ミッション:</strong> インドネシアおよび東南アジアの小規模農家のために農業技術を民主化すること。
+                        リソースに関わらず、すべての農家が世界クラスのAIツールを利用できるべきだと信じています。
+                    </p>
+                    <p style="color: var(--gray-700); line-height: 1.8; margin-bottom: 1rem;">
+                        <strong>ビジョン:</strong> 以下を統合したアグリテックエコシステムを構築する:
+                    </p>
+                    <ul class="feature-list" style="margin-left: 0;">
+                        <li>最先端のAI/ML技術</li>
+                        <li>実用的で農家に優しいインターフェース</li>
+                        <li>持続可能な農業慣行</li>
+                        <li>農村地域の経済的エンパワーメント</li>
+                    </ul>
+                    <p style="color: var(--gray-700); line-height: 1.8; margin-top: 1rem;">
+                        <strong>インパクト:</strong> 作物選択、害虫管理、施肥、市場のタイミングに関する
+                        データ駆動型の意思決定を支援し、最終的に収量を10-15%増加させ、
+                        コストを20-30%削減することを目指しています。
+                    </p>
+                </div>
+            </div>
+
+            <div class="card"
+                style="margin-top: 2rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%); border-left: 4px solid var(--primary);">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.5rem;">グローバルな役割に私が適任である理由
+                </h3>
+                <div class="grid grid-2">
+                    <div>
+                        <h4 style="color: var(--gray-800); margin-bottom: 0.5rem;">グローバル対応力 🌏</h4>
+                        <ul class="feature-list" style="margin-left: 0;">
+                            <li><strong>日本在住のプロフェッショナル:</strong> 高い労働倫理基準とアジア太平洋地域のタイムゾーンに適応。</li>
+                            <li><strong>バイリンガルコミュニケーション:</strong> 英語とインドネシア語での流暢な技術的コミュニケーション。</li>
+                            <li><strong>リモート & 非同期:</strong> 分散型チームで独立して成果を上げた実績。</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="color: var(--gray-800); margin-bottom: 0.5rem;">架け橋となるエンジニア 🌉</h4>
+                        <ul class="feature-list" style="margin-left: 0;">
+                            <li><strong>技術からビジネスへ:</strong> 複雑なAI機能を明確なROIとビジネス価値に翻訳。</li>
+                            <li><strong>コンセプトから本番へ:</strong> ホワイトボードでのアーキテクチャ設計からスケーラブルなコードのデプロイまで、フルサイクルの能力。</li>
+                            <li><strong>データから意思決定へ:</strong> 生の農業データを実用的な戦略的洞察に変換。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tech Philosophy Section -->
+            <div class="card" style="margin-top: 2rem;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.5rem;">技術哲学</h3>
+                <div class="grid grid-3">
+                    <div style="padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 8px;">
+                        <h4 style="color: var(--gray-800); margin-bottom: 0.5rem;">🧩 スケーラブルなシンプルさ</h4>
+                        <p style="font-size: 0.9rem; color: var(--gray-700);">問題を解決するのに十分複雑であるが、
+                            負債なしに維持および拡張するのに十分シンプルなシステムを構築する。</p>
+                    </div>
+                    <div style="padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 8px;">
+                        <h4 style="color: var(--gray-800); margin-bottom: 0.5rem;">👤 ユーザー重視</h4>
+                        <p style="font-size: 0.9rem; color: var(--gray-700);">技術は人（農家）に奉仕しなければならない。
+                            インターフェースは直感的で、アクセスしやすく、寛容であるべきです。</p>
+                    </div>
+                    <div style="padding: 1rem; background: rgba(255,255,255,0.5); border-radius: 8px;">
+                        <h4 style="color: var(--gray-800); margin-bottom: 0.5rem;">💡 ROI主導</h4>
+                        <p style="font-size: 0.9rem; color: var(--gray-700);">収益の増加であれコスト削減であれ、
+                            すべてのコード行は価値創造に貢献しなければならない。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section" id="stats">
+            <h2 class="section-title">ポートフォリオ・インパクト</h2>
+            <p class="section-subtitle">実際の農家に貢献する包括的な農業ソリューション</p>
+            <div class="grid grid-4">
+                <div class="card stat-card">
+                    <div class="stat-number">15%</div>
+                    <div class="stat-label">収量増加</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number">30%</div>
+                    <div class="stat-label">コスト削減</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number">60+</div>
+                    <div class="stat-label">AIモジュール</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number">99.5%</div>
+                    <div class="stat-label">システム稼働率</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="projects">
+            <h2 class="section-title">注目プロジェクト</h2>
+            <p class="section-subtitle">本番稼働中の農業アプリケーション</p>
+
+            <div class="grid grid-2">
+                <!-- AgriSensa Platform -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon"></div>
+                        <h3 class="project-title">AgriSensa インテリジェンス・プラットフォーム</h3>
+                    </div>
+                    <p class="project-description">
+                        精密農業、作物管理、農業意思決定支援のための20以上の専門モジュールを備えた包括的な農業インテリジェンスプラットフォーム。
+                        モダンなグラスモーフィズムUIとAIで構築されています。
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">AI/ML</span>
+                        <span class="tech-tag">Plotly</span>
+                        <span class="tech-tag">Folium</span>
+                        <span class="tech-tag">GIS</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>AI搭載プラントドクター（病気診断機能付き）</li>
+                        <li>GISインテリジェンス & インタラクティブ土壌マッピング</li>
+                        <li>スマート気候 & 天気予報</li>
+                        <li>NPK分析 & 肥料計算機</li>
+                        <li>植物性農薬データベース</li>
+                    </ul>
+                    <div class="project-links">
+                        <a href="https://mirai39.streamlit.app/" class="btn btn-primary" target="_blank">
+                            Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/streamlit_terbaru" class="btn btn-secondary"
+                            target="_blank">
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Budidaya Cabai -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon"></div>
+                        <h3 class="project-title">トウガラシ栽培プラットフォーム</h3>
+                    </div>
+                    <p class="project-description">
+                        業界標準機能を備えた包括的なトウガラシ栽培プラットフォーム。
+                        MLベースの価格予測、6つの栽培シナリオ（有機/化学 × 露地/ハウス）、
+                        完全なSOP、ビジネス分析を含みます。
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">Prophet</span>
+                        <span class="tech-tag">Plotly</span>
+                        <span class="tech-tag">Pandas</span>
+                    </div>
+                    <div class="feature-grid"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <h4
+                                style="color: var(--primary); font-size: 0.9rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.2rem;">
+                                ビジネスインテリジェンス</h4>
+                            <ul class="feature-list" style="margin-left: 0; font-size: 0.85rem;">
+                                <li>RAB計算機 & 予算管理</li>
+                                <li>ビジネス分析 & ROI</li>
+                                <li>価格予測 (ML)</li>
+                                <li>収穫レポート</li>
+                                <li>高度分析ハブ</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4
+                                style="color: var(--primary); font-size: 0.9rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.2rem;">
+                                栽培管理</h4>
+                            <ul class="feature-list" style="margin-left: 0; font-size: 0.85rem;">
+                                <li>包括的SOP</li>
+                                <li>作付けカレンダー</li>
+                                <li>栽培日誌</li>
+                                <li>成長モニタリング</li>
+                                <li>品質管理</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4
+                                style="color: var(--primary); font-size: 0.9rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.2rem;">
+                                精密技術</h4>
+                            <ul class="feature-list" style="margin-left: 0; font-size: 0.85rem;">
+                                <li>肥料計算機</li>
+                                <li>散布戦略</li>
+                                <li>病害虫DB</li>
+                                <li>気象モニタリング</li>
+                                <li>トウガラシ品種DB</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4
+                                style="color: var(--primary); font-size: 0.9rem; margin-bottom: 0.5rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.2rem;">
+                                AI & サポート</h4>
+                            <ul class="feature-list" style="margin-left: 0; font-size: 0.85rem;">
+                                <li>AIアドバイザリーシステム</li>
+                                <li>AI病気検知</li>
+                                <li>相談フォーラム</li>
+                                <li>データ管理</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="project-links">
+                        <a href="https://budidayacabe.streamlit.app/" class="btn btn-primary" target="_blank">
+                            Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/budidaya_cabe_streamlit" class="btn btn-secondary"
+                            target="_blank">
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Budidaya Krisan -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon"></div>
+                        <h3 class="project-title">キク（菊）栽培AIシステム</h3>
+                    </div>
+                    <p class="project-description">
+                        成長モニタリング、異常検知、健康スコアリングのための機械学習を備えた、AI搭載の日本式スプレー菊栽培システム。
+                        リアルタイムの気象統合と予測分析を特徴としています。
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">scikit-learn</span>
+                        <span class="tech-tag">Altair</span>
+                        <span class="tech-tag">Open-Meteo API</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>AI搭載の成長予測（4-8週間）</li>
+                        <li>Isolation Forestによる異常検知</li>
+                        <li>多要素健康スコアリング（0-100）</li>
+                        <li>スマートレコメンデーションエンジン</li>
+                        <li>開花のための日長計算（電照栽培）</li>
+                        <li>冬季温度管理（暖房）</li>
+                    </ul>
+                    <div class="project-links">
+                        <a href="https://budidayakrisan.streamlit.app/" class="btn btn-primary" target="_blank">
+                            Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/budidaya_krisan" class="btn btn-secondary"
+                            target="_blank">
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Budidaya Padi -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon"></div>
+                        <h3 class="project-title">稲作管理システム</h3>
+                    </div>
+                    <p class="project-description">
+                        PyCaret AutoML、高度な分析、包括的な栽培ガイドを備えた統合稲作管理システム。
+                        水管理と害虫駆除のための専門モジュールを備え、20以上のインドネシアの米品種をサポートしています。
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">PyCaret</span>
+                        <span class="tech-tag">Altair</span>
+                        <span class="tech-tag">Statsmodels</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>収量予測のためのPyCaret AutoML</li>
+                        <li>20以上のインドネシア米品種データベース</li>
+                        <li>AWD（交互湿潤乾燥）計算機</li>
+                        <li>統計分析（ANOVA、RCBD）</li>
+                        <li>リアルタイム気象モニタリング</li>
+                        <li>市場価格予測</li>
+                    </ul>
+                    <div class="project-links">
+                        <a href="https://budidayapadi.streamlit.app/" class="btn btn-primary" target="_blank">
+                            Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/budidaya_padi" class="btn btn-secondary" target="_blank">
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bank Sampah Terpadu -->
+                <div class="card project-card">
+                    <div class="project-header">
+                        <div class="project-icon"></div>
+                        <h3 class="project-title">統合廃棄物銀行システム</h3>
+                    </div>
+                    <p class="project-description">
+                        日本の廃棄物分別基準を取り入れた、循環型経済原則に基づく統合廃棄物管理システム。
+                        経済価値計算と農業統合により、廃棄物の認識を「緑の金（Green Gold）」に変えます。
+                    </p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Streamlit</span>
+                        <span class="tech-tag">Plotly</span>
+                        <span class="tech-tag">Pandas</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>日本の廃棄物分別基準（燃えるゴミ/資源ゴミ/燃えないゴミ）</li>
+                        <li>精密価格設定による「ゴミを現金へ」計算機</li>
+                        <li>リアルタイムモニタリングダッシュボード</li>
+                        <li>有機廃棄物の堆肥/マゴット飼料への変換</li>
+                        <li>AgriSensaエコシステム統合</li>
+                    </ul>
+                    <div class="project-links">
+                        <a href="https://bank-sampah-terpadu.streamlit.app/" class="btn btn-primary" target="_blank">
+                            Live Demo
+                        </a>
+                        <a href="https://github.com/yandri918/bank-sampah-terpadu" class="btn btn-secondary"
+                            target="_blank">
+                            GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer id="contact">
+        <h2 style="font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">お問い合わせ</h2>
+        <p style="color: #94a3b8; margin-bottom: 2rem;">
+            アグリテック開発者 | AI & 機械学習エンジニア | お仕事の依頼を受け付けています
+        </p>
+        <div class="footer-links">
+            <a href="https://github.com/yandri918" target="_blank">GitHub</a>
+            <a href="https://www.linkedin.com/in/andriyanto-na-147492157" target="_blank">LinkedIn</a>
+            <a href="mailto:yandri918@gmail.com">Email</a>
+            <a href="https://mirai39.streamlit.app/" target="_blank">AgriSensa プラットフォーム</a>
+        </div>
+        <p style="color: #64748b; margin-top: 2rem;">
+            &copy; 2026 アンドリヤント, BScE, S.E. インドネシアの農家のために❤️を込めて構築
+        </p>
+        <p style="color: #475569; margin-top: 0.5rem; font-size: 0.9rem;">
+            アグリテック・イノベーション | AI活用農業 | スマート農業ソリューション
+        </p>
+    </footer>
+</body>
+
+</html>

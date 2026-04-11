@@ -33,6 +33,14 @@ output/
 
 # ML models and large data
 *.pkl
+!advanced_yield_model.pkl
+!crop_recommendation_model.pkl
+!success_model.pkl
+!bwd_model.pkl
+!recommendation_model.pkl
+!shap_explainer.pkl
+# Exclude the large one (>100MB)
+yield_prediction_model.pkl
 *.joblib
 *.onnx
 *.h5

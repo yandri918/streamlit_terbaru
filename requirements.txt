@@ -22,12 +22,12 @@ streamlit-folium
 folium
 scipy
 statsmodels>=0.14.0
-scikit-learn
-fpdf2
-lifetimes
-altair
 seaborn
 matplotlib
 numpy
 pandas
 plotly
+joblib
+lightgbm
+shap
+scikit-learn>=1.3.0
