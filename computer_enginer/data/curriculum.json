@@ -1,0 +1,1127 @@
+{
+    "Semester 3": [
+        {
+            "id": "CE201",
+            "name": "OOP",
+            "icon": "💻",
+            "credits": "4",
+            "semester": "3",
+            "difficulty": "4/7",
+            "hours": "7",
+            "description": "Comprehensive study of object-oriented programming paradigm. Covers fundamental OOP concepts including          classes, objects, inheritance, polymorphism, and encapsulation. Emphasizes design patterns, SOLID principles,          and best practices for building maintainable, scalable software systems. Uses Java/C++ as primary languages          with exposure to modern OOP features.",
+            "topics": [
+                "Object Oriented Programming\", page_icon=\"💻\", layout=\"wide\")",
+                "Classes and objects",
+                "Constructors and destructors",
+                "Access modifiers",
+                "Methods and properties",
+                "Static members",
+                "Inheritance (single, multiple)",
+                "Polymorphism (compile-time, runtime)",
+                "Encapsulation and abstraction",
+                "Interfaces and abstract classes"
+            ],
+            "filename": "9_💻_CE201_OOP.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Object-Oriented Programming (Java)",
+                    "url": "https://www.youtube.com/watch?v=SiBw7os-_zI",
+                    "description": "FreeCodeCamp - 4 Hour Course"
+                },
+                {
+                    "type": "paper",
+                    "title": "Design Patterns",
+                    "url": "https://refactoring.guru/design-patterns",
+                    "description": "Refactoring Guru - Interactive Guide"
+                }
+            ]
+        },
+        {
+            "id": "CE202",
+            "name": "Assembly",
+            "icon": "⚙️",
+            "credits": "3",
+            "semester": "3",
+            "difficulty": "5/7",
+            "hours": "6",
+            "description": "Comprehensive study of low-level programming using x86 assembly language. Covers processor architecture,          instruction sets, memory addressing modes, system calls, and optimization techniques. Emphasizes understanding          the relationship between high-level code and machine instructions, enabling students to write efficient,          hardware-aware programs.",
+            "topics": [
+                "Assembly Language\", page_icon=\"⚙️\", layout=\"wide\")",
+                "x86/x64 architecture overview",
+                "Registers and flags",
+                "Memory segmentation",
+                "Instruction formats",
+                "Addressing modes",
+                "Data movement instructions",
+                "Arithmetic and logic operations",
+                "Control flow (jumps, loops)",
+                "Procedures and stack"
+            ],
+            "filename": "10_⚙️_CE202_Assembly.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "x86 Assembly Language",
+                    "url": "https://www.youtube.com/watch?v=HgEGAaYdABA&list=PLmbC-SnP4573WE5o6l960Ck0g76Z8eZ2K",
+                    "description": "Dave's Garage / Other Sources"
+                },
+                {
+                    "type": "website",
+                    "title": "x86-64 Assembly Guide",
+                    "url": "https://www.cs.virginia.edu/~evans/cs216/guides/x86.html",
+                    "description": "University of Virginia Guide"
+                }
+            ]
+        },
+        {
+            "id": "CE203",
+            "name": "Operating Systems",
+            "icon": "💻",
+            "credits": "4",
+            "semester": "3",
+            "difficulty": "5/7",
+            "hours": "8",
+            "description": "Comprehensive study of operating system principles, design, and implementation. Covers process management,          memory management, file systems, I/O systems, and security. Emphasizes both theoretical concepts and practical          implementation through projects in C/C++. Students will understand how modern operating systems like Linux,          Windows, and macOS work under the hood.",
+            "topics": [
+                "Operating Systems\", page_icon=\"💻\", layout=\"wide\")",
+                "OS structure and services",
+                "System calls and APIs",
+                "Processes and threads",
+                "Inter-process communication (IPC)",
+                "CPU scheduling algorithms",
+                "Memory hierarchy",
+                "Paging and segmentation",
+                "Virtual memory",
+                "Page replacement algorithms"
+            ],
+            "filename": "14_💻_CE203_Operating_Systems.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Operating Systems",
+                    "url": "https://www.youtube.com/watch?v=Qf6W5F6v3oA&list=PLsylUObW5M3CAh16dJ3hB0zXj0o6a0t7_",
+                    "description": "Neso Academy"
+                },
+                {
+                    "type": "pdf",
+                    "title": "Operating Systems: Three Easy Pieces",
+                    "url": "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+                    "description": "Free Online Textbook (Arpaci-Dusseau)"
+                }
+            ]
+        },
+        {
+            "id": "MA201",
+            "name": "Statistics",
+            "icon": "📊",
+            "credits": "3",
+            "semester": "3",
+            "difficulty": "4/7",
+            "hours": "5",
+            "description": "Comprehensive study of statistics and probability theory with applications to data science and machine learning.          Covers descriptive statistics, probability distributions, statistical inference, hypothesis testing, regression analysis,          and Bayesian methods. Emphasizes both theoretical foundations and practical applications using computational tools.",
+            "topics": [
+                "Statistics and Probability\", page_icon=\"📊\", layout=\"wide\")",
+                "Descriptive statistics",
+                "Data visualization",
+                "Measures of central tendency",
+                "Measures of dispersion",
+                "Correlation and covariance",
+                "Sample spaces and events",
+                "Conditional probability",
+                "Bayes' theorem",
+                "Random variables"
+            ],
+            "filename": "10_📊_MA201_Statistics.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Statistics 110: Probability",
+                    "url": "https://www.youtube.com/watch?v=KbB0FjPg0mw&list=PL2SOU6wwxB0uwwH80KTQ6ht66KWxbzTIo",
+                    "description": "Harvard University - Joe Blitzstein"
+                },
+                {
+                    "type": "paper",
+                    "title": "A Visual Introduction to Probability",
+                    "url": "https://seeing-theory.brown.edu/",
+                    "description": "Interactive probability theory guide"
+                }
+            ]
+        }
+    ],
+    "Semester 4": [
+        {
+            "id": "BU201",
+            "name": "Processing Industry",
+            "icon": "🏭",
+            "credits": "3",
+            "semester": "4",
+            "difficulty": "4/7",
+            "hours": "5",
+            "description": "Comprehensive study of manufacturing and processing industry structures, production systems, and value chain          management. Covers industrial organization, production planning, supply chain optimization, and modern manufacturing          paradigms including Industry 4.0. Emphasizes both theoretical frameworks and practical applications in various          processing industries including automotive, electronics, food processing, and pharmaceuticals.",
+            "topics": [
+                "Structure of the Processing Industry\", page_icon=\"🏭\", layout=\"wide\")",
+                "Industrial organization theory",
+                "Market structures and competition",
+                "Economies of scale and scope",
+                "Vertical and horizontal integration",
+                "Industry life cycle",
+                "Manufacturing processes",
+                "Production planning and control",
+                "Capacity planning",
+                "Quality management (TQM, Six Sigma)"
+            ],
+            "filename": "12_🏭_BU201_Processing_Industry.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "Manufacturing - Britannica",
+                    "url": "https://www.britannica.com/technology/manufacturing",
+                    "description": "Comprehensive Encyclopedia Article"
+                },
+                {
+                    "type": "website",
+                    "title": "What is Manufacturing? (TWI)",
+                    "url": "https://www.twi-global.com/technical-knowledge/faqs/what-is-manufacturing",
+                    "description": "Technical Definition and Processes"
+                },
+                {
+                    "type": "website",
+                    "title": "Industrial Processes",
+                    "url": "https://www.aiche.org/",
+                    "description": "AIChE Resources"
+                }
+            ]
+        },
+        {
+            "id": "CE204",
+            "name": "Algorithms",
+            "icon": "�",
+            "credits": "4",
+            "semester": "4",
+            "difficulty": "6/7",
+            "hours": "7",
+            "description": "Advanced study of algorithm design and analysis. Covers time and space complexity, divide and conquer,          dynamic programming, greedy algorithms, graph algorithms (BFS, DFS, Dijkstra, A*), and NP-completeness.          Students refine their problem-solving skills and prepare for technical interviews.",
+            "topics": [
+                "Algorithms\", page_icon=\"�\", layout=\"wide\")",
+                "Asymptotic analysis (Big O)",
+                "Sorting and searching",
+                "Divide and conquer",
+                "Dynamic programming",
+                "Greedy algorithms",
+                "Graph traversals",
+                "Shortest paths",
+                "Minimum spanning trees",
+                "String matching"
+            ],
+            "filename": "11_🔢_CE204_Algorithms.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Algorithms",
+                    "url": "https://www.youtube.com/watch?v=0IAPZzGSbME&list=PLUl4u3cNGP63EdVPNLG3ToM6La6P7EXDl",
+                    "description": "MIT 6.006 - Erik Demaine"
+                },
+                {
+                    "type": "website",
+                    "title": "VisuAlgo",
+                    "url": "https://visualgo.net/en",
+                    "description": "Visualizing Data Structures and Algorithms"
+                }
+            ]
+        },
+        {
+            "id": "CE301",
+            "name": "Computer Networks",
+            "icon": "🌐",
+            "credits": "3",
+            "semester": "4",
+            "difficulty": "5/7",
+            "hours": "7",
+            "description": "Comprehensive study of computer network architectures, protocols, and technologies. Covers OSI and TCP/IP models,          network protocols (Ethernet, IP, TCP, UDP, HTTP), routing algorithms, network security, and wireless networks.          Emphasizes both theoretical foundations and practical implementation using network simulation tools and real hardware.          Students will design, configure, and troubleshoot networks.",
+            "topics": [
+                "Computer Networks\", page_icon=\"🌐\", layout=\"wide\")",
+                "Network architectures and topologies",
+                "OSI 7-layer model",
+                "TCP/IP protocol suite",
+                "Network performance metrics",
+                "Circuit vs packet switching",
+                "Ethernet and MAC protocols",
+                "IP (IPv4 and IPv6)",
+                "TCP and UDP",
+                "HTTP, DNS, SMTP, FTP"
+            ],
+            "filename": "13_🌐_CE301_Computer_Networks.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Networking Fundamentals (Full Course)",
+                    "url": "https://www.youtube.com/watch?v=qiQR5rTSshw",
+                    "description": "Simplilearn - Comprehensive Beginner Guide"
+                },
+                {
+                    "type": "website",
+                    "title": "What is Computer Networking?",
+                    "url": "https://www.cloudflare.com/learning/network-layer/what-is-computer-networking/",
+                    "description": "Cloudflare Learning Center"
+                }
+            ]
+        },
+        {
+            "id": "CE302",
+            "name": "Digital Systems",
+            "icon": "⚡",
+            "credits": "3",
+            "semester": "4",
+            "difficulty": "5/7",
+            "hours": "6",
+            "description": "Study of digital logic design and synthesis. Covers boolean algebra, combinational and sequential          logic circuits, FSMs, and hardware description languages (Verilog/VHDL). Students design and simulate          complex digital systems.",
+            "topics": [
+                "Digital Systems\", page_icon=\"⚡\", layout=\"wide\")",
+                "Boolean algebra and logic gates",
+                "Karnaugh maps",
+                "Combinational circuits",
+                "Sequential circuits",
+                "Flip-flops and latches",
+                "Finite State Machines (FSM)",
+                "Counters and registers",
+                "Verilog HDL",
+                "FPGA basics"
+            ],
+            "filename": "15_⚡_CE302_Digital_Systems.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Digital Electronics",
+                    "url": "https://www.youtube.com/watch?v=M0mx8S05v60&list=PLBlnK6fEyqRjMH3mWf6kwqiTbT798eAOm",
+                    "description": "Neso Academy"
+                }
+            ]
+        },
+        {
+            "id": "CE303",
+            "name": "Systems Analysis",
+            "icon": "�",
+            "credits": "3",
+            "semester": "4",
+            "difficulty": "3/7",
+            "hours": "5",
+            "description": "Study of methodologies for analyzing and designing complex information systems. Covers SDLC,          requirements engineering, UML modeling, and system architecture. Emphasizes bridging the gap          between business needs and technical solutions.",
+            "topics": [
+                "Systems Analysis\", page_icon=\"�\", layout=\"wide\")",
+                "Systems Development Life Cycle (SDLC)",
+                "Requirements gathering",
+                "Feasibility analysis",
+                "UML diagrams (Use Case, Class, Sequence)",
+                "Data flow diagrams",
+                "System architecture design",
+                "User interface design",
+                "Quality assurance",
+                "Project management basics"
+            ],
+            "filename": "16_�_CE303_Systems_Analysis.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "Systems Development Life Cycle (SDLC)",
+                    "url": "https://www.geeksforgeeks.org/software-development-life-cycle-sdlc/",
+                    "description": "GeeksforGeeks - Complete Guide"
+                },
+                {
+                    "type": "website",
+                    "title": "Agile vs Waterfall",
+                    "url": "https://www.atlassian.com/agile/waterfall-vs-agile",
+                    "description": "Atlassian - Methodology Comparison"
+                },
+                {
+                    "type": "website",
+                    "title": "Agile Manifesto",
+                    "url": "https://agilemanifesto.org/",
+                    "description": "Software Development Principles"
+                }
+            ]
+        },
+        {
+            "id": "CE304",
+            "name": "Databases",
+            "icon": "🗄️",
+            "credits": "3",
+            "semester": "4",
+            "difficulty": "4/7",
+            "hours": "6",
+            "description": "Comprehensive study of database management systems. Covers relational model, SQL, normalization,          indexing, transaction management, and NoSQL databases. Students design and implement robust database          schemas for real-world applications.",
+            "topics": [
+                "Databases\", page_icon=\"🗄️\", layout=\"wide\")",
+                "Relational model",
+                "SQL (DDL, DML, DCL)",
+                "ER modeling",
+                "Normalization (1NF, 2NF, 3NF, BCNF)",
+                "Indexing and hashing",
+                "Transactions and concurrency",
+                "ACID properties",
+                "NoSQL overview",
+                "Database security"
+            ],
+            "filename": "17_🗄️_CE304_Databases.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "SQL and Databases - Full Course",
+                    "url": "https://www.youtube.com/watch?v=HXV3zeQKqGY",
+                    "description": "FreeCodeCamp - Beginner to Advanced"
+                },
+                {
+                    "type": "website",
+                    "title": "DBMS Tutorial",
+                    "url": "https://www.geeksforgeeks.org/database-management-system/",
+                    "description": "GeeksforGeeks - Comprehensive Guide"
+                },
+                {
+                    "type": "website",
+                    "title": "SQLZoo",
+                    "url": "https://sqlzoo.net/",
+                    "description": "Interactive SQL Tutorial"
+                }
+            ]
+        }
+    ],
+    "Semester 1": [
+        {
+            "id": "CE101",
+            "name": "Programming",
+            "icon": "💻",
+            "credits": "4",
+            "semester": "1",
+            "difficulty": "2/7",
+            "hours": "6",
+            "description": "Comprehensive introduction to structured programming with emphasis on algorithm design,          data structures, and software engineering principles. This course covers fundamental to          advanced programming concepts using modern languages (Python, C++, Java) and prepares          students for graduate-level computer science topics.",
+            "topics": [
+                "Structured Programming\", page_icon=\"💻\", layout=\"wide\")",
+                "Graduate level",
+                "Variables, types, and operators",
+                "Control structures (if, loops, switch)",
+                "Functions and recursion",
+                "Pointers and memory management",
+                "File I/O and streams",
+                "Arrays and linked lists",
+                "Stacks and queues",
+                "Trees (BST, AVL, Red-Black)"
+            ],
+            "filename": "2_💻_CE101_Programming.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "CS50: Introduction to Computer Science",
+                    "url": "https://www.youtube.com/watch?v=8mAITcNt710",
+                    "description": "Harvard University"
+                },
+                {
+                    "type": "pdf",
+                    "title": "Python 3 Documentation",
+                    "url": "https://docs.python.org/3/download.html",
+                    "description": "Official Python Documentation"
+                }
+            ]
+        },
+        {
+            "id": "MA101",
+            "name": "Calculus",
+            "icon": "📐",
+            "credits": "4",
+            "semester": "1",
+            "difficulty": "5/7",
+            "hours": "6",
+            "description": "Fundamental calculus concepts including limits, derivatives, and integrals with applications          to engineering and computer science. This course provides the mathematical foundation for          advanced topics in algorithms, machine learning, and optimization.",
+            "topics": [
+                "Calculus\", page_icon=\"📐\", layout=\"wide\")",
+                "Expanded for graduate level",
+                "Limits and Continuity",
+                "Derivatives and Differentiation Rules",
+                "Chain Rule and Implicit Differentiation",
+                "Applications: Optimization, Related Rates",
+                "Higher Order Derivatives",
+                "Antiderivatives and Indefinite Integrals",
+                "Definite Integrals and Riemann Sums",
+                "Fundamental Theorem of Calculus"
+            ],
+            "filename": "1_📐_MA101_Calculus.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Essence of Calculus",
+                    "url": "https://www.youtube.com/watch?v=WUvTyaaNkzM&list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr",
+                    "description": "3Blue1Brown"
+                },
+                {
+                    "type": "youtube",
+                    "title": "Calculus 1 Full Course",
+                    "url": "https://www.youtube.com/watch?v=HfACrKJ_Y2w",
+                    "description": "Professor Leonard"
+                },
+                {
+                    "type": "pdf",
+                    "title": "Calculus Vol 1 - OpenStax",
+                    "url": "https://openstax.org/details/books/calculus-volume-1",
+                    "description": "Free Open Source Textbook"
+                }
+            ]
+        },
+        {
+            "id": "PH101",
+            "name": "Physics",
+            "icon": "⚛️",
+            "credits": "3",
+            "semester": "1",
+            "difficulty": "4/7",
+            "hours": "5",
+            "description": "Comprehensive introduction to fundamental physics principles covering classical mechanics,          electromagnetism, waves, thermodynamics, and modern physics. This course emphasizes mathematical          rigor, problem-solving skills, and applications to engineering. Prepares students for advanced          physics and engineering courses.",
+            "topics": [
+                "Physics\", page_icon=\"⚛️\", layout=\"wide\")",
+                "Graduate level",
+                "Kinematics and dynamics",
+                "Energy and momentum",
+                "Rotational motion",
+                "Gravitation",
+                "Oscillations and waves",
+                "Electric fields and potentials",
+                "Magnetic fields and forces",
+                "Electromagnetic induction"
+            ],
+            "filename": "3_⚛️_PH101_Physics.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Classical Mechanics",
+                    "url": "https://www.youtube.com/watch?v=4a0FbQdH3dY",
+                    "description": "MIT OpenCourseWare - Walter Lewin"
+                },
+                {
+                    "type": "pdf",
+                    "title": "The Feynman Lectures on Physics",
+                    "url": "https://www.feynmanlectures.caltech.edu/",
+                    "description": "Caltech"
+                }
+            ]
+        }
+    ],
+    "Semester 5": [
+        {
+            "id": "MA301",
+            "name": "Higher Algebra",
+            "icon": "🔢",
+            "credits": "3",
+            "semester": "5",
+            "difficulty": "6/7",
+            "hours": "8",
+            "description": "Advanced study of algebraic structures including groups, rings, fields, and vector spaces. Covers group theory          (subgroups, homomorphisms, quotient groups), ring theory (ideals, polynomial rings), field theory (field extensions,          Galois theory), and linear algebra (vector spaces, linear transformations, eigenvalues). Emphasizes abstract thinking,          rigorous proofs, and applications to cryptography, coding theory, and quantum mechanics.",
+            "topics": [
+                "Higher Algebra\", page_icon=\"🔢\", layout=\"wide\")",
+                "Groups and subgroups",
+                "Cyclic groups",
+                "Permutation groups",
+                "Cosets and Lagrange's theorem",
+                "Normal subgroups and quotient groups",
+                "Group homomorphisms and isomorphisms",
+                "Rings and subrings",
+                "Integral domains and fields",
+                "Ideals and quotient rings"
+            ],
+            "filename": "21_🔢_MA301_Higher_Algebra.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Abstract Algebra (Socratica)",
+                    "url": "https://www.youtube.com/watch?v=IP7nW_hKB7I&list=PLi01XoE8jYoi3SgnnGorR_XOW3IcK-TP6",
+                    "description": "Visual Introduction to Group Theory"
+                },
+                {
+                    "type": "website",
+                    "title": "Wolfram MathWorld - Algebra",
+                    "url": "https://mathworld.wolfram.com/Algebra.html",
+                    "description": "Comprehensive Mathematical Encyclopedia"
+                },
+                {
+                    "type": "pdf",
+                    "title": "Abstract Algebra: Theory and Applications",
+                    "url": "http://CXx2e.pdf",
+                    "description": "Open Source Textbook (Judson)"
+                }
+            ]
+        }
+    ],
+    "Semester 6": [
+        {
+            "id": "FI301",
+            "name": "Finance",
+            "icon": "💰",
+            "credits": "3",
+            "semester": "6",
+            "difficulty": "5/7",
+            "hours": "6",
+            "description": "Comprehensive study of financial technology (fintech) and computational finance. Covers financial systems,          payment technologies, algorithmic trading, blockchain, cryptocurrencies, robo-advisors, and financial data analysis.          Emphasizes practical implementation of financial algorithms, risk management, and regulatory compliance. Students will          develop fintech applications, implement trading strategies, and analyze financial markets using modern technologies.",
+            "topics": [
+                "Finance Concentration\", page_icon=\"💰\", layout=\"wide\")",
+                "Finance</div>",
+                "Banking systems and infrastructure",
+                "Payment processing (ACH, SWIFT, cards)",
+                "Digital wallets and mobile payments",
+                "Open banking and APIs",
+                "Regulatory frameworks (PSD2, GDPR)",
+                "Mobile banking apps",
+                "Peer-to-peer lending platforms",
+                "Crowdfunding systems"
+            ],
+            "filename": "23_💰_FI301_Finance.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "Finance & Capital Markets",
+                    "url": "https://www.khanacademy.org/economics-finance-domain/core-finance",
+                    "description": "Khan Academy - Comprehensive Guide"
+                },
+                {
+                    "type": "website",
+                    "title": "Investopedia Dictionary",
+                    "url": "https://www.investopedia.com/financial-term-dictionary-4769738",
+                    "description": "Financial Terms Reference"
+                }
+            ]
+        },
+        {
+            "id": "IT301",
+            "name": "IT",
+            "icon": "💻",
+            "credits": "3",
+            "semester": "6",
+            "difficulty": "5/7",
+            "hours": "6",
+            "description": "Advanced study of information technology infrastructure, cloud computing, cybersecurity, and enterprise systems.          Covers major cloud platforms (AWS, Azure, GCP), security best practices, DevOps methodologies, containerization,          orchestration, networking, and infrastructure automation. Emphasizes hands-on implementation, industry certifications,          and real-world IT operations. Students will design cloud architectures, implement security measures, automate          infrastructure, and manage enterprise IT systems.",
+            "topics": [
+                "IT Concentration\", page_icon=\"💻\", layout=\"wide\")",
+                "Information Technology</div>",
+                "AWS (EC2, S3, Lambda, RDS, VPC)",
+                "Azure (VMs, Storage, Functions, SQL)",
+                "Google Cloud Platform (Compute Engine, Cloud Storage)",
+                "Cloud architecture patterns",
+                "Serverless computing",
+                "Network security",
+                "Identity and Access Management (IAM)",
+                "Encryption and PKI"
+            ],
+            "filename": "24_💻_IT301_IT.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "What is Cloud Computing?",
+                    "url": "https://aws.amazon.com/what-is-cloud-computing/",
+                    "description": "AWS Official Guide"
+                },
+                {
+                    "type": "website",
+                    "title": "Azure Fundamentals",
+                    "url": "https://learn.microsoft.com/en-us/azure/fundamentals/",
+                    "description": "Microsoft Learn"
+                }
+            ]
+        },
+        {
+            "id": "MG301",
+            "name": "Management",
+            "icon": "📊",
+            "credits": "3",
+            "semester": "6",
+            "difficulty": "4/7",
+            "hours": "5",
+            "description": "Comprehensive study of IT project management, agile methodologies, and technical team leadership. Covers Scrum,          Kanban, project planning, risk management, team dynamics, business strategy alignment, and stakeholder communication.          Emphasizes practical application of management frameworks, leadership skills, and strategic thinking. Students will          manage IT projects, lead technical teams, implement agile practices, and align technology initiatives with business goals.",
+            "topics": [
+                "Management Concentration\", page_icon=\"📊\", layout=\"wide\")",
+                "Management</div>",
+                "Scrum framework and roles",
+                "Kanban boards and WIP limits",
+                "Sprint planning and execution",
+                "Daily standups and retrospectives",
+                "User stories and acceptance criteria",
+                "Project lifecycle (initiation to closure)",
+                "Work breakdown structure (WBS)",
+                "Gantt charts and critical path"
+            ],
+            "filename": "25_📊_MG301_Management.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "Project Management Guide",
+                    "url": "https://www.wrike.com/project-management-guide/",
+                    "description": "Comprehensive PM Methodologies"
+                },
+                {
+                    "type": "website",
+                    "title": "What is Scrum?",
+                    "url": "https://www.scrum.org/resources/what-is-scrum",
+                    "description": "Scrum.org Official Guide"
+                }
+            ]
+        },
+        {
+            "id": "SD101",
+            "name": "Sustainable Development",
+            "icon": "🌱",
+            "credits": "2",
+            "semester": "6",
+            "difficulty": "2/7",
+            "hours": "3",
+            "description": "Introduction to sustainable development principles, environmental impact assessment, and responsible technology          development. Covers UN Sustainable Development Goals (SDGs), circular economy, renewable energy, green technology,          carbon footprint, e-waste management, and corporate social responsibility. Emphasizes ethical considerations in          technology, environmental stewardship, and sustainable business practices. Students will learn to design sustainable          systems and assess environmental impact of technology projects.",
+            "topics": [
+                "Sustainable Development\", page_icon=\"🌱\", layout=\"wide\")",
+                "Triple bottom line (People, Planet, Profit)",
+                "UN Sustainable Development Goals",
+                "Environmental impact assessment",
+                "Life cycle analysis",
+                "Carbon footprint calculation",
+                "Energy-efficient computing",
+                "Green data centers",
+                "Renewable energy systems",
+                "Smart grids and IoT"
+            ],
+            "filename": "27_🌱_SD101_Sustainable_Development.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "The 17 Goals (SDGs)",
+                    "url": "https://sdgs.un.org/goals",
+                    "description": "United Nations Official Site"
+                },
+                {
+                    "type": "website",
+                    "title": "What is Sustainability?",
+                    "url": "https://www.mcgill.ca/sustainability/files/sustainability/what-is-sustainability.pdf",
+                    "description": "Concept Overview"
+                }
+            ]
+        }
+    ],
+    "Semester 7": [
+        {
+            "id": "CE401",
+            "name": "Web Development",
+            "icon": "🌐",
+            "credits": "3",
+            "semester": "7",
+            "difficulty": "5/7",
+            "hours": "7",
+            "description": "Comprehensive study of modern web development covering frontend, backend, and full-stack technologies. Learn HTML5,          CSS3, JavaScript ES6+, React, Node.js, Express, databases (SQL and NoSQL), RESTful APIs, authentication, security,          and deployment. Emphasizes hands-on project development, responsive design, performance optimization, and industry          best practices. Students will build complete web applications from scratch and deploy them to production.",
+            "topics": [
+                "Web Development\", page_icon=\"🌐\", layout=\"wide\")",
+                "HTML5 semantic elements",
+                "CSS3 (Flexbox, Grid, animations)",
+                "JavaScript ES6+ (async/await, modules)",
+                "React (hooks, context, routing)",
+                "State management (Redux, Zustand)",
+                "Node.js and npm",
+                "Express.js framework",
+                "RESTful API design",
+                "Middleware and error handling"
+            ],
+            "filename": "26_🌐_CE401_Web_Development.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "MDN Web Docs",
+                    "url": "https://developer.mozilla.org/en-US/",
+                    "description": "The Bible of Web Development"
+                },
+                {
+                    "type": "website",
+                    "title": "React Official Docs",
+                    "url": "https://react.dev/",
+                    "description": "Learn React from the Creators"
+                },
+                {
+                    "type": "youtube",
+                    "title": "Web Development Full Course",
+                    "url": "https://www.youtube.com/watch?v=nu_pCVPKzTk",
+                    "description": "FreeCodeCamp - Full Stack Guide"
+                }
+            ]
+        },
+        {
+            "id": "CE402",
+            "name": "Artificial Intelligence",
+            "icon": "🤖",
+            "credits": "4",
+            "semester": "7",
+            "difficulty": "7/7",
+            "hours": "8",
+            "description": "Comprehensive introduction to Artificial Intelligence covering classical AI, machine learning, deep learning,          and modern AI applications. Learn search algorithms, knowledge representation, supervised and unsupervised learning,          neural networks, convolutional and recurrent networks, natural language processing, computer vision, and AI ethics.          Emphasizes hands-on implementation using Python, TensorFlow, and PyTorch. Students will build AI systems from          scratch and apply them to real-world problems.",
+            "topics": [
+                "Artificial Intelligence\", page_icon=\"🤖\", layout=\"wide\")",
+                "Search algorithms (BFS, DFS, A*, Minimax)",
+                "Knowledge representation",
+                "Logic and reasoning",
+                "Planning and optimization",
+                "Game playing (Chess, Go)",
+                "Supervised learning (regression, classification)",
+                "Unsupervised learning (clustering, PCA)",
+                "Model evaluation and validation",
+                "Feature engineering"
+            ],
+            "filename": "29_🤖_CE402_Artificial_Intelligence.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "DeepLearning.AI",
+                    "url": "https://www.deeplearning.ai/",
+                    "description": "Andrew Ng's AI Courses"
+                },
+                {
+                    "type": "website",
+                    "title": "Hugging Face",
+                    "url": "https://huggingface.co/learn",
+                    "description": "The AI Community & Model Hub"
+                },
+                {
+                    "type": "youtube",
+                    "title": "Neural Networks (3Blue1Brown)",
+                    "url": "https://www.youtube.com/watch?v=aircAruvnKk",
+                    "description": "Visualizing Deep Learning"
+                }
+            ]
+        }
+    ],
+    "Semester 8": [
+        {
+            "id": "CE403",
+            "name": "Mobile App Development",
+            "icon": "📱",
+            "credits": "3",
+            "semester": "8",
+            "difficulty": "5/7",
+            "hours": "7",
+            "description": "Comprehensive mobile application development course covering cross-platform frameworks (React Native, Flutter)          and native development (iOS, Android). Learn mobile UI/UX design, navigation, state management, native APIs,          push notifications, offline storage, and app store deployment. Emphasizes hands-on development with real-world          projects. Students will build complete mobile apps from scratch and publish them to App Store and Google Play.",
+            "topics": [
+                "Mobile App Development\", page_icon=\"📱\", layout=\"wide\")",
+                "React Native (JavaScript/TypeScript)",
+                "Flutter (Dart)",
+                "Expo framework",
+                "Component libraries (NativeBase, React Native Paper)",
+                "Hot reload and debugging",
+                "Material Design (Android)",
+                "Human Interface Guidelines (iOS)",
+                "Responsive layouts",
+                "Animations and gestures"
+            ],
+            "filename": "30_📱_CE403_Mobile_App_Development.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "Android Developer Guides",
+                    "url": "https://developer.android.com/guide",
+                    "description": "Official Google Documentation"
+                },
+                {
+                    "type": "website",
+                    "title": "Flutter Documentation",
+                    "url": "https://docs.flutter.dev/",
+                    "description": "Cross-platform Development"
+                }
+            ]
+        },
+        {
+            "id": "CE404",
+            "name": "Cloud Computing",
+            "icon": "☁️",
+            "credits": "3",
+            "semester": "8",
+            "difficulty": "6/7",
+            "hours": "5",
+            "description": "Advanced cloud architecture, distributed systems, and serverless computing. Covers virtualization,          containerization (Docker, Kubernetes), microservices, cloud security, and DevOps. Students will deploy scalable          applications on major cloud platforms (AWS, Azure, GCP) and learn to manage cloud infrastructure.",
+            "topics": [
+                "Cloud Computing\", page_icon=\"☁️\", layout=\"wide\")",
+                "Cloud service models (IaaS, PaaS, SaaS)",
+                "Virtualization (VMs, Hypervisors)",
+                "Containerization (Docker, Kubernetes)",
+                "Serverless computing (Lambda, Azure Functions)",
+                "Cloud storage (Object, Block, File)",
+                "Load balancing and auto-scaling",
+                "Cloud security models",
+                "Distributed databases",
+                "DevOps and CI/CD pipelines"
+            ],
+            "filename": "31_☁️_CE404_Cloud_Computing.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "AWS Architecture Center",
+                    "url": "https://aws.amazon.com/architecture",
+                    "description": "Cloud Design Patterns"
+                },
+                {
+                    "type": "website",
+                    "title": "Kubernetes Basics",
+                    "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/",
+                    "description": "Container Orchestration"
+                }
+            ]
+        },
+        {
+            "id": "CE405",
+            "name": "Cybersecurity",
+            "icon": "🔐",
+            "credits": "3",
+            "semester": "8",
+            "difficulty": "6/7",
+            "hours": "6",
+            "description": "Comprehensive study of network security, cryptography, and ethical hacking. Covers threat modeling,          vulnerability assessment, penetration testing, malware analysis, and security protocols. Students will learn to          secure networks, protect data, and defend against cyber attacks using industry-standard tools and practices.",
+            "topics": [
+                "Cybersecurity\", page_icon=\"🔐\", layout=\"wide\")",
+                "Confidentiality, Integrity, Availability (CIA)",
+                "Cryptography (Symmetric, Asymmetric, Hashing)",
+                "Network security protocols (SSL/TLS, IPSec)",
+                "Firewalls and ID/IPS",
+                "Penetration testing phases",
+                "Web application security (OWASP Top 10)",
+                "Malware analysis and reverse engineering",
+                "Social engineering",
+                "Incident response and forensics"
+            ],
+            "filename": "32_🔐_CE405_Cybersecurity.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "OWASP Top 10",
+                    "url": "https://owasp.org/www-project-top-ten/",
+                    "description": "Web Application Security Risks"
+                },
+                {
+                    "type": "website",
+                    "title": "Kali Linux Documentation",
+                    "url": "https://www.kali.org/docs/",
+                    "description": "Ethical Hacking Tools"
+                }
+            ]
+        },
+        {
+            "id": "CE406",
+            "name": "Big Data Analytics",
+            "icon": "📊",
+            "credits": "3",
+            "semester": "8",
+            "difficulty": "7/7",
+            "hours": "6",
+            "description": "Study of large-scale data processing, storage, and analytics. Covers Hadoop ecosystem (HDFS, MapReduce),          Spark, NoSQL databases, data warehousing, and real-time data streaming. Students will build data pipelines          and perform analytics on massive datasets using distributed computing frameworks.",
+            "topics": [
+                "Big Data Analytics\", page_icon=\"📊\", layout=\"wide\")",
+                "Batch vs Real-time processing",
+                "Hadoop Ecosystem (HDFS, YARN)",
+                "MapReduce programming model",
+                "Apache Spark (Core, SQL, Streaming)",
+                "NoSQL Databases (Cassandra, HBase, MongoDB)",
+                "Data warehousing (Hive, Snowflake)",
+                "Data ingestion (Kafka, Flume)",
+                "Machine Learning on Big Data (Spark MLlib)",
+                "Data visualization (Tableau, PowerBI)"
+            ],
+            "filename": "33_📊_CE406_Big_Data_Analytics.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "Apache Spark Documentation",
+                    "url": "https://spark.apache.org/docs/latest/",
+                    "description": "Unified Analytics Engine"
+                },
+                {
+                    "type": "website",
+                    "title": "Hadoop Ecosystem",
+                    "url": "https://hadoop.apache.org/",
+                    "description": "Distributed Computing Framework"
+                }
+            ]
+        },
+        {
+            "id": "CE407",
+            "name": "Blockchain Cryptocurrency",
+            "icon": "⛓️",
+            "credits": "3",
+            "semester": "8",
+            "difficulty": "7/7",
+            "hours": "6",
+            "description": "In-depth exploration of blockchain technology, cryptocurrencies, and decentralized applications (DApps).          Covers consensus algorithms (PoW, PoS), smart contracts, Ethereum, DeFi, and blockchain development.          Students will write smart contracts and understand the economic and technical implications of blockchain.",
+            "topics": [
+                "Blockchain & Cryptocurrency\", page_icon=\"⛓️\", layout=\"wide\")",
+                "Distributed Ledger Technology (DLT)",
+                "Cryptographic primitives (Hash, Signatures)",
+                "Consensus mechanisms (PoW, PoS, DPoS)",
+                "Bitcoin and UTXO model",
+                "Ethereum and Smart Contracts (Solidity)",
+                "Decentralized Finance (DeFi)",
+                "NFTs and Digital Assets",
+                "Blockchain privacy and scalability",
+                "Web3 development"
+            ],
+            "filename": "34_⛓️_CE407_Blockchain_Cryptocurrency.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "Bitcoin Whitepaper",
+                    "url": "https://bitcoin.org/bitcoin.pdf",
+                    "description": "Satoshi Nakamoto's Original Paper"
+                },
+                {
+                    "type": "website",
+                    "title": "Ethereum Documentation",
+                    "url": "https://ethereum.org/en/developers/docs/",
+                    "description": "Smart Contract Development"
+                }
+            ]
+        },
+        {
+            "id": "CE408",
+            "name": "Internet of Things",
+            "icon": "🌐",
+            "credits": "3",
+            "semester": "8",
+            "difficulty": "5/7",
+            "hours": "5",
+            "description": "Design and implementation of IoT systems connecting physical devices to the internet. Covers sensors,          actuators, embedded systems, communication protocols (MQTT, CoAP), edge computing, and IoT security.          Students will build connected devices and visualize sensor data in the cloud.",
+            "topics": [
+                "Internet of Things\", page_icon=\"🌐\", layout=\"wide\")",
+                "IoT Architecture (Edge, Fog, Cloud)",
+                "Sensors and Actuators",
+                "Microcontrollers (Arduino, ESP32, Raspberry Pi)",
+                "Communication protocols (MQTT, CoAP, HTTP)",
+                "Wireless standards (BLE, Zigbee, LoRaWAN)",
+                "Edge computing and analytics",
+                "IoT Security challenges",
+                "Industrial IoT (IIoT)",
+                "Smart Cities and Home Automation"
+            ],
+            "filename": "35_🌐_CE408_Internet_of_Things.py",
+            "resources": [
+                {
+                    "type": "website",
+                    "title": "Arduino Reference",
+                    "url": "https://www.arduino.cc/reference/en/",
+                    "description": "Hardware programming"
+                },
+                {
+                    "type": "website",
+                    "title": "MQTT Protocol",
+                    "url": "https://mqtt.org/",
+                    "description": "Standard for IoT Messaging"
+                }
+            ]
+        }
+    ],
+    "Semester 2": [
+        {
+            "id": "CE103",
+            "name": "Architecture",
+            "icon": "🖥️",
+            "credits": "3",
+            "semester": "2",
+            "difficulty": "5/7",
+            "hours": "6",
+            "description": "Comprehensive study of computer architecture from transistors to modern multicore systems.          Covers instruction set architecture (ISA), CPU design, memory hierarchy, pipelining, cache          optimization, and parallel processing. Emphasizes quantitative performance analysis and          design trade-offs in modern computer systems.",
+            "topics": [
+                "Computer Architecture\", page_icon=\"🖥️\", layout=\"wide\")",
+                "Graduate level",
+                "Number systems and data representation",
+                "Boolean algebra and logic gates",
+                "Combinational and sequential circuits",
+                "Instruction Set Architecture (ISA)",
+                "Assembly language programming",
+                "Single-cycle datapath",
+                "Multi-cycle implementation",
+                "Pipelining and hazards"
+            ],
+            "filename": "5_🖥️_CE103_Architecture.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Digital Design & Computer Architecture",
+                    "url": "https://www.youtube.com/playlist?list=PL5Q2soXY2Zi_gq9VpZm9L8Bf_70zDGPpD",
+                    "description": "ETH Zurich (Spring 2023) - Onur Mutlu"
+                },
+                {
+                    "type": "pdf",
+                    "title": "Computer Organization and Design",
+                    "url": "https://www.elsevier.com/books/computer-organization-and-design-mips-edition/patterson/978-0-12-820109-1",
+                    "description": "Textbook Reference (Patterson & Hennessy)"
+                }
+            ]
+        },
+        {
+            "id": "EE101",
+            "name": "Electronics",
+            "icon": "⚡",
+            "credits": "3",
+            "semester": "2",
+            "difficulty": "4/7",
+            "hours": "6",
+            "description": "Comprehensive introduction to electronic circuits and devices. Covers DC and AC circuit analysis,          semiconductor physics, diodes, transistors, amplifiers, and digital logic. Emphasizes both theoretical          understanding and practical applications in modern electronics and computer engineering.",
+            "topics": [
+                "Electronics\", page_icon=\"⚡\", layout=\"wide\")",
+                "Graduate level",
+                "Ohm's Law and Kirchhoff's Laws",
+                "Series and parallel circuits",
+                "Thevenin and Norton theorems",
+                "AC circuit analysis",
+                "Frequency response",
+                "Semiconductor physics",
+                "P-N junction diodes",
+                "Zener diodes and regulators"
+            ],
+            "filename": "6_⚡_EE101_Electronics.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Circuits and Electronics",
+                    "url": "https://www.youtube.com/watch?v=7u6kFlczcPC0",
+                    "description": "MIT 6.002 - Anant Agarwal"
+                },
+                {
+                    "type": "website",
+                    "title": "All About Circuits",
+                    "url": "https://www.allaboutcircuits.com/textbook/",
+                    "description": "Comprehensive Online Textbook"
+                }
+            ]
+        },
+        {
+            "id": "MA102",
+            "name": "Linear Algebra",
+            "icon": "🔢",
+            "credits": "3",
+            "semester": "2",
+            "difficulty": "5/7",
+            "hours": "6",
+            "description": "Comprehensive study of linear algebra from vectors to advanced decompositions. Covers vector spaces,          matrices, linear transformations, eigenvalues, orthogonality, and singular value decomposition.          Emphasizes both theoretical foundations and practical applications in data science, machine learning,          and computer graphics.",
+            "topics": [
+                "Linear Algebra\", page_icon=\"🔢\", layout=\"wide\")",
+                "Graduate level",
+                "Vector spaces and subspaces",
+                "Linear independence",
+                "Basis and dimension",
+                "Matrix operations",
+                "Determinants",
+                "Gaussian elimination",
+                "LU decomposition",
+                "Matrix inverses"
+            ],
+            "filename": "7_🔢_MA102_Linear_Algebra.py",
+            "resources": [
+                {
+                    "type": "youtube",
+                    "title": "Linear Algebra",
+                    "url": "https://www.youtube.com/watch?v=7UJ4CFRGd-U",
+                    "description": "MIT OpenCourseWare - Gilbert Strang"
+                },
+                {
+                    "type": "youtube",
+                    "title": "Essence of Linear Algebra",
+                    "url": "https://www.youtube.com/watch?v=fNk_zzaMoSs&list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab",
+                    "description": "3Blue1Brown"
+                }
+            ]
+        }
+    ]
+}

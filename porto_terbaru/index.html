@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Data Science & Analytics Portfolio - Showcasing advanced analytics solutions in Marketing, Mining, Weather Prediction, and Economics">
+    <meta name="keywords"
+        content="data science, analytics, machine learning, portfolio, marketing analytics, mining analytics, weather prediction, economics">
+    <meta name="author" content="Yandri">
+
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Data Science Portfolio | Advanced Analytics Solutions">
+    <meta property="og:description"
+        content="Explore cutting-edge data science projects in Marketing, Mining, Weather Prediction, and Economic Analysis">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./hero_background_1770113247484.png">
+
+    <title>Data Science Portfolio | Advanced Analytics Solutions</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Chart.js for Skills Radar -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="premium-styles.css">
+    <link rel="stylesheet" href="technical-details.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader">
+            <div class="loader-circle"></div>
+            <div class="loader-text">Loading Portfolio...</div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>DataSci Portfolio</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#case-studies" class="nav-link">Case Studies</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#skills" class="nav-link">Skills</a></li>
+                <li><a href="#hire-me" class="nav-link">Hire Me</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <canvas id="particles-canvas" class="particles-canvas"></canvas>
+        <div class="hero-background"></div>
+        <div class="container hero-container">
+            <div class="hero-content fade-in">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Data Science</span> &
+                    <span class="gradient-text">Analytics</span> Portfolio
+                </h1>
+                <p class="hero-subtitle">
+                    Transforming data into actionable insights through advanced analytics,
+                    machine learning, and interactive visualizations
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-project-diagram"></i>
+                        <div>
+                            <h3>5+</h3>
+                            <p>Live Projects</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-brain"></i>
+                        <div>
+                            <h3>ML/AI</h3>
+                            <p>Powered</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <div>
+                            <h3>Real-time</h3>
+                            <p>Analytics</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <a href="#projects" class="cta-button">
+                        Explore Projects
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                    <a href="CV_Andriyanto_DataScientist.pdf" download class="cta-button cta-secondary">
+                        <i class="fas fa-download"></i>
+                        Download CV
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Featured <span class="gradient-text">Projects</span></h2>
+                <p class="section-subtitle">
+                    Explore my portfolio of data science and analytics solutions
+                </p>
+            </div>
+
+            <div class="projects-grid">
+                <!-- Marketing Analytics -->
+                <div class="project-card fade-in" data-category="marketing">
+                    <div class="card-image">
+                        <img src="marketing_icon_1770113263365.png" alt="Marketing Analytics">
+                        <div class="card-overlay">
+                            <span class="category-badge">Marketing</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Marketing Analytics Platform</h3>
+                        <p class="card-description">
+                            Comprehensive marketing analysis tools featuring customer segmentation,
+                            campaign optimization, ROI tracking, and predictive analytics for
+                            data-driven marketing decisions.
+                        </p>
+                        <div class="card-tech">
+                            <span class="tech-tag"><i class="fas fa-python"></i> Python</span>
+                            <span class="tech-tag"><i class="fas fa-chart-pie"></i> ML</span>
+                            <span class="tech-tag"><i class="fas fa-database"></i> Analytics</span>
+                        </div>
+                        <div class="card-actions">
+                            <a href="https://marketing2.streamlit.app/" target="_blank" class="btn-primary">
+                                <i class="fas fa-external-link-alt"></i>
+                                Live Demo
+                            </a>
+                            <button class="btn-secondary">
+                                <i class="fas fa-info-circle"></i>
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Analyst -->
+                <div class="project-card fade-in" data-category="analytics">
+                    <div class="card-image">
+                        <img src="data_analyst_icon_1770113276478.png" alt="Data Analyst">
+                        <div class="card-overlay">
+                            <span class="category-badge">Analytics</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Advanced Data Analysis Suite</h3>
+                        <p class="card-description">
+                            Powerful data analysis platform with statistical modeling, interactive
+                            visualizations, trend analysis, and automated reporting capabilities
+                            for comprehensive data insights.
+                        </p>
+                        <div class="card-tech">
+                            <span class="tech-tag"><i class="fas fa-chart-line"></i> Statistics</span>
+                            <span class="tech-tag"><i class="fas fa-table"></i> Data Viz</span>
+                            <span class="tech-tag"><i class="fas fa-cogs"></i> Automation</span>
+                        </div>
+                        <div class="card-actions">
+                            <a href="https://dataanalyst2.streamlit.app/" target="_blank" class="btn-primary">
+                                <i class="fas fa-external-link-alt"></i>
+                                Live Demo
+                            </a>
+                            <button class="btn-secondary">
+                                <i class="fas fa-info-circle"></i>
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mining Portfolio -->
+                <div class="project-card fade-in" data-category="mining">
+                    <div class="card-image">
+                        <img src="mining_icon_1770113290718.png" alt="Mining Portfolio">
+                        <div class="card-overlay">
+                            <span class="category-badge">Mining</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Mining Operations Analytics</h3>
+                        <p class="card-description">
+                            Specialized analytics platform for mining operations featuring production
+                            tracking, resource optimization, geospatial analysis, and operational
+                            efficiency monitoring.
+                        </p>
+                        <div class="card-tech">
+                            <span class="tech-tag"><i class="fas fa-map-marked-alt"></i> GIS</span>
+                            <span class="tech-tag"><i class="fas fa-industry"></i> Operations</span>
+                            <span class="tech-tag"><i class="fas fa-chart-area"></i> Optimization</span>
+                        </div>
+                        <div class="card-actions">
+                            <a href="https://miningportofolio.streamlit.app/" target="_blank" class="btn-primary">
+                                <i class="fas fa-external-link-alt"></i>
+                                Live Demo
+                            </a>
+                            <button class="btn-secondary">
+                                <i class="fas fa-info-circle"></i>
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Prediction -->
+                <div class="project-card fade-in" data-category="ml">
+                    <div class="card-image">
+                        <img src="weather_icon_1770113305991.png" alt="Weather Prediction">
+                        <div class="card-overlay">
+                            <span class="category-badge">Machine Learning</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">AI Weather Forecasting System</h3>
+                        <p class="card-description">
+                            Machine learning-powered weather prediction system with real-time
+                            forecasting, historical analysis, and climate pattern recognition
+                            for accurate weather insights.
+                        </p>
+                        <div class="card-tech">
+                            <span class="tech-tag"><i class="fas fa-brain"></i> Deep Learning</span>
+                            <span class="tech-tag"><i class="fas fa-cloud-sun"></i> Weather</span>
+                            <span class="tech-tag"><i class="fas fa-clock"></i> Real-time</span>
+                        </div>
+                        <div class="card-actions">
+                            <a href="https://prediksi-cuaca2.streamlit.app/" target="_blank" class="btn-primary">
+                                <i class="fas fa-external-link-alt"></i>
+                                Live Demo
+                            </a>
+                            <button class="btn-secondary">
+                                <i class="fas fa-info-circle"></i>
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Economics Analysis -->
+                <div class="project-card fade-in" data-category="economics">
+                    <div class="card-image">
+                        <img src="economics_icon_1770113321128.png" alt="Economics Analysis">
+                        <div class="card-overlay">
+                            <span class="category-badge">Economics</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Macro & Micro Economics Platform</h3>
+                        <p class="card-description">
+                            Comprehensive economic analysis tools covering market dynamics,
+                            supply-demand modeling, equilibrium analysis, and economic indicators
+                            for informed decision-making.
+                        </p>
+                        <div class="card-tech">
+                            <span class="tech-tag"><i class="fas fa-balance-scale"></i> Economics</span>
+                            <span class="tech-tag"><i class="fas fa-chart-line"></i> Modeling</span>
+                            <span class="tech-tag"><i class="fas fa-coins"></i> Markets</span>
+                        </div>
+                        <div class="card-actions">
+                            <a href="https://ekonomimakro-mikro.streamlit.app/" target="_blank" class="btn-primary">
+                                <i class="fas fa-external-link-alt"></i>
+                                Live Demo
+                            </a>
+                            <button class="btn-secondary">
+                                <i class="fas fa-info-circle"></i>
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Case Studies Section -->
+    <section class="case-studies" id="case-studies">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Detailed <span class="gradient-text">Case Studies</span></h2>
+                <p class="section-subtitle">
+                    Deep dives into selected projects showcasing problem-solving approach and impact
+                </p>
+            </div>
+
+            <div class="case-studies-grid">
+                <!-- Case Study 1: Marketing Analytics -->
+                <div class="case-study-card fade-in">
+                    <div class="case-study-header">
+                        <div class="case-study-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <h3>Marketing Analytics Platform</h3>
+                        <span class="case-study-tag">Enterprise Solution</span>
+                    </div>
+                    <div class="case-study-content">
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-exclamation-circle"></i> Challenge</h4>
+                            <p>Marketing teams struggled with fragmented data across multiple channels, leading to
+                                inefficient campaign management and inability to measure true ROI.</p>
+                        </div>
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-lightbulb"></i> Solution</h4>
+                            <p>Developed a unified analytics dashboard integrating data from multiple sources with
+                                ML-powered customer segmentation, campaign optimization algorithms, and predictive
+                                analytics for future performance.</p>
+                        </div>
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-cogs"></i> Tech Stack</h4>
+                            <div class="tech-tags">
+                                <span>Python</span>
+                                <span>Streamlit</span>
+                                <span>Scikit-learn</span>
+                                <span>Pandas</span>
+                                <span>Plotly</span>
+                            </div>
+                        </div>
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-chart-line"></i> Results</h4>
+                            <div class="results-grid">
+                                <div class="result-item">
+                                    <div class="result-number">40%</div>
+                                    <div class="result-label">ROI Improvement</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="result-number">60%</div>
+                                    <div class="result-label">Time Saved</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="result-number">Real-time</div>
+                                    <div class="result-label">Decision Making</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="https://marketing2.streamlit.app/" target="_blank" class="case-study-link">
+                            View Live Demo <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Case Study 2: Weather Prediction -->
+                <div class="case-study-card fade-in">
+                    <div class="case-study-header">
+                        <div class="case-study-icon">
+                            <i class="fas fa-cloud-sun"></i>
+                        </div>
+                        <h3>AI Weather Forecasting System</h3>
+                        <span class="case-study-tag">Machine Learning</span>
+                    </div>
+                    <div class="case-study-content">
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-exclamation-circle"></i> Challenge</h4>
+                            <p>Agricultural operations needed accurate local weather forecasting to optimize planting,
+                                harvesting, and resource allocation decisions.</p>
+                        </div>
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-lightbulb"></i> Solution</h4>
+                            <p>Built ML model combining historical weather data with real-time API feeds, using deep
+                                learning for pattern recognition and time-series forecasting.</p>
+                        </div>
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-cogs"></i> Tech Stack</h4>
+                            <div class="tech-tags">
+                                <span>TensorFlow</span>
+                                <span>Python</span>
+                                <span>REST APIs</span>
+                                <span>Streamlit</span>
+                                <span>NumPy</span>
+                            </div>
+                        </div>
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-chart-line"></i> Results</h4>
+                            <div class="results-grid">
+                                <div class="result-item">
+                                    <div class="result-number">85%</div>
+                                    <div class="result-label">Accuracy Rate</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="result-number">7-Day</div>
+                                    <div class="result-label">Forecast Range</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="result-number">24/7</div>
+                                    <div class="result-label">Live Updates</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="https://prediksi-cuaca2.streamlit.app/" target="_blank" class="case-study-link">
+                            View Live Demo <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Case Study 3: Economic Analysis -->
+                <div class="case-study-card fade-in">
+                    <div class="case-study-header">
+                        <div class="case-study-icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <h3>Economic Analysis Platform</h3>
+                        <span class="case-study-tag">Educational Impact</span>
+                    </div>
+                    <div class="case-study-content">
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-exclamation-circle"></i> Challenge</h4>
+                            <p>Complex economic modeling required for policy decisions, but existing tools were either
+                                too simplistic or too complex for practical use.</p>
+                        </div>
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-lightbulb"></i> Solution</h4>
+                            <p>Created interactive platform with supply-demand analysis, market equilibrium
+                                calculations, and economic indicator tracking with real-time visualization.</p>
+                        </div>
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-cogs"></i> Tech Stack</h4>
+                            <div class="tech-tags">
+                                <span>Python</span>
+                                <span>Plotly</span>
+                                <span>Streamlit</span>
+                                <span>SciPy</span>
+                                <span>Pandas</span>
+                            </div>
+                        </div>
+                        <div class="case-study-section">
+                            <h4><i class="fas fa-chart-line"></i> Results</h4>
+                            <div class="results-grid">
+                                <div class="result-item">
+                                    <div class="result-number">500+</div>
+                                    <div class="result-label">Active Users</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="result-number">Real-time</div>
+                                    <div class="result-label">Calculations</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="result-number">High</div>
+                                    <div class="result-label">Educational Value</div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="https://ekonomimakro-mikro.streamlit.app/" target="_blank" class="case-study-link">
+                            View Live Demo <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text fade-in">
+                    <h2 class="section-title">About <span class="gradient-text">Me</span></h2>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary);">
+                        Hi, I'm Andriyanto, BScE, S.E
+                    </h3>
+                    <p>
+                        A passionate data scientist and analytics professional with a unique blend of
+                        engineering and economics expertise. With dual degrees in Computer Engineering (BScE)
+                        and Economics (S.E), I bring a multidisciplinary approach to solving complex
+                        business and technical challenges through data-driven solutions.
+                    </p>
+                    <p>
+                        My journey in data science combines rigorous technical skills from engineering
+                        with strategic business insights from economics, enabling me to bridge the gap
+                        between technical implementation and business value. I specialize in developing
+                        end-to-end analytics solutions that transform raw data into actionable intelligence.
+                    </p>
+                    <p style="margin-bottom: 1.5rem;">
+                        This portfolio showcases my expertise across diverse domains including marketing
+                        analytics, mining operations, weather forecasting, and economic modeling. Each
+                        project demonstrates my commitment to creating robust, scalable, and user-friendly
+                        analytics platforms.
+                    </p>
+                    <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-primary);">Core Competencies
+                    </h4>
+                    <ul class="skills-list">
+                        <li><i class="fas fa-check-circle"></i> Machine Learning & AI</li>
+                        <li><i class="fas fa-check-circle"></i> Statistical Analysis & Modeling</li>
+                        <li><i class="fas fa-check-circle"></i> Interactive Data Visualization</li>
+                        <li><i class="fas fa-check-circle"></i> Real-time Analytics</li>
+                        <li><i class="fas fa-check-circle"></i> Predictive Modeling</li>
+                        <li><i class="fas fa-check-circle"></i> Business Intelligence</li>
+                        <li><i class="fas fa-check-circle"></i> Economic Analysis & Forecasting</li>
+                        <li><i class="fas fa-check-circle"></i> Full-Stack Development</li>
+                    </ul>
+                </div>
+                <div class="tech-stack fade-in">
+                    <h3>Technology Stack</h3>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <i class="fab fa-python"></i>
+                            <span>Python</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Streamlit</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-brain"></i>
+                            <span>Scikit-learn</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-database"></i>
+                            <span>Pandas</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Plotly</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-network-wired"></i>
+                            <span>TensorFlow</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Radar Chart Section -->
+    <section class="skills-radar" id="skills">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Technical <span class="gradient-text">Skills</span></h2>
+                <p class="section-subtitle">
+                    Interactive visualization of my core competencies and expertise levels
+                </p>
+            </div>
+            <div class="radar-container fade-in">
+                <canvas id="skillsRadarChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Timeline Section -->
+    <section class="tech-timeline" id="timeline">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Technology <span class="gradient-text">Journey</span></h2>
+                <p class="section-subtitle">
+                    Evolution of my technical stack and career progression
+                </p>
+            </div>
+            <div class="timeline-wrapper fade-in">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2020-2021</div>
+                            <h3>Foundation</h3>
+                            <p>Started with core data science fundamentals</p>
+                            <div class="timeline-tech">
+                                <span>Python</span>
+                                <span>Pandas</span>
+                                <span>NumPy</span>
+                                <span>SQL</span>
+                                <span>PostgreSQL</span>
+                                <span>Scikit-learn</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2022-2023</div>
+                            <h3>Expansion</h3>
+                            <p>Advanced into ML/AI and web development</p>
+                            <div class="timeline-tech">
+                                <span>TensorFlow</span>
+                                <span>Deep Learning</span>
+                                <span>Streamlit</span>
+                                <span>Plotly</span>
+                                <span>REST APIs</span>
+                                <span>Git/GitHub</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year">2024-Present</div>
+                            <h3>Mastery & Innovation</h3>
+                            <p>Full-stack data science with production deployment</p>
+                            <div class="timeline-tech">
+                                <span>Advanced ML/AI</span>
+                                <span>Economic Modeling</span>
+                                <span>Cloud Deployment</span>
+                                <span>Vercel</span>
+                                <span>Chart.js</span>
+                                <span>Production Systems</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hire Me Section -->
+    <section class="hire-me" id="hire-me">
+        <div class="container">
+            <div class="hire-me-content fade-in">
+                <div class="hire-me-header">
+                    <h2 class="section-title">Let's Work <span class="gradient-text">Together</span></h2>
+                    <p class="section-subtitle">
+                        Available for freelance projects and full-time opportunities
+                    </p>
+                </div>
+
+                <div class="hire-me-grid">
+                    <div class="availability-card">
+                        <div class="availability-status">
+                            <div class="status-indicator available"></div>
+                            <span>Available for New Projects</span>
+                        </div>
+                        <div class="availability-details">
+                            <div class="detail-item">
+                                <i class="fas fa-briefcase"></i>
+                                <div>
+                                    <h4>Work Arrangements</h4>
+                                    <p>Remote, Hybrid, or On-site</p>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-clock"></i>
+                                <div>
+                                    <h4>Response Time</h4>
+                                    <p>Within 24 hours</p>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-globe"></i>
+                                <div>
+                                    <h4>Location</h4>
+                                    <p>Open to International Projects</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hire-me-cta">
+                        <h3>What I Can Help With</h3>
+                        <ul class="services-list">
+                            <li><i class="fas fa-check"></i> Data Science & Analytics Solutions</li>
+                            <li><i class="fas fa-check"></i> Machine Learning Model Development</li>
+                            <li><i class="fas fa-check"></i> Interactive Dashboard Creation</li>
+                            <li><i class="fas fa-check"></i> Economic & Business Analysis</li>
+                            <li><i class="fas fa-check"></i> Full-Stack Analytics Applications</li>
+                            <li><i class="fas fa-check"></i> Data Pipeline & Automation</li>
+                        </ul>
+                        <div class="cta-buttons">
+                            <a href="mailto:yandri918@gmail.com" class="cta-button">
+                                <i class="fas fa-envelope"></i>
+                                Email Me
+                            </a>
+                            <a href="https://www.linkedin.com/in/andriyanto-na-147492157" target="_blank"
+                                class="cta-button cta-secondary">
+                                <i class="fab fa-linkedin"></i>
+                                LinkedIn
+                            </a>
+                            <a href="CV_Andriyanto_DataScientist.pdf" download class="cta-button cta-secondary">
+                                <i class="fas fa-file-download"></i>
+                                Download CV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-content fade-in">
+                <h2 class="section-title">Get In <span class="gradient-text">Touch</span></h2>
+                <p class="section-subtitle">
+                    Interested in collaboration or have questions about these projects?
+                </p>
+                <div class="contact-links">
+                    <a href="https://github.com/yandri918" target="_blank" class="contact-btn">
+                        <i class="fab fa-github"></i>
+                        GitHub
+                    </a>
+                    <a href="mailto:yandri918@gmail.com" class="contact-btn">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </a>
+                    <a href="tel:+6208076988509" class="contact-btn">
+                        <i class="fas fa-phone"></i>
+                        Phone
+                    </a>
+                    <a href="https://www.linkedin.com/in/andriyanto-na-147492157" target="_blank" class="contact-btn">
+                        <i class="fab fa-linkedin"></i>
+                        LinkedIn
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Data Science Portfolio. All rights reserved.</p>
+            <p>Built with <i class="fas fa-heart"></i> using modern web technologies</p>
+        </div>
+    </footer>
+
+    <script src="particles.js"></script>
+    <script src="premium-script.js"></script>
+    <script src="technical-details.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

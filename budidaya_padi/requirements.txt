@@ -1,0 +1,21 @@
+streamlit
+pandas
+numpy
+
+# Visualization
+altair
+plotly
+
+# Machine Learning (optional - comment out if needed)
+# scikit-learn
+# scipy
+# statsmodels
+
+# Utilities
+openpyxl
+requests
+Pillow
+
+# Maps & UI
+folium
+streamlit-folium

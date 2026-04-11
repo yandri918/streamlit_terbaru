@@ -1,0 +1,6 @@
+streamlit
+pyvista<0.39.0
+stpyvista
+vtk
+panel
+bokeh

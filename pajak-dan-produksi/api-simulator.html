@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaxPro Indonesia API Simulator</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .api-config {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .endpoints-list {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .endpoints-list h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .endpoint-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .endpoint-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .endpoint-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .endpoint-btn i {
+            margin-right: 8px;
+        }
+
+        .calculator-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .calculator-panel h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-box {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-box h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .error {
+            background: #fee;
+            border: 2px solid #fcc;
+            border-radius: 8px;
+            padding: 15px;
+            color: #c33;
+            margin-top: 15px;
+        }
+
+        .success {
+            background: #efe;
+            border: 2px solid #cfc;
+            border-radius: 8px;
+            padding: 15px;
+            color: #3c3;
+            margin-top: 15px;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-code"></i> TaxPro Indonesia API Simulator</h1>
+            <p>Test dan simulasi API endpoints untuk integrasi mobile app, ERP, dan accounting software</p>
+        </div>
+
+        <!-- API Configuration -->
+        <div class="api-config">
+            <div class="config-grid">
+                <div class="form-group">
+                    <label><i class="fas fa-server"></i> API Base URL</label>
+                    <input type="text" id="apiBaseUrl" class="form-control" placeholder="Processing...">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i> API Key</label>
+                    <input type="text" id="apiKey" class="form-control" value="demo-key-12345"
+                        placeholder="demo-key-12345">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="testConnection()">
+                        <i class="fas fa-plug"></i> Test Connection
+                    </button>
+                    <!-- <button class="btn btn-secondary" style="margin-top: 10px;" onclick="useLocalhost()">
+                        <i class="fas fa-laptop"></i> Use Localhost
+                    </button> -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Endpoints List -->
+            <div class="endpoints-list">
+                <h3><i class="fas fa-list"></i> API Endpoints</h3>
+
+                <button class="endpoint-btn active" onclick="showCalculator('pph21')">
+                    <i class="fas fa-user-tie"></i> PPh 21
+                </button>
+                <button class="endpoint-btn" onclick="showCalculator('pph23')">
+                    <i class="fas fa-hand-holding-usd"></i> PPh 23
+                </button>
+                <button class="endpoint-btn" onclick="showCalculator('ppn')">
+                    <i class="fas fa-receipt"></i> PPN
+                </button>
+                <button class="endpoint-btn" onclick="showCalculator('pph-badan')">
+                    <i class="fas fa-building"></i> PPh Badan
+                </button>
+                <button class="endpoint-btn" onclick="showCalculator('pbb')">
+                    <i class="fas fa-home"></i> PBB
+                </button>
+                <button class="endpoint-btn" onclick="showCalculator('pkb')">
+                    <i class="fas fa-car"></i> PKB
+                </button>
+                <button class="endpoint-btn" onclick="showCalculator('bphtb')">
+                    <i class="fas fa-file-contract"></i> BPHTB
+                </button>
+                <button class="endpoint-btn" onclick="showCalculator('dashboard')">
+                    <i class="fas fa-chart-line"></i> Dashboard Summary
+                </button>
+                <button class="endpoint-btn" onclick="showCalculator('ai')">
+                    <i class="fas fa-robot"></i> AI Advisor
+                </button>
+            </div>
+
+            <!-- Calculator Panels -->
+            <div id="calculator-container">
+                <!-- PPh 21 -->
+                <div id="panel-pph21" class="calculator-panel">
+                    <h2><i class="fas fa-user-tie"></i> PPh 21 Calculator</h2>
+                    <p>POST /api/v1/tax/pph21</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Gaji Pokok (Rp)</label>
+                            <input type="number" id="pph21_gaji" class="form-control" value="10000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Tunjangan (Rp)</label>
+                            <input type="number" id="pph21_tunjangan" class="form-control" value="2000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Bonus (Rp)</label>
+                            <input type="number" id="pph21_bonus" class="form-control" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Status Kawin</label>
+                            <select id="pph21_status" class="form-control">
+                                <option value="TK/0">TK/0</option>
+                                <option value="K/1" selected>K/1</option>
+                                <option value="K/2">K/2</option>
+                                <option value="K/3">K/3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="callAPI('pph21')">
+                        <i class="fas fa-calculator"></i> Calculate PPh 21
+                    </button>
+
+                    <div id="result-pph21" class="result-box"></div>
+                </div>
+
+                <!-- PPh 23 -->
+                <div id="panel-pph23" class="calculator-panel" style="display:none;">
+                    <h2><i class="fas fa-hand-holding-usd"></i> PPh 23 Calculator</h2>
+                    <p>POST /api/v1/tax/pph23</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Jenis Jasa</label>
+                            <select id="pph23_jenis" class="form-control">
+                                <option value="Jasa Konsultan">Jasa Konsultan</option>
+                                <option value="Jasa Manajemen">Jasa Manajemen</option>
+                                <option value="Sewa">Sewa</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Bruto (Rp)</label>
+                            <input type="number" id="pph23_bruto" class="form-control" value="50000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Punya NPWP</label>
+                            <select id="pph23_npwp" class="form-control">
+                                <option value="true">Ya</option>
+                                <option value="false">Tidak</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="callAPI('pph23')">
+                        <i class="fas fa-calculator"></i> Calculate PPh 23
+                    </button>
+
+                    <div id="result-pph23" class="result-box"></div>
+                </div>
+
+                <!-- PPN -->
+                <div id="panel-ppn" class="calculator-panel" style="display:none;">
+                    <h2><i class="fas fa-receipt"></i> PPN Calculator</h2>
+                    <p>POST /api/v1/tax/ppn</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Harga Jual (Rp)</label>
+                            <input type="number" id="ppn_harga" class="form-control" value="100000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Termasuk PPN</label>
+                            <select id="ppn_include" class="form-control">
+                                <option value="false">Belum Termasuk PPN</option>
+                                <option value="true">Sudah Termasuk PPN</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="callAPI('ppn')">
+                        <i class="fas fa-calculator"></i> Calculate PPN
+                    </button>
+
+                    <div id="result-ppn" class="result-box"></div>
+                </div>
+
+                <!-- PPh Badan -->
+                <div id="panel-pph-badan" class="calculator-panel" style="display:none;">
+                    <h2><i class="fas fa-building"></i> PPh Badan Calculator</h2>
+                    <p>POST /api/v1/tax/pph-badan</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Omzet (Rp)</label>
+                            <input type="number" id="badan_omzet" class="form-control" value="5000000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Biaya Operasional (Rp)</label>
+                            <input type="number" id="badan_biaya" class="form-control" value="3000000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Koreksi Fiskal (Rp)</label>
+                            <input type="number" id="badan_koreksi" class="form-control" value="100000000">
+                        </div>
+                        <div class="form-group">
+                            <label>UMKM</label>
+                            <select id="badan_umkm" class="form-control">
+                                <option value="true">Ya</option>
+                                <option value="false">Tidak</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="callAPI('pph-badan')">
+                        <i class="fas fa-calculator"></i> Calculate PPh Badan
+                    </button>
+
+                    <div id="result-pph-badan" class="result-box"></div>
+                </div>
+
+                <!-- PBB -->
+                <div id="panel-pbb" class="calculator-panel" style="display:none;">
+                    <h2><i class="fas fa-home"></i> PBB Calculator</h2>
+                    <p>POST /api/v1/tax/pbb</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>NJOP Tanah (Rp)</label>
+                            <input type="number" id="pbb_tanah" class="form-control" value="500000000">
+                        </div>
+                        <div class="form-group">
+                            <label>NJOP Bangunan (Rp)</label>
+                            <input type="number" id="pbb_bangunan" class="form-control" value="300000000">
+                        </div>
+                        <div class="form-group">
+                            <label>NJOPTKP (Rp)</label>
+                            <input type="number" id="pbb_njoptkp" class="form-control" value="10000000">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="callAPI('pbb')">
+                        <i class="fas fa-calculator"></i> Calculate PBB
+                    </button>
+
+                    <div id="result-pbb" class="result-box"></div>
+                </div>
+
+                <!-- PKB -->
+                <div id="panel-pkb" class="calculator-panel" style="display:none;">
+                    <h2><i class="fas fa-car"></i> PKB Calculator</h2>
+                    <p>POST /api/v1/tax/pkb</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>NJKB (Rp)</label>
+                            <input type="number" id="pkb_njkb" class="form-control" value="200000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Bobot</label>
+                            <input type="number" id="pkb_bobot" class="form-control" value="1.0" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Tarif Daerah (%)</label>
+                            <input type="number" id="pkb_tarif" class="form-control" value="2" step="0.1">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="callAPI('pkb')">
+                        <i class="fas fa-calculator"></i> Calculate PKB
+                    </button>
+
+                    <div id="result-pkb" class="result-box"></div>
+                </div>
+
+                <!-- BPHTB -->
+                <div id="panel-bphtb" class="calculator-panel" style="display:none;">
+                    <h2><i class="fas fa-file-contract"></i> BPHTB Calculator</h2>
+                    <p>POST /api/v1/tax/bphtb</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>NPOP (Rp)</label>
+                            <input type="number" id="bphtb_npop" class="form-control" value="500000000">
+                        </div>
+                        <div class="form-group">
+                            <label>NPOPTKP (Rp)</label>
+                            <input type="number" id="bphtb_npoptkp" class="form-control" value="60000000">
+                        </div>
+                        <div class="form-group">
+                            <label>Tarif (%)</label>
+                            <input type="number" id="bphtb_tarif" class="form-control" value="5" step="0.1">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="callAPI('bphtb')">
+                        <i class="fas fa-calculator"></i> Calculate BPHTB
+                    </button>
+
+                    <div id="result-bphtb" class="result-box"></div>
+                </div>
+
+                <!-- Dashboard -->
+                <div id="panel-dashboard" class="calculator-panel" style="display:none;">
+                    <h2><i class="fas fa-chart-line"></i> Dashboard Summary</h2>
+                    <p>GET /api/v1/dashboard/summary</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="dash_start" class="form-control" value="2024-01-01">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" id="dash_end" class="form-control" value="2024-12-31">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="callAPI('dashboard')">
+                        <i class="fas fa-chart-bar"></i> Get Dashboard
+                    </button>
+
+                    <div id="result-dashboard" class="result-box"></div>
+                </div>
+
+                <!-- AI Advisor -->
+                <div id="panel-ai" class="calculator-panel" style="display:none;">
+                    <h2><i class="fas fa-robot"></i> AI Tax Advisor</h2>
+                    <p>POST /api/v1/ai/advisor</p>
+
+                    <div class="form-group">
+                        <label>Question</label>
+                        <textarea id="ai_question" class="form-control" rows="3"
+                            placeholder="Bagaimana cara menurunkan PPh Badan?">Bagaimana cara menurunkan PPh Badan?</textarea>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="callAPI('ai')">
+                        <i class="fas fa-comments"></i> Ask AI
+                    </button>
+
+                    <div id="result-ai" class="result-box"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-detect API Base URL
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentUrl = window.location.origin;
+            const apiUrlInput = document.getElementById('apiBaseUrl');
+
+            // If running on localhost/127.0.0.1, default to local port 8000
+            // Otherwise use the deployed URL
+            if (currentUrl.includes('localhost') || currentUrl.includes('127.0.0.1')) {
+                // If opening html file directly (file://) or running on port other than 8000
+                apiUrlInput.value = 'http://localhost:8000';
+            } else {
+                apiUrlInput.value = currentUrl;
+            }
+        });
+
+        // Format currency
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(value);
+        }
+
+        // Show calculator panel
+        function showCalculator(type) {
+            // Hide all panels
+            document.querySelectorAll('.calculator-panel').forEach(panel => {
+                panel.style.display = 'none';
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.endpoint-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected panel
+            document.getElementById(`panel-${type}`).style.display = 'block';
+
+            // Add active class to clicked button
+            event.target.closest('.endpoint-btn').classList.add('active');
+        }
+
+        // Test API connection
+        async function testConnection() {
+            const baseUrl = document.getElementById('apiBaseUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+
+            try {
+                const response = await fetch(`${baseUrl}/health`, {
+                    headers: {
+                        'X-API-Key': apiKey
+                    }
+                });
+
+                if (response.ok) {
+                    alert('✅ Connection successful!');
+                } else {
+                    alert('❌ Connection failed: ' + response.statusText);
+                }
+            } catch (error) {
+                alert('❌ Connection error: ' + error.message);
+            }
+        }
+
+        // Call API
+        async function callAPI(type) {
+            const baseUrl = document.getElementById('apiBaseUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const resultDiv = document.getElementById(`result-${type}`);
+
+            resultDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            resultDiv.classList.add('show');
+
+            let endpoint, method, data;
+
+            switch (type) {
+                case 'pph21':
+                    endpoint = '/api/v1/tax/pph21';
+                    method = 'POST';
+                    data = {
+                        gaji_pokok: parseFloat(document.getElementById('pph21_gaji').value),
+                        tunjangan: parseFloat(document.getElementById('pph21_tunjangan').value),
+                        bonus: parseFloat(document.getElementById('pph21_bonus').value),
+                        status_kawin: document.getElementById('pph21_status').value
+                    };
+                    break;
+
+                case 'pph23':
+                    endpoint = '/api/v1/tax/pph23';
+                    method = 'POST';
+                    data = {
+                        jenis_jasa: document.getElementById('pph23_jenis').value,
+                        jumlah_bruto: parseFloat(document.getElementById('pph23_bruto').value),
+                        punya_npwp: document.getElementById('pph23_npwp').value === 'true'
+                    };
+                    break;
+
+                case 'ppn':
+                    endpoint = '/api/v1/tax/ppn';
+                    method = 'POST';
+                    data = {
+                        harga_jual: parseFloat(document.getElementById('ppn_harga').value),
+                        termasuk_ppn: document.getElementById('ppn_include').value === 'true'
+                    };
+                    break;
+
+                case 'pph-badan':
+                    endpoint = '/api/v1/tax/pph-badan';
+                    method = 'POST';
+                    data = {
+                        omzet: parseFloat(document.getElementById('badan_omzet').value),
+                        biaya_operasional: parseFloat(document.getElementById('badan_biaya').value),
+                        koreksi_fiskal: parseFloat(document.getElementById('badan_koreksi').value),
+                        is_umkm: document.getElementById('badan_umkm').value === 'true'
+                    };
+                    break;
+
+                case 'pbb':
+                    endpoint = '/api/v1/tax/pbb';
+                    method = 'POST';
+                    data = {
+                        njop_tanah: parseFloat(document.getElementById('pbb_tanah').value),
+                        njop_bangunan: parseFloat(document.getElementById('pbb_bangunan').value),
+                        njoptkp: parseFloat(document.getElementById('pbb_njoptkp').value)
+                    };
+                    break;
+
+                case 'pkb':
+                    endpoint = '/api/v1/tax/pkb';
+                    method = 'POST';
+                    data = {
+                        njkb: parseFloat(document.getElementById('pkb_njkb').value),
+                        bobot: parseFloat(document.getElementById('pkb_bobot').value),
+                        tarif_daerah: parseFloat(document.getElementById('pkb_tarif').value) / 100
+                    };
+                    break;
+
+                case 'bphtb':
+                    endpoint = '/api/v1/tax/bphtb';
+                    method = 'POST';
+                    data = {
+                        npop: parseFloat(document.getElementById('bphtb_npop').value),
+                        npoptkp: parseFloat(document.getElementById('bphtb_npoptkp').value),
+                        tarif: parseFloat(document.getElementById('bphtb_tarif').value) / 100
+                    };
+                    break;
+
+                case 'dashboard':
+                    endpoint = '/api/v1/dashboard/summary';
+                    method = 'GET';
+                    endpoint += `?start_date=${document.getElementById('dash_start').value}&end_date=${document.getElementById('dash_end').value}`;
+                    break;
+
+                case 'ai':
+                    endpoint = '/api/v1/ai/advisor';
+                    method = 'POST';
+                    data = {
+                        question: document.getElementById('ai_question').value
+                    };
+                    break;
+            }
+
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'X-API-Key': apiKey,
+                        'Content-Type': 'application/json'
+                    }
+                };
+
+                if (method === 'POST') {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(baseUrl + endpoint, options);
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    displayResult(type, result.data);
+                } else {
+                    resultDiv.innerHTML = `<div class="error"><strong>Error:</strong> ${result.error?.message || 'Unknown error'}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
+            }
+        }
+
+        // Display result
+        function displayResult(type, data) {
+            const resultDiv = document.getElementById(`result-${type}`);
+            let html = '<h3><i class="fas fa-check-circle"></i> Result</h3>';
+
+            for (const [key, value] of Object.entries(data)) {
+                const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const displayValue = typeof value === 'number' ? formatCurrency(value) : value;
+
+                html += `
+                    <div class="result-item">
+                        <span class="result-label">${label}:</span>
+                        <span class="result-value">${displayValue}</span>
+                    </div>
+                `;
+            }
+
+            resultDiv.innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>

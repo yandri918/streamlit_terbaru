@@ -1,0 +1,382 @@
+/* ===================================
+   TECHNICAL DETAILS MODAL STYLES
+   =================================== */
+
+/* Technical Details Button */
+.tech-details-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    margin-top: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.tech-details-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.tech-details-button i {
+    font-size: 1.1rem;
+}
+
+/* Modal Overlay */
+.tech-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.tech-modal.active {
+    display: flex;
+    opacity: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.tech-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+/* Modal Content */
+.tech-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    animation: modalSlideIn 0.4s ease;
+    z-index: 10001;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Close Button */
+.tech-modal-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    color: white;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tech-modal-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: rotate(90deg);
+}
+
+/* Modal Body */
+.tech-modal-body {
+    padding: 3rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    color: #cbd5e1;
+}
+
+/* Custom Scrollbar for Modal */
+.tech-modal-body::-webkit-scrollbar {
+    width: 10px;
+}
+
+.tech-modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.tech-modal-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #8b5cf6, #3b82f6);
+    border-radius: 10px;
+}
+
+.tech-modal-body::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #a78bfa, #60a5fa);
+}
+
+/* Modal Typography */
+.tech-modal-body h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.tech-modal-body h2 i {
+    color: #8b5cf6;
+    font-size: 1.75rem;
+}
+
+.tech-modal-body h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tech-modal-body h3 i {
+    color: #3b82f6;
+    font-size: 1.25rem;
+}
+
+.tech-modal-body h4 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.tech-modal-body p {
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    color: #cbd5e1;
+}
+
+.tech-modal-body strong {
+    color: #f1f5f9;
+    font-weight: 600;
+}
+
+/* Tech Detail Sections */
+.tech-detail-section {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+.tech-detail-section:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+/* Lists */
+.tech-modal-body ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 1rem 0;
+}
+
+.tech-modal-body ul li {
+    padding-left: 1.75rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+    line-height: 1.6;
+}
+
+.tech-modal-body ul li::before {
+    content: "▹";
+    position: absolute;
+    left: 0;
+    color: #8b5cf6;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+/* Tables */
+.tech-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tech-table th {
+    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.tech-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+}
+
+.tech-table tr:last-child td {
+    border-bottom: none;
+}
+
+.tech-table tr:hover {
+    background: rgba(139, 92, 246, 0.1);
+}
+
+.tech-table tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Code Blocks */
+.code-block {
+    background: #0f172a;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #94a3b8;
+}
+
+/* Tech Links */
+.tech-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 8px;
+    color: #a78bfa;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.tech-link:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.5);
+    color: #c4b5fd;
+    transform: translateX(5px);
+}
+
+.tech-link i {
+    font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tech-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .tech-modal-body {
+        padding: 2rem 1.5rem;
+    }
+
+    .tech-modal-body h2 {
+        font-size: 1.5rem;
+    }
+
+    .tech-modal-body h3 {
+        font-size: 1.25rem;
+    }
+
+    .tech-detail-section {
+        padding: 1.5rem;
+    }
+
+    .tech-table {
+        font-size: 0.85rem;
+    }
+
+    .tech-table th,
+    .tech-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .code-block {
+        font-size: 0.8rem;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .tech-modal-body {
+        padding: 1.5rem 1rem;
+    }
+
+    .tech-modal-body h2 {
+        font-size: 1.25rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .tech-details-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tech-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+/* Animation for modal content */
+.tech-modal.active .tech-modal-content {
+    animation: modalSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Highlight important metrics */
+.tech-modal-body .result-number,
+.tech-modal-body strong[style*="color"] {
+    color: #10b981;
+    font-weight: 700;
+}
