@@ -17,48 +17,44 @@ def price_ticker():
     if BapanasService:
         try:
             service = BapanasService()
-            df = service.get_latest_prices(province_id=0)  # National average
+            df = service.get_latest_prices(province_id=0)  # Guaranteed result (Live or Fallback)
             
             if df is not None and not df.empty:
-                # Get today's prices only
-                latest_df = df[df['date'] == df['date'].max()].copy()
+                # Use latest available date in the dataset
+                max_date = df['date'].max()
+                latest_df = df[df['date'] == max_date].copy()
                 
-                # Display ALL commodities from BAPANAS (instead of just top 5)
+                # Check status (Official vs Offline)
+                is_official = 'Official' in df['status'].values
+                status_color = "#10b981" if is_official else "#52525b"
+                status_label = "LIVE" if is_official else "HISTORIS"
+                
                 ticker_parts = []
                 for _, row in latest_df.iterrows():
                     commodity = row['commodity']
                     price = row['price']
-                    
-                    # Format price
-                    price_str = f"Rp {price:,.0f}"
-                    
-                    # Simple trend indicator (can be enhanced with yesterday comparison)
-                    ticker_parts.append(f"{commodity} **{price_str}**")
+                    ticker_parts.append(f"{commodity} **Rp {price:,.0f}**")
                 
                 ticker_text = "   •   ".join(ticker_parts)
                 
-                # Display with BAPANAS branding
+                # Premium Glass Ticker
                 st.markdown(f"""
-                <div style="background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%); 
+                <div style="background: rgba(15, 23, 42, 0.8); 
+                            backdrop-filter: blur(10px);
                             padding: 12px 20px; 
-                            border-radius: 8px; 
-                            border-left: 4px solid #10b981;
-                            margin-bottom: 20px;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <p style="color: #e2e8f0; margin: 0; font-size: 0.95rem; font-weight: 500;">
-                        📊 <strong>Harga Pangan Hari Ini (BAPANAS - LIVE):</strong> {ticker_text}
+                            border-radius: 12px; 
+                            border: 1px solid rgba(16, 185, 129, 0.2);
+                            border-left: 4px solid {status_color};
+                            margin-bottom: 20px;">
+                    <p style="color: #e2e8f0; margin: 0; font-size: 0.9rem; font-weight: 400;">
+                        📊 <strong style="color: {status_color};">Harga Pangan {status_label}:</strong> {ticker_text}
                     </p>
                 </div>
                 """, unsafe_allow_html=True)
                 return
-            else:
-                # API returned empty data
-                st.warning("⚠️ API BAPANAS mengembalikan data kosong. Menggunakan fallback.")
         except Exception as e:
-            # Show error for debugging
-            st.error(f"❌ Error saat mengambil data BAPANAS: {str(e)}")
-            import traceback
-            st.code(traceback.format_exc())
+            # Silent fallback to static message if even the service logic crashes
+            pass
     
     # Fallback: Show static message if API fails
     st.markdown("""
