@@ -331,11 +331,20 @@ PUPUK_ORGANIK = {
         "tips": "Kascing adalah pupuk organik terbaik!"
     },
     "Biochar (Arang Hayati)": {
-        "fungsi": "Meningkatkan retensi air dan nutrisi",
-        "dosis": "1-3 ton/ha",
-        "cara_buat": "Bakar biomassa dengan oksigen terbatas",
-        "kelebihan": ["Efek jangka panjang (>100 tahun)", "Sekuestrasi Karbon"],
-        "tips": "Campur dengan kompos sebelum aplikasi"
+        "fungsi": "Meningkatkan retensi air dan nutrisi, rumah bagi mikroba tanah yang menguntungkan, serta membantu memperbaiki pH tanah.",
+        "dosis": "1-3 ton/ha (atau 10% dari volume media tanam)",
+        "cara_buat": "Proses pirolisis (pembakaran biomassa kering seperti sekam padi, tongkol jagung, atau kayu dengan oksigen terbatas/tanpa oksigen).",
+        "kelebihan": [
+            "Efek jangka panjang (>100 tahun) di dalam tanah", 
+            "Sekuestrasi Karbon (mengunci karbon agar tidak lepas ke atmosfer)", 
+            "Sangat efektif mengurangi pencucian (leaching) pupuk kimia"
+        ],
+        "kekurangan": [
+            "Butuh proses aktivasi/loading nutrisi sebelum diaplikasikan",
+            "Sifatnya basa kuat, perlu diperhatikan untuk tanah yang sudah alkali"
+        ],
+        "cara_aplikasi": "Dibenamkan ke tanah saat pengolahan lahan atau dicampur ke lubang tanam.",
+        "tips": "**Penting:** Lakukan 'Aktivasi' dengan merendam Biochar dalam pupuk cair/POC selama 1-2 minggu sebelum diaplikasikan agar pori-porinya terisi nutrisi dan tidak 'menyedot' hara dari tanaman saat baru ditanam."
     },
     "Pupuk Hijau": {
         "tanaman": ["Kacang-kacangan", "Orok-orok", "Mucuna"],
@@ -976,6 +985,9 @@ with tab4:
             
             if "kelebihan" in data:
                 st.success("**Kelebihan:**\n" + "\n".join([f"✅ {k}" for k in data['kelebihan']]))
+            
+            if "kekurangan" in data:
+                st.warning("**Kekurangan:**\n" + "\n".join([f"⚠️ {k}" for k in data['kekurangan']]))
             
             st.info(f"💡 **Tips:** {data['tips']}")
 
