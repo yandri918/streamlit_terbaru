@@ -334,7 +334,7 @@ PUPUK_ORGANIK = {
         "fungsi": "Meningkatkan retensi air dan nutrisi",
         "dosis": "1-3 ton/ha",
         "cara_buat": "Bakar biomassa dengan oksigen terbatas",
-        "kelebihan": ["Efek jangka panjang (>100 tahun)", "Sekuestrasi karbon"],
+        "kelebihan": ["Efek jangka panjang (>100 tahun)", "Sekuestrasi Karbon"],
         "tips": "Campur dengan kompos sebelum aplikasi"
     },
     "Pupuk Hijau": {
