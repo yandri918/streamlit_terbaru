@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "name": "agrisensa-eco-lab",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
