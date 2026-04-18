@@ -3,26 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorium Pupuk Organik | AgriSensa Eco Lab</title>
+    <title>Grand Lab Pupuk Organik | AgriSensa Eco Encyclopedia</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Extra styles for new content */
+        .special-badge { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 5px; font-weight: 700; font-size: 0.75rem; }
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .data-item { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 12px; }
+        .data-item strong { color: var(--primary); display: block; margin-bottom: 5px; }
+        table { border-collapse: collapse; width: 100%; font-size: 0.9rem; margin: 15px 0; }
+        th { background: #f3f4f6; color: var(--primary-dark); padding: 12px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #f3f4f6; }
+        tr:hover { background: #f9fafb; }
+    </style>
 </head>
 <body>
 
     <header>
         <div class="container">
             <h1>🧴 Laboratorium Pupuk Organik</h1>
-            <p>Pusat Panduan Pembuatan Pupuk, Bioaktivator, dan Ramuan Organik Presisi.</p>
+            <p>Edisi Terlengkap: Bioaktivator, Fitohormon, Nutrisi Spesifik, & Database NPK.</p>
         </div>
     </header>
 
     <nav>
-        <div class="container">
-            <a href="#bio">Bioaktivator</a>
-            <a href="#poc">POC</a>
-            <a href="#kompos">Kompos</a>
+        <div class="container" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+            <a href="#bio">Decomposer</a>
+            <a href="#poc">POC Suite</a>
+            <a href="#kompos">Bokashi</a>
             <a href="#mol">MOL</a>
-            <a href="#zpt">ZPT & Hormon</a>
+            <a href="#zpt">Hormon</a>
+            <a href="#sawit">Spesial Sawit</a>
+            <a href="#database">Database NPK</a>
         </div>
     </nav>
 
@@ -31,126 +44,110 @@
         <!-- SECTION 1: BIOAKTIVATOR -->
         <section id="bio">
             <h2>🧪 Bioaktivator & Decomposer</h2>
-            
             <div class="recipe-card">
-                <span class="tag">Flagship Recipe</span>
-                <h3>ROTAN (Ramuan Organik Tanaman) - Cairan Rumen Sapi</h3>
-                <p>Bioaktivator Super (Probiotik Sempurna) yang kaya akan mikroorganisme selulolitik dan penambat N. Sangat efektif sebagai decomposer maupun pupuk dasar.</p>
-                
+                <span class="tag">Flagship</span> <h3>ROTAN (Cairan Rumen Sapi)</h3>
+                <p>Bioaktivator "Sempurna" dengan mikroba selulolitik (pengurai serat) dan penambat N. Sangat efektif untuk decomposer jerami atau limbah keras.</p>
                 <div class="ingredients">
-                    <div>
-                        <strong>Bahan Utama:</strong>
-                        <ul>
-                            <li>Cairan Rumen Sapi: 2 Liter</li>
-                            <li>Molase (Tetes Tebu): 2 Liter</li>
-                            <li>Air Rebusan Dedak: 4 Liter</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <strong>Bahan Tambahan:</strong>
-                        <ul>
-                            <li>Ragi Tape: 3 butir</li>
-                            <li>Nanas Halus: 1 buah</li>
-                            <li>Urine Ternak: 4 Liter</li>
-                        </ul>
-                    </div>
+                    <div><strong>Bahan:</strong> Rumen 2L, Molase 2L, Air Dedak 4L, Urine Sapi 4L, Nanas 1 bh.</div>
+                    <div><strong>Kandungan:</strong> Bacteroides, Azotobacter, Bacillus polymixa.</div>
                 </div>
-
-                <div class="info-box">
-                    <strong>🧬 Kandungan Mikroba:</strong>
-                    <em>Bacteriodes succinogenes, Azotobacter, Bacillus subtilis, dan Lactobacillus sp.</em>
-                </div>
-
-                <h4>Langkah Pembuatan:</h4>
-                <ol class="step-list">
-                    <li>Rebus 1kg dedak dalam 5L air, saring ambil 4L airnya, dinginkan.</li>
-                    <li>Campur Cairan Rumen dan Molase dalam wadah, aduk rata.</li>
-                    <li>Masukkan air dedak dingin, nanas halus, dan ragi yang sudah hancur.</li>
-                    <li>Tambahkan Urine ternak, masukkan ke jerigen rapat (anaerob).</li>
-                    <li>Fermentasi selama <strong>14 hari</strong>.</li>
-                </ol>
+                <p><strong>Fermentasi:</strong> 14 hari (Anaerob). Ciri berhasil: Bau asam segar/tape, warna kuning kecoklatan.</p>
             </div>
         </section>
 
         <!-- SECTION 2: POC -->
         <section id="poc">
-            <h2>💧 Pupuk Organik Cair (POC)</h2>
-
+            <h2>💧 POC Premium Suite</h2>
             <div class="recipe-card">
-                <span class="tag">Premium Quality</span>
-                <h3>POC ROTAN Premium (Fruit Based)</h3>
-                <p>Pupuk cair lengkap dengan kandungan mikroba Azotobacter, Rhizobium, dan Streptomyces.</p>
-                
+                <span class="tag">Fruit-Power</span> <h3>POC ROTAN Premium (Hibrida)</h3>
                 <div class="ingredients">
-                    <ul>
-                        <li>Pisang, Pepaya, Nanas, Mangga (Jus): Masing-masing 1kg</li>
-                        <li>Kangkung & Kacang Panjang: 3 ikat</li>
-                        <li>Air Kelapa: 5 Liter</li>
-                        <li>Gula Kelapa: 1 kg</li>
-                    </ul>
+                    <ul><li>Bahan: Pisang, Pepaya, Nanas, Mangga, Kangkung, Air Kelapa 5L, Gula 1kg.</li></ul>
                 </div>
-
-                <div class="warning-box">
-                    <strong>PENTING:</strong> Gunakan wadah plastik atau tembikar. Jangan gunakan wadah Logam karena dapat merusak aktivitas mikroba.
-                </div>
-
-                <h4>Cara Aplikasi:</h4>
-                <p>Dosis 100-250 ml per 14 Liter air (Tangki). Semprotkan pada pagi atau sore hari secara rutin 1 minggu sekali.</p>
+                <div class="info-box"><strong>Dosis:</strong> 250ml/tangki (Padi), 100ml/tangki (Sayuran).</div>
             </div>
-
             <div class="recipe-card">
-                <span class="tag">Eco-Innovation</span>
-                <h3>🛡️ POC Empon-Empon (Imun Booster)</h3>
-                <p>Berfungsi sebagai "Vaksin Tanaman" untuk meningkatkan kekebalan terhadap jamur dan bakteri.</p>
-                <p>Bahan: Jahe, Kunyit, Temulawak, Lengkuas, dan Urine Sapi. Diproses dengan teknik <em>Pasteurisasi Media</em> untuk membunuh telur hama.</p>
+                <span class="tag">Vaksin</span> <h3>🛡️ POC Empon-Empon (Bio-Imun)</h3>
+                <p>Ramuan jamu untuk tanaman: Jahe, Kunyit, Temulawak (Analgesik & Antibiotik Alami). Diproses dengan teknik <em>Pasteurisasi Media</em> agar bebas telur hama.</p>
             </div>
         </section>
 
         <!-- SECTION 3: KOMPOS -->
         <section id="kompos">
-            <h2>🍂 Pupuk Padat (Kompos/Bokashi)</h2>
+            <h2>🍂 Matrix Bokashi Terpadu</h2>
             <div class="recipe-card">
-                <h3>Bokashi Padat Skala 1 Hektar</h3>
+                <h3>Bokashi Padat ROTAN (Dosis 1 Ha)</h3>
                 <div class="ingredients">
-                    <ul>
-                        <li>Kohe Kambing: 1 Ton</li>
-                        <li>Dolomit: 100 kg</li>
-                        <li>Dedak: 50 kg</li>
-                        <li>Sekam Padi: 300 kg</li>
-                        <li>Bioaktivator ROTAN: 4 Liter</li>
-                    </ul>
+                    <ul><li>Kohe Domba 1 Ton, Dolomit 100kg, Dedak 50kg, Sekam 300kg, Bioaktivator 4L.</li></ul>
                 </div>
-                <p>Pastikan kelembaban 30-40% (mamel). Tutup terpal selama 7 hari. Siap pakai jika suhu sudah dingin dan berbau harum fermentasi.</p>
+                <p>Kunci: Jaga C/N Ratio. Jika menggunakan **Kohe Ayam**, perbanyak karbon (sekam/gergaji) untuk serap amonia.</p>
             </div>
         </section>
 
         <!-- SECTION 4: MOL -->
         <section id="mol">
-            <h2>🦠 Mikro Organisme Lokal (MOL)</h2>
-            <div class="recipe-card">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div>
-                        <strong>MOL Bonggol Pisang:</strong>
-                        <p>Kaya hormon Sitokinin untuk perangsang tunas dan akar.</p>
-                    </div>
-                    <div>
-                        <strong>MOL Rebung Bambu:</strong>
-                        <p>Sumber utama Gibberellin alami untuk pemecah dormansi dan energi tumbuh.</p>
-                    </div>
-                </div>
-            </div>
+            <h2>🦠 Pustaka MOL (Mikro Organisme Lokal)</h2>
+            <table>
+                <tr><th>Jenis MOL</th><th>Fungsi Utama</th><th>Sumber Utama</th></tr>
+                <tr><td><strong>Sayuran</strong></td><td>Vegetatif (Daun)</td><td>Kangkung, Bayam, Sisa Sayur</td></tr>
+                <tr><td><strong>Buah</strong></td><td>Generatif & Manis</td><td>Pepaya/Mangga Matang</td></tr>
+                <tr><td><strong>Rebung</strong></td><td>ZPT Giberelin</td><td>Rebung Bambu Muda</td></tr>
+                <tr><td><strong>Bonggol</strong></td><td>ZPT Sitokinin</td><td>Bonggol Pisang</td></tr>
+                <tr><td><strong>Snail</strong></td><td>Asam Amino Plus</td><td>Keong Mas/Bekicot</td></tr>
+            </table>
         </section>
 
         <!-- SECTION 5: ZPT -->
         <section id="zpt">
-            <h2>🚀 Zat Pengatur Tumbuh (ZPT) Alami</h2>
+            <h2>🚀 ZPT & Fitohormon Alami</h2>
             <div class="recipe-card">
-                <span class="tag">S-Tier Hormone</span>
-                <h3>Ekstrak Daun Kelor (Zeatin Power)</h3>
-                <p>Mengandung hormon Zeatin (Cytokinin terkuat) yang memacu pembelahan sel 2x lebih cepat.</p>
-                <div class="info-box">
-                    <strong>Pro-Tip:</strong> Blender 1kg daun kelor muda dengan 1L air kelapa. Fermentasi singkat 24 jam. Hasilnya adalah booster hasil panen yang dahsyat.
+                <h3>🧪 Matrix Sumber Hormon Organik</h3>
+                <p>Hormon adalah instruksi bagi tanaman. Gunakan sesuai target organ tanaman.</p>
+                <div class="data-grid">
+                    <div class="data-item"><strong>Auksin (Akar)</strong>Bawang Merah, Tauge, Urine Kelinci</div>
+                    <div class="data-item"><strong>Sitokinin (Tunas)</strong>Daun Kelor, Bonggol Pisang, Jagung Muda</div>
+                    <div class="data-item"><strong>Giberelin (Bunga)</strong>Rebung Bambu, Air Kelapa, Eceng Gondok</div>
                 </div>
+                <div class="warning-box">
+                    <strong>PANTANGAN:</strong> Jangan semprot Auksin saat tanaman berbunga (bunga bisa rontok!). Jangan beri hormon jika tanaman kurang pupuk (makan dulu, baru provokasi).
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: SAWIT SPESIAL -->
+        <section id="sawit">
+            <h2>🌴 Solusi Kelapa Sawit (By Ayah Manjel)</h2>
+            <div class="recipe-card" style="border-left: 8px solid #064e3b;">
+                <span class="special-badge">Eksklusif</span>
+                <h3>1. Mengatasi Sawit Jantan (Sex Ratio Problem)</h3>
+                <p>Masalah: Pohon hanya produksi bunga jantan. Solusi: Re-balance energi.</p>
+                <ul>
+                    <li><strong>Kocor Akar:</strong> 1L MOL Daun + 200cc ROTAN Generatif + 10L Air per pohon.</li>
+                    <li><strong>Semprot Batang:</strong> 250cc ROTAN Generatif per tangki (Semprot Bunga Jantan & Pelepah).</li>
+                </ul>
+                <p><em>Target: Bunga jantan rontok dalam 15 hari, diganti bunga betina pada pelepah baru.</em></p>
+            </div>
+            <div class="recipe-card">
+                <h3>2. Booster Berat Tandan (BJR)</h3>
+                <p>Semprotkan 250cc ROTAN Generatif per tangki langsung ke <strong>Tandan Buah Sawit</strong> 30 hari sebelum panen. Estimasi kenaikan berat: 30-50%.</p>
+            </div>
+        </section>
+
+        <!-- SECTION 7: DATABASE NPK -->
+        <section id="database">
+            <h2>📊 Database NPK Organik Lab</h2>
+            <p>Gunakan data ini untuk merancang campuran pupuk organik Anda dengan presisi.</p>
+            <table>
+                <tr><th>Bahan Organik</th><th>N (%)</th><th>P (%)</th><th>K (%)</th><th>Karakter Unggul</th></tr>
+                <tr><td><strong>Kohe Ayam</strong></td><td>3.0</td><td>2.5</td><td>1.5</td><td>Panas, Kaya N & P</td></tr>
+                <tr><td><strong>Kohe Kelinci</strong></td><td>2.4</td><td>1.4</td><td>0.6</td><td>Nutrisi Sangat Pekat</td></tr>
+                <tr><td><strong>Guano (Kelelawar)</strong></td><td>1.0</td><td>10.0</td><td>1.0</td><td>Emas Fosfor (P)</td></tr>
+                <tr><td><strong>Urine Kelinci</strong></td><td>2.5</td><td>0.5</td><td>1.5</td><td>Liquid Gold (Nitrogen Cair)</td></tr>
+                <tr><td><strong>Abu Kayu</strong></td><td>0.0</td><td>1.5</td><td>7.0</td><td>Kaya Kalium (K)</td></tr>
+                <tr><td><strong>Cangkang Telur</strong></td><td>0.5</td><td>0.1</td><td>0.1</td><td>Super Kalsium (Ca 90%)</td></tr>
+                <tr><td><strong>Jerami Padi</strong></td><td>0.6</td><td>0.2</td><td>1.4</td><td>Kalium Hijau</td></tr>
+            </table>
+            <div class="info-box" style="background: #fdf2f2; border-color: #ef4444;">
+                <strong>Catatan:</strong> Angka di atas adalah estimasi literatur ilmiah. Proses fermentasi yang benar dapat meningkatkan ketersediaan hara ini secara signifikan.
             </div>
         </section>
 
@@ -158,11 +155,11 @@
 
     <footer>
         <div class="container">
-            <h3>Siap Transformasi Pertanian Anda?</h3>
-            <p>Dapatkan tools kalkulator otomatis dan manajemen sistem tani di dashboard AgriSensa Eco.</p>
+            <h3>Maksimalkan Hasil Dengan Bio-Logic</h3>
+            <p>Gunakan aplikasi ekosistem untuk hitung otomatis kebutuhan pupuk lahan Anda.</p>
             <a href="https://ekosistem.streamlit.app/Pembuatan_Pupuk_Organik" class="btn-cta">BUKA DASHBOARD INTERAKTIF</a>
             <div style="margin-top: 40px; opacity: 0.7; font-size: 0.8rem;">
-                &copy; 2026 AgriSensa Eco System | Dikembangkan untuk Kedaulatan Pangan
+                &copy; 2026 AgriSensa Eco Laboratory | Agri-Innovation for Sovereign Nation
             </div>
         </div>
     </footer>
