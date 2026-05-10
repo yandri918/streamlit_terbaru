@@ -112,6 +112,14 @@ function typeWriter(element, text, speed = 100) {
     type();
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const heroSubtitle = document.querySelector('.hero-subtitle');
+    if (heroSubtitle) {
+        const text = heroSubtitle.textContent.trim();
+        typeWriter(heroSubtitle, text, 30);
+    }
+});
+
 // Performance optimization: Lazy load images
 if ('IntersectionObserver' in window) {
     const imageObserver = new IntersectionObserver((entries, observer) => {
