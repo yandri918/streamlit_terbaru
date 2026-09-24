@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style.css?v=3.0">
+  <link rel="stylesheet" href="/style.css?v=3.1">
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -28,8 +28,38 @@
 </head>
 <body>
 
-  <!-- MAIN DASHBOARD APPLICATION -->
-  <div id="mainDashboardApp" class="app-container">
+  <!-- ========================================================
+       AUTH GATE SCREEN (Protected Dashboard Login Gate)
+       ======================================================== -->
+  <div id="authGateScreen" class="auth-gate-screen">
+    <div class="auth-gate-card glass-panel">
+      <div class="auth-gate-branding">
+        <div class="auth-gate-logo">🌸</div>
+        <div class="auth-gate-title-group">
+          <span class="auth-gate-badge">AGRISENSA ENTERPRISE</span>
+          <h2>Budidaya Krisan Pro</h2>
+          <p>Silakan masuk menggunakan akun Clerk Anda untuk mengakses sistem monitoring, digital twin greenhouse &amp; simulasi AI.</p>
+        </div>
+      </div>
+
+      <!-- Clerk Native Sign-In Mount Point -->
+      <div id="clerkSignInMount" class="clerk-mount-wrapper">
+        <div id="clerkLoadingState" class="clerk-loading-state">
+          <div class="auth-spinner"></div>
+          <p>Memverifikasi sesi &amp; otentikasi...</p>
+        </div>
+      </div>
+
+      <div class="auth-gate-features">
+        <div class="auth-feature-pill">🌱 Digital Twin 12 Bed</div>
+        <div class="auth-feature-pill">📊 Analitik Balithi Standar</div>
+        <div class="auth-feature-pill">🔒 Clerk Encrypted Session</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN DASHBOARD APPLICATION (Hidden until authenticated) -->
+  <div id="mainDashboardApp" class="app-container" style="display:none;">
 
     <!-- TOP NAVIGATION & BRAND COMMAND BAR -->
     <header class="header-bar glass-panel">
@@ -1330,6 +1360,6 @@
     <option value="Yoko Ono Green">Yoko Ono Green (Spray Hijau)</option>
   </datalist>
 
-  <script src="/app.js?v=3.3"></script>
+  <script src="/app.js?v=3.4"></script>
 </body>
 </html>

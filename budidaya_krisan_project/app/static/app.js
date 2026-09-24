@@ -23,6 +23,21 @@ let state = {
 // =====================================================================
 // INITIALIZATION
 // =====================================================================
+// APPLICATION LIFECYCLE & PROTECTED DASHBOARD GATE
+// =====================================================================
+let isDashboardStarted = false;
+
+async function startAppWhenAuthenticated() {
+  if (isDashboardStarted) return;
+  isDashboardStarted = true;
+  console.log('🚀 User terotentikasi. Memulai sistem dashboard Budidaya Krisan...');
+  await initDashboard();
+  if (window.initDigitalTwinBeds) window.initDigitalTwinBeds('House 1');
+  if (window.startSensorSimulation) window.startSensorSimulation();
+  if (window.runYieldSimulation) window.runYieldSimulation();
+  if (window.setupCommandPalette) window.setupCommandPalette();
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   setTodayDate();
   loadOfflineQueue();
@@ -32,12 +47,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   updateBatchHouseCalculator();
   updateStandaloneHouseCalculator();
   initSingleHouseConfig();
-  await initDashboard();
   if (window.initClerkAuth) window.initClerkAuth();
-  if (window.initDigitalTwinBeds) window.initDigitalTwinBeds('House 1');
-  if (window.startSensorSimulation) window.startSensorSimulation();
-  if (window.runYieldSimulation) window.runYieldSimulation();
-  if (window.setupCommandPalette) window.setupCommandPalette();
 });
 
 async function initDashboard() {
@@ -2047,15 +2057,33 @@ window.initClerkAuth = async function() {
 };
 
 function updateClerkAuthUI() {
+  const authGate = document.getElementById('authGateScreen');
+  const mainApp = document.getElementById('mainDashboardApp');
   const btn = document.getElementById('clerkSignInBtn');
   const userBtnContainer = document.getElementById('clerkUserButton');
+  const mountDiv = document.getElementById('clerkSignInMount');
 
   if (window.Clerk && window.Clerk.user) {
+    // 1. User IS LOGGED IN — Unlock Dashboard
     state.clerkUser = window.Clerk.user;
     window.Clerk.session?.getToken().then(t => {
       state.clerkToken = t;
     });
 
+    // Hide Auth Gate Screen with smooth fade
+    if (authGate) {
+      authGate.classList.add('hidden');
+      setTimeout(() => {
+        authGate.style.display = 'none';
+      }, 400);
+    }
+
+    // Show Main Dashboard
+    if (mainApp) {
+      mainApp.style.display = 'block';
+    }
+
+    // Mount User Button in Header
     if (btn) btn.style.display = 'none';
     if (userBtnContainer) {
       userBtnContainer.style.display = 'inline-flex';
@@ -2073,11 +2101,27 @@ function updateClerkAuthUI() {
       }
     }
 
+    // Start Dashboard analytics & simulation
+    startAppWhenAuthenticated();
+
     const fullName = window.Clerk.user.fullName || window.Clerk.user.primaryEmailAddress?.emailAddress || 'Petani Krisan';
     console.log(`✅ Clerk Auth aktif: ${fullName}`);
   } else {
+    // 2. User is NOT LOGGED IN — Lock Dashboard & Show Auth Gate
     state.clerkUser = null;
     state.clerkToken = null;
+
+    // Keep dashboard completely hidden
+    if (mainApp) {
+      mainApp.style.display = 'none';
+    }
+
+    // Show Auth Gate Screen
+    if (authGate) {
+      authGate.style.display = 'flex';
+      authGate.classList.remove('hidden');
+    }
+
     if (btn) {
       btn.style.display = 'inline-flex';
       const btnText = document.getElementById('clerkBtnText');
@@ -2085,6 +2129,38 @@ function updateClerkAuthUI() {
     }
     if (userBtnContainer) {
       userBtnContainer.style.display = 'none';
+    }
+
+    // Mount Native Clerk Sign-In component into Auth Gate
+    if (mountDiv && window.Clerk) {
+      const loadingState = document.getElementById('clerkLoadingState');
+      if (loadingState) loadingState.style.display = 'none';
+
+      if (!mountDiv.querySelector('.cl-signIn-root')) {
+        mountDiv.innerHTML = '';
+        window.Clerk.mountSignIn(mountDiv, {
+          appearance: {
+            variables: {
+              colorPrimary: '#10b981',
+              colorBackground: '#0b1120',
+              colorText: '#f8fafc',
+              colorInputBackground: '#162035',
+              colorInputText: '#ffffff',
+              borderRadius: '12px'
+            },
+            elements: {
+              card: {
+                backgroundColor: 'transparent',
+                border: 'none',
+                boxShadow: 'none'
+              },
+              footer: {
+                background: 'transparent'
+              }
+            }
+          }
+        });
+      }
     }
   }
 }
