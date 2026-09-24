@@ -16,6 +16,15 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Clerk Authentication Official SDK -->
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_dm9jYWwtc2Vhc25haWwtNDU0My5jbGVyay5hY2NvdW50cy5kZXYk"
+    src="https://vocal-seasnail-4543.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
 </head>
 <body>
 
@@ -60,9 +69,9 @@
         <!-- Clerk Authentication Container -->
         <div id="clerkAuthContainer" class="clerk-auth-pill">
           <div id="clerkUserButton" style="display:none;"></div>
-          <button id="clerkSignInBtn" class="btn btn-secondary btn-header btn-clerk" onclick="handleClerkLogin()" title="Masuk / Kelola Akun dengan Clerk">
-            <span style="font-size:13px;">🔐</span>
-            <span id="clerkBtnText">🔐 Login</span>
+          <button id="clerkSignInBtn" class="btn btn-secondary btn-header btn-clerk" onclick="handleClerkLogin()" title="Masuk / Daftar Akun dengan Clerk">
+            <span style="font-size:14px;">🔐</span>
+            <span id="clerkBtnText">Masuk (Clerk)</span>
           </button>
         </div>
 
@@ -1297,47 +1306,7 @@
     </div>
   </div>
 
-  <!-- ====================================================
-       MODAL: Clerk Auth Configuration
-       ==================================================== -->
-  <div class="modal-overlay" id="clerkModal">
-    <div class="modal-container" style="max-width:620px;grid-template-columns:1fr;">
-      <div class="modal-form-side" style="padding:32px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-          <div>
-            <h2 style="font-size:18px;color:#fff;font-weight:700;">🔐 Konfigurasi Clerk Authentication</h2>
-            <p style="font-size:13px;color:var(--text-secondary);margin-top:4px;">Masukkan Clerk Publishable Key (pk_test_... / pk_live_...) untuk mengaktifkan login aman.</p>
-          </div>
-          <button onclick="closeModal('clerkModal')" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">✕</button>
-        </div>
-        <form id="clerkConfigForm" onsubmit="saveClerkConfig(event)">
-          <div class="form-group">
-            <label>Clerk Publishable Key *</label>
-            <input type="text" id="clerkPubKeyInput" placeholder="pk_test_... atau pk_live_..." required>
-            <span style="font-size:11px;color:var(--text-muted);display:block;margin-top:6px;">
-              Dapatkan dari Clerk Dashboard Anda: <a href="https://dashboard.clerk.com" target="_blank" style="color:var(--emerald-400);">dashboard.clerk.com</a> &rarr; API Keys.
-            </span>
-          </div>
-          <div class="form-group" style="margin-top:12px;">
-            <label>Clerk Secret Key (Opsional untuk Verifikasi Backend)</label>
-            <input type="password" id="clerkSecretKeyInput" placeholder="sk_test_... atau sk_live_...">
-          </div>
-          <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-md);padding:14px;margin-top:16px;">
-            <strong style="font-size:12px;color:var(--emerald-400);display:block;margin-bottom:4px;">⚡ Fitur Clerk Terintegrasi:</strong>
-            <ul style="font-size:11.5px;color:#cbd5e1;padding-left:16px;line-height:1.6;">
-              <li>Login dengan Google, Email / Password, &amp; Magic Link</li>
-              <li>Manajemen Profil Petani &amp; User Avatar Otomatis</li>
-              <li>Proteksi Sesi Terenkripsi &amp; Token JWT</li>
-            </ul>
-          </div>
-          <div style="display:flex;gap:12px;margin-top:24px;">
-            <button type="submit" class="btn btn-primary" style="flex:1.5;">💾 Simpan &amp; Aktifkan Clerk</button>
-            <button type="button" class="btn btn-secondary" onclick="closeModal('clerkModal')" style="flex:1;">Tutup</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+
 
   <!-- TOAST CONTAINER -->
   <div class="toast-container" id="toastContainer"></div>
@@ -1361,6 +1330,6 @@
     <option value="Yoko Ono Green">Yoko Ono Green (Spray Hijau)</option>
   </datalist>
 
-  <script src="/app.js?v=3.2"></script>
+  <script src="/app.js?v=3.3"></script>
 </body>
 </html>

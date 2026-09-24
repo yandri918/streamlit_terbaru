@@ -1983,95 +1983,62 @@ window.sortTable = function(tableType, colIndex) {
 // =====================================================================
 // CLERK AUTHENTICATION INTEGRATION
 // =====================================================================
-// Clerk Publishable Key — pre-configured for this deployment
 const CLERK_PUBLISHABLE_KEY = 'pk_test_dm9jYWwtc2Vhc25haWwtNDU0My5jbGVyay5hY2NvdW50cy5kZXYk';
 
-let clerkInstance = null;
+let isClerkInitialized = false;
 
 window.initClerkAuth = async function() {
+  if (isClerkInitialized && window.Clerk && window.Clerk.loaded) {
+    updateClerkAuthUI();
+    return;
+  }
+
   try {
-    // Use embedded key first, then fallback to localStorage / API
-    let pubKey = CLERK_PUBLISHABLE_KEY
-      || localStorage.getItem('clerk_publishable_key');
-
-    if (!pubKey) {
-      const res = await apiFetch('/config/auth').catch(() => ({}));
-      if (res && res.data && res.data.clerk_publishable_key) {
-        pubKey = res.data.clerk_publishable_key;
-      }
+    // Wait for Clerk SDK on window (loaded via script tag in head)
+    let retries = 0;
+    while (!window.Clerk && retries < 40) {
+      await new Promise(r => setTimeout(r, 100));
+      retries++;
     }
 
-    // Always persist to localStorage for consistency
-    if (pubKey) localStorage.setItem('clerk_publishable_key', pubKey);
-
-    const inputKey = document.getElementById('clerkPubKeyInput');
-    if (inputKey && pubKey) inputKey.value = pubKey;
-
-    if (!pubKey) {
-      console.log('ℹ️ Clerk Publishable Key belum dikonfigurasi. Klik tombol "Masuk (Clerk)" untuk mengaturnya.');
-      const btnText = document.getElementById('clerkBtnText');
-      if (btnText) btnText.textContent = '🔐 Setup Clerk';
-      return;
-    }
-
-    // Load Clerk JS if not loaded yet
     if (!window.Clerk) {
-      await loadClerkScript(pubKey);
+      console.warn('⚠️ Clerk SDK belum terdeteksi. Mencoba memuat fallback...');
+      await loadClerkScript(CLERK_PUBLISHABLE_KEY);
     }
 
     if (window.Clerk) {
-      await window.Clerk.load({
-        appearance: {
-          variables: {
-            colorPrimary: '#10b981',
-            colorBackground: '#0e1526',
-            colorText: '#f8fafc',
-            colorInputBackground: '#162035',
-            colorInputText: '#ffffff',
-            borderRadius: '12px'
+      if (!window.Clerk.loaded) {
+        await window.Clerk.load({
+          appearance: {
+            variables: {
+              colorPrimary: '#10b981',
+              colorBackground: '#0b1120',
+              colorText: '#f8fafc',
+              colorInputBackground: '#162035',
+              colorInputText: '#ffffff',
+              borderRadius: '12px'
+            },
+            elements: {
+              card: {
+                backgroundColor: '#0b1120',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+              },
+              modalBackdrop: {
+                backdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(5, 10, 20, 0.75)'
+              }
+            }
           }
-        }
-      });
-
-      clerkInstance = window.Clerk;
-
-      if (window.Clerk.user) {
-        state.clerkUser = window.Clerk.user;
-        state.clerkToken = await window.Clerk.session?.getToken();
-
-        // Update Header UI for signed in user
-        const btn = document.getElementById('clerkSignInBtn');
-        const userBtnContainer = document.getElementById('clerkUserButton');
-        if (btn) btn.style.display = 'none';
-        if (userBtnContainer) {
-          userBtnContainer.style.display = 'inline-block';
-          window.Clerk.mountUserButton(userBtnContainer);
-        }
-
-        const fullName = window.Clerk.user.fullName || window.Clerk.user.primaryEmailAddress?.emailAddress || 'Petani Krisan';
-        showToast(`👋 Sesi aktif: ${fullName}`, 'success');
-      } else {
-        const btn = document.getElementById('clerkSignInBtn');
-        const userBtnContainer = document.getElementById('clerkUserButton');
-        if (btn) btn.style.display = 'inline-flex';
-        if (userBtnContainer) userBtnContainer.style.display = 'none';
-        const btnText = document.getElementById('clerkBtnText');
-        if (btnText) btnText.textContent = 'Masuk (Clerk)';
+        });
       }
 
-      // Listen for auth state changes
+      isClerkInitialized = true;
+      updateClerkAuthUI();
+
+      // Listen for auth state changes (login, logout, session switch)
       window.Clerk.addListener(({ user, session }) => {
-        if (user) {
-          state.clerkUser = user;
-          session?.getToken().then(t => state.clerkToken = t);
-        } else {
-          state.clerkUser = null;
-          state.clerkToken = null;
-          const btn = document.getElementById('clerkSignInBtn');
-          const userBtnContainer = document.getElementById('clerkUserButton');
-          if (btn) btn.style.display = 'inline-flex';
-          if (userBtnContainer) userBtnContainer.style.display = 'none';
-        }
+        updateClerkAuthUI();
       });
     }
   } catch (err) {
@@ -2079,11 +2046,54 @@ window.initClerkAuth = async function() {
   }
 };
 
+function updateClerkAuthUI() {
+  const btn = document.getElementById('clerkSignInBtn');
+  const userBtnContainer = document.getElementById('clerkUserButton');
+
+  if (window.Clerk && window.Clerk.user) {
+    state.clerkUser = window.Clerk.user;
+    window.Clerk.session?.getToken().then(t => {
+      state.clerkToken = t;
+    });
+
+    if (btn) btn.style.display = 'none';
+    if (userBtnContainer) {
+      userBtnContainer.style.display = 'inline-flex';
+      userBtnContainer.style.alignItems = 'center';
+      if (!userBtnContainer.hasChildNodes()) {
+        window.Clerk.mountUserButton(userBtnContainer, {
+          appearance: {
+            variables: {
+              colorPrimary: '#10b981',
+              colorBackground: '#0b1120',
+              colorText: '#f8fafc'
+            }
+          }
+        });
+      }
+    }
+
+    const fullName = window.Clerk.user.fullName || window.Clerk.user.primaryEmailAddress?.emailAddress || 'Petani Krisan';
+    console.log(`✅ Clerk Auth aktif: ${fullName}`);
+  } else {
+    state.clerkUser = null;
+    state.clerkToken = null;
+    if (btn) {
+      btn.style.display = 'inline-flex';
+      const btnText = document.getElementById('clerkBtnText');
+      if (btnText) btnText.textContent = 'Masuk (Clerk)';
+    }
+    if (userBtnContainer) {
+      userBtnContainer.style.display = 'none';
+    }
+  }
+}
+
 function loadClerkScript(publishableKey) {
   return new Promise((resolve, reject) => {
     if (window.Clerk) return resolve();
     const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
+    script.src = 'https://vocal-seasnail-4543.clerk.accounts.dev/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
     script.async = true;
     script.crossOrigin = 'anonymous';
     script.setAttribute('data-clerk-publishable-key', publishableKey);
@@ -2094,51 +2104,54 @@ function loadClerkScript(publishableKey) {
 }
 
 window.handleClerkLogin = function() {
-  const pubKey = localStorage.getItem('clerk_publishable_key');
-  if (!pubKey) {
-    openModal('clerkModal');
-    return;
-  }
-  if (window.Clerk && window.Clerk.isReady && window.Clerk.isReady()) {
+  if (window.Clerk) {
     if (window.Clerk.user) {
-      window.Clerk.openUserProfile();
+      window.Clerk.openUserProfile({
+        appearance: {
+          variables: {
+            colorPrimary: '#10b981',
+            colorBackground: '#0b1120',
+            colorText: '#f8fafc'
+          }
+        }
+      });
     } else {
-      window.Clerk.openSignIn();
+      window.Clerk.openSignIn({
+        appearance: {
+          variables: {
+            colorPrimary: '#10b981',
+            colorBackground: '#0b1120',
+            colorText: '#f8fafc',
+            colorInputBackground: '#162035',
+            colorInputText: '#ffffff',
+            borderRadius: '12px'
+          },
+          elements: {
+            card: {
+              backgroundColor: '#0b1120',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+            }
+          }
+        }
+      });
     }
   } else {
-    openModal('clerkModal');
+    showToast('⏳ Mempersiapkan Clerk Login...', 'info');
+    window.initClerkAuth().then(() => {
+      if (window.Clerk) {
+        window.Clerk.openSignIn();
+      } else {
+        showToast('Gagal memuat modul login. Periksa koneksi internet.', 'error');
+      }
+    });
   }
 };
 
-window.saveClerkConfig = async function(e) {
-  if (e) e.preventDefault();
-  const keyInput = document.getElementById('clerkPubKeyInput');
-  const secretInput = document.getElementById('clerkSecretKeyInput');
-  const pubKey = keyInput?.value?.trim() || '';
-  const secretKey = secretInput?.value?.trim() || '';
-
-  if (!pubKey || !pubKey.startsWith('pk_')) {
-    showToast('⚠️ Masukkan Clerk Publishable Key yang valid (diawali pk_test_ atau pk_live_)', 'error');
-    return;
-  }
-
-  try {
-    localStorage.setItem('clerk_publishable_key', pubKey);
-    await apiFetch('/config/auth', {
-      method: 'POST',
-      body: JSON.stringify({
-        clerk_publishable_key: pubKey,
-        clerk_secret_key: secretKey
-      })
-    }).catch(() => ({}));
-
-    closeModal('clerkModal');
-    showToast('🎉 Konfigurasi Clerk tersimpan! Mengaktifkan Clerk...', 'success');
-    await window.initClerkAuth();
-  } catch (err) {
-    showToast(`Error: ${err.message}`, 'error');
-  }
-};
+// Also listen to window load event to ensure Clerk initializes smoothly
+window.addEventListener('load', () => {
+  if (window.initClerkAuth) window.initClerkAuth();
+});
 
 
 
